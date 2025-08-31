@@ -182,6 +182,41 @@ export const changeDetectionSchema = z.object({
   analysisData: z.record(z.any()),
 });
 
+// Portfolio association schema for flexible hierarchy
+export const portfolioAssociationSchema = z.object({
+  level1: z.object({
+    id: z.string(),
+    name: z.string(),
+    type: z.enum(['portfolio', 'division', 'business_unit'])
+  }),
+  level2: z.object({
+    id: z.string(),
+    name: z.string(),
+    type: z.enum(['product', 'program', 'project', 'initiative'])
+  }),
+  level3: z.object({
+    id: z.string(),
+    name: z.string(),
+    type: z.enum(['product', 'program', 'project', 'initiative'])
+  }).optional(),
+  externalRef: z.object({
+    system: z.string(), // e.g., 'jira', 'azure_devops', 'asana'
+    projectKey: z.string(),
+    projectName: z.string(),
+    url: z.string().optional()
+  }).optional()
+});
+
+// Object linkage schema for configurable associations
+export const objectLinkageSchema = z.object({
+  id: z.string(),
+  type: z.enum(['ticket', 'architecture_element', 'adr', 'change_request', 'technical_debt', 'architecture_review', 'architect_request']),
+  title: z.string(),
+  ticketNumber: z.string().optional(),
+  relationship: z.enum(['blocks', 'blocked_by', 'relates_to', 'duplicates', 'parent_of', 'child_of', 'implements', 'derived_from', 'generates']),
+  description: z.string().optional()
+});
+
 // Insert schemas
 export const insertTicketSchema = createInsertSchema(tickets).omit({ 
   id: true, 
@@ -227,6 +262,8 @@ export type ArchitectureReviewRequest = z.infer<typeof architectureReviewRequest
 export type ArchitectRequest = z.infer<typeof architectRequestSchema>;
 export type ADRTicket = z.infer<typeof adrTicketSchema>;
 export type ChangeDetection = z.infer<typeof changeDetectionSchema>;
+export type PortfolioAssociation = z.infer<typeof portfolioAssociationSchema>;
+export type ObjectLinkage = z.infer<typeof objectLinkageSchema>;
 
 // Ticket type definitions
 export const TICKET_TYPES = {

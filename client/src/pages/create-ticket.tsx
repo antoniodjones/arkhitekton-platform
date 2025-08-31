@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { detectTechnicalDebtRisk, TechnicalDebtRiskIndicators } from '@/utils/technical-debt-detection';
 import { TechnicalDebtPrompt } from '@/components/dialogs/technical-debt-prompt';
+import { PortfolioAssociationForm } from '@/components/portfolio/portfolio-association-form';
 import { AppLayout } from '@/components/layout/app-layout';
 
 interface TicketFormData {
@@ -55,6 +56,31 @@ interface TicketFormData {
     name: string;
     linkType: string;
   }>;
+
+  // Portfolio association
+  portfolioAssociation?: {
+    level1: {
+      id: string;
+      name: string;
+      type: 'portfolio' | 'division' | 'business_unit';
+    };
+    level2: {
+      id: string;
+      name: string;
+      type: 'product' | 'program' | 'project' | 'initiative';
+    };
+    level3?: {
+      id: string;
+      name: string;
+      type: 'product' | 'program' | 'project' | 'initiative';
+    };
+    externalRef?: {
+      system: string;
+      projectKey: string;
+      projectName: string;
+      url?: string;
+    };
+  };
   
   // Architecture Review specific fields
   projectName?: string;
@@ -133,7 +159,7 @@ function CreateTicketContent() {
     priority: '',
     businessJustification: '',
     technicalImpact: '',
-    riskAssessment: '',
+    riskAssessment: 'medium',
     estimatedEffort: '',
     dueDate: '',
     targetResolution: '',
@@ -284,10 +310,10 @@ function CreateTicketContent() {
       watchers: [],
       labels: autoPopulate ? ['auto-generated', 'adr-derived'] : [],
       linkedObjects: autoPopulate ? [{
-        id: ticketData.id,
+        id: '',
         type: 'adr',
         title: formData.title,
-        ticketNumber: ticketData.ticketNumber,
+        ticketNumber: '',
         relationship: 'derived_from'
       }] : [],
       
@@ -1057,6 +1083,14 @@ function CreateTicketContent() {
                           </Badge>
                         ))}
                       </div>
+                    </div>
+
+                    {/* Portfolio Association */}
+                    <div className="space-y-4">
+                      <PortfolioAssociationForm
+                        value={formData.portfolioAssociation}
+                        onChange={(value) => handleInputChange('portfolioAssociation', value)}
+                      />
                     </div>
 
                     {/* Linked Objects */}

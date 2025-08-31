@@ -20,6 +20,7 @@ import {
   X,
   Wrench
 } from 'lucide-react';
+import { PortfolioAssociationForm } from '@/components/portfolio/portfolio-association-form';
 import { AppLayout } from '@/components/layout/app-layout';
 
 interface TicketData {
