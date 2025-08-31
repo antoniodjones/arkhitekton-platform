@@ -482,11 +482,11 @@ function CreateTicketContent() {
                         {formData.type.replace('_', ' ')}
                       </Badge>
                       <h2 className="text-xl font-semibold text-slate-900 dark:text-white mt-1">
-                        {formData.type === 'architecture_review' && 'Architecture Review Request'}
-                        {formData.type === 'architect_request' && 'Architect Assignment Request'}
-                        {formData.type === 'adr' && 'Architecture Decision Record'}
-                        {formData.type === 'change_request' && 'Change Request'}
-                        {formData.type === 'technical_debt' && 'Technical Debt'}
+                        {formData.type === 'architecture_review' && <span className="font-bold text-black dark:text-white">Architecture Review Request</span>}
+                        {formData.type === 'architect_request' && <span className="font-bold text-black dark:text-white">Architect Assignment Request</span>}
+                        {formData.type === 'adr' && <span className="font-bold text-black dark:text-white">Architecture Decision Record</span>}
+                        {formData.type === 'change_request' && <span className="font-bold text-black dark:text-white">Change Request</span>}
+                        {formData.type === 'technical_debt' && <span className="font-bold text-black dark:text-white">Technical Debt</span>}
                       </h2>
                     </div>
                   </div>
