@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { PaletteHeader } from "@/components/palette/palette-header";
 import { PaletteSidebar } from "@/components/palette/palette-sidebar";
 import { PaletteContent } from "@/components/palette/palette-content";
 import { PropertiesPanel } from "@/components/palette/properties-panel";
@@ -36,11 +35,6 @@ export default function DesignPalette() {
 
   return (
     <div className="h-screen flex flex-col" data-testid="design-palette-page">
-      <PaletteHeader 
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-      />
-      
       <div className="flex flex-1 overflow-hidden">
         <PaletteSidebar
           selectedCategory={selectedCategory}
@@ -56,6 +50,7 @@ export default function DesignPalette() {
           selectedFramework={selectedFramework}
           filteredElements={filteredElements}
           searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
           onElementSelect={handleElementSelect}
           selectedElement={selectedElement}
         />

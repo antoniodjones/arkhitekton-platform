@@ -5,7 +5,6 @@ import { PaletteContent } from '@/components/palette/palette-content';
 import { PropertiesPanel } from '@/components/palette/properties-panel';
 import { Separator } from '@/components/ui/separator';
 import { ResizableSplitter } from '@/components/workspace/resizable-splitter';
-import { RightResizableSplitter } from '@/components/workspace/right-resizable-splitter';
 import { Button } from '@/components/ui/button';
 import { PanelLeftOpen, PanelLeftClose, Home, Save, Users, Search, Sparkles, Bot, AlertTriangle } from 'lucide-react';
 import { Link } from 'wouter';
@@ -19,7 +18,7 @@ function WorkspaceContent() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [propertiesOpen, setPropertiesOpen] = useState(true);
   const [paletteWidth, setPaletteWidth] = useState(320); // Default palette width
-  const [propertiesWidth, setPropertiesWidth] = useState(300); // Default properties width
+  const [rightPanelWidth, setRightPanelWidth] = useState(300); // Default properties width
   const [selectedCategory, setSelectedCategory] = useState<string>('business');
   const [selectedFramework, setSelectedFramework] = useState<string>('archimate');
   const [searchQuery, setSearchQuery] = useState('');
@@ -96,6 +95,7 @@ function WorkspaceContent() {
                 selectedFramework={selectedFramework}
                 filteredElements={filteredElements}
                 searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
                 onElementSelect={handleElementSelect}
                 selectedElement={selectedElement}
               />
@@ -227,15 +227,16 @@ function WorkspaceContent() {
           {/* Properties Panel with Resizable Splitter */}
           {propertiesOpen && (
             <>
-              <RightResizableSplitter
-                rightWidth={propertiesWidth}
-                onResize={setPropertiesWidth}
+              <ResizableSplitter
+                width={rightPanelWidth}
+                onResize={setRightPanelWidth}
+                direction="right"
                 minWidth={250}
                 maxWidth={500}
               />
               <div 
                 className="border-l flex flex-col bg-card"
-                style={{ width: propertiesWidth }}
+                style={{ width: rightPanelWidth }}
               >
                 <PropertiesPanel selectedElement={selectedElement} />
               </div>

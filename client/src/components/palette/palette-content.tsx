@@ -1,13 +1,15 @@
 import { ArchimateElement } from "@/data/archimate-elements";
 import { ElementCard } from "./element-card";
-import { Building, Box, Database, Server, ALargeSmall, List } from "lucide-react";
+import { Building, Box, Database, Server, ALargeSmall, List, Search, Settings, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface PaletteContentProps {
   selectedCategory: string;
   selectedFramework: string;
   filteredElements: ArchimateElement[];
   searchQuery: string;
+  onSearchChange: (query: string) => void;
   onElementSelect?: (element: ArchimateElement) => void;
   selectedElement?: ArchimateElement;
 }
@@ -17,6 +19,7 @@ export function PaletteContent({
   selectedFramework,
   filteredElements, 
   searchQuery,
+  onSearchChange,
   onElementSelect,
   selectedElement
 }: PaletteContentProps) {

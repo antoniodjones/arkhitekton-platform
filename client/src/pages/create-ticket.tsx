@@ -264,8 +264,8 @@ function CreateTicketContent() {
     if (formData.type === 'adr' && !asDraft) {
       const riskIndicators = detectTechnicalDebtRisk({
         technicalDebtScore: formData.technicalDebtScore,
-        riskAssessment: formData.riskAssessment,
-        decisionCategory: formData.decisionCategory,
+        riskAssessment: formData.riskAssessment || undefined,
+        decisionCategory: formData.decisionCategory || undefined,
         consequences: formData.consequences,
         maintenanceImpact: formData.maintenanceImpact,
         operationalImpact: formData.operationalImpact,
