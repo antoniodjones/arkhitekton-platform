@@ -47,6 +47,13 @@ export function MainSidebar({ className }: MainSidebarProps) {
       description: 'Strategic overview and insights'
     },
     {
+      id: 'portfolio',
+      label: 'Portfolio Management',
+      href: '/portfolio',
+      icon: TrendingUp,
+      description: 'Track transformation initiatives'
+    },
+    {
       id: 'workspace',
       label: 'Architecture Workspace',
       href: '/workspace',
@@ -73,13 +80,6 @@ export function MainSidebar({ className }: MainSidebarProps) {
       href: '/decisions',
       icon: FileText,
       description: 'Architecture Decision Records'
-    },
-    {
-      id: 'portfolio',
-      label: 'Portfolio Management',
-      href: '/portfolio',
-      icon: TrendingUp,
-      description: 'Track transformation initiatives'
     },
     {
       id: 'workflows',
