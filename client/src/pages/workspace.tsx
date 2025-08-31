@@ -7,10 +7,11 @@ import { Separator } from '@/components/ui/separator';
 import { ResizableSplitter } from '@/components/workspace/resizable-splitter';
 import { RightResizableSplitter } from '@/components/workspace/right-resizable-splitter';
 import { Button } from '@/components/ui/button';
-import { PanelLeftOpen, PanelLeftClose, Home, Save, Users, Search } from 'lucide-react';
+import { PanelLeftOpen, PanelLeftClose, Home, Save, Users, Search, Sparkles } from 'lucide-react';
 import { Link } from 'wouter';
 import { archimateElements, ArchimateElement } from '@/data/archimate-elements';
 import type { WorkspaceState } from '@/components/workspace/workspace';
+import { AIAssistant } from '@/components/ai/ai-assistant';
 
 export function WorkspacePage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -21,6 +22,8 @@ export function WorkspacePage() {
   const [selectedFramework, setSelectedFramework] = useState<string>('archimate');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedElement, setSelectedElement] = useState<ArchimateElement>();
+  const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
+  const [aiAssistantMinimized, setAiAssistantMinimized] = useState(false);
 
   // Filter elements based on category, framework, and search query
   const filteredElements = useMemo(() => {
@@ -164,6 +167,18 @@ export function WorkspacePage() {
             >
               <Search className="h-4 w-4" />
             </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => {
+                setAiAssistantOpen(true);
+                setAiAssistantMinimized(false);
+              }}
+              className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
+              data-testid="button-ai-assistant"
+            >
+              <Sparkles className="h-4 w-4" />
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -207,6 +222,21 @@ export function WorkspacePage() {
           )}
         </div>
       </div>
+
+      {/* AI Assistant */}
+      {aiAssistantOpen && (
+        <AIAssistant
+          context={selectedElement ? `Analyzing ${selectedElement.name} (${selectedElement.type}) from ${selectedElement.framework}` : 'Architecture workspace'}
+          elementType={selectedElement?.type}
+          framework={selectedElement?.framework}
+          isMinimized={aiAssistantMinimized}
+          onMinimize={() => setAiAssistantMinimized(!aiAssistantMinimized)}
+          onClose={() => {
+            setAiAssistantOpen(false);
+            setAiAssistantMinimized(false);
+          }}
+        />
+      )}
     </div>
   );
 }
