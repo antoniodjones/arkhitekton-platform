@@ -1,10 +1,22 @@
 # Overview
 
-This is an architecture modeling application called "ArchModel Pro" that provides a design palette interface for enterprise architecture modeling. The application focuses on ArchiMate 3.0 framework elements but also supports TOGAF and BPMN frameworks. Users can browse, search, and select various architecture elements across different categories (business, application, data, technology) with detailed properties and usage guidelines.
+This is an architecture modeling application called "ArchModel Pro" that provides a design palette interface for enterprise architecture modeling. The application now supports comprehensive cloud architecture elements from AWS, Azure, and Google Cloud Platform, alongside traditional ArchiMate 3.0, TOGAF, and BPMN frameworks. Users can browse, search, and select various architecture elements across different categories (business, application, data, technology) with detailed properties and usage guidelines.
+
+# Recent Changes
+
+**August 31, 2025**: Major enhancement with cloud provider elements and unique ArchModel Pro design system
+- Added comprehensive AWS, Azure, and Google Cloud Platform architecture elements
+- Implemented unique dark theme design system with green accent color (#8EC27A)  
+- Created multi-cloud and modern architecture pattern elements
+- Enhanced visual styling with gradients, shadows, and animations
+- Added framework-specific color coding and visual indicators
+- Updated interface to support 7 frameworks: ArchiMate, TOGAF, BPMN, AWS, Azure, GCP, Cloud Patterns
+- Redesigned branding with custom ArchModel Pro logo and typography
 
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
+Design Preference: Unique ArchModel Pro identity, not following standard component libraries.
 
 # System Architecture
 

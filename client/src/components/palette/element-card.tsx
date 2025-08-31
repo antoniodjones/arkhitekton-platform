@@ -16,7 +16,18 @@ export function ElementCard({ element, onSelect, isSelected = false }: ElementCa
   const getShapeClass = (shape: string, type: string) => {
     if (type === 'behavioral') return 'rounded-full';
     if (type === 'motivational') return 'clip-path-diamond';
-    return 'rounded-sm';
+    return 'rounded-lg';
+  };
+
+  const getFrameworkIndicator = (framework: string) => {
+    switch (framework) {
+      case 'aws': return 'border-l-4 border-l-orange-500';
+      case 'azure': return 'border-l-4 border-l-blue-500';
+      case 'gcp': return 'border-l-4 border-l-blue-600';
+      case 'patterns': return 'border-l-4 border-l-purple-500';
+      case 'archimate': return 'border-l-4 border-l-primary';
+      default: return 'border-l-4 border-l-muted-foreground';
+    }
   };
 
   return (
@@ -24,9 +35,9 @@ export function ElementCard({ element, onSelect, isSelected = false }: ElementCa
       <TooltipTrigger asChild>
         <Card 
           className={cn(
-            "cursor-grab hover:shadow-md transition-all duration-200 group",
-            "hover:-translate-y-1 active:scale-95 active:cursor-grabbing",
-            isSelected && "ring-2 ring-primary"
+            "archmodel-card cursor-grab transition-all duration-200 group draggable-element",
+            getFrameworkIndicator(element.framework),
+            isSelected && "ring-2 ring-primary shadow-lg shadow-primary/20"
           )}
           onClick={() => onSelect?.(element)}
           data-testid={`element-card-${element.id}`}

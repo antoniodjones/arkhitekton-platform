@@ -11,11 +11,16 @@ export function PaletteHeader({ searchQuery, onSearchChange }: PaletteHeaderProp
   return (
     <header className="bg-card border-b border-border px-6 py-4 flex items-center justify-between">
       <div className="flex items-center space-x-4">
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <i className="fas fa-project-diagram text-primary-foreground text-sm"></i>
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-6 h-6 bg-primary-foreground rounded-sm transform rotate-45 relative">
+              <div className="absolute inset-1 bg-primary rounded-sm transform -rotate-45"></div>
+            </div>
           </div>
-          <h1 className="text-lg font-semibold text-foreground">ArchModel Pro</h1>
+          <div>
+            <h1 className="text-xl font-bold text-foreground tracking-tight">ArchModel Pro</h1>
+            <p className="text-xs text-muted-foreground">Enterprise Architecture Modeling</p>
+          </div>
         </div>
         <div className="text-sm text-muted-foreground px-3 py-1 bg-muted rounded-md">
           Design Palette

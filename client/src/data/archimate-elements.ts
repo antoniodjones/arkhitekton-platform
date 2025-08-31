@@ -3,7 +3,7 @@ export interface ArchimateElement {
   name: string;
   type: 'structural' | 'behavioral' | 'motivational' | 'passive';
   category: 'business' | 'application' | 'data' | 'technology';
-  framework: 'archimate' | 'togaf' | 'bpmn';
+  framework: 'archimate' | 'togaf' | 'bpmn' | 'aws' | 'azure' | 'gcp' | 'patterns';
   description: string;
   usageGuidelines: string;
   iconName: string;
@@ -415,6 +415,391 @@ export const archimateElements: ArchimateElement[] = [
     color: 'hsl(270 50% 50%)',
     shape: 'rounded',
     relationships: ['Technology Interface', 'Node', 'Application Component']
+  },
+
+  // AWS Cloud Architecture Elements
+  {
+    id: 'aws-ec2',
+    name: 'EC2 Instance',
+    type: 'structural',
+    category: 'technology',
+    framework: 'aws',
+    description: 'Virtual compute servers in the AWS cloud.',
+    usageGuidelines: 'Use to model virtual machine instances, compute capacity for applications and workloads.',
+    iconName: 'Server',
+    color: 'hsl(25 95% 53%)', // AWS orange
+    shape: 'rectangular',
+    relationships: ['VPC', 'Security Group', 'EBS Volume']
+  },
+  {
+    id: 'aws-lambda',
+    name: 'Lambda Function',
+    type: 'behavioral',
+    category: 'application',
+    framework: 'aws',
+    description: 'Serverless compute service that runs code without provisioning servers.',
+    usageGuidelines: 'Use for event-driven computing, microservices, and serverless applications.',
+    iconName: 'Zap',
+    color: 'hsl(25 95% 53%)',
+    shape: 'rounded',
+    relationships: ['API Gateway', 'DynamoDB', 'S3']
+  },
+  {
+    id: 'aws-s3',
+    name: 'S3 Bucket',
+    type: 'passive',
+    category: 'data',
+    framework: 'aws',
+    description: 'Object storage service with industry-leading scalability and durability.',
+    usageGuidelines: 'Use for data lakes, backup and restore, content distribution, and static websites.',
+    iconName: 'Database',
+    color: 'hsl(25 95% 53%)',
+    shape: 'rectangular',
+    relationships: ['CloudFront', 'Lambda', 'EC2']
+  },
+  {
+    id: 'aws-rds',
+    name: 'RDS Database',
+    type: 'passive',
+    category: 'data',
+    framework: 'aws',
+    description: 'Managed relational database service supporting multiple database engines.',
+    usageGuidelines: 'Use for traditional relational database workloads with automated backups and scaling.',
+    iconName: 'Database',
+    color: 'hsl(25 95% 53%)',
+    shape: 'rectangular',
+    relationships: ['EC2', 'Lambda', 'VPC']
+  },
+  {
+    id: 'aws-vpc',
+    name: 'Virtual Private Cloud',
+    type: 'structural',
+    category: 'technology',
+    framework: 'aws',
+    description: 'Isolated network environment within AWS cloud.',
+    usageGuidelines: 'Use to create secure, isolated sections of the AWS cloud for your resources.',
+    iconName: 'Shield',
+    color: 'hsl(25 95% 53%)',
+    shape: 'rectangular',
+    relationships: ['EC2', 'RDS', 'Load Balancer']
+  },
+  {
+    id: 'aws-elb',
+    name: 'Elastic Load Balancer',
+    type: 'structural',
+    category: 'technology',
+    framework: 'aws',
+    description: 'Distributes incoming traffic across multiple targets.',
+    usageGuidelines: 'Use to improve availability and fault tolerance of applications.',
+    iconName: 'RotateCcw',
+    color: 'hsl(25 95% 53%)',
+    shape: 'rectangular',
+    relationships: ['EC2', 'Auto Scaling', 'VPC']
+  },
+  {
+    id: 'aws-api-gateway',
+    name: 'API Gateway',
+    type: 'structural',
+    category: 'application',
+    framework: 'aws',
+    description: 'Fully managed service for creating, publishing, and managing APIs.',
+    usageGuidelines: 'Use as front door for applications to access backend services and Lambda functions.',
+    iconName: 'Webhook',
+    color: 'hsl(25 95% 53%)',
+    shape: 'rectangular',
+    relationships: ['Lambda', 'EC2', 'DynamoDB']
+  },
+  {
+    id: 'aws-cloudfront',
+    name: 'CloudFront CDN',
+    type: 'structural',
+    category: 'technology',
+    framework: 'aws',
+    description: 'Fast content delivery network service.',
+    usageGuidelines: 'Use to deliver content with low latency and high transfer speeds globally.',
+    iconName: 'Globe',
+    color: 'hsl(25 95% 53%)',
+    shape: 'rectangular',
+    relationships: ['S3', 'EC2', 'Route 53']
+  },
+
+  // Azure Cloud Architecture Elements
+  {
+    id: 'azure-vm',
+    name: 'Virtual Machine',
+    type: 'structural',
+    category: 'technology',
+    framework: 'azure',
+    description: 'On-demand, scalable computing resource in Azure.',
+    usageGuidelines: 'Use for Windows and Linux virtual machines with full control over the OS.',
+    iconName: 'Monitor',
+    color: 'hsl(214 100% 60%)', // Azure blue
+    shape: 'rectangular',
+    relationships: ['Virtual Network', 'Storage Account', 'Load Balancer']
+  },
+  {
+    id: 'azure-functions',
+    name: 'Azure Functions',
+    type: 'behavioral',
+    category: 'application',
+    framework: 'azure',
+    description: 'Serverless compute service enabling event-driven programming.',
+    usageGuidelines: 'Use for event processing, data integration, and microservices architectures.',
+    iconName: 'Zap',
+    color: 'hsl(214 100% 60%)',
+    shape: 'rounded',
+    relationships: ['Service Bus', 'Cosmos DB', 'Storage Account']
+  },
+  {
+    id: 'azure-storage',
+    name: 'Storage Account',
+    type: 'passive',
+    category: 'data',
+    framework: 'azure',
+    description: 'Scalable cloud storage for data objects, files, messages, and tables.',
+    usageGuidelines: 'Use for blob storage, file shares, queues, and tables in Azure.',
+    iconName: 'HardDrive',
+    color: 'hsl(214 100% 60%)',
+    shape: 'rectangular',
+    relationships: ['Virtual Machine', 'Functions', 'CDN']
+  },
+  {
+    id: 'azure-sql',
+    name: 'Azure SQL Database',
+    type: 'passive',
+    category: 'data',
+    framework: 'azure',
+    description: 'Fully managed relational database service.',
+    usageGuidelines: 'Use for modern cloud applications requiring relational database capabilities.',
+    iconName: 'Database',
+    color: 'hsl(214 100% 60%)',
+    shape: 'rectangular',
+    relationships: ['Virtual Machine', 'App Service', 'Functions']
+  },
+  {
+    id: 'azure-vnet',
+    name: 'Virtual Network',
+    type: 'structural',
+    category: 'technology',
+    framework: 'azure',
+    description: 'Isolated network environment within Azure.',
+    usageGuidelines: 'Use to securely connect Azure resources and extend on-premises networks.',
+    iconName: 'Network',
+    color: 'hsl(214 100% 60%)',
+    shape: 'rectangular',
+    relationships: ['Virtual Machine', 'App Service', 'Load Balancer']
+  },
+  {
+    id: 'azure-app-service',
+    name: 'App Service',
+    type: 'structural',
+    category: 'application',
+    framework: 'azure',
+    description: 'Platform for building and hosting web applications and APIs.',
+    usageGuidelines: 'Use for hosting web apps, REST APIs, and mobile backends.',
+    iconName: 'Globe',
+    color: 'hsl(214 100% 60%)',
+    shape: 'rectangular',
+    relationships: ['SQL Database', 'Application Insights', 'CDN']
+  },
+  {
+    id: 'azure-aks',
+    name: 'Kubernetes Service',
+    type: 'structural',
+    category: 'application',
+    framework: 'azure',
+    description: 'Managed Kubernetes container orchestration service.',
+    usageGuidelines: 'Use for deploying and managing containerized applications at scale.',
+    iconName: 'Boxes',
+    color: 'hsl(214 100% 60%)',
+    shape: 'rectangular',
+    relationships: ['Container Registry', 'Virtual Network', 'Load Balancer']
+  },
+  {
+    id: 'azure-application-gateway',
+    name: 'Application Gateway',
+    type: 'structural',
+    category: 'technology',
+    framework: 'azure',
+    description: 'Web traffic load balancer with application-level routing.',
+    usageGuidelines: 'Use for SSL termination, URL-based routing, and web application firewall.',
+    iconName: 'Shield',
+    color: 'hsl(214 100% 60%)',
+    shape: 'rectangular',
+    relationships: ['App Service', 'Virtual Machine', 'Virtual Network']
+  },
+
+  // Google Cloud Platform Elements
+  {
+    id: 'gcp-compute-engine',
+    name: 'Compute Engine',
+    type: 'structural',
+    category: 'technology',
+    framework: 'gcp',
+    description: 'Virtual machines running in Google\'s data centers.',
+    usageGuidelines: 'Use for scalable, high-performance virtual machines with per-second billing.',
+    iconName: 'Cpu',
+    color: 'hsl(217 89% 61%)', // Google blue
+    shape: 'rectangular',
+    relationships: ['VPC Network', 'Cloud Storage', 'Load Balancer']
+  },
+  {
+    id: 'gcp-cloud-functions',
+    name: 'Cloud Functions',
+    type: 'behavioral',
+    category: 'application',
+    framework: 'gcp',
+    description: 'Serverless execution environment for building and connecting cloud services.',
+    usageGuidelines: 'Use for event-driven applications and microservices integration.',
+    iconName: 'Zap',
+    color: 'hsl(217 89% 61%)',
+    shape: 'rounded',
+    relationships: ['Cloud Storage', 'Pub/Sub', 'Cloud SQL']
+  },
+  {
+    id: 'gcp-cloud-storage',
+    name: 'Cloud Storage',
+    type: 'passive',
+    category: 'data',
+    framework: 'gcp',
+    description: 'Unified object storage for developers and enterprises.',
+    usageGuidelines: 'Use for data lakes, content distribution, backup and archival.',
+    iconName: 'Cloud',
+    color: 'hsl(217 89% 61%)',
+    shape: 'rectangular',
+    relationships: ['Compute Engine', 'Cloud Functions', 'BigQuery']
+  },
+  {
+    id: 'gcp-cloud-sql',
+    name: 'Cloud SQL',
+    type: 'passive',
+    category: 'data',
+    framework: 'gcp',
+    description: 'Fully managed relational database service.',
+    usageGuidelines: 'Use for MySQL, PostgreSQL, and SQL Server databases in the cloud.',
+    iconName: 'Database',
+    color: 'hsl(217 89% 61%)',
+    shape: 'rectangular',
+    relationships: ['Compute Engine', 'App Engine', 'Cloud Functions']
+  },
+  {
+    id: 'gcp-bigquery',
+    name: 'BigQuery',
+    type: 'passive',
+    category: 'data',
+    framework: 'gcp',
+    description: 'Serverless, highly scalable data warehouse.',
+    usageGuidelines: 'Use for analytics, machine learning, and business intelligence on large datasets.',
+    iconName: 'BarChart3',
+    color: 'hsl(217 89% 61%)',
+    shape: 'rectangular',
+    relationships: ['Cloud Storage', 'Dataflow', 'Cloud ML']
+  },
+  {
+    id: 'gcp-gke',
+    name: 'Kubernetes Engine',
+    type: 'structural',
+    category: 'application',
+    framework: 'gcp',
+    description: 'Managed Kubernetes service for containerized applications.',
+    usageGuidelines: 'Use for deploying, managing, and scaling containerized applications.',
+    iconName: 'Boxes',
+    color: 'hsl(217 89% 61%)',
+    shape: 'rectangular',
+    relationships: ['Container Registry', 'VPC Network', 'Load Balancer']
+  },
+  {
+    id: 'gcp-app-engine',
+    name: 'App Engine',
+    type: 'structural',
+    category: 'application',
+    framework: 'gcp',
+    description: 'Platform for building scalable web applications and APIs.',
+    usageGuidelines: 'Use for automatic scaling web applications with minimal operational overhead.',
+    iconName: 'Globe',
+    color: 'hsl(217 89% 61%)',
+    shape: 'rectangular',
+    relationships: ['Cloud SQL', 'Cloud Storage', 'Cloud Tasks']
+  },
+  {
+    id: 'gcp-cloud-cdn',
+    name: 'Cloud CDN',
+    type: 'structural',
+    category: 'technology',
+    framework: 'gcp',
+    description: 'Content delivery network for delivering web and video content.',
+    usageGuidelines: 'Use to accelerate content delivery with Google\'s global edge network.',
+    iconName: 'Globe',
+    color: 'hsl(217 89% 61%)',
+    shape: 'rectangular',
+    relationships: ['Cloud Storage', 'Compute Engine', 'Load Balancer']
+  },
+
+  // Multi-Cloud and Modern Architecture Patterns
+  {
+    id: 'microservice',
+    name: 'Microservice',
+    type: 'structural',
+    category: 'application',
+    framework: 'patterns',
+    description: 'Small, autonomous service that does one thing well.',
+    usageGuidelines: 'Use for building distributed systems with independent deployability and scalability.',
+    iconName: 'Boxes',
+    color: 'hsl(280 100% 70%)', // Purple for patterns
+    shape: 'rounded',
+    relationships: ['API Gateway', 'Service Mesh', 'Container']
+  },
+  {
+    id: 'container',
+    name: 'Container',
+    type: 'structural',
+    category: 'technology',
+    framework: 'patterns',
+    description: 'Lightweight, portable execution environment for applications.',
+    usageGuidelines: 'Use for consistent deployment across environments and efficient resource utilization.',
+    iconName: 'Package',
+    color: 'hsl(280 100% 70%)',
+    shape: 'rectangular',
+    relationships: ['Kubernetes', 'Container Registry', 'Microservice']
+  },
+  {
+    id: 'service-mesh',
+    name: 'Service Mesh',
+    type: 'structural',
+    category: 'technology',
+    framework: 'patterns',
+    description: 'Infrastructure layer for service-to-service communication.',
+    usageGuidelines: 'Use for managing microservice communication, security, and observability.',
+    iconName: 'Network',
+    color: 'hsl(280 100% 70%)',
+    shape: 'rectangular',
+    relationships: ['Microservice', 'Load Balancer', 'Security Policy']
+  },
+  {
+    id: 'edge-device',
+    name: 'Edge Device',
+    type: 'structural',
+    category: 'technology',
+    framework: 'patterns',
+    description: 'Computing device at the network edge, close to data sources.',
+    usageGuidelines: 'Use for IoT applications, real-time processing, and reduced latency requirements.',
+    iconName: 'Smartphone',
+    color: 'hsl(280 100% 70%)',
+    shape: 'rectangular',
+    relationships: ['Cloud Gateway', 'Data Stream', 'ML Model']
+  },
+  {
+    id: 'data-pipeline',
+    name: 'Data Pipeline',
+    type: 'behavioral',
+    category: 'data',
+    framework: 'patterns',
+    description: 'Series of data processing steps for ETL operations.',
+    usageGuidelines: 'Use for automating data movement and transformation between systems.',
+    iconName: 'ArrowRight',
+    color: 'hsl(280 100% 70%)',
+    shape: 'rounded',
+    relationships: ['Data Source', 'Data Lake', 'Analytics Engine']
   },
 
   // TOGAF Framework Elements

@@ -6,8 +6,8 @@ import { PropertiesPanel } from "@/components/palette/properties-panel";
 import { archimateElements, ArchimateElement } from "@/data/archimate-elements";
 
 export default function DesignPalette() {
-  const [selectedCategory, setSelectedCategory] = useState('business');
-  const [selectedFramework, setSelectedFramework] = useState('archimate');
+  const [selectedCategory, setSelectedCategory] = useState('technology');
+  const [selectedFramework, setSelectedFramework] = useState('aws');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedElement, setSelectedElement] = useState<ArchimateElement>();
 

@@ -27,35 +27,35 @@ export function PaletteContent({
           title: 'Business Architecture Elements',
           description: 'Organizational structure elements, process flows, capability models, and value streams for business architecture modeling.',
           icon: Building,
-          color: 'hsl(12 76% 61%)'
+          color: 'hsl(142 76% 36%)'
         };
       case 'application':
         return {
           title: 'Application & Integration Elements',
           description: 'Application components, interfaces, services, and integration patterns for application architecture modeling.',
           icon: Box,
-          color: 'hsl(217 91% 60%)'
+          color: 'hsl(199 89% 48%)'
         };
       case 'data':
         return {
           title: 'Data & Information Elements',
           description: 'Data entities, flows, stores, and information concepts for data architecture modeling.',
           icon: Database,
-          color: 'hsl(158 58% 45%)'
+          color: 'hsl(262 83% 58%)'
         };
       case 'technology':
         return {
           title: 'Technology & Security Elements',
           description: 'Infrastructure components, platforms, devices, and security elements for technology architecture modeling.',
           icon: Server,
-          color: 'hsl(270 50% 50%)'
+          color: 'hsl(48 96% 53%)'
         };
       default:
         return {
           title: 'Architecture Elements',
           description: 'Enterprise architecture modeling elements.',
           icon: Building,
-          color: 'hsl(217 91% 60%)'
+          color: 'hsl(142 76% 36%)'
         };
     }
   };
@@ -106,7 +106,7 @@ export function PaletteContent({
   }
 
   return (
-    <main className="flex-1 bg-background overflow-y-auto">
+    <main className="flex-1 bg-background overflow-y-auto archmodel-grid">
       <div className="p-6">
         {/* Section Header */}
         <div className="mb-6">

@@ -32,6 +32,10 @@ export function PaletteSidebar({
     { id: 'archimate', name: 'ArchiMate 3.0' },
     { id: 'togaf', name: 'TOGAF' },
     { id: 'bpmn', name: 'BPMN' },
+    { id: 'aws', name: 'AWS Cloud' },
+    { id: 'azure', name: 'Azure' },
+    { id: 'gcp', name: 'Google Cloud' },
+    { id: 'patterns', name: 'Cloud Patterns' },
   ];
 
   return (
@@ -56,14 +60,15 @@ export function PaletteSidebar({
 
       {/* Framework Selection */}
       <div className="p-4 border-b border-border">
-        <div className="flex items-center space-x-2 mb-3">
+        <h4 className="text-sm font-medium text-foreground mb-3">Frameworks & Providers</h4>
+        <div className="grid grid-cols-2 gap-2 mb-3">
           {frameworks.map((framework) => (
             <Button
               key={framework.id}
               variant={selectedFramework === framework.id ? "default" : "secondary"}
               size="sm"
               onClick={() => onFrameworkChange(framework.id)}
-              className="text-xs"
+              className="text-xs justify-start"
               data-testid={`framework-${framework.id}`}
             >
               {framework.name}
