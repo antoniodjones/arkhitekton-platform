@@ -8,10 +8,16 @@ interface ElementCardProps {
   element: ArchimateElement;
   onSelect?: (element: ArchimateElement) => void;
   isSelected?: boolean;
+  isDraggable?: boolean;
 }
 
-export function ElementCard({ element, onSelect, isSelected = false }: ElementCardProps) {
-  const IconComponent = LucideIcons[element.iconName as keyof typeof LucideIcons] as any;
+// Export the icon getter function for use in other components
+export function getIcon(iconName: string) {
+  return LucideIcons[iconName as keyof typeof LucideIcons] as any;
+}
+
+export function ElementCard({ element, onSelect, isSelected = false, isDraggable = true }: ElementCardProps) {
+  const IconComponent = getIcon(element.iconName);
 
   const getShapeClass = (shape: string, type: string) => {
     if (type === 'behavioral') return 'rounded-full';
@@ -30,16 +36,26 @@ export function ElementCard({ element, onSelect, isSelected = false }: ElementCa
     }
   };
 
+  const handleDragStart = (e: React.DragEvent) => {
+    if (isDraggable) {
+      e.dataTransfer.setData('application/json', JSON.stringify(element));
+      e.dataTransfer.effectAllowed = 'copy';
+    }
+  };
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <Card 
           className={cn(
-            "archmodel-card cursor-grab transition-all duration-200 group draggable-element",
+            "archmodel-card transition-all duration-200 group draggable-element",
+            isDraggable ? "cursor-grab active:cursor-grabbing" : "cursor-pointer",
             getFrameworkIndicator(element.framework),
             isSelected && "ring-2 ring-primary shadow-lg shadow-primary/20"
           )}
           onClick={() => onSelect?.(element)}
+          draggable={isDraggable}
+          onDragStart={handleDragStart}
           data-testid={`element-card-${element.id}`}
         >
           <CardContent className="p-4">
