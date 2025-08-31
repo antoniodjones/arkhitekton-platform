@@ -1,15 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Workspace } from '@/components/workspace/workspace';
 import { PaletteSidebar } from '@/components/palette/palette-sidebar';
+import { PaletteContent } from '@/components/palette/palette-content';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { PanelLeftOpen, PanelLeftClose } from 'lucide-react';
+import { archimateElements, ArchimateElement } from '@/data/archimate-elements';
 import type { WorkspaceState } from '@/components/workspace/workspace';
 
 export function WorkspacePage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('business');
   const [selectedFramework, setSelectedFramework] = useState<string>('archimate');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedElement, setSelectedElement] = useState<ArchimateElement>();
+
+  // Filter elements based on category, framework, and search query
+  const filteredElements = useMemo(() => {
+    return archimateElements.filter(element => {
+      const matchesCategory = element.category === selectedCategory;
+      const matchesFramework = element.framework === selectedFramework;
+      const matchesSearch = searchQuery === '' || 
+        element.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        element.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        element.type.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      return matchesCategory && matchesFramework && matchesSearch;
+    });
+  }, [selectedCategory, selectedFramework, searchQuery]);
+
+  // Get recent elements (mock data for now)
+  const recentElements = useMemo(() => {
+    return archimateElements.slice(0, 4);
+  }, []);
+
+  const handleElementSelect = (element: ArchimateElement) => {
+    setSelectedElement(element);
+  };
 
   const handleSave = (state: WorkspaceState) => {
     console.log('Saving workspace state:', state);
@@ -32,14 +59,25 @@ export function WorkspacePage() {
       {/* Palette Sidebar */}
       {sidebarOpen && (
         <>
-          <div className="w-80 border-r">
+          <div className="w-80 border-r flex flex-col">
             <PaletteSidebar
               selectedCategory={selectedCategory}
               onCategoryChange={setSelectedCategory}
               selectedFramework={selectedFramework}
               onFrameworkChange={setSelectedFramework}
-              recentElements={[]}
+              recentElements={recentElements}
+              onElementSelect={handleElementSelect}
             />
+            <div className="flex-1">
+              <PaletteContent
+                selectedCategory={selectedCategory}
+                selectedFramework={selectedFramework}
+                filteredElements={filteredElements}
+                searchQuery={searchQuery}
+                onElementSelect={handleElementSelect}
+                selectedElement={selectedElement}
+              />
+            </div>
           </div>
           <Separator orientation="vertical" />
         </>
