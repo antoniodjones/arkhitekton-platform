@@ -277,7 +277,7 @@ function EditTicketContent() {
         {/* Form Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="basic">Basic Info</TabsTrigger>
+            <TabsTrigger value="basic">Overview</TabsTrigger>
             <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="assignments">Assignments</TabsTrigger>
             <TabsTrigger value="metadata">Metadata</TabsTrigger>
@@ -287,7 +287,7 @@ function EditTicketContent() {
           <TabsContent value="basic" className="mt-6">
             <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50">
               <CardHeader>
-                <CardTitle>Basic Information</CardTitle>
+                <CardTitle>Overview</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
