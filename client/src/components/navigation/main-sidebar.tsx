@@ -132,7 +132,7 @@ export function MainSidebar({ className }: MainSidebarProps) {
     <aside 
       className={cn(
         "h-screen bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-r border-slate-200/50 dark:border-slate-700/50 flex flex-col transition-all duration-300 shadow-xl",
-        isCollapsed ? "w-16" : "w-72",
+        isCollapsed ? "w-16" : "w-80",
         className
       )}
     >
