@@ -8,8 +8,31 @@ To provide systems architects and designers with a comprehensive platform that e
 ## Competitive Positioning
 ArchModel Pro is designed as an advanced competitor to enterprise architecture tools including Mega, SoftwareAG's Aries & Alphabet, Ardoq, BlueDolphin, Avolution, Sparx Enterprise Architect, and LeanIX, with a focus on AI-first capabilities and superior user experience.
 
+## Core Architecture Principles
+
+### Object-Oriented Model Design
+Every component in the model is an object with intelligent connection capabilities, intuitive linking to other objects, and full traceability between states. Each object tells a story through its relationships and state transitions.
+
+### State Management & Versioning
+- **Single Current State**: One authoritative current state of the architecture model
+- **Multiple Transition States**: Project-specific transition states with architect-defined checkpoints (monthly, quarterly, semi-annual, annual)
+- **Git-like Merging**: Ability to merge transition states into main with differential views
+- **Clear Traceability**: Complete visibility of state transitions and evolution paths
+
+### AI-Powered Guidance
+AI provides contextual suggestions and guidance to architects on how to proceed, similar to an intelligent assistant that understands architectural patterns and best practices.
+
+### Enterprise Tool Integration
+Native integration with enterprise tools including:
+- Jira (project management and tracking)
+- Confluence (documentation and collaboration)
+- Aha! (product roadmapping)
+- Azure DevOps (development lifecycle)
+- Figma (design collaboration)
+- Additional tools providing inputs for optimal architectural outcomes
+
 ## Current State
-The application currently provides a comprehensive design palette interface supporting cloud architecture elements from AWS, Azure, Google Cloud Platform, and Oracle Cloud, alongside traditional ArchiMate 3.0, TOGAF, and BPMN frameworks. Users can browse, search, and select various architecture elements across different categories (business, application, data, technology) with detailed properties and usage guidelines.
+The application currently provides a comprehensive design palette interface supporting cloud architecture elements from AWS, Azure, Google Cloud Platform, and Oracle Cloud, alongside traditional ArchiMate 3.0, TOGAF, and BPMN frameworks. This foundation supports the object-oriented model design with intelligent connections and relationships between architectural elements.
 
 # Recent Changes
 
