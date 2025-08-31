@@ -1,6 +1,15 @@
 # Overview
 
-This is an architecture modeling application called "ArchModel Pro" that provides a design palette interface for enterprise architecture modeling. The application now supports comprehensive cloud architecture elements from AWS, Azure, and Google Cloud Platform, alongside traditional ArchiMate 3.0, TOGAF, and BPMN frameworks. Users can browse, search, and select various architecture elements across different categories (business, application, data, technology) with detailed properties and usage guidelines.
+ArchModel Pro is an enterprise-grade, AI-first systems design modeling platform that empowers systems architects to perform end-to-end architecture design (from business to technology) with unprecedented elegance and intelligence. The platform combines the expressiveness of code, the intuitiveness of visual representation, and the power of AI to create, build, and evolve complex systems.
+
+## Vision Statement
+To provide systems architects and designers with a comprehensive platform that enables elegant design superior to existing tools like Figma, with integrated capabilities spanning the entire technology landscape. The platform will feature distributed version control at the model and component level (similar to Git) and provide portfolio views for architecture leadership.
+
+## Competitive Positioning
+ArchModel Pro is designed as an advanced competitor to enterprise architecture tools including Mega, SoftwareAG's Aries & Alphabet, Ardoq, BlueDolphin, Avolution, Sparx Enterprise Architect, and LeanIX, with a focus on AI-first capabilities and superior user experience.
+
+## Current State
+The application currently provides a comprehensive design palette interface supporting cloud architecture elements from AWS, Azure, Google Cloud Platform, and Oracle Cloud, alongside traditional ArchiMate 3.0, TOGAF, and BPMN frameworks. Users can browse, search, and select various architecture elements across different categories (business, application, data, technology) with detailed properties and usage guidelines.
 
 # Recent Changes
 
