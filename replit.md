@@ -29,7 +29,23 @@ Native integration with enterprise tools including:
 - Aha! (product roadmapping)
 - Azure DevOps (development lifecycle)
 - Figma (design collaboration)
+- Code Editors (VS Code, IntelliJ, etc.) for bi-directional code-architecture sync
 - Additional tools providing inputs for optimal architectural outcomes
+
+### End-to-End Development Lifecycle Mapping
+Complete traceability across the entire software development lifecycle:
+- **Strategy** → **Requirements** → **UX Design** → **Technical Design** → **Code** → **Test Cases** → **Deployment Components**
+- Bi-directional synchronization ensuring changes in any layer propagate appropriately
+- Forward engineering: Generate code snippets from proposed architecture
+- Reverse engineering: Build architecture models from existing codebases
+- Impact analysis across all layers when changes occur
+
+### Code Editor Integration
+- Plugin architecture for major IDEs and code editors
+- Generate code snippets from architectural designs
+- Reverse engineer architecture models from existing code
+- Real-time synchronization between code changes and architectural models
+- Support for refactoring scenarios where no existing architecture documentation exists
 
 ## Current State
 The application currently provides a comprehensive design palette interface supporting cloud architecture elements from AWS, Azure, Google Cloud Platform, and Oracle Cloud, alongside traditional ArchiMate 3.0, TOGAF, and BPMN frameworks. This foundation supports the object-oriented model design with intelligent connections and relationships between architectural elements.
