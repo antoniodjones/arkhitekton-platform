@@ -3,7 +3,7 @@ export interface ArchimateElement {
   name: string;
   type: 'structural' | 'behavioral' | 'motivational' | 'passive';
   category: 'business' | 'application' | 'data' | 'technology';
-  framework: 'archimate' | 'togaf' | 'bpmn' | 'aws' | 'azure' | 'gcp' | 'patterns';
+  framework: 'archimate' | 'togaf' | 'bpmn' | 'aws' | 'azure' | 'gcp' | 'oci' | 'patterns';
   description: string;
   usageGuidelines: string;
   iconName: string;
@@ -733,6 +733,268 @@ export const archimateElements: ArchimateElement[] = [
     color: 'hsl(217 89% 61%)',
     shape: 'rectangular',
     relationships: ['Cloud Storage', 'Compute Engine', 'Load Balancer']
+  },
+
+  // Oracle Cloud Infrastructure Elements
+  {
+    id: 'oci-compute-instance',
+    name: 'Compute Instance',
+    type: 'structural',
+    category: 'technology',
+    framework: 'oci',
+    description: 'Virtual machine instances with custom OCPU and memory configurations.',
+    usageGuidelines: 'Use for scalable compute workloads with flexible instance shapes and per-second billing.',
+    iconName: 'Server',
+    color: 'hsl(4 90% 58%)', // Oracle red
+    shape: 'rectangular',
+    relationships: ['VCN', 'Block Volume', 'Load Balancer']
+  },
+  {
+    id: 'oci-bare-metal',
+    name: 'Bare Metal Instance',
+    type: 'structural',
+    category: 'technology',
+    framework: 'oci',
+    description: 'Dedicated physical servers providing maximum performance and isolation.',
+    usageGuidelines: 'Use for high-performance computing, databases, and workloads requiring dedicated hardware.',
+    iconName: 'HardDrive',
+    color: 'hsl(4 90% 58%)',
+    shape: 'rectangular',
+    relationships: ['VCN', 'Block Volume', 'Autonomous Database']
+  },
+  {
+    id: 'oci-functions',
+    name: 'Oracle Functions',
+    type: 'behavioral',
+    category: 'application',
+    framework: 'oci',
+    description: 'Serverless functions platform based on open-source Fn Project.',
+    usageGuidelines: 'Use for event-driven serverless applications and microservices integration.',
+    iconName: 'Zap',
+    color: 'hsl(4 90% 58%)',
+    shape: 'rounded',
+    relationships: ['API Gateway', 'Object Storage', 'Stream']
+  },
+  {
+    id: 'oci-container-engine',
+    name: 'Container Engine (OKE)',
+    type: 'structural',
+    category: 'application',
+    framework: 'oci',
+    description: 'Managed Kubernetes service for deploying containerized applications.',
+    usageGuidelines: 'Use for orchestrating containers with automatic scaling and cluster management.',
+    iconName: 'Boxes',
+    color: 'hsl(4 90% 58%)',
+    shape: 'rectangular',
+    relationships: ['Container Registry', 'VCN', 'Load Balancer']
+  },
+  {
+    id: 'oci-object-storage',
+    name: 'Object Storage',
+    type: 'passive',
+    category: 'data',
+    framework: 'oci',
+    description: 'Highly durable and scalable object storage service with multiple storage tiers.',
+    usageGuidelines: 'Use for data lakes, backup, content distribution, and archival with lifecycle policies.',
+    iconName: 'Database',
+    color: 'hsl(4 90% 58%)',
+    shape: 'rectangular',
+    relationships: ['Compute Instance', 'Functions', 'Data Integration']
+  },
+  {
+    id: 'oci-block-volumes',
+    name: 'Block Volumes',
+    type: 'passive',
+    category: 'data',
+    framework: 'oci',
+    description: 'High-performance block storage that can be attached to compute instances.',
+    usageGuidelines: 'Use for persistent storage with configurable performance levels and automated backups.',
+    iconName: 'HardDrive',
+    color: 'hsl(4 90% 58%)',
+    shape: 'rectangular',
+    relationships: ['Compute Instance', 'File Storage', 'Backup Service']
+  },
+  {
+    id: 'oci-autonomous-database',
+    name: 'Autonomous Database',
+    type: 'passive',
+    category: 'data',
+    framework: 'oci',
+    description: 'Self-driving database with automated tuning, security, and backups.',
+    usageGuidelines: 'Use for mission-critical applications requiring high performance and autonomous management.',
+    iconName: 'Database',
+    color: 'hsl(4 90% 58%)',
+    shape: 'rectangular',
+    relationships: ['VCN', 'Data Safe', 'Analytics Cloud']
+  },
+  {
+    id: 'oci-mysql-heatwave',
+    name: 'MySQL HeatWave',
+    type: 'passive',
+    category: 'data',
+    framework: 'oci',
+    description: 'Fully managed MySQL service with integrated analytics and machine learning.',
+    usageGuidelines: 'Use for OLTP and OLAP workloads with real-time analytics on operational data.',
+    iconName: 'Database',
+    color: 'hsl(4 90% 58%)',
+    shape: 'rectangular',
+    relationships: ['Compute Instance', 'Analytics Cloud', 'Data Science']
+  },
+  {
+    id: 'oci-vcn',
+    name: 'Virtual Cloud Network',
+    type: 'structural',
+    category: 'technology',
+    framework: 'oci',
+    description: 'Customizable private network providing secure connectivity for cloud resources.',
+    usageGuidelines: 'Use to create isolated network environments with subnets, routing, and security.',
+    iconName: 'Network',
+    color: 'hsl(4 90% 58%)',
+    shape: 'rectangular',
+    relationships: ['Compute Instance', 'Load Balancer', 'Gateway']
+  },
+  {
+    id: 'oci-load-balancer',
+    name: 'Load Balancer',
+    type: 'structural',
+    category: 'technology',
+    framework: 'oci',
+    description: 'Distributes incoming traffic across multiple backend servers.',
+    usageGuidelines: 'Use for high availability and automatic failover of applications and services.',
+    iconName: 'RotateCcw',
+    color: 'hsl(4 90% 58%)',
+    shape: 'rectangular',
+    relationships: ['Compute Instance', 'VCN', 'Health Checks']
+  },
+  {
+    id: 'oci-api-gateway',
+    name: 'API Gateway',
+    type: 'structural',
+    category: 'application',
+    framework: 'oci',
+    description: 'Fully managed service for deploying and managing APIs at scale.',
+    usageGuidelines: 'Use as entry point for microservices with authentication, throttling, and monitoring.',
+    iconName: 'Webhook',
+    color: 'hsl(4 90% 58%)',
+    shape: 'rectangular',
+    relationships: ['Functions', 'Compute Instance', 'Identity and Access']
+  },
+  {
+    id: 'oci-generative-ai',
+    name: 'Generative AI',
+    type: 'behavioral',
+    category: 'application',
+    framework: 'oci',
+    description: 'Access to foundation models like Llama, Cohere, and custom model training.',
+    usageGuidelines: 'Use for building AI-powered applications with large language models and generative capabilities.',
+    iconName: 'Brain',
+    color: 'hsl(4 90% 58%)',
+    shape: 'rounded',
+    relationships: ['Data Science', 'AI Vision', 'Object Storage']
+  },
+  {
+    id: 'oci-data-science',
+    name: 'Data Science',
+    type: 'behavioral',
+    category: 'application',
+    framework: 'oci',
+    description: 'Collaborative platform for building, training, and deploying machine learning models.',
+    usageGuidelines: 'Use for the complete ML lifecycle from experimentation to production deployment.',
+    iconName: 'BarChart3',
+    color: 'hsl(4 90% 58%)',
+    shape: 'rounded',
+    relationships: ['Object Storage', 'Autonomous Database', 'AI Infrastructure']
+  },
+  {
+    id: 'oci-analytics-cloud',
+    name: 'Analytics Cloud',
+    type: 'behavioral',
+    category: 'data',
+    framework: 'oci',
+    description: 'Self-service business intelligence and data visualization platform.',
+    usageGuidelines: 'Use for creating dashboards, reports, and advanced analytics with augmented capabilities.',
+    iconName: 'TrendingUp',
+    color: 'hsl(4 90% 58%)',
+    shape: 'rounded',
+    relationships: ['Autonomous Database', 'Data Integration', 'Object Storage']
+  },
+  {
+    id: 'oci-big-data',
+    name: 'Big Data Service',
+    type: 'structural',
+    category: 'data',
+    framework: 'oci',
+    description: 'Managed Apache Hadoop and Spark clusters for big data processing.',
+    usageGuidelines: 'Use for large-scale data processing, ETL operations, and distributed computing workloads.',
+    iconName: 'Layers',
+    color: 'hsl(4 90% 58%)',
+    shape: 'rectangular',
+    relationships: ['Object Storage', 'Data Flow', 'Analytics Cloud']
+  },
+  {
+    id: 'oci-streaming',
+    name: 'Streaming',
+    type: 'behavioral',
+    category: 'data',
+    framework: 'oci',
+    description: 'Real-time data streaming service compatible with Apache Kafka.',
+    usageGuidelines: 'Use for real-time data ingestion, event processing, and stream analytics.',
+    iconName: 'Radio',
+    color: 'hsl(4 90% 58%)',
+    shape: 'rounded',
+    relationships: ['Functions', 'Data Flow', 'Service Connector']
+  },
+  {
+    id: 'oci-integration',
+    name: 'Integration',
+    type: 'behavioral',
+    category: 'application',
+    framework: 'oci',
+    description: 'Low-code integration platform for connecting applications and data sources.',
+    usageGuidelines: 'Use for building integration flows, B2B connections, and process automation.',
+    iconName: 'Workflow',
+    color: 'hsl(4 90% 58%)',
+    shape: 'rounded',
+    relationships: ['API Gateway', 'Object Storage', 'Autonomous Database']
+  },
+  {
+    id: 'oci-cloud-guard',
+    name: 'Cloud Guard',
+    type: 'structural',
+    category: 'technology',
+    framework: 'oci',
+    description: 'Cloud security posture management with threat detection and automated remediation.',
+    usageGuidelines: 'Use for continuous security monitoring and compliance across cloud resources.',
+    iconName: 'Shield',
+    color: 'hsl(4 90% 58%)',
+    shape: 'rectangular',
+    relationships: ['Security Zones', 'Audit', 'Identity and Access']
+  },
+  {
+    id: 'oci-iam',
+    name: 'Identity and Access Management',
+    type: 'structural',
+    category: 'technology',
+    framework: 'oci',
+    description: 'Centralized identity management with fine-grained access controls.',
+    usageGuidelines: 'Use for user authentication, authorization, and identity federation across services.',
+    iconName: 'Users',
+    color: 'hsl(4 90% 58%)',
+    shape: 'rectangular',
+    relationships: ['API Gateway', 'Compute Instance', 'Cloud Guard']
+  },
+  {
+    id: 'oci-fastconnect',
+    name: 'FastConnect',
+    type: 'structural',
+    category: 'technology',
+    framework: 'oci',
+    description: 'Dedicated network connectivity between on-premises and OCI.',
+    usageGuidelines: 'Use for high-bandwidth, low-latency connectivity to cloud resources.',
+    iconName: 'Cable',
+    color: 'hsl(4 90% 58%)',
+    shape: 'rectangular',
+    relationships: ['VCN', 'Gateway', 'DNS']
   },
 
   // Multi-Cloud and Modern Architecture Patterns

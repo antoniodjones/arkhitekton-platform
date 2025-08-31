@@ -35,6 +35,7 @@ export function PaletteSidebar({
     { id: 'aws', name: 'AWS Cloud' },
     { id: 'azure', name: 'Azure' },
     { id: 'gcp', name: 'Google Cloud' },
+    { id: 'oci', name: 'Oracle Cloud' },
     { id: 'patterns', name: 'Cloud Patterns' },
   ];
 
