@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { 
   Ticket, 
   Plus, 
@@ -32,7 +33,9 @@ import {
   Flag,
   Archive,
   Play,
-  Pause
+  Pause,
+  Edit,
+  MoreHorizontal
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/app-layout';
 
@@ -403,7 +406,10 @@ function TicketsContent() {
               <Bot className="h-4 w-4 mr-2" />
               AI Insights
             </Button>
-            <Button className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white">
+            <Button 
+              className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+              onClick={() => window.location.href = '/tickets/new'}
+            >
               <Plus className="h-4 w-4 mr-2" />
               New Ticket
             </Button>
@@ -597,6 +603,27 @@ function TicketsContent() {
                     </div>
                     <div className="flex items-center space-x-2 ml-4">
                       {getStatusIcon(ticket.status)}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => window.location.href = `/tickets/${ticket.id}/edit`}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit Ticket
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <MessageCircle className="h-4 w-4 mr-2" />
+                            Add Comment
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </div>
                 </CardHeader>
