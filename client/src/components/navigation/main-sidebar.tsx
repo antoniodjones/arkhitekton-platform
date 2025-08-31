@@ -64,40 +64,35 @@ export function MainSidebar({ className }: MainSidebarProps) {
       label: 'Capability Assessment',
       href: '/capabilities',
       icon: Target,
-      description: 'Evaluate business capabilities',
-      badge: 'Soon'
+      description: 'Evaluate business capabilities'
     },
     {
       id: 'decisions',
       label: 'Decision Records',
       href: '/decisions',
       icon: FileText,
-      description: 'Architecture Decision Records',
-      badge: 'Soon'
+      description: 'Architecture Decision Records'
     },
     {
       id: 'portfolio',
       label: 'Portfolio Management',
       href: '/portfolio',
       icon: TrendingUp,
-      description: 'Track transformation initiatives',
-      badge: 'Soon'
+      description: 'Track transformation initiatives'
     },
     {
       id: 'workflows',
       label: 'Review Workflows',
       href: '/workflows',
       icon: Workflow,
-      description: 'Architecture review processes',
-      badge: 'Soon'
+      description: 'Architecture review processes'
     },
     {
       id: 'wiki',
       label: 'Knowledge Base',
       href: '/wiki',
       icon: BookOpen,
-      description: 'Governance documentation',
-      badge: 'Soon'
+      description: 'Governance documentation'
     }
   ];
 

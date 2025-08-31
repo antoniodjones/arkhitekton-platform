@@ -8,6 +8,11 @@ import DesignPalette from "@/pages/design-palette";
 import { WorkspacePage } from "@/pages/workspace";
 import Dashboard from "@/pages/dashboard";
 import { GovernancePage } from "@/pages/governance";
+import { DecisionsPage } from "@/pages/decisions";
+import { CapabilitiesPage } from "@/pages/capabilities";
+import { PortfolioPage } from "@/pages/portfolio";
+import { WorkflowsPage } from "@/pages/workflows";
+import { WikiPage } from "@/pages/wiki";
 
 function Router() {
   return (
@@ -16,6 +21,11 @@ function Router() {
       <Route path="/design-palette" component={DesignPalette} />
       <Route path="/workspace" component={WorkspacePage} />
       <Route path="/governance" component={GovernancePage} />
+      <Route path="/decisions" component={DecisionsPage} />
+      <Route path="/capabilities" component={CapabilitiesPage} />
+      <Route path="/portfolio" component={PortfolioPage} />
+      <Route path="/workflows" component={WorkflowsPage} />
+      <Route path="/wiki" component={WikiPage} />
       <Route component={NotFound} />
     </Switch>
   );
