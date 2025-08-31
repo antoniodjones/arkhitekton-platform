@@ -307,10 +307,10 @@ function CreateTicketContent() {
                             <Icon className="h-6 w-6 text-emerald-600" />
                           </div>
                           <div>
-                            <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-2">
+                            <h3 className="font-black text-xl text-black dark:text-white mb-2">
                               {ticketType.title}
                             </h3>
-                            <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                            <p className="text-base font-bold text-black dark:text-slate-100">
                               {ticketType.description}
                             </p>
                           </div>
