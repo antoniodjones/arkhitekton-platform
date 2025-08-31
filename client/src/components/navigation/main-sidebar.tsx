@@ -17,7 +17,8 @@ import {
   FileText,
   Workflow,
   Database,
-  GitBranch
+  GitBranch,
+  Ticket
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -86,6 +87,13 @@ export function MainSidebar({ className }: MainSidebarProps) {
       href: '/workflows',
       icon: Workflow,
       description: 'Architecture review processes'
+    },
+    {
+      id: 'tickets',
+      label: 'Architecture Tickets',
+      href: '/tickets',
+      icon: Ticket,
+      description: 'Review requests and architect assignments'
     },
     {
       id: 'wiki',

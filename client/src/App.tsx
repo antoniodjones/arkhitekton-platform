@@ -13,6 +13,7 @@ import { CapabilitiesPage } from "@/pages/capabilities";
 import { PortfolioPage } from "@/pages/portfolio";
 import { WorkflowsPage } from "@/pages/workflows";
 import { WikiPage } from "@/pages/wiki";
+import { TicketsPage } from "@/pages/tickets";
 
 function Router() {
   return (
@@ -26,6 +27,7 @@ function Router() {
       <Route path="/portfolio" component={PortfolioPage} />
       <Route path="/workflows" component={WorkflowsPage} />
       <Route path="/wiki" component={WikiPage} />
+      <Route path="/tickets" component={TicketsPage} />
       <Route component={NotFound} />
     </Switch>
   );

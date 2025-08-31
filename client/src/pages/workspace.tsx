@@ -7,11 +7,12 @@ import { Separator } from '@/components/ui/separator';
 import { ResizableSplitter } from '@/components/workspace/resizable-splitter';
 import { RightResizableSplitter } from '@/components/workspace/right-resizable-splitter';
 import { Button } from '@/components/ui/button';
-import { PanelLeftOpen, PanelLeftClose, Home, Save, Users, Search, Sparkles } from 'lucide-react';
+import { PanelLeftOpen, PanelLeftClose, Home, Save, Users, Search, Sparkles, Bot, AlertTriangle } from 'lucide-react';
 import { Link } from 'wouter';
 import { archimateElements, ArchimateElement } from '@/data/archimate-elements';
 import type { WorkspaceState } from '@/components/workspace/workspace';
 import { AIAssistant } from '@/components/ai/ai-assistant';
+import { ChangeDetectionPanel } from '@/components/workspace/change-detection-panel';
 import { AppLayout } from '@/components/layout/app-layout';
 
 function WorkspaceContent() {
@@ -25,6 +26,7 @@ function WorkspaceContent() {
   const [selectedElement, setSelectedElement] = useState<ArchimateElement>();
   const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
   const [aiAssistantMinimized, setAiAssistantMinimized] = useState(false);
+  const [changeDetectionOpen, setChangeDetectionOpen] = useState(false);
 
   // Filter elements based on category, framework, and search query
   const filteredElements = useMemo(() => {
@@ -63,6 +65,12 @@ function WorkspaceContent() {
       console.error('Error loading workspace state:', error);
       return null;
     }
+  };
+
+  const handleCreateTicket = (change: any) => {
+    // In a real app, this would create a ticket via API
+    console.log('Creating ticket for change:', change);
+    // Navigate to tickets page or open ticket creation modal
   };
 
   return (
@@ -180,6 +188,18 @@ function WorkspaceContent() {
             >
               <Sparkles className="h-4 w-4" />
             </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setChangeDetectionOpen(true)}
+              className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white relative"
+              data-testid="button-change-detection"
+            >
+              <Bot className="h-4 w-4" />
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
+                <span className="text-xs text-white font-bold">2</span>
+              </div>
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -238,6 +258,13 @@ function WorkspaceContent() {
           }}
         />
       )}
+
+      {/* Change Detection Panel */}
+      <ChangeDetectionPanel
+        isOpen={changeDetectionOpen}
+        onClose={() => setChangeDetectionOpen(false)}
+        onCreateTicket={handleCreateTicket}
+      />
     </div>
   );
 }
