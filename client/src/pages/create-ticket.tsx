@@ -33,6 +33,7 @@ import { detectTechnicalDebtRisk, TechnicalDebtRiskIndicators } from '@/utils/te
 import { TechnicalDebtPrompt } from '@/components/dialogs/technical-debt-prompt';
 import { PortfolioAssociationForm } from '@/components/portfolio/portfolio-association-form';
 import { SearchableSelect } from '@/components/forms/searchable-select';
+import { IntegrationBadge } from '@/components/ui/integration-badge';
 import { AppLayout } from '@/components/layout/app-layout';
 
 interface TicketFormData {
@@ -174,6 +175,7 @@ function CreateTicketContent() {
   const [currentReviewer, setCurrentReviewer] = useState('');
   const [currentWatcher, setCurrentWatcher] = useState('');
   const [currentLabel, setCurrentLabel] = useState('');
+  const [autoPopulatedFields, setAutoPopulatedFields] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState('basic');
   const [showDebtPrompt, setShowDebtPrompt] = useState(false);
   const [debtRiskIndicators, setDebtRiskIndicators] = useState<TechnicalDebtRiskIndicators | null>(null);
@@ -657,6 +659,13 @@ function CreateTicketContent() {
                               placeholder="Search for program, project, or product..."
                               value={formData.projectName || ''}
                               onChange={(value) => handleInputChange('projectName', value)}
+                              onProjectSelect={(projectData) => {
+                                // Auto-populate business justification and domain
+                                handleInputChange('businessJustification', projectData.businessJustification);
+                                handleInputChange('businessDomain', projectData.businessDomain);
+                                // Track auto-populated fields for visual indication
+                                setAutoPopulatedFields(new Set(['businessJustification', 'businessDomain']));
+                              }}
                             />
                           </div>
                           <div className="space-y-2">
