@@ -610,13 +610,13 @@ function TicketsContent() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => window.location.href = `/tickets/${ticket.id}`}>
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => window.location.href = `/tickets/${ticket.id}/edit`}>
                             <Edit className="h-4 w-4 mr-2" />
                             Edit Ticket
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Details
                           </DropdownMenuItem>
                           <DropdownMenuItem>
                             <MessageCircle className="h-4 w-4 mr-2" />

@@ -25,7 +25,8 @@ import {
   Clock,
   User,
   Tag,
-  Link
+  Link,
+  XCircle
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/app-layout';
 
@@ -238,6 +239,14 @@ function CreateTicketContent() {
             </div>
           </div>
           <div className="flex items-center space-x-3">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/tickets')}
+              className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border-red-200 hover:border-red-300 text-red-600 hover:text-red-700"
+            >
+              <XCircle className="h-4 w-4 mr-2" />
+              Cancel
+            </Button>
             <Button
               variant="outline"
               onClick={() => handleSave(true)}

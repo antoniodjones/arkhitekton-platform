@@ -16,6 +16,7 @@ import { WikiPage } from "@/pages/wiki";
 import { TicketsPage } from "@/pages/tickets";
 import { CreateTicketPage } from "@/pages/create-ticket";
 import { EditTicketPage } from "@/pages/edit-ticket";
+import { ViewTicketPage } from "@/pages/view-ticket";
 
 function Router() {
   return (
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/tickets" component={TicketsPage} />
       <Route path="/tickets/new" component={CreateTicketPage} />
       <Route path="/tickets/:id/edit" component={EditTicketPage} />
+      <Route path="/tickets/:id" component={ViewTicketPage} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -26,7 +26,8 @@ import {
   User,
   Tag,
   Link,
-  History
+  History,
+  XCircle
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/app-layout';
 
@@ -221,6 +222,14 @@ function EditTicketContent() {
           <div className="flex items-center space-x-3">
             <Button
               variant="outline"
+              onClick={() => navigate('/tickets')}
+              className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border-red-200 hover:border-red-300 text-red-600 hover:text-red-700"
+            >
+              <XCircle className="h-4 w-4 mr-2" />
+              Cancel
+            </Button>
+            <Button
+              variant="outline"
               onClick={() => navigate(`/tickets/${ticket.id}/history`)}
               className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm"
             >
@@ -230,7 +239,7 @@ function EditTicketContent() {
             <Button
               onClick={handleSave}
               disabled={saving}
-              className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
             >
               <Save className="h-4 w-4 mr-2" />
               {saving ? 'Saving...' : 'Save Changes'}
