@@ -307,6 +307,236 @@ export const archimateElements: ArchimateElement[] = [
     relationships: ['Business Object', 'Representation', 'Value']
   },
 
+  // Business Motivation Model (BMM) Elements
+  // Ends - What the organization wants to achieve
+  {
+    id: 'bmm-vision',
+    name: 'Vision',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'The ultimate aspiration or desired future state of the organization.',
+    usageGuidelines: 'Use to describe what the business would like to become. Should be inspiring and concise for employees.',
+    iconName: 'Eye',
+    color: 'hsl(280 100% 70%)', // Purple for BMM elements
+    shape: 'diamond',
+    relationships: ['Goal', 'Mission', 'Strategy']
+  },
+  {
+    id: 'bmm-mission',
+    name: 'Mission',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'The organization\'s primary activity to realize its Vision.',
+    usageGuidelines: 'Use to describe the activity that needs to be done and why it\'s important. Summary of all strategies.',
+    iconName: 'Compass',
+    color: 'hsl(280 100% 70%)',
+    shape: 'diamond',
+    relationships: ['Vision', 'Strategy', 'Business Function']
+  },
+  {
+    id: 'bmm-objective',
+    name: 'Objective',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Specific, measurable, achievable, relevant, and time-bound (SMART) targets.',
+    usageGuidelines: 'Use for concrete metrics and KPIs that help achieve goals through measurable outcomes.',
+    iconName: 'Target',
+    color: 'hsl(280 100% 70%)',
+    shape: 'diamond',
+    relationships: ['Goal', 'Strategy', 'Performance Indicator']
+  },
+  
+  // Means - How the organization will achieve its ends
+  {
+    id: 'bmm-strategy',
+    name: 'Strategy',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Major parts of the plan to accomplish the mission.',
+    usageGuidelines: 'Use for long-term approaches with significant impact on business operations to achieve goals.',
+    iconName: 'Map',
+    color: 'hsl(200 100% 50%)', // Blue for strategy elements
+    shape: 'diamond',
+    relationships: ['Mission', 'Tactic', 'Goal', 'Objective']
+  },
+  {
+    id: 'bmm-tactic',
+    name: 'Tactic',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Courses of action that support one or more strategies.',
+    usageGuidelines: 'Use for narrower scope, short-term actions to navigate specific operational areas.',
+    iconName: 'Zap',
+    color: 'hsl(200 100% 50%)',
+    shape: 'diamond',
+    relationships: ['Strategy', 'Business Process', 'Business Function']
+  },
+  {
+    id: 'bmm-business-policy',
+    name: 'Business Policy',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Broad directives that need interpretation through business rules.',
+    usageGuidelines: 'Use for high-level governance statements that guide organizational behavior.',
+    iconName: 'Shield',
+    color: 'hsl(200 100% 50%)',
+    shape: 'diamond',
+    relationships: ['Business Rule', 'Strategy', 'Governance']
+  },
+  {
+    id: 'bmm-business-rule',
+    name: 'Business Rule',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Specific operational requirements that govern business behavior.',
+    usageGuidelines: 'Use for detailed rules that implement business policies and ensure compliance.',
+    iconName: 'BookOpen',
+    color: 'hsl(200 100% 50%)',
+    shape: 'diamond',
+    relationships: ['Business Policy', 'Business Process', 'Decision']
+  },
+  
+  // Influencers - External and internal factors
+  {
+    id: 'bmm-assessment',
+    name: 'Assessment',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Evaluations or judgments about influencers that affect the organization.',
+    usageGuidelines: 'Use for informed judgments based on business intelligence and risk analysis.',
+    iconName: 'TrendingUp',
+    color: 'hsl(45 100% 50%)', // Yellow for influencer elements
+    shape: 'diamond',
+    relationships: ['External Factor', 'Internal Factor', 'Risk', 'Decision']
+  },
+  {
+    id: 'bmm-external-factor',
+    name: 'External Factor',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'External conditions that may influence the organization\'s success.',
+    usageGuidelines: 'Use for market conditions, regulations, competition, economic environment, technological changes.',
+    iconName: 'Globe',
+    color: 'hsl(45 100% 50%)',
+    shape: 'diamond',
+    relationships: ['Assessment', 'Risk', 'Opportunity', 'Strategy']
+  },
+  {
+    id: 'bmm-internal-factor',
+    name: 'Internal Factor',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Internal conditions and capabilities within the organization.',
+    usageGuidelines: 'Use for organizational capabilities, resources, culture, current processes and systems.',
+    iconName: 'Building',
+    color: 'hsl(45 100% 50%)',
+    shape: 'diamond',
+    relationships: ['Assessment', 'Capability', 'Resource', 'Strategy']
+  },
+  {
+    id: 'bmm-swot-strength',
+    name: 'Strength',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Internal positive factors that give the organization an advantage.',
+    usageGuidelines: 'Use to identify internal capabilities and resources that provide competitive advantage.',
+    iconName: 'TrendingUp',
+    color: 'hsl(120 100% 40%)', // Green for strengths
+    shape: 'diamond',
+    relationships: ['Internal Factor', 'Capability', 'Strategy', 'Opportunity']
+  },
+  {
+    id: 'bmm-swot-weakness',
+    name: 'Weakness',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Internal negative factors that put the organization at a disadvantage.',
+    usageGuidelines: 'Use to identify internal limitations that need to be addressed or mitigated.',
+    iconName: 'TrendingDown',
+    color: 'hsl(0 100% 50%)', // Red for weaknesses
+    shape: 'diamond',
+    relationships: ['Internal Factor', 'Risk', 'Strategy', 'Improvement']
+  },
+  {
+    id: 'bmm-swot-opportunity',
+    name: 'Opportunity',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'External positive factors that the organization could exploit.',
+    usageGuidelines: 'Use to identify external chances for growth, improvement, or competitive advantage.',
+    iconName: 'Sunrise',
+    color: 'hsl(120 100% 40%)', // Green for opportunities
+    shape: 'diamond',
+    relationships: ['External Factor', 'Strategy', 'Growth', 'Innovation']
+  },
+  {
+    id: 'bmm-swot-threat',
+    name: 'Threat',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'External negative factors that could harm the organization.',
+    usageGuidelines: 'Use to identify external risks that require defensive strategies or mitigation plans.',
+    iconName: 'AlertTriangle',
+    color: 'hsl(0 100% 50%)', // Red for threats
+    shape: 'diamond',
+    relationships: ['External Factor', 'Risk', 'Strategy', 'Mitigation']
+  },
+  
+  // Performance and Measurement
+  {
+    id: 'bmm-kpi',
+    name: 'Key Performance Indicator',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Quantifiable measure used to evaluate success in achieving objectives.',
+    usageGuidelines: 'Use to define specific metrics that track progress toward objectives and goals.',
+    iconName: 'BarChart3',
+    color: 'hsl(160 100% 40%)', // Teal for performance elements
+    shape: 'diamond',
+    relationships: ['Objective', 'Goal', 'Assessment', 'Dashboard']
+  },
+  {
+    id: 'bmm-balanced-scorecard',
+    name: 'Balanced Scorecard',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Strategic performance management tool that tracks multiple performance perspectives.',
+    usageGuidelines: 'Use to monitor performance across financial, customer, internal process, and learning perspectives.',
+    iconName: 'Grid3x3',
+    color: 'hsl(160 100% 40%)',
+    shape: 'diamond',
+    relationships: ['KPI', 'Strategy', 'Objective', 'Performance Dashboard']
+  },
+  {
+    id: 'bmm-critical-success-factor',
+    name: 'Critical Success Factor',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Essential areas where performance must be satisfactory for the organization to succeed.',
+    usageGuidelines: 'Use to identify key areas that are vital for achieving strategic objectives.',
+    iconName: 'Star',
+    color: 'hsl(160 100% 40%)',
+    shape: 'diamond',
+    relationships: ['Strategy', 'Objective', 'KPI', 'Success Criteria']
+  },
+
   // Application Architecture Elements
   {
     id: 'application-component',
