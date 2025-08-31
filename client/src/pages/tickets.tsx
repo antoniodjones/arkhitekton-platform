@@ -35,14 +35,15 @@ import {
   Play,
   Pause,
   Edit,
-  MoreHorizontal
+  MoreHorizontal,
+  Wrench
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/app-layout';
 
 interface TicketData {
   id: string;
   ticketNumber: string;
-  type: 'architecture_review' | 'architect_request' | 'adr' | 'change_request';
+  type: 'architecture_review' | 'architect_request' | 'adr' | 'change_request' | 'technical_debt';
   title: string;
   description: string;
   status: 'open' | 'in_progress' | 'under_review' | 'approved' | 'rejected' | 'closed' | 'on_hold';
@@ -352,6 +353,7 @@ function TicketsContent() {
       case 'architect_request': return Users;
       case 'adr': return FileText;
       case 'change_request': return GitBranch;
+      case 'technical_debt': return Wrench;
       default: return Ticket;
     }
   };
@@ -362,6 +364,7 @@ function TicketsContent() {
       case 'architect_request': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300';
       case 'adr': return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300';
       case 'change_request': return 'bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300';
+      case 'technical_debt': return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300';
       default: return 'bg-slate-100 text-slate-800 dark:bg-slate-900/20 dark:text-slate-300';
     }
   };

@@ -26,12 +26,13 @@ import {
   User,
   Tag,
   Link,
-  XCircle
+  XCircle,
+  Wrench
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/app-layout';
 
 interface TicketFormData {
-  type: 'architecture_review' | 'architect_request' | 'adr' | 'change_request' | '';
+  type: 'architecture_review' | 'architect_request' | 'adr' | 'change_request' | 'technical_debt' | '';
   title: string;
   description: string;
   priority: 'low' | 'medium' | 'high' | 'critical' | 'urgent' | '';
@@ -112,6 +113,13 @@ interface TicketFormData {
   operationalImpact?: string;
   affectedSystems?: string[];
   reviewCriteria?: string[];
+
+  // Technical Debt specific fields
+  debtType?: 'code_quality' | 'architecture' | 'documentation' | 'testing' | 'security' | 'performance' | 'maintenance' | '';
+  debtSeverity?: 'low' | 'medium' | 'high' | 'critical' | '';
+  debtScore?: number;
+  currentProblem?: string;
+  businessImpact?: string;
 }
 
 function CreateTicketContent() {
@@ -145,6 +153,7 @@ function CreateTicketContent() {
       case 'architect_request': return Users;
       case 'adr': return FileText;
       case 'change_request': return GitBranch;
+      case 'technical_debt': return Wrench;
       default: return FileText;
     }
   };
@@ -155,6 +164,7 @@ function CreateTicketContent() {
       case 'architect_request': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300';
       case 'adr': return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300';
       case 'change_request': return 'bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300';
+      case 'technical_debt': return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300';
       default: return 'bg-slate-100 text-slate-800 dark:bg-slate-900/20 dark:text-slate-300';
     }
   };
@@ -188,7 +198,8 @@ function CreateTicketContent() {
       'architecture_review': 'ARR',
       'architect_request': 'ARCH',
       'adr': 'ADR',
-      'change_request': 'CHG'
+      'change_request': 'CHG',
+      'technical_debt': 'DEBT'
     }[formData.type] : 'TKT';
     
     const ticketNumber = `${typePrefix}-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
@@ -301,6 +312,12 @@ function CreateTicketContent() {
                     title: 'Change Request',
                     description: 'Request changes to existing architecture',
                     icon: GitBranch
+                  },
+                  {
+                    type: 'technical_debt',
+                    title: 'Technical Debt',
+                    description: 'Track and manage technical debt items',
+                    icon: Wrench
                   }
                 ].map((ticketType) => {
                   const Icon = ticketType.icon;
@@ -353,6 +370,7 @@ function CreateTicketContent() {
                         {formData.type === 'architect_request' && 'Architect Assignment Request'}
                         {formData.type === 'adr' && 'Architecture Decision Record'}
                         {formData.type === 'change_request' && 'Change Request'}
+                        {formData.type === 'technical_debt' && 'Technical Debt'}
                       </h2>
                     </div>
                   </div>
@@ -655,6 +673,106 @@ function CreateTicketContent() {
                             rows={3}
                             className="bg-white/70 dark:bg-slate-800/70"
                           />
+                        </div>
+                      </div>
+                    )}
+
+                    {formData.type === 'technical_debt' && (
+                      <div className="space-y-6 pt-6 border-t border-slate-200/50 dark:border-slate-700/50">
+                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Technical Debt Details</h3>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <div className="space-y-2">
+                            <Label htmlFor="debtType">Debt Type</Label>
+                            <Select value={formData.debtType} onValueChange={(value) => handleInputChange('debtType', value)}>
+                              <SelectTrigger className="bg-white/70 dark:bg-slate-800/70">
+                                <SelectValue placeholder="Select debt type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="code_quality">Code Quality</SelectItem>
+                                <SelectItem value="architecture">Architecture</SelectItem>
+                                <SelectItem value="documentation">Documentation</SelectItem>
+                                <SelectItem value="testing">Testing</SelectItem>
+                                <SelectItem value="security">Security</SelectItem>
+                                <SelectItem value="performance">Performance</SelectItem>
+                                <SelectItem value="maintenance">Maintenance</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="debtSeverity">Debt Severity</Label>
+                            <Select value={formData.debtSeverity} onValueChange={(value) => handleInputChange('debtSeverity', value)}>
+                              <SelectTrigger className="bg-white/70 dark:bg-slate-800/70">
+                                <SelectValue placeholder="Select severity" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="low">Low</SelectItem>
+                                <SelectItem value="medium">Medium</SelectItem>
+                                <SelectItem value="high">High</SelectItem>
+                                <SelectItem value="critical">Critical</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="debtScore">Debt Score (1-10)</Label>
+                            <Input
+                              id="debtScore"
+                              type="number"
+                              min="1"
+                              max="10"
+                              placeholder="8"
+                              value={formData.debtScore || ''}
+                              onChange={(e) => handleInputChange('debtScore', parseInt(e.target.value))}
+                              className="bg-white/70 dark:bg-slate-800/70"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="currentProblem">Current Problem</Label>
+                          <Textarea
+                            id="currentProblem"
+                            placeholder="Describe the current technical debt issue"
+                            value={formData.currentProblem || ''}
+                            onChange={(e) => handleInputChange('currentProblem', e.target.value)}
+                            rows={3}
+                            className="bg-white/70 dark:bg-slate-800/70"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="proposedSolution">Proposed Solution</Label>
+                          <Textarea
+                            id="proposedSolution"
+                            placeholder="Describe how to resolve this technical debt"
+                            value={formData.proposedSolution || ''}
+                            onChange={(e) => handleInputChange('proposedSolution', e.target.value)}
+                            rows={3}
+                            className="bg-white/70 dark:bg-slate-800/70"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-2">
+                            <Label htmlFor="affectedSystems">Affected Systems</Label>
+                            <Input
+                              id="affectedSystems"
+                              placeholder="e.g., Payment Service, User API"
+                              value={formData.affectedSystems || ''}
+                              onChange={(e) => handleInputChange('affectedSystems', e.target.value)}
+                              className="bg-white/70 dark:bg-slate-800/70"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="businessImpact">Business Impact</Label>
+                            <Input
+                              id="businessImpact"
+                              placeholder="How does this affect business operations?"
+                              value={formData.businessImpact || ''}
+                              onChange={(e) => handleInputChange('businessImpact', e.target.value)}
+                              className="bg-white/70 dark:bg-slate-800/70"
+                            />
+                          </div>
                         </div>
                       </div>
                     )}
