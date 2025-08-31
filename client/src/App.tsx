@@ -7,6 +7,7 @@ import NotFound from "@/pages/not-found";
 import DesignPalette from "@/pages/design-palette";
 import { WorkspacePage } from "@/pages/workspace";
 import Dashboard from "@/pages/dashboard";
+import { GovernancePage } from "@/pages/governance";
 
 function Router() {
   return (
@@ -14,6 +15,7 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/design-palette" component={DesignPalette} />
       <Route path="/workspace" component={WorkspacePage} />
+      <Route path="/governance" component={GovernancePage} />
       <Route component={NotFound} />
     </Switch>
   );

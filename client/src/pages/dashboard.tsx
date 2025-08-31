@@ -61,11 +61,11 @@ export function Dashboard() {
       href: "/workspace"
     },
     {
-      title: "Capability Assessment", 
-      description: "Evaluate business capabilities",
-      icon: Target,
+      title: "Governance Dashboard", 
+      description: "Monitor compliance and risk assessment",
+      icon: Shield,
       color: "text-blue-600",
-      href: "/capabilities"
+      href: "/governance"
     },
     {
       title: "Innovation Portfolio",
