@@ -127,51 +127,57 @@ export function PropertiesPanel({ selectedElement }: PropertiesPanelProps) {
   };
 
   return (
-    <aside className="w-96 bg-card border-l border-border flex flex-col">
-      <div className="p-4 border-b border-border">
-        <h3 className="text-sm font-medium text-foreground mb-2">Element Properties</h3>
-        <div className="text-xs text-muted-foreground">
-          Detailed information and usage guidelines
+    <aside className="w-96 bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border-l border-slate-200/50 dark:border-slate-700/50 flex flex-col">
+      <div className="p-6 border-b border-slate-200/50 dark:border-slate-700/50">
+        <div className="flex items-center space-x-3 mb-2">
+          <div className="w-2 h-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full" />
+          <h3 className="text-lg font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-200 bg-clip-text text-transparent">Element Details</h3>
         </div>
+        <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">
+          Architecture insights and context
+        </p>
       </div>
 
       {/* Element Preview */}
-      <div className="p-4 border-b border-border">
-        <Card className="bg-muted">
-          <CardContent className="p-4 text-center">
-            <div 
-              className={cn(
-                "w-16 h-12 mx-auto mb-3 flex items-center justify-center text-white",
-                getShapeClass(selectedElement.shape, selectedElement.type)
-              )}
-              style={{ backgroundColor: selectedElement.color }}
-            >
-              {IconComponent && <IconComponent size={20} />}
+      <div className="p-6 border-b border-slate-200/50 dark:border-slate-700/50">
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-cyan-500/10 rounded-2xl" />
+          <div className="relative bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-2xl p-6 text-center shadow-lg">
+            <div className="relative inline-block mb-4">
+              <div 
+                className={cn(
+                  "w-20 h-16 flex items-center justify-center text-white shadow-lg",
+                  getShapeClass(selectedElement.shape, selectedElement.type)
+                )}
+                style={{ backgroundColor: selectedElement.color, filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.15))' }}
+              >
+                {IconComponent && <IconComponent size={24} />}
+              </div>
             </div>
-            <h4 className="font-medium text-foreground mb-1" data-testid="text-element-name">
+            <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-2" data-testid="text-element-name">
               {selectedElement.name}
             </h4>
-            <p className="text-xs text-muted-foreground mb-3">
+            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 leading-relaxed">
               {selectedElement.description}
             </p>
             
-            <div className="flex items-center justify-center space-x-4 text-xs">
-              <div className="flex items-center">
+            <div className="flex items-center justify-center space-x-3 text-sm">
+              <div className="flex items-center bg-slate-50 dark:bg-slate-700/50 px-3 py-1 rounded-full">
                 <div 
                   className={cn(
-                    "w-3 h-3 mr-1",
+                    "w-3 h-3 mr-2",
                     getShapeClass(selectedElement.shape, selectedElement.type)
                   )}
                   style={{ backgroundColor: selectedElement.color }}
                 />
-                <span className="capitalize">{selectedElement.type} Element</span>
+                <span className="capitalize font-medium text-slate-700 dark:text-slate-300">{selectedElement.type}</span>
               </div>
-              <Badge variant="secondary" className="text-xs">
+              <Badge className="bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800 border-0 font-medium">
                 {selectedElement.framework.toUpperCase()}
               </Badge>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
       {/* Usage Guidelines */}
@@ -199,22 +205,31 @@ export function PropertiesPanel({ selectedElement }: PropertiesPanelProps) {
       </div>
 
       {/* Business Context & Metadata */}
-      <div className="p-4 border-b border-border">
-        <h4 className="text-sm font-medium text-foreground mb-3">Business Context</h4>
+      <div className="p-6 border-b border-slate-200/50 dark:border-slate-700/50">
+        <h4 className="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center">
+          <TrendingUp className="h-4 w-4 mr-2 text-emerald-600" />
+          Business Context
+        </h4>
         <div className="space-y-4">
           {/* Status and Risk */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="text-xs text-muted-foreground">Status</Label>
-              <Badge className={cn("mt-1 capitalize", getStatusColor(metadata.status!))}>
-                {metadata.status}
-              </Badge>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide">STATUS</Label>
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-lg" />
+                <Badge className={cn("relative capitalize font-medium px-3 py-1", getStatusColor(metadata.status!))}>
+                  {metadata.status}
+                </Badge>
+              </div>
             </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">Risk Level</Label>
-              <Badge className={cn("mt-1 capitalize", getRiskColor(metadata.riskLevel!))}>
-                {metadata.riskLevel}
-              </Badge>
+            <div className="space-y-2">
+              <Label className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide">RISK LEVEL</Label>
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-lg" />
+                <Badge className={cn("relative capitalize font-medium px-3 py-1", getRiskColor(metadata.riskLevel!))}>
+                  {metadata.riskLevel}
+                </Badge>
+              </div>
             </div>
           </div>
           

@@ -18,7 +18,9 @@ import {
   BarChart3,
   Database,
   Shield,
-  Workflow
+  Workflow,
+  Sparkles,
+  Zap
 } from 'lucide-react';
 
 export function Dashboard() {
@@ -28,164 +30,161 @@ export function Dashboard() {
 
   const recentTasks = [
     {
-      title: "Review Application Portfolio",
-      description: "Rate Your Applications Technical Fit",
-      type: "Survey",
-      timeAgo: "2 days ago",
+      title: "Strategic Architecture Review",
+      description: "Assess enterprise transformation roadmap",
+      type: "Strategy",
+      timeAgo: "2 hours ago",
       priority: "high"
     },
     {
-      title: "Business Process Mapping", 
-      description: "Document core business workflows",
-      type: "Process",
-      timeAgo: "5 days ago",
+      title: "Digital Capability Mapping", 
+      description: "Map core digital capabilities and gaps",
+      type: "Assessment",
+      timeAgo: "1 day ago",
       priority: "medium"
     },
     {
-      title: "Technology Roadmap",
-      description: "Define future state architecture", 
-      type: "Strategy",
-      timeAgo: "1 week ago",
+      title: "Technology Modernization",
+      description: "Define future-state technology vision", 
+      type: "Planning",
+      timeAgo: "3 days ago",
       priority: "low"
     }
   ];
 
   const quickLinks = [
     {
-      title: "Create New Model",
-      description: "Start a new architecture diagram",
-      icon: Plus,
-      color: "text-green-600",
+      title: "Create Architecture Model",
+      description: "Design your enterprise architecture",
+      icon: Sparkles,
+      color: "text-emerald-600",
       href: "/workspace"
     },
     {
-      title: "Application Overview", 
-      description: "View all enterprise applications",
-      icon: Building,
+      title: "Capability Assessment", 
+      description: "Evaluate business capabilities",
+      icon: Target,
       color: "text-blue-600",
-      href: "/applications"
+      href: "/capabilities"
     },
     {
-      title: "Portfolio Analytics",
-      description: "Cost analysis and optimization", 
-      icon: TrendingUp,
+      title: "Innovation Portfolio",
+      description: "Track transformation initiatives", 
+      icon: Zap,
       color: "text-purple-600",
-      href: "/analytics"
+      href: "/innovation"
     },
     {
-      title: "Risk Assessment",
-      description: "Identify and manage risks",
-      icon: AlertTriangle,
-      color: "text-red-600", 
-      href: "/risk"
-    },
-    {
-      title: "Process Library",
-      description: "Reusable business processes",
-      icon: Workflow,
-      color: "text-orange-600",
-      href: "/processes"
-    },
-    {
-      title: "Data Governance",
-      description: "Manage data assets and policies",
-      icon: Shield,
-      color: "text-indigo-600",
-      href: "/governance"
+      title: "Strategic Planning",
+      description: "Define architectural roadmaps",
+      icon: TrendingUp,
+      color: "text-amber-600", 
+      href: "/strategy"
     }
   ];
 
   const recentModels = [
     {
-      title: "Customer Onboarding Process",
-      description: "BPMN process model",
-      type: "Business",
+      title: "Digital Transformation Blueprint",
+      description: "Enterprise-wide transformation architecture",
+      type: "Strategic",
       modified: "2 hours ago",
-      collaborators: 3
+      collaborators: 8
     },
     {
-      title: "Cloud Migration Architecture", 
-      description: "AWS infrastructure design",
-      type: "Technology",
+      title: "Cloud-Native Platform Design", 
+      description: "Modern application platform architecture",
+      type: "Technical",
       modified: "1 day ago",
-      collaborators: 5
+      collaborators: 12
     },
     {
-      title: "Application Portfolio",
-      description: "Enterprise application landscape",
-      type: "Application", 
-      modified: "3 days ago",
-      collaborators: 2
-    },
-    {
-      title: "Data Flow Diagram",
-      description: "Information architecture mapping",
-      type: "Data",
-      modified: "1 week ago", 
-      collaborators: 4
+      title: "Customer Experience Journey",
+      description: "End-to-end customer interaction model",
+      type: "Business", 
+      modified: "2 days ago",
+      collaborators: 6
     }
   ];
 
   const stats = [
-    { label: "Active Models", value: "24", icon: FileText, color: "text-blue-600" },
-    { label: "Team Members", value: "12", icon: Users, color: "text-green-600" },
-    { label: "Applications", value: "89", icon: Database, color: "text-purple-600" },
-    { label: "Processes", value: "156", icon: Workflow, color: "text-orange-600" }
+    { label: "Active Initiatives", value: "32", icon: Sparkles, color: "text-emerald-600" },
+    { label: "Architecture Models", value: "127", icon: Building, color: "text-blue-600" },
+    { label: "Capabilities Mapped", value: "89", icon: Target, color: "text-purple-600" },
+    { label: "Stakeholders", value: "24", icon: Users, color: "text-amber-600" }
   ];
 
   return (
-    <div className="h-screen flex flex-col bg-background">
-      {/* Header */}
-      <header className="border-b bg-card p-4 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-lg flex items-center justify-center">
-              <div className="w-4 h-4 bg-background rounded-sm" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      {/* Sophisticated Header */}
+      <header className="backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/50 dark:border-slate-700/50 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-6">
+              <div className="flex items-center space-x-3">
+                <div className="relative">
+                  <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                    <div className="w-5 h-5 bg-white/90 rounded-lg transform rotate-45" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-slate-800 dark:from-white dark:via-slate-200 dark:to-slate-300 bg-clip-text text-transparent tracking-tight">
+                    ArchModel Pro
+                  </h1>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide">ENTERPRISE ARCHITECTURE</p>
+                </div>
+              </div>
             </div>
-            <h1 className="text-xl font-bold text-foreground">ArchModel Pro</h1>
+            
+            <div className="flex items-center space-x-3">
+              <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
+                <Settings className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm" data-testid="button-settings">
-            <Settings className="h-4 w-4" />
-          </Button>
         </div>
       </header>
 
-      {/* Dashboard Content */}
-      <div className="flex-1 p-6 overflow-auto">
-        <div className="max-w-7xl mx-auto space-y-8">
-          {/* Welcome Section */}
-          <div className="text-center space-y-4">
-            <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary to-primary/70 rounded-2xl flex items-center justify-center">
-              <div className="w-8 h-8 bg-background rounded-lg" />
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-6 py-12 space-y-16">
+        {/* Hero Section */}
+        <div className="text-center space-y-8">
+          <div className="relative inline-block">
+            <div className="w-24 h-24 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-emerald-500/25 transform hover:scale-105 transition-transform duration-300">
+              <div className="w-12 h-12 bg-white/90 rounded-xl transform rotate-45" />
             </div>
-            <h2 className="text-3xl font-bold text-foreground">ArchModel Pro Discover</h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Enterprise architecture platform for end-to-end design and modeling
+            <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full animate-pulse" />
+          </div>
+          <div className="space-y-4">
+            <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-emerald-800 dark:from-white dark:via-slate-200 dark:to-emerald-200 bg-clip-text text-transparent leading-tight">
+              Enterprise Architecture
+            </h2>
+            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed font-light">
+              Design the future with elegant architecture modeling, strategic planning, and intelligent insights
             </p>
           </div>
+        </div>
 
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto relative">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+        {/* Elegant Search */}
+        <div className="max-w-3xl mx-auto relative">
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-cyan-500/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-300" />
+            <div className="relative bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-3xl shadow-2xl">
+              <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
               <Input
-                placeholder="Search for people, processes, technologies, insights and more"
+                placeholder="Discover architecture insights, capabilities, and strategic opportunities..."
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
                   if (e.target.value.length > 0) {
                     setIsSearching(true);
-                    // Simulate search delay
                     setTimeout(() => {
                       setSearchResults([
-                        { type: 'Process', name: 'Customer Onboarding', description: 'End-to-end customer acquisition process', category: 'Business' },
-                        { type: 'Application', name: 'Salesforce CRM', description: 'Customer relationship management system', category: 'Technology' },
-                        { type: 'Person', name: 'Sarah Chen', description: 'Senior Business Analyst', category: 'People' },
-                        { type: 'Risk', name: 'Data Privacy Risk', description: 'GDPR compliance requirements', category: 'Governance' },
-                        { type: 'Capability', name: 'Order Management', description: 'Core business capability for processing orders', category: 'Business' }
+                        { type: 'Capability', name: 'Digital Innovation', description: 'Strategic capability for digital transformation', category: 'Strategic' },
+                        { type: 'Platform', name: 'Enterprise Data Hub', description: 'Centralized data architecture platform', category: 'Technical' },
+                        { type: 'Journey', name: 'Customer Onboarding', description: 'End-to-end customer experience design', category: 'Business' },
+                        { type: 'Initiative', name: 'Cloud Migration', description: 'Strategic technology modernization program', category: 'Transformation' }
                       ].filter(item => 
                         item.name.toLowerCase().includes(e.target.value.toLowerCase()) ||
                         item.description.toLowerCase().includes(e.target.value.toLowerCase())
@@ -197,133 +196,156 @@ export function Dashboard() {
                     setIsSearching(false);
                   }
                 }}
-                className="pl-10 py-6 text-base"
+                className="pl-14 pr-6 py-6 text-lg bg-transparent border-0 rounded-3xl placeholder:text-slate-400 focus:ring-0 focus:outline-none"
                 data-testid="input-global-search"
               />
             </div>
-            
-            {/* Search Results Dropdown */}
-            {(searchQuery.length > 0) && (
-              <div className="absolute top-full mt-2 w-full bg-card border rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
-                {isSearching ? (
-                  <div className="p-4 text-center text-muted-foreground">
-                    <Search className="h-4 w-4 animate-spin mx-auto mb-2" />
-                    Searching...
-                  </div>
-                ) : searchResults.length > 0 ? (
-                  <div className="p-2">
-                    <div className="text-xs text-muted-foreground mb-2 px-2">
-                      Found {searchResults.length} results
-                    </div>
-                    {searchResults.map((result, index) => (
-                      <div key={index} className="p-3 hover:bg-accent rounded-md cursor-pointer border-b last:border-b-0">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="text-xs">{result.type}</Badge>
-                              <h4 className="font-medium text-sm">{result.name}</h4>
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-1">{result.description}</p>
-                          </div>
-                          <Badge variant="secondary" className="text-xs ml-2">{result.category}</Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-4 text-center text-muted-foreground">
-                    No results found for "{searchQuery}"
-                  </div>
-                )}
-              </div>
-            )}
           </div>
+          
+          {/* Search Results */}
+          {(searchQuery.length > 0) && (
+            <div className="absolute top-full mt-4 w-full bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-2xl shadow-2xl z-50 max-h-96 overflow-hidden">
+              {isSearching ? (
+                <div className="p-8 text-center">
+                  <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full mx-auto mb-3 animate-pulse" />
+                  <p className="text-slate-600 dark:text-slate-300">Analyzing architecture...</p>
+                </div>
+              ) : searchResults.length > 0 ? (
+                <div className="p-3">
+                  <div className="text-xs text-slate-500 dark:text-slate-400 mb-3 px-3 pt-2 font-medium tracking-wide">
+                    DISCOVERED {searchResults.length} ELEMENTS
+                  </div>
+                  {searchResults.map((result, index) => (
+                    <div key={index} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-xl cursor-pointer transition-all duration-200">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-2 h-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full" />
+                            <h4 className="font-semibold text-slate-900 dark:text-white">{result.name}</h4>
+                            <Badge variant="outline" className="text-xs font-medium">
+                              {result.type}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-slate-600 dark:text-slate-300">{result.description}</p>
+                        </div>
+                        <Badge className="ml-4 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                          {result.category}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-8 text-center">
+                  <Search className="h-6 w-6 text-slate-400 mx-auto mb-3" />
+                  <p className="text-slate-600 dark:text-slate-300">No elements found for "{searchQuery}"</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
-          {/* Stats Overview */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {stats.map((stat, index) => (
-              <Card key={index} className="p-4">
-                <div className="flex items-center space-x-3">
-                  <stat.icon className={`h-8 w-8 ${stat.color}`} />
+        {/* Elegant Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {stats.map((stat, index) => (
+            <div key={index} className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-cyan-500/10 rounded-2xl transform group-hover:scale-105 transition-transform duration-300" />
+              <div className="relative bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-2xl p-6 shadow-lg">
+                <div className="flex flex-col space-y-3">
+                  <div className="flex items-center justify-between">
+                    <stat.icon className={`h-6 w-6 ${stat.color} opacity-80`} />
+                    <div className="w-8 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full" />
+                  </div>
                   <div>
-                    <p className="text-2xl font-bold">{stat.value}</p>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
+                    <p className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-200 bg-clip-text text-transparent">
+                      {stat.value}
+                    </p>
+                    <p className="text-sm text-slate-600 dark:text-slate-300 font-medium tracking-wide">
+                      {stat.label}
+                    </p>
                   </div>
                 </div>
-              </Card>
-            ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Strategic Tasks */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
+              <Clock className="h-5 w-5 mr-3 text-emerald-600" />
+              Strategic Priorities
+            </h3>
+            <div className="space-y-4">
+              {recentTasks.map((task, index) => (
+                <div key={index} className="group relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-teal-500/5 rounded-xl group-hover:from-emerald-500/10 group-hover:to-teal-500/10 transition-all duration-200" />
+                  <div className="relative bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-xl p-5 shadow-lg">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-slate-900 dark:text-white mb-1">{task.title}</h4>
+                        <p className="text-sm text-slate-600 dark:text-slate-300">{task.description}</p>
+                      </div>
+                      <span className="text-xs text-slate-500 dark:text-slate-400">{task.timeAgo}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="text-xs">{task.type}</Badge>
+                      {task.priority === 'high' && (
+                        <Badge className="text-xs bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300">Critical</Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* My Tasks */}
+          {/* Quick Actions */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
+              <Zap className="h-5 w-5 mr-3 text-emerald-600" />
+              Quick Actions
+            </h3>
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center">
-                <Clock className="h-5 w-5 mr-2 text-primary" />
-                My Tasks ({recentTasks.length})
-              </h3>
-              <div className="space-y-3">
-                {recentTasks.map((task, index) => (
-                  <Card key={index} className="p-4 hover:bg-accent/50 transition-colors cursor-pointer">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-medium">{task.title}</h4>
-                        <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge variant="secondary">{task.type}</Badge>
-                          {task.priority === 'high' && (
-                            <Badge variant="destructive" className="text-xs">High Priority</Badge>
-                          )}
-                        </div>
-                      </div>
-                      <span className="text-xs text-muted-foreground">{task.timeAgo}</span>
-                    </div>
-                  </Card>
-                ))}
-                <Button variant="outline" className="w-full" size="sm">
-                  Show more tasks
-                </Button>
-              </div>
-            </div>
-
-            {/* Quick Links */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center">
-                <Target className="h-5 w-5 mr-2 text-primary" />
-                Quick Actions
-              </h3>
-              <div className="space-y-3">
-                {quickLinks.map((link, index) => (
-                  <Link key={index} href={link.href}>
-                    <Card className="p-4 cursor-pointer hover:bg-accent transition-colors">
+              {quickLinks.map((link, index) => (
+                <Link key={index} href={link.href}>
+                  <div className="group relative cursor-pointer">
+                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-teal-500/5 rounded-xl group-hover:from-emerald-500/10 group-hover:to-teal-500/10 transition-all duration-200" />
+                    <div className="relative bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-xl p-5 shadow-lg">
                       <div className="flex items-center">
-                        <link.icon className={`h-5 w-5 mr-3 ${link.color}`} />
+                        <link.icon className={`h-6 w-6 mr-4 ${link.color}`} />
                         <div>
-                          <h4 className="font-medium">{link.title}</h4>
-                          <p className="text-sm text-muted-foreground">{link.description}</p>
+                          <h4 className="font-semibold text-slate-900 dark:text-white">{link.title}</h4>
+                          <p className="text-sm text-slate-600 dark:text-slate-300">{link.description}</p>
                         </div>
                       </div>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
             </div>
+          </div>
 
-            {/* Recent Models */}
+          {/* Recent Models */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
+              <Building className="h-5 w-5 mr-3 text-emerald-600" />
+              Architecture Models
+            </h3>
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center">
-                <FileText className="h-5 w-5 mr-2 text-primary" />
-                Recent Models
-              </h3>
-              <div className="space-y-3">
-                {recentModels.map((model, index) => (
-                  <Link key={index} href="/workspace">
-                    <Card className="p-4 cursor-pointer hover:bg-accent transition-colors" data-testid={`card-recent-model-${index}`}>
+              {recentModels.map((model, index) => (
+                <Link key={index} href="/workspace">
+                  <div className="group relative cursor-pointer" data-testid={`card-recent-model-${index}`}>
+                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-teal-500/5 rounded-xl group-hover:from-emerald-500/10 group-hover:to-teal-500/10 transition-all duration-200" />
+                    <div className="relative bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-xl p-5 shadow-lg">
                       <div>
-                        <h4 className="font-medium">{model.title}</h4>
-                        <p className="text-sm text-muted-foreground mt-1">{model.description}</p>
-                        <div className="flex items-center justify-between mt-3">
-                          <Badge variant="outline">{model.type}</Badge>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <h4 className="font-semibold text-slate-900 dark:text-white mb-1">{model.title}</h4>
+                        <p className="text-sm text-slate-600 dark:text-slate-300 mb-3">{model.description}</p>
+                        <div className="flex items-center justify-between">
+                          <Badge variant="outline" className="text-xs">{model.type}</Badge>
+                          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                             <Users className="h-3 w-3" />
                             <span>{model.collaborators}</span>
                             <span>•</span>
@@ -331,50 +353,11 @@ export function Dashboard() {
                           </div>
                         </div>
                       </div>
-                    </Card>
-                  </Link>
-                ))}
-                <Button variant="outline" className="w-full" size="sm">
-                  View all models
-                </Button>
-              </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
             </div>
-          </div>
-
-          {/* Recent Activity Feed */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center">
-              <BarChart3 className="h-5 w-5 mr-2 text-primary" />
-              Recent Activity
-            </h3>
-            <Card className="p-6">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <p className="text-sm">
-                    <span className="font-medium">Sarah Chen</span> updated the Customer Onboarding Process model
-                    <span className="text-muted-foreground ml-2">2 hours ago</span>
-                  </p>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <p className="text-sm">
-                    <span className="font-medium">Mike Rodriguez</span> created a new Cloud Migration Architecture diagram
-                    <span className="text-muted-foreground ml-2">1 day ago</span>
-                  </p>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <p className="text-sm">
-                    <span className="font-medium">Alex Kim</span> completed the Application Portfolio review
-                    <span className="text-muted-foreground ml-2">3 days ago</span>
-                  </p>
-                </div>
-                <Button variant="ghost" size="sm" className="w-full mt-4">
-                  View all activity
-                </Button>
-              </div>
-            </Card>
           </div>
         </div>
       </div>

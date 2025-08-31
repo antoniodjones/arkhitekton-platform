@@ -62,7 +62,7 @@ export function WorkspacePage() {
   };
 
   return (
-    <div className="h-screen flex bg-background">
+    <div className="h-screen flex bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       {/* Palette Sidebar with Resizable Splitter */}
       {sidebarOpen && (
         <>
@@ -100,13 +100,14 @@ export function WorkspacePage() {
 
       {/* Main Workspace Area */}
       <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <div className="h-14 border-b flex items-center justify-between px-4 bg-card">
-          <div className="flex items-center gap-2">
+        {/* Elegant Header */}
+        <div className="h-16 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/50 dark:border-slate-700/50 flex items-center justify-between px-6">
+          <div className="flex items-center gap-4">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
               data-testid="button-toggle-sidebar"
             >
               {sidebarOpen ? (
@@ -115,30 +116,52 @@ export function WorkspacePage() {
                 <PanelLeftOpen className="h-4 w-4" />
               )}
             </Button>
-            <div className="flex items-center space-x-2">
-              <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/70 rounded-lg flex items-center justify-center">
-                <div className="w-3 h-3 bg-background rounded-sm" />
+            <div className="flex items-center space-x-3">
+              <div className="relative">
+                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                  <div className="w-4 h-4 bg-white/90 rounded-md transform rotate-45" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full" />
               </div>
-              <h1 className="text-lg font-semibold">ArchModel Pro</h1>
+              <div>
+                <h1 className="text-lg font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-slate-800 dark:from-white dark:via-slate-200 dark:to-slate-300 bg-clip-text text-transparent tracking-tight">
+                  ArchModel Pro
+                </h1>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide">WORKSPACE</p>
+              </div>
             </div>
-            <div className="h-4 w-px bg-border mx-2" />
+            <div className="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-2" />
             <Link href="/">
-              <Button variant="ghost" size="sm" data-testid="button-dashboard">
+              <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white" data-testid="button-dashboard">
                 <Home className="h-4 w-4 mr-2" />
                 Dashboard
               </Button>
             </Link>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" data-testid="button-save">
+          <div className="flex items-center gap-3">
+            <Button 
+              size="sm" 
+              className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white border-0 shadow-lg shadow-emerald-500/25"
+              data-testid="button-save"
+            >
               <Save className="h-4 w-4 mr-2" />
-              Save
+              Save Model
             </Button>
-            <Button variant="outline" size="sm" data-testid="button-share">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="border-slate-200 dark:border-slate-700 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
+              data-testid="button-share"
+            >
               <Users className="h-4 w-4 mr-2" />
-              Share
+              Collaborate
             </Button>
-            <Button variant="outline" size="sm" data-testid="button-search">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
+              data-testid="button-search"
+            >
               <Search className="h-4 w-4" />
             </Button>
             <Button
