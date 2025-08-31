@@ -997,6 +997,396 @@ export const archimateElements: ArchimateElement[] = [
     relationships: ['VCN', 'Gateway', 'DNS']
   },
 
+  // BPMN 2.0 Business Process Elements
+  // Activities
+  {
+    id: 'bpmn-task',
+    name: 'Task',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'An atomic activity within a process flow that cannot be broken down further.',
+    usageGuidelines: 'Use for representing work that needs to be done. Tasks are atomic and cannot be decomposed.',
+    iconName: 'Square',
+    color: 'hsl(210 100% 45%)', // BPMN blue
+    shape: 'rounded',
+    relationships: ['Sequence Flow', 'Gateway', 'Event']
+  },
+  {
+    id: 'bpmn-user-task',
+    name: 'User Task',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'A task performed by a human user with the assistance of a software application.',
+    usageGuidelines: 'Use when a human user needs to perform work using a software interface.',
+    iconName: 'User',
+    color: 'hsl(210 100% 45%)',
+    shape: 'rounded',
+    relationships: ['User', 'Application', 'Data Object']
+  },
+  {
+    id: 'bpmn-service-task',
+    name: 'Service Task',
+    type: 'behavioral',
+    category: 'application',
+    framework: 'bpmn',
+    description: 'A task executed by a web service, application, or automated system.',
+    usageGuidelines: 'Use for automated tasks executed by software services or applications.',
+    iconName: 'Settings',
+    color: 'hsl(210 100% 45%)',
+    shape: 'rounded',
+    relationships: ['Service', 'Application Component', 'Data Object']
+  },
+  {
+    id: 'bpmn-script-task',
+    name: 'Script Task',
+    type: 'behavioral',
+    category: 'application',
+    framework: 'bpmn',
+    description: 'A task executed by a business process engine using a scripting language.',
+    usageGuidelines: 'Use for tasks that execute scripts or code within the process engine.',
+    iconName: 'Code',
+    color: 'hsl(210 100% 45%)',
+    shape: 'rounded',
+    relationships: ['Process Engine', 'Data Object', 'Business Rule']
+  },
+  {
+    id: 'bpmn-business-rule-task',
+    name: 'Business Rule Task',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'A task that provides input to a business rule engine and receives output.',
+    usageGuidelines: 'Use when business rules or decision logic needs to be evaluated.',
+    iconName: 'BookOpen',
+    color: 'hsl(210 100% 45%)',
+    shape: 'rounded',
+    relationships: ['Business Rule', 'Decision Table', 'Data Object']
+  },
+  {
+    id: 'bpmn-manual-task',
+    name: 'Manual Task',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'A task performed without the aid of any business process engine or application.',
+    usageGuidelines: 'Use for physical tasks or work done without system support.',
+    iconName: 'Hand',
+    color: 'hsl(210 100% 45%)',
+    shape: 'rounded',
+    relationships: ['Human Actor', 'Physical Object', 'Location']
+  },
+  {
+    id: 'bpmn-subprocess',
+    name: 'Sub-Process',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'A complex activity that contains other BPMN elements within it.',
+    usageGuidelines: 'Use to group related activities and create hierarchical process models.',
+    iconName: 'FolderTree',
+    color: 'hsl(210 100% 45%)',
+    shape: 'rounded',
+    relationships: ['Task', 'Gateway', 'Event']
+  },
+  {
+    id: 'bpmn-call-activity',
+    name: 'Call Activity',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'A wrapper for a globally defined task or process that can be reused.',
+    usageGuidelines: 'Use to reference reusable processes or tasks defined elsewhere.',
+    iconName: 'ExternalLink',
+    color: 'hsl(210 100% 45%)',
+    shape: 'rounded',
+    relationships: ['Global Process', 'Global Task', 'Interface']
+  },
+
+  // Events
+  {
+    id: 'bpmn-start-event',
+    name: 'Start Event',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'Indicates where a process begins.',
+    usageGuidelines: 'Use to mark the beginning of a process. Every process must have at least one start event.',
+    iconName: 'Play',
+    color: 'hsl(120 100% 35%)', // Green for start
+    shape: 'rounded',
+    relationships: ['Sequence Flow', 'Process', 'Trigger']
+  },
+  {
+    id: 'bpmn-intermediate-event',
+    name: 'Intermediate Event',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'Represents something that happens during the execution of a process.',
+    usageGuidelines: 'Use for events that occur between start and end of a process.',
+    iconName: 'Circle',
+    color: 'hsl(45 100% 50%)', // Yellow for intermediate
+    shape: 'rounded',
+    relationships: ['Sequence Flow', 'Message Flow', 'Timer']
+  },
+  {
+    id: 'bpmn-end-event',
+    name: 'End Event',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'Indicates where a process ends.',
+    usageGuidelines: 'Use to mark the completion of a process path. Represents the outcome achieved.',
+    iconName: 'Square',
+    color: 'hsl(0 100% 45%)', // Red for end
+    shape: 'rounded',
+    relationships: ['Sequence Flow', 'Process', 'Result']
+  },
+  {
+    id: 'bpmn-message-start-event',
+    name: 'Message Start Event',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'A start event triggered by the receipt of a message.',
+    usageGuidelines: 'Use when a process is initiated by receiving a message from another process or participant.',
+    iconName: 'Mail',
+    color: 'hsl(120 100% 35%)',
+    shape: 'rounded',
+    relationships: ['Message Flow', 'Participant', 'Pool']
+  },
+  {
+    id: 'bpmn-timer-start-event',
+    name: 'Timer Start Event',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'A start event triggered by a specific time or cycle.',
+    usageGuidelines: 'Use for processes that start at scheduled times or recurring intervals.',
+    iconName: 'Clock',
+    color: 'hsl(120 100% 35%)',
+    shape: 'rounded',
+    relationships: ['Timer', 'Schedule', 'Calendar']
+  },
+  {
+    id: 'bpmn-error-end-event',
+    name: 'Error End Event',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'An end event that triggers an error condition.',
+    usageGuidelines: 'Use when a process ends due to an error that should be handled by a parent process.',
+    iconName: 'AlertTriangle',
+    color: 'hsl(0 100% 45%)',
+    shape: 'rounded',
+    relationships: ['Error Handling', 'Exception Flow', 'Boundary Event']
+  },
+
+  // Gateways
+  {
+    id: 'bpmn-exclusive-gateway',
+    name: 'Exclusive Gateway (XOR)',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'A decision point where exactly one of multiple paths is taken.',
+    usageGuidelines: 'Use for either/or decisions. Only one outgoing path will be followed based on conditions.',
+    iconName: 'GitBranch',
+    color: 'hsl(45 100% 40%)', // Orange for gateways
+    shape: 'diamond',
+    relationships: ['Sequence Flow', 'Condition', 'Decision']
+  },
+  {
+    id: 'bpmn-parallel-gateway',
+    name: 'Parallel Gateway (AND)',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'Creates or synchronizes parallel paths in a process.',
+    usageGuidelines: 'Use to split flow into multiple parallel paths or join parallel paths back together.',
+    iconName: 'Plus',
+    color: 'hsl(45 100% 40%)',
+    shape: 'diamond',
+    relationships: ['Sequence Flow', 'Parallel Activity', 'Synchronization']
+  },
+  {
+    id: 'bpmn-inclusive-gateway',
+    name: 'Inclusive Gateway (OR)',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'A decision point where one or more paths can be taken.',
+    usageGuidelines: 'Use when multiple conditions can be true simultaneously, allowing multiple outgoing paths.',
+    iconName: 'CircleDot',
+    color: 'hsl(45 100% 40%)',
+    shape: 'diamond',
+    relationships: ['Sequence Flow', 'Multiple Conditions', 'Partial Join']
+  },
+  {
+    id: 'bpmn-event-based-gateway',
+    name: 'Event-Based Gateway',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'A decision point where the path taken depends on events.',
+    usageGuidelines: 'Use when the process flow depends on which event occurs first.',
+    iconName: 'Zap',
+    color: 'hsl(45 100% 40%)',
+    shape: 'diamond',
+    relationships: ['Intermediate Event', 'Message Event', 'Timer Event']
+  },
+  {
+    id: 'bpmn-complex-gateway',
+    name: 'Complex Gateway',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'A gateway with complex branching or merging behavior.',
+    usageGuidelines: 'Use for complex routing scenarios that cannot be expressed with other gateway types.',
+    iconName: 'Asterisk',
+    color: 'hsl(45 100% 40%)',
+    shape: 'diamond',
+    relationships: ['Complex Condition', 'Custom Logic', 'Advanced Routing']
+  },
+
+  // Flows and Connections
+  {
+    id: 'bpmn-sequence-flow',
+    name: 'Sequence Flow',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'Shows the order of activities in a process.',
+    usageGuidelines: 'Use to connect flow elements within the same pool to show process flow.',
+    iconName: 'ArrowRight',
+    color: 'hsl(210 100% 45%)',
+    shape: 'rounded',
+    relationships: ['Flow Element', 'Control Flow', 'Process Path']
+  },
+  {
+    id: 'bpmn-message-flow',
+    name: 'Message Flow',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'Shows messages exchanged between separate participants.',
+    usageGuidelines: 'Use to show communication between different pools or participants.',
+    iconName: 'MessageSquare',
+    color: 'hsl(210 100% 45%)',
+    shape: 'rounded',
+    relationships: ['Pool', 'Participant', 'Message Event']
+  },
+  {
+    id: 'bpmn-conditional-flow',
+    name: 'Conditional Flow',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'A sequence flow with conditions that determine if the path is taken.',
+    usageGuidelines: 'Use to model conditional branches from activities or gateways.',
+    iconName: 'Split',
+    color: 'hsl(210 100% 45%)',
+    shape: 'rounded',
+    relationships: ['Condition', 'Gateway', 'Business Rule']
+  },
+  {
+    id: 'bpmn-default-flow',
+    name: 'Default Flow',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'A sequence flow that is taken when no other conditional flows are valid.',
+    usageGuidelines: 'Use as a fallback path when all other conditions evaluate to false.',
+    iconName: 'CornerDownRight',
+    color: 'hsl(210 100% 45%)',
+    shape: 'rounded',
+    relationships: ['Gateway', 'Fallback Logic', 'Exception Path']
+  },
+
+  // Artifacts and Data
+  {
+    id: 'bpmn-data-object',
+    name: 'Data Object',
+    type: 'passive',
+    category: 'data',
+    framework: 'bpmn',
+    description: 'Represents data required or produced by activities.',
+    usageGuidelines: 'Use to show data inputs and outputs for activities in the process.',
+    iconName: 'FileText',
+    color: 'hsl(270 50% 50%)', // Purple for data
+    shape: 'rectangular',
+    relationships: ['Task', 'Activity', 'Data Store']
+  },
+  {
+    id: 'bpmn-data-store',
+    name: 'Data Store',
+    type: 'passive',
+    category: 'data',
+    framework: 'bpmn',
+    description: 'Represents a persistent data storage location.',
+    usageGuidelines: 'Use to model databases, file systems, or other persistent storage.',
+    iconName: 'Database',
+    color: 'hsl(270 50% 50%)',
+    shape: 'rectangular',
+    relationships: ['Data Object', 'Activity', 'Storage System']
+  },
+  {
+    id: 'bpmn-text-annotation',
+    name: 'Text Annotation',
+    type: 'passive',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'Provides additional information about process elements.',
+    usageGuidelines: 'Use to add explanatory text or comments to process diagrams.',
+    iconName: 'MessageSquare',
+    color: 'hsl(215.4 16.3% 46.9%)', // Gray for annotations
+    shape: 'rectangular',
+    relationships: ['Association', 'Documentation', 'Comment']
+  },
+  {
+    id: 'bpmn-group',
+    name: 'Group',
+    type: 'structural',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'A visual grouping of elements that does not affect process flow.',
+    usageGuidelines: 'Use to visually group related elements for better diagram organization.',
+    iconName: 'Package',
+    color: 'hsl(215.4 16.3% 46.9%)',
+    shape: 'rectangular',
+    relationships: ['Visual Organization', 'Documentation', 'Grouping']
+  },
+
+  // Swimlanes
+  {
+    id: 'bpmn-pool',
+    name: 'Pool',
+    type: 'structural',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'Represents a participant in the process and contains the entire process.',
+    usageGuidelines: 'Use to represent major participants like organizations, roles, or systems.',
+    iconName: 'Users',
+    color: 'hsl(210 100% 45%)',
+    shape: 'rectangular',
+    relationships: ['Participant', 'Lane', 'Message Flow']
+  },
+  {
+    id: 'bpmn-lane',
+    name: 'Lane',
+    type: 'structural',
+    category: 'business',
+    framework: 'bpmn',
+    description: 'A subdivision of a pool representing a specific role or responsibility.',
+    usageGuidelines: 'Use to organize activities by roles, departments, or responsibilities within a participant.',
+    iconName: 'User',
+    color: 'hsl(210 100% 45%)',
+    shape: 'rectangular',
+    relationships: ['Pool', 'Role', 'Responsibility']
+  },
+
   // Multi-Cloud and Modern Architecture Patterns
   {
     id: 'microservice',
