@@ -7,7 +7,8 @@ import { Separator } from '@/components/ui/separator';
 import { ResizableSplitter } from '@/components/workspace/resizable-splitter';
 import { RightResizableSplitter } from '@/components/workspace/right-resizable-splitter';
 import { Button } from '@/components/ui/button';
-import { PanelLeftOpen, PanelLeftClose } from 'lucide-react';
+import { PanelLeftOpen, PanelLeftClose, Home, Save, Users, Search } from 'lucide-react';
+import { Link } from 'wouter';
 import { archimateElements, ArchimateElement } from '@/data/archimate-elements';
 import type { WorkspaceState } from '@/components/workspace/workspace';
 
@@ -100,7 +101,7 @@ export function WorkspacePage() {
       {/* Main Workspace Area */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className="h-14 border-b flex items-center justify-between px-4">
+        <div className="h-14 border-b flex items-center justify-between px-4 bg-card">
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
@@ -114,9 +115,32 @@ export function WorkspacePage() {
                 <PanelLeftOpen className="h-4 w-4" />
               )}
             </Button>
-            <h1 className="text-lg font-semibold">Architecture Workspace</h1>
+            <div className="flex items-center space-x-2">
+              <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/70 rounded-lg flex items-center justify-center">
+                <div className="w-3 h-3 bg-background rounded-sm" />
+              </div>
+              <h1 className="text-lg font-semibold">ArchModel Pro</h1>
+            </div>
+            <div className="h-4 w-px bg-border mx-2" />
+            <Link href="/">
+              <Button variant="ghost" size="sm" data-testid="button-dashboard">
+                <Home className="h-4 w-4 mr-2" />
+                Dashboard
+              </Button>
+            </Link>
           </div>
           <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" data-testid="button-save">
+              <Save className="h-4 w-4 mr-2" />
+              Save
+            </Button>
+            <Button variant="outline" size="sm" data-testid="button-share">
+              <Users className="h-4 w-4 mr-2" />
+              Share
+            </Button>
+            <Button variant="outline" size="sm" data-testid="button-search">
+              <Search className="h-4 w-4" />
+            </Button>
             <Button
               variant="ghost"
               size="sm"
