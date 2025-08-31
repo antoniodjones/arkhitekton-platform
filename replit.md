@@ -3,10 +3,15 @@
 ArchModel Pro is an enterprise-grade, AI-first systems design modeling platform that empowers systems architects to perform end-to-end architecture design (from business to technology) with unprecedented elegance and intelligence. The platform combines the expressiveness of code, the intuitiveness of visual representation, and the power of AI to create, build, and evolve complex systems.
 
 ## Vision Statement
-To provide systems architects and designers with a comprehensive platform that enables elegant design superior to existing tools like Figma, with integrated capabilities spanning the entire technology landscape. The platform will feature distributed version control at the model and component level (similar to Git) and provide portfolio views for architecture leadership.
+To create the ultimate universal design and modeling platform that empowers any designer or modeler - from systems architects to business analysts to creative designers - with comprehensive capabilities that surpass existing tools like Figma, Miro, Mural, Lucidchart, and Visio. The platform combines enterprise architecture modeling with general-purpose design capabilities, featuring distributed version control at the model and component level (similar to Git) and providing portfolio views for design leadership across all disciplines.
 
 ## Competitive Positioning
-ArchModel Pro is designed as an advanced competitor to enterprise architecture tools including Mega, SoftwareAG's Aries & Alphabet, Ardoq, BlueDolphin, Avolution, Sparx Enterprise Architect, and LeanIX, with a focus on AI-first capabilities and superior user experience.
+ArchModel Pro is designed as an advanced competitor spanning multiple design and modeling categories:
+- **Enterprise Architecture**: Mega, SoftwareAG's Aries & Alphabet, Ardoq, BlueDolphin, Avolution, Sparx Enterprise Architect, LeanIX
+- **General Design & Collaboration**: Miro, Mural, Lucidchart, Visio, Figma
+- **Unified Platform**: No existing tool combines enterprise architecture depth with general design flexibility
+
+The platform's unique position bridges technical architecture modeling with creative design workflows, providing AI-first capabilities and superior user experience across all design disciplines.
 
 ## Core Architecture Principles
 
