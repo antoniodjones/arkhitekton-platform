@@ -3,6 +3,7 @@ import { Workspace } from '@/components/workspace/workspace';
 import { PaletteSidebar } from '@/components/palette/palette-sidebar';
 import { PaletteContent } from '@/components/palette/palette-content';
 import { Separator } from '@/components/ui/separator';
+import { ResizableSplitter } from '@/components/workspace/resizable-splitter';
 import { Button } from '@/components/ui/button';
 import { PanelLeftOpen, PanelLeftClose } from 'lucide-react';
 import { archimateElements, ArchimateElement } from '@/data/archimate-elements';
@@ -10,6 +11,7 @@ import type { WorkspaceState } from '@/components/workspace/workspace';
 
 export function WorkspacePage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [paletteWidth, setPaletteWidth] = useState(320); // Default palette width
   const [selectedCategory, setSelectedCategory] = useState<string>('business');
   const [selectedFramework, setSelectedFramework] = useState<string>('archimate');
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,10 +58,13 @@ export function WorkspacePage() {
 
   return (
     <div className="h-screen flex bg-background">
-      {/* Palette Sidebar */}
+      {/* Palette Sidebar with Resizable Splitter */}
       {sidebarOpen && (
         <>
-          <div className="w-80 border-r flex flex-col">
+          <div 
+            className="border-r flex flex-col"
+            style={{ width: paletteWidth }}
+          >
             <PaletteSidebar
               selectedCategory={selectedCategory}
               onCategoryChange={setSelectedCategory}
@@ -79,7 +84,12 @@ export function WorkspacePage() {
               />
             </div>
           </div>
-          <Separator orientation="vertical" />
+          <ResizableSplitter
+            leftWidth={paletteWidth}
+            onResize={setPaletteWidth}
+            minWidth={250}
+            maxWidth={600}
+          />
         </>
       )}
 
