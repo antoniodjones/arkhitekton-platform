@@ -537,6 +537,318 @@ export const archimateElements: ArchimateElement[] = [
     relationships: ['Strategy', 'Objective', 'KPI', 'Success Criteria']
   },
 
+  // Extended Business Architecture Elements
+  // Governance and Policy Elements
+  {
+    id: 'regulation',
+    name: 'Regulation',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'External legal or regulatory requirement that must be complied with.',
+    usageGuidelines: 'Use for laws, regulations, and compliance requirements that constrain business operations.',
+    iconName: 'Scale',
+    color: 'hsl(0 70% 50%)', // Red for regulatory constraints
+    shape: 'diamond',
+    relationships: ['Business Policy', 'Compliance', 'Legal Requirement']
+  },
+  {
+    id: 'governance-framework',
+    name: 'Governance Framework',
+    type: 'structural',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Structured approach to governing and managing organizational activities.',
+    usageGuidelines: 'Use to model corporate governance, risk management, and compliance frameworks.',
+    iconName: 'Shield',
+    color: 'hsl(240 60% 50%)', // Blue for governance
+    shape: 'rectangular',
+    relationships: ['Business Policy', 'Business Rule', 'Stakeholder']
+  },
+  {
+    id: 'compliance-requirement',
+    name: 'Compliance Requirement',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Specific requirement to adhere to regulations, standards, or policies.',
+    usageGuidelines: 'Use for modeling compliance obligations and audit requirements.',
+    iconName: 'CheckCircle',
+    color: 'hsl(0 70% 50%)',
+    shape: 'diamond',
+    relationships: ['Regulation', 'Business Policy', 'Audit']
+  },
+
+  // Product and Service Management Elements
+  {
+    id: 'product-portfolio',
+    name: 'Product Portfolio',
+    type: 'structural',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Collection of products managed as a strategic unit.',
+    usageGuidelines: 'Use to model product families and portfolio management structures.',
+    iconName: 'Package',
+    color: 'hsl(280 60% 60%)', // Purple for product elements
+    shape: 'rectangular',
+    relationships: ['Product', 'Strategy', 'Market Segment']
+  },
+  {
+    id: 'service-portfolio',
+    name: 'Service Portfolio',
+    type: 'structural',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Complete set of services managed by an organization.',
+    usageGuidelines: 'Use to model service offerings and service management structures.',
+    iconName: 'Layers',
+    color: 'hsl(280 60% 60%)',
+    shape: 'rectangular',
+    relationships: ['Business Service', 'Strategy', 'Customer Segment']
+  },
+  {
+    id: 'customer-segment',
+    name: 'Customer Segment',
+    type: 'structural',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Distinct group of customers with common characteristics and needs.',
+    usageGuidelines: 'Use to model different customer types and market segmentation.',
+    iconName: 'Users',
+    color: 'hsl(280 60% 60%)',
+    shape: 'rectangular',
+    relationships: ['Product', 'Business Service', 'Value Proposition']
+  },
+  {
+    id: 'value-proposition',
+    name: 'Value Proposition',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Statement of the unique value delivered to customers.',
+    usageGuidelines: 'Use to model what makes products/services valuable to specific customer segments.',
+    iconName: 'Star',
+    color: 'hsl(280 60% 60%)',
+    shape: 'diamond',
+    relationships: ['Customer Segment', 'Product', 'Business Service']
+  },
+  {
+    id: 'channel',
+    name: 'Channel',
+    type: 'structural',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Medium through which products or services are delivered to customers.',
+    usageGuidelines: 'Use to model distribution channels, sales channels, and delivery mechanisms.',
+    iconName: 'Route',
+    color: 'hsl(280 60% 60%)',
+    shape: 'rectangular',
+    relationships: ['Customer Segment', 'Business Service', 'Partner']
+  },
+
+  // Information Architecture Elements
+  {
+    id: 'information-architecture',
+    name: 'Information Architecture',
+    type: 'structural',
+    category: 'data',
+    framework: 'archimate',
+    description: 'Structural design of shared information environments and systems.',
+    usageGuidelines: 'Use to model how information is organized, labeled, and structured.',
+    iconName: 'Network',
+    color: 'hsl(160 60% 50%)', // Teal for information elements
+    shape: 'rectangular',
+    relationships: ['Data Object', 'Information System', 'Business Process']
+  },
+  {
+    id: 'information-model',
+    name: 'Information Model',
+    type: 'passive',
+    category: 'data',
+    framework: 'archimate',
+    description: 'Abstract representation of information concepts and relationships.',
+    usageGuidelines: 'Use to model conceptual data structures and information relationships.',
+    iconName: 'Diagram3',
+    color: 'hsl(160 60% 50%)',
+    shape: 'rectangular',
+    relationships: ['Data Object', 'Business Object', 'Entity']
+  },
+  {
+    id: 'data-governance',
+    name: 'Data Governance',
+    type: 'structural',
+    category: 'data',
+    framework: 'archimate',
+    description: 'Framework for managing data quality, security, and compliance.',
+    usageGuidelines: 'Use to model data stewardship, quality management, and data policies.',
+    iconName: 'ShieldCheck',
+    color: 'hsl(160 60% 50%)',
+    shape: 'rectangular',
+    relationships: ['Data Object', 'Business Policy', 'Data Quality']
+  },
+  {
+    id: 'master-data',
+    name: 'Master Data',
+    type: 'passive',
+    category: 'data',
+    framework: 'archimate',
+    description: 'Core business entities that provide context for business transactions.',
+    usageGuidelines: 'Use to model critical data entities like customers, products, and suppliers.',
+    iconName: 'Database',
+    color: 'hsl(160 60% 50%)',
+    shape: 'rectangular',
+    relationships: ['Data Object', 'Business Entity', 'Reference Data']
+  },
+
+  // Initiative and Project Management Elements
+  {
+    id: 'initiative',
+    name: 'Initiative',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Strategic effort to achieve specific business objectives.',
+    usageGuidelines: 'Use to model strategic programs and transformation initiatives.',
+    iconName: 'Rocket',
+    color: 'hsl(45 80% 55%)', // Orange for initiative elements
+    shape: 'rounded',
+    relationships: ['Strategy', 'Project', 'Objective', 'Change']
+  },
+  {
+    id: 'project',
+    name: 'Project',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Temporary endeavor undertaken to create a unique product or service.',
+    usageGuidelines: 'Use to model specific projects that implement strategic initiatives.',
+    iconName: 'FolderOpen',
+    color: 'hsl(45 80% 55%)',
+    shape: 'rounded',
+    relationships: ['Initiative', 'Deliverable', 'Resource', 'Timeline']
+  },
+  {
+    id: 'program',
+    name: 'Program',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Group of related projects managed in a coordinated way.',
+    usageGuidelines: 'Use to model collections of projects that together achieve strategic benefits.',
+    iconName: 'Layers',
+    color: 'hsl(45 80% 55%)',
+    shape: 'rounded',
+    relationships: ['Initiative', 'Project', 'Strategy', 'Portfolio']
+  },
+  {
+    id: 'portfolio',
+    name: 'Portfolio',
+    type: 'structural',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Collection of programs and projects managed to achieve strategic objectives.',
+    usageGuidelines: 'Use to model strategic portfolio management and resource allocation.',
+    iconName: 'Briefcase',
+    color: 'hsl(45 80% 55%)',
+    shape: 'rectangular',
+    relationships: ['Program', 'Strategy', 'Resource', 'Investment']
+  },
+  {
+    id: 'change-request',
+    name: 'Change Request',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Formal proposal for an alteration to a system, process, or structure.',
+    usageGuidelines: 'Use to model change management and transformation requests.',
+    iconName: 'GitPullRequest',
+    color: 'hsl(45 80% 55%)',
+    shape: 'rounded',
+    relationships: ['Project', 'Business Process', 'Approval', 'Impact']
+  },
+
+  // Stakeholder and Organization Elements
+  {
+    id: 'stakeholder-group',
+    name: 'Stakeholder Group',
+    type: 'structural',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Collection of stakeholders with common interests or characteristics.',
+    usageGuidelines: 'Use to model stakeholder categories and interest groups.',
+    iconName: 'Users',
+    color: 'hsl(320 60% 60%)', // Pink for stakeholder elements
+    shape: 'rectangular',
+    relationships: ['Stakeholder', 'Interest', 'Influence', 'Strategy']
+  },
+  {
+    id: 'organizational-unit',
+    name: 'Organizational Unit',
+    type: 'structural',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Formal subdivision of an organization with specific responsibilities.',
+    usageGuidelines: 'Use to model departments, divisions, and organizational structures.',
+    iconName: 'Building2',
+    color: 'hsl(320 60% 60%)',
+    shape: 'rectangular',
+    relationships: ['Business Role', 'Business Actor', 'Responsibility']
+  },
+  {
+    id: 'decision-authority',
+    name: 'Decision Authority',
+    type: 'structural',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Entity or role with the power to make specific business decisions.',
+    usageGuidelines: 'Use to model decision-making authority and governance structures.',
+    iconName: 'Crown',
+    color: 'hsl(320 60% 60%)',
+    shape: 'rectangular',
+    relationships: ['Business Role', 'Decision', 'Governance', 'Accountability']
+  },
+
+  // Measurement and Analytics Elements
+  {
+    id: 'dashboard',
+    name: 'Dashboard',
+    type: 'passive',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Visual display of key performance indicators and metrics.',
+    usageGuidelines: 'Use to model performance monitoring and business intelligence displays.',
+    iconName: 'Monitor',
+    color: 'hsl(190 70% 50%)', // Cyan for measurement elements
+    shape: 'rectangular',
+    relationships: ['KPI', 'Metric', 'Report', 'Analysis']
+  },
+  {
+    id: 'business-intelligence',
+    name: 'Business Intelligence',
+    type: 'behavioral',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Technologies and practices for collecting, integrating, and analyzing business data.',
+    usageGuidelines: 'Use to model analytics capabilities and decision support systems.',
+    iconName: 'Brain',
+    color: 'hsl(190 70% 50%)',
+    shape: 'rounded',
+    relationships: ['Dashboard', 'Data Analysis', 'Report', 'Insight']
+  },
+  {
+    id: 'benchmark',
+    name: 'Benchmark',
+    type: 'motivational',
+    category: 'business',
+    framework: 'archimate',
+    description: 'Standard or reference point for measuring performance.',
+    usageGuidelines: 'Use to model performance standards and comparative metrics.',
+    iconName: 'BarChart2',
+    color: 'hsl(190 70% 50%)',
+    shape: 'diamond',
+    relationships: ['KPI', 'Performance', 'Comparison', 'Industry Standard']
+  },
+
   // Application Architecture Elements
   {
     id: 'application-component',
