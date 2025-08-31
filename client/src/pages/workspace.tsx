@@ -2,8 +2,10 @@ import React, { useState, useMemo } from 'react';
 import { Workspace } from '@/components/workspace/workspace';
 import { PaletteSidebar } from '@/components/palette/palette-sidebar';
 import { PaletteContent } from '@/components/palette/palette-content';
+import { PropertiesPanel } from '@/components/palette/properties-panel';
 import { Separator } from '@/components/ui/separator';
 import { ResizableSplitter } from '@/components/workspace/resizable-splitter';
+import { RightResizableSplitter } from '@/components/workspace/right-resizable-splitter';
 import { Button } from '@/components/ui/button';
 import { PanelLeftOpen, PanelLeftClose } from 'lucide-react';
 import { archimateElements, ArchimateElement } from '@/data/archimate-elements';
@@ -11,7 +13,9 @@ import type { WorkspaceState } from '@/components/workspace/workspace';
 
 export function WorkspacePage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [propertiesOpen, setPropertiesOpen] = useState(true);
   const [paletteWidth, setPaletteWidth] = useState(320); // Default palette width
+  const [propertiesWidth, setPropertiesWidth] = useState(300); // Default properties width
   const [selectedCategory, setSelectedCategory] = useState<string>('business');
   const [selectedFramework, setSelectedFramework] = useState<string>('archimate');
   const [searchQuery, setSearchQuery] = useState('');
@@ -112,17 +116,48 @@ export function WorkspacePage() {
             </Button>
             <h1 className="text-lg font-semibold">Architecture Workspace</h1>
           </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setPropertiesOpen(!propertiesOpen)}
+              data-testid="button-toggle-properties"
+            >
+              Properties
+            </Button>
+          </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>Draft Model</span>
           </div>
         </div>
 
-        {/* Workspace */}
-        <div className="flex-1">
-          <Workspace
-            onSave={handleSave}
-            onLoad={handleLoad}
-          />
+        {/* Main Content Area */}
+        <div className="flex-1 flex">
+          {/* Workspace */}
+          <div className="flex-1">
+            <Workspace
+              onSave={handleSave}
+              onLoad={handleLoad}
+            />
+          </div>
+          
+          {/* Properties Panel with Resizable Splitter */}
+          {propertiesOpen && (
+            <>
+              <RightResizableSplitter
+                rightWidth={propertiesWidth}
+                onResize={setPropertiesWidth}
+                minWidth={250}
+                maxWidth={500}
+              />
+              <div 
+                className="border-l flex flex-col bg-card"
+                style={{ width: propertiesWidth }}
+              >
+                <PropertiesPanel selectedElement={selectedElement} />
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
