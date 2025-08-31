@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
+import { AppLayout } from '@/components/layout/app-layout';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -23,7 +24,7 @@ import {
   Sparkles
 } from 'lucide-react';
 
-export function GovernancePage() {
+function GovernanceContent() {
   const [selectedTimeframe, setSelectedTimeframe] = useState('month');
 
   // Mock governance data - would come from backend
@@ -123,7 +124,7 @@ export function GovernancePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+    <div className="h-full overflow-y-auto">
       {/* Header */}
       <header className="backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/50 dark:border-slate-700/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -488,6 +489,14 @@ export function GovernancePage() {
         </Tabs>
       </div>
     </div>
+  );
+}
+
+export function GovernancePage() {
+  return (
+    <AppLayout>
+      <GovernanceContent />
+    </AppLayout>
   );
 }
 

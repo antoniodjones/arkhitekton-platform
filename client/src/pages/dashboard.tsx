@@ -22,8 +22,9 @@ import {
   Sparkles,
   Zap
 } from 'lucide-react';
+import { AppLayout } from '@/components/layout/app-layout';
 
-export function Dashboard() {
+function DashboardContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -115,7 +116,7 @@ export function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+    <div className="h-full overflow-y-auto">
       {/* Sophisticated Header */}
       <header className="backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/50 dark:border-slate-700/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -362,6 +363,14 @@ export function Dashboard() {
         </div>
       </div>
     </div>
+  );
+}
+
+export function Dashboard() {
+  return (
+    <AppLayout>
+      <DashboardContent />
+    </AppLayout>
   );
 }
 

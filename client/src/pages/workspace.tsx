@@ -12,8 +12,9 @@ import { Link } from 'wouter';
 import { archimateElements, ArchimateElement } from '@/data/archimate-elements';
 import type { WorkspaceState } from '@/components/workspace/workspace';
 import { AIAssistant } from '@/components/ai/ai-assistant';
+import { AppLayout } from '@/components/layout/app-layout';
 
-export function WorkspacePage() {
+function WorkspaceContent() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [propertiesOpen, setPropertiesOpen] = useState(true);
   const [paletteWidth, setPaletteWidth] = useState(320); // Default palette width
@@ -65,7 +66,7 @@ export function WorkspacePage() {
   };
 
   return (
-    <div className="h-screen flex bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+    <div className="h-full flex">
       {/* Palette Sidebar with Resizable Splitter */}
       {sidebarOpen && (
         <>
@@ -238,5 +239,13 @@ export function WorkspacePage() {
         />
       )}
     </div>
+  );
+}
+
+export function WorkspacePage() {
+  return (
+    <AppLayout showSidebar={false}>
+      <WorkspaceContent />
+    </AppLayout>
   );
 }
