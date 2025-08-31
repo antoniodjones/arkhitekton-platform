@@ -2,13 +2,13 @@ export interface ArchimateElement {
   id: string;
   name: string;
   type: 'structural' | 'behavioral' | 'motivational' | 'passive';
-  category: 'business' | 'application' | 'data' | 'technology';
-  framework: 'archimate' | 'togaf' | 'bpmn' | 'aws' | 'azure' | 'gcp' | 'oci' | 'patterns';
+  category: 'business' | 'application' | 'data' | 'technology' | 'basic' | 'flowchart' | 'network' | 'ui' | 'brainstorm' | 'org';
+  framework: 'archimate' | 'togaf' | 'bpmn' | 'aws' | 'azure' | 'gcp' | 'oci' | 'patterns' | 'shapes';
   description: string;
   usageGuidelines: string;
   iconName: string;
   color: string;
-  shape: 'rectangular' | 'rounded' | 'diamond';
+  shape: 'rectangular' | 'rounded' | 'diamond' | 'circular' | 'triangular' | 'hexagonal' | 'pentagonal' | 'star' | 'arrow' | 'oval' | 'parallelogram' | 'cylinder' | 'cloud' | 'square' | 'bubble';
   relationships: string[];
 }
 
@@ -847,6 +847,396 @@ export const archimateElements: ArchimateElement[] = [
     color: 'hsl(190 70% 50%)',
     shape: 'diamond',
     relationships: ['KPI', 'Performance', 'Comparison', 'Industry Standard']
+  },
+
+  // Common Diagramming Shapes (Visio, Lucidchart, Miro, Mural, Draw.io style)
+  // Basic Shapes
+  {
+    id: 'rectangle',
+    name: 'Rectangle',
+    type: 'structural',
+    category: 'basic',
+    framework: 'shapes',
+    description: 'Basic rectangular shape for general purpose use.',
+    usageGuidelines: 'Use for containers, labels, or any rectangular content area.',
+    iconName: 'Square',
+    color: 'hsl(200 20% 70%)',
+    shape: 'rectangular',
+    relationships: []
+  },
+  {
+    id: 'circle',
+    name: 'Circle',
+    type: 'structural',
+    category: 'basic',
+    framework: 'shapes',
+    description: 'Basic circular shape for general purpose use.',
+    usageGuidelines: 'Use for processes, endpoints, or circular content areas.',
+    iconName: 'Circle',
+    color: 'hsl(200 20% 70%)',
+    shape: 'circular',
+    relationships: []
+  },
+  {
+    id: 'triangle',
+    name: 'Triangle',
+    type: 'structural',
+    category: 'basic',
+    framework: 'shapes',
+    description: 'Basic triangular shape for general purpose use.',
+    usageGuidelines: 'Use for directional indicators, warnings, or hierarchical elements.',
+    iconName: 'Triangle',
+    color: 'hsl(200 20% 70%)',
+    shape: 'triangular',
+    relationships: []
+  },
+  {
+    id: 'diamond',
+    name: 'Diamond',
+    type: 'structural',
+    category: 'basic',
+    framework: 'shapes',
+    description: 'Basic diamond shape for general purpose use.',
+    usageGuidelines: 'Use for decision points, special processes, or diamond content areas.',
+    iconName: 'Diamond',
+    color: 'hsl(200 20% 70%)',
+    shape: 'diamond',
+    relationships: []
+  },
+  {
+    id: 'hexagon',
+    name: 'Hexagon',
+    type: 'structural',
+    category: 'basic',
+    framework: 'shapes',
+    description: 'Basic hexagonal shape for general purpose use.',
+    usageGuidelines: 'Use for special processes, preparation steps, or hexagonal content areas.',
+    iconName: 'Hexagon',
+    color: 'hsl(200 20% 70%)',
+    shape: 'hexagonal',
+    relationships: []
+  },
+  {
+    id: 'pentagon',
+    name: 'Pentagon',
+    type: 'structural',
+    category: 'basic',
+    framework: 'shapes',
+    description: 'Basic pentagonal shape for general purpose use.',
+    usageGuidelines: 'Use for special indicators or pentagonal content areas.',
+    iconName: 'Hexagon',
+    color: 'hsl(200 20% 70%)',
+    shape: 'pentagonal',
+    relationships: []
+  },
+  {
+    id: 'star',
+    name: 'Star',
+    type: 'structural',
+    category: 'basic',
+    framework: 'shapes',
+    description: 'Star shape for highlights and special markers.',
+    usageGuidelines: 'Use for important items, favorites, or special highlights.',
+    iconName: 'Star',
+    color: 'hsl(45 90% 60%)',
+    shape: 'star',
+    relationships: []
+  },
+  {
+    id: 'arrow-right',
+    name: 'Arrow Right',
+    type: 'behavioral',
+    category: 'basic',
+    framework: 'shapes',
+    description: 'Right-pointing arrow for directional flow.',
+    usageGuidelines: 'Use to indicate direction, flow, or movement to the right.',
+    iconName: 'ArrowRight',
+    color: 'hsl(200 20% 70%)',
+    shape: 'arrow',
+    relationships: []
+  },
+  {
+    id: 'arrow-left',
+    name: 'Arrow Left',
+    type: 'behavioral',
+    category: 'basic',
+    framework: 'shapes',
+    description: 'Left-pointing arrow for directional flow.',
+    usageGuidelines: 'Use to indicate direction, flow, or movement to the left.',
+    iconName: 'ArrowLeft',
+    color: 'hsl(200 20% 70%)',
+    shape: 'arrow',
+    relationships: []
+  },
+
+  // Flowchart Shapes
+  {
+    id: 'flowchart-process',
+    name: 'Process',
+    type: 'behavioral',
+    category: 'flowchart',
+    framework: 'shapes',
+    description: 'Standard process box for flowcharts.',
+    usageGuidelines: 'Use for process steps, operations, or action items in flowcharts.',
+    iconName: 'Square',
+    color: 'hsl(210 100% 75%)',
+    shape: 'rectangular',
+    relationships: ['Decision', 'Start/End', 'Data']
+  },
+  {
+    id: 'flowchart-decision',
+    name: 'Decision',
+    type: 'behavioral',
+    category: 'flowchart',
+    framework: 'shapes',
+    description: 'Diamond decision point for flowcharts.',
+    usageGuidelines: 'Use for yes/no decisions, branching logic, or conditional statements.',
+    iconName: 'Diamond',
+    color: 'hsl(45 100% 75%)',
+    shape: 'diamond',
+    relationships: ['Process', 'Data', 'Terminator']
+  },
+  {
+    id: 'flowchart-start-end',
+    name: 'Start/End',
+    type: 'behavioral',
+    category: 'flowchart',
+    framework: 'shapes',
+    description: 'Oval terminator for flowchart start and end points.',
+    usageGuidelines: 'Use to mark the beginning or end of a process flow.',
+    iconName: 'Circle',
+    color: 'hsl(120 100% 75%)',
+    shape: 'oval',
+    relationships: ['Process', 'Decision']
+  },
+  {
+    id: 'flowchart-data',
+    name: 'Data',
+    type: 'passive',
+    category: 'flowchart',
+    framework: 'shapes',
+    description: 'Parallelogram for data input/output in flowcharts.',
+    usageGuidelines: 'Use for data input, data output, or information storage.',
+    iconName: 'FileText',
+    color: 'hsl(270 100% 75%)',
+    shape: 'parallelogram',
+    relationships: ['Process', 'Decision', 'Database']
+  },
+  {
+    id: 'flowchart-connector',
+    name: 'Connector',
+    type: 'behavioral',
+    category: 'flowchart',
+    framework: 'shapes',
+    description: 'Small circle for connecting flowchart sections.',
+    usageGuidelines: 'Use to connect different parts of a flowchart or as reference points.',
+    iconName: 'Circle',
+    color: 'hsl(0 0% 60%)',
+    shape: 'circular',
+    relationships: ['Process', 'Decision', 'Data']
+  },
+
+  // Network and IT Shapes
+  {
+    id: 'server-shape',
+    name: 'Server',
+    type: 'structural',
+    category: 'network',
+    framework: 'shapes',
+    description: 'Server icon for network and IT diagrams.',
+    usageGuidelines: 'Use to represent physical or virtual servers in network diagrams.',
+    iconName: 'Server',
+    color: 'hsl(220 60% 70%)',
+    shape: 'rectangular',
+    relationships: ['Database', 'Network', 'Client']
+  },
+  {
+    id: 'database-shape',
+    name: 'Database',
+    type: 'passive',
+    category: 'network',
+    framework: 'shapes',
+    description: 'Database cylinder for data storage representation.',
+    usageGuidelines: 'Use to represent databases, data stores, or persistent storage.',
+    iconName: 'Database',
+    color: 'hsl(180 60% 70%)',
+    shape: 'cylinder',
+    relationships: ['Server', 'Application', 'Data Flow']
+  },
+  {
+    id: 'cloud-shape',
+    name: 'Cloud',
+    type: 'structural',
+    category: 'network',
+    framework: 'shapes',
+    description: 'Cloud shape for cloud services and internet connectivity.',
+    usageGuidelines: 'Use to represent cloud services, internet, or external services.',
+    iconName: 'Cloud',
+    color: 'hsl(200 60% 80%)',
+    shape: 'cloud',
+    relationships: ['Server', 'Network', 'Security']
+  },
+  {
+    id: 'router-switch',
+    name: 'Router/Switch',
+    type: 'structural',
+    category: 'network',
+    framework: 'shapes',
+    description: 'Network router or switch for network diagrams.',
+    usageGuidelines: 'Use to represent network routers, switches, or network devices.',
+    iconName: 'Wifi',
+    color: 'hsl(30 80% 70%)',
+    shape: 'rectangular',
+    relationships: ['Server', 'Client', 'Network']
+  },
+  {
+    id: 'firewall',
+    name: 'Firewall',
+    type: 'structural',
+    category: 'network',
+    framework: 'shapes',
+    description: 'Firewall icon for security and network protection.',
+    usageGuidelines: 'Use to represent firewalls, security barriers, or network protection.',
+    iconName: 'Shield',
+    color: 'hsl(0 80% 70%)',
+    shape: 'rectangular',
+    relationships: ['Router', 'Server', 'Network']
+  },
+
+  // UI/UX Shapes
+  {
+    id: 'wireframe-browser',
+    name: 'Browser Window',
+    type: 'structural',
+    category: 'ui',
+    framework: 'shapes',
+    description: 'Browser window frame for wireframes and mockups.',
+    usageGuidelines: 'Use for web application mockups, browser-based interfaces.',
+    iconName: 'Monitor',
+    color: 'hsl(200 50% 80%)',
+    shape: 'rectangular',
+    relationships: ['Web Page', 'UI Component', 'User']
+  },
+  {
+    id: 'mobile-device',
+    name: 'Mobile Device',
+    type: 'structural',
+    category: 'ui',
+    framework: 'shapes',
+    description: 'Mobile phone shape for mobile app wireframes.',
+    usageGuidelines: 'Use for mobile application mockups and mobile user interfaces.',
+    iconName: 'Smartphone',
+    color: 'hsl(200 50% 80%)',
+    shape: 'rounded',
+    relationships: ['Mobile App', 'UI Component', 'User']
+  },
+  {
+    id: 'tablet-device',
+    name: 'Tablet Device',
+    type: 'structural',
+    category: 'ui',
+    framework: 'shapes',
+    description: 'Tablet shape for tablet app wireframes.',
+    usageGuidelines: 'Use for tablet application mockups and tablet user interfaces.',
+    iconName: 'Tablet',
+    color: 'hsl(200 50% 80%)',
+    shape: 'rounded',
+    relationships: ['Tablet App', 'UI Component', 'User']
+  },
+  {
+    id: 'user-persona',
+    name: 'User/Persona',
+    type: 'structural',
+    category: 'ui',
+    framework: 'shapes',
+    description: 'User icon for representing people in user journey maps.',
+    usageGuidelines: 'Use to represent users, personas, or stakeholders in UX diagrams.',
+    iconName: 'User',
+    color: 'hsl(280 50% 80%)',
+    shape: 'circular',
+    relationships: ['UI Component', 'Process', 'System']
+  },
+
+  // Mind Mapping and Brainstorming
+  {
+    id: 'sticky-note',
+    name: 'Sticky Note',
+    type: 'passive',
+    category: 'brainstorm',
+    framework: 'shapes',
+    description: 'Sticky note for brainstorming and idea capture.',
+    usageGuidelines: 'Use for ideas, notes, comments, or brainstorming sessions.',
+    iconName: 'Square',
+    color: 'hsl(60 100% 85%)',
+    shape: 'square',
+    relationships: ['Idea', 'Category', 'Action Item']
+  },
+  {
+    id: 'text-box',
+    name: 'Text Box',
+    type: 'passive',
+    category: 'brainstorm',
+    framework: 'shapes',
+    description: 'Text box for annotations and descriptions.',
+    usageGuidelines: 'Use for text annotations, descriptions, or detailed explanations.',
+    iconName: 'Type',
+    color: 'hsl(0 0% 95%)',
+    shape: 'rectangular',
+    relationships: ['Annotation', 'Description', 'Label']
+  },
+  {
+    id: 'thought-bubble',
+    name: 'Thought Bubble',
+    type: 'passive',
+    category: 'brainstorm',
+    framework: 'shapes',
+    description: 'Thought bubble for ideas and brainstorming.',
+    usageGuidelines: 'Use for thoughts, ideas, or brainstormed concepts.',
+    iconName: 'MessageCircle',
+    color: 'hsl(200 100% 90%)',
+    shape: 'bubble',
+    relationships: ['Idea', 'User', 'Process']
+  },
+
+  // Organizational Charts
+  {
+    id: 'org-manager',
+    name: 'Manager',
+    type: 'structural',
+    category: 'org',
+    framework: 'shapes',
+    description: 'Manager box for organizational charts.',
+    usageGuidelines: 'Use to represent managers, supervisors, or leadership roles.',
+    iconName: 'UserCheck',
+    color: 'hsl(210 80% 75%)',
+    shape: 'rectangular',
+    relationships: ['Employee', 'Department', 'Team']
+  },
+  {
+    id: 'org-employee',
+    name: 'Employee',
+    type: 'structural',
+    category: 'org',
+    framework: 'shapes',
+    description: 'Employee box for organizational charts.',
+    usageGuidelines: 'Use to represent individual employees or team members.',
+    iconName: 'User',
+    color: 'hsl(150 60% 80%)',
+    shape: 'rectangular',
+    relationships: ['Manager', 'Team', 'Role']
+  },
+  {
+    id: 'org-department',
+    name: 'Department',
+    type: 'structural',
+    category: 'org',
+    framework: 'shapes',
+    description: 'Department container for organizational charts.',
+    usageGuidelines: 'Use to represent departments, divisions, or organizational units.',
+    iconName: 'Building',
+    color: 'hsl(250 60% 80%)',
+    shape: 'rounded',
+    relationships: ['Manager', 'Employee', 'Organization']
   },
 
   // Application Architecture Elements

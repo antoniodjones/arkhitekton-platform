@@ -26,6 +26,12 @@ export function PaletteSidebar({
     { id: 'application', name: 'Application & Integration', icon: Box },
     { id: 'data', name: 'Data & Information', icon: Database },
     { id: 'technology', name: 'Technology & Security', icon: Server },
+    { id: 'basic', name: 'Basic Shapes', icon: ChevronRight },
+    { id: 'flowchart', name: 'Flowchart', icon: ChevronRight },
+    { id: 'network', name: 'Network & IT', icon: ChevronRight },
+    { id: 'ui', name: 'UI/UX', icon: ChevronRight },
+    { id: 'brainstorm', name: 'Brainstorming', icon: ChevronRight },
+    { id: 'org', name: 'Org Charts', icon: ChevronRight },
   ];
 
   const frameworks = [
@@ -37,6 +43,7 @@ export function PaletteSidebar({
     { id: 'gcp', name: 'Google Cloud' },
     { id: 'oci', name: 'Oracle Cloud' },
     { id: 'patterns', name: 'Cloud Patterns' },
+    { id: 'shapes', name: 'Common Shapes' },
   ];
 
   return (
