@@ -248,7 +248,7 @@ function CreateTicketContent() {
             </Button>
             <Button
               onClick={() => handleSave(false)}
-              className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
               disabled={!formData.type || !formData.title}
             >
               <Send className="h-4 w-4 mr-2" />
@@ -298,7 +298,7 @@ function CreateTicketContent() {
                   return (
                     <Card
                       key={ticketType.type}
-                      className="cursor-pointer hover:shadow-lg transition-shadow border-2 hover:border-emerald-200 dark:hover:border-emerald-700"
+                      className="cursor-pointer hover:shadow-lg transition-shadow border-2 hover:border-emerald-200 dark:hover:border-emerald-700 bg-white dark:bg-slate-800"
                       onClick={() => handleInputChange('type', ticketType.type)}
                     >
                       <CardContent className="p-6">
@@ -307,10 +307,10 @@ function CreateTicketContent() {
                             <Icon className="h-6 w-6 text-emerald-600" />
                           </div>
                           <div>
-                            <h3 className="font-black text-xl text-black dark:text-white mb-2">
+                            <h3 className="font-black text-xl text-slate-900 dark:text-white mb-2">
                               {ticketType.title}
                             </h3>
-                            <p className="text-base font-bold text-black dark:text-slate-100">
+                            <p className="text-base font-bold text-slate-700 dark:text-slate-100">
                               {ticketType.description}
                             </p>
                           </div>
