@@ -32,6 +32,7 @@ import {
 import { detectTechnicalDebtRisk, TechnicalDebtRiskIndicators } from '@/utils/technical-debt-detection';
 import { TechnicalDebtPrompt } from '@/components/dialogs/technical-debt-prompt';
 import { PortfolioAssociationForm } from '@/components/portfolio/portfolio-association-form';
+import { SearchableSelect } from '@/components/forms/searchable-select';
 import { AppLayout } from '@/components/layout/app-layout';
 
 interface TicketFormData {
@@ -159,7 +160,7 @@ function CreateTicketContent() {
     priority: '',
     businessJustification: '',
     technicalImpact: '',
-    riskAssessment: 'medium',
+    riskAssessment: 'medium' as const,
     estimatedEffort: '',
     dueDate: '',
     targetResolution: '',
@@ -343,17 +344,17 @@ function CreateTicketContent() {
       localStorage.setItem(`ticket-${fullDebtTicket.id}`, JSON.stringify(fullDebtTicket));
       
       // Update the original ADR ticket to link back to the debt ticket
-      const adrTicketData = JSON.parse(localStorage.getItem(`ticket-${ticketData.id}`) || '{}');
-      if (adrTicketData.id) {
-        adrTicketData.linkedObjects = adrTicketData.linkedObjects || [];
-        adrTicketData.linkedObjects.push({
+      const adrData = JSON.parse(localStorage.getItem(`ticket-${ticketData.id}`) || '{}');
+      if (adrData.id) {
+        adrData.linkedObjects = adrData.linkedObjects || [];
+        adrData.linkedObjects.push({
           id: fullDebtTicket.id,
           type: 'technical_debt',
           title: fullDebtTicket.title,
           ticketNumber: fullDebtTicket.ticketNumber,
           relationship: 'generates'
         });
-        localStorage.setItem(`ticket-${adrTicketData.id}`, JSON.stringify(adrTicketData));
+        localStorage.setItem(`ticket-${adrData.id}`, JSON.stringify(adrData));
       }
       
       navigate('/tickets');
@@ -651,13 +652,11 @@ function CreateTicketContent() {
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-2">
-                            <Label htmlFor="projectName">Project Name</Label>
-                            <Input
-                              id="projectName"
-                              placeholder="Enter project name"
+                            <SearchableSelect
+                              label="Program, Project, or Product Name"
+                              placeholder="Search for program, project, or product..."
                               value={formData.projectName || ''}
-                              onChange={(e) => handleInputChange('projectName', e.target.value)}
-                              className="bg-white/70 dark:bg-slate-800/70"
+                              onChange={(value) => handleInputChange('projectName', value)}
                             />
                           </div>
                           <div className="space-y-2">
