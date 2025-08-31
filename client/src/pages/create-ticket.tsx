@@ -303,14 +303,14 @@ function CreateTicketContent() {
                     >
                       <CardContent className="p-6">
                         <div className="flex items-start space-x-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-lg flex items-center justify-center">
+                          <div className="w-12 h-12 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-lg flex items-center justify-center">
                             <Icon className="h-6 w-6 text-emerald-600" />
                           </div>
                           <div>
-                            <h3 className="font-semibold text-slate-900 dark:text-white mb-2">
+                            <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-2">
                               {ticketType.title}
                             </h3>
-                            <p className="text-sm text-slate-600 dark:text-slate-300">
+                            <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
                               {ticketType.description}
                             </p>
                           </div>
