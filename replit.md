@@ -1,12 +1,12 @@
 # Overview
 
-ArchModel Pro is an enterprise-grade, AI-first systems design modeling platform that empowers systems architects to perform end-to-end architecture design (from business to technology) with unprecedented elegance and intelligence. The platform combines the expressiveness of code, the intuitiveness of visual representation, and the power of AI to create, build, and evolve complex systems.
+ARKITEKTON is an enterprise-grade, AI-first systems design modeling platform that empowers systems architects to perform end-to-end architecture design (from business to technology) with unprecedented elegance and intelligence. Named after the ancient Greek word for "master builder" or "chief of works," ARKITEKTON combines the expressiveness of code, the intuitiveness of visual representation, and the power of AI to create, build, and evolve complex systems.
 
 ## Vision Statement
 To create the ultimate universal design and modeling platform that empowers any designer or modeler - from systems architects to business analysts to creative designers - with comprehensive capabilities that surpass existing tools like Figma, Miro, Mural, Lucidchart, and Visio. The platform combines enterprise architecture modeling with general-purpose design capabilities, featuring distributed version control at the model and component level (similar to Git) and providing portfolio views for design leadership across all disciplines.
 
 ## Competitive Positioning
-ArchModel Pro is designed as an advanced competitor spanning multiple design and modeling categories:
+ARKITEKTON is designed as an advanced competitor spanning multiple design and modeling categories:
 - **Enterprise Architecture**: Mega, SoftwareAG's Aries & Alphabet, Ardoq, BlueDolphin, Avolution, Sparx Enterprise Architect, LeanIX
 - **General Design & Collaboration**: Miro, Mural, Lucidchart, Visio, Figma
 - **Unified Platform**: No existing tool combines enterprise architecture depth with general design flexibility
@@ -57,19 +57,19 @@ The application currently provides a comprehensive design palette interface supp
 
 # Recent Changes
 
-**August 31, 2025**: Major enhancement with cloud provider elements and unique ArchModel Pro design system
+**August 31, 2025**: Major enhancement with cloud provider elements and unique ARKITEKTON design system
 - Added comprehensive AWS, Azure, and Google Cloud Platform architecture elements
-- Implemented unique dark theme design system with green accent color (#8EC27A)  
+- Implemented sophisticated design system with emerald-to-teal gradients and glassmorphism effects
 - Created multi-cloud and modern architecture pattern elements
-- Enhanced visual styling with gradients, shadows, and animations
+- Enhanced visual styling with premium gradients, shadows, and smooth animations
 - Added framework-specific color coding and visual indicators
 - Updated interface to support 7 frameworks: ArchiMate, TOGAF, BPMN, AWS, Azure, GCP, Cloud Patterns
-- Redesigned branding with custom ArchModel Pro logo and typography
+- Redesigned branding with custom ARKITEKTON logo and sophisticated typography
 
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
-Design Preference: Unique ArchModel Pro identity, not following standard component libraries.
+Design Preference: Unique ARKITEKTON identity with sophisticated, elegant design language inspired by the concept of master builders.
 
 # System Architecture
 

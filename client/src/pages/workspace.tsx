@@ -125,7 +125,7 @@ export function WorkspacePage() {
               </div>
               <div>
                 <h1 className="text-lg font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-slate-800 dark:from-white dark:via-slate-200 dark:to-slate-300 bg-clip-text text-transparent tracking-tight">
-                  ArchModel Pro
+                  ARKITEKTON
                 </h1>
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide">WORKSPACE</p>
               </div>
