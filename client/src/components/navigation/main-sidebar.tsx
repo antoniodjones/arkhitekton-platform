@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -36,7 +36,10 @@ interface MainSidebarProps {
 
 export function MainSidebar({ className }: MainSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(320); // 80 * 4 = 320px (w-80)
+  const [isResizing, setIsResizing] = useState(false);
   const [location] = useLocation();
+  const sidebarRef = useRef<HTMLElement>(null);
 
   const navigationItems: NavigationItem[] = [
     {
@@ -128,13 +131,52 @@ export function MainSidebar({ className }: MainSidebarProps) {
     return location.startsWith(href);
   };
 
+  const startResize = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  }, []);
+
+  const stopResize = useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  const resize = useCallback((e: MouseEvent) => {
+    if (isResizing) {
+      const newWidth = e.clientX;
+      if (newWidth >= 200 && newWidth <= 500) { // Min 200px, Max 500px
+        setSidebarWidth(newWidth);
+      }
+    }
+  }, [isResizing]);
+
+  useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', resize);
+      document.addEventListener('mouseup', stopResize);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+      
+      return () => {
+        document.removeEventListener('mousemove', resize);
+        document.removeEventListener('mouseup', stopResize);
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      };
+    }
+  }, [isResizing, resize, stopResize]);
+
   return (
     <aside 
+      ref={sidebarRef}
       className={cn(
-        "h-screen bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-r border-slate-200/50 dark:border-slate-700/50 flex flex-col transition-all duration-300 shadow-xl",
-        isCollapsed ? "w-16" : "w-80",
+        "h-screen bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-r border-slate-200/50 dark:border-slate-700/50 flex flex-col shadow-xl relative",
+        isCollapsed && "w-16",
+        !isResizing && "transition-all duration-300",
         className
       )}
+      style={{
+        width: isCollapsed ? '4rem' : `${sidebarWidth}px`
+      }}
     >
       {/* Header */}
       <div className="p-4 border-b border-slate-200/50 dark:border-slate-700/50">
@@ -278,6 +320,17 @@ export function MainSidebar({ className }: MainSidebarProps) {
               <p className="text-xs text-slate-600 dark:text-slate-300">Available in workspace</p>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Resize Handle */}
+      {!isCollapsed && (
+        <div
+          className="absolute top-0 right-0 w-1 h-full cursor-col-resize bg-transparent hover:bg-emerald-500/20 transition-colors group"
+          onMouseDown={startResize}
+          data-testid="sidebar-resize-handle"
+        >
+          <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-1 h-12 bg-slate-300 dark:bg-slate-600 rounded-l opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
       )}
     </aside>
