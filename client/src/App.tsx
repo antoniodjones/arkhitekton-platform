@@ -19,6 +19,7 @@ import { TicketsPage } from "@/pages/tickets";
 import { CreateTicketPage } from "@/pages/create-ticket";
 import { EditTicketPage } from "@/pages/edit-ticket";
 import { ViewTicketPage } from "@/pages/view-ticket";
+import DesignOptionsPage from "@/pages/design-options";
 
 function Router() {
   return (
@@ -37,6 +38,7 @@ function Router() {
       <Route path="/tickets/new" component={CreateTicketPage} />
       <Route path="/tickets/:id/edit" component={EditTicketPage} />
       <Route path="/tickets/:id" component={ViewTicketPage} />
+      <Route path="/design-options" component={DesignOptionsPage} />
       <Route component={NotFound} />
     </Switch>
   );
