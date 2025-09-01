@@ -47,7 +47,7 @@ export const insertRecentElementSchema = createInsertSchema(recentElements).omit
   usedAt: true,
 });
 
-// Unified Architectural Models - Core of ARKITEKTON ecosystem
+// Unified Architectural Models - Core of ARKHITEKTON ecosystem
 export const architecturalModels = pgTable("architectural_models", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),

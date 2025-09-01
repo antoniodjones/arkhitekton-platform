@@ -1,12 +1,12 @@
 # Overview
 
-ARKITEKTON is an enterprise-grade, AI-first systems design modeling platform that empowers systems architects to perform end-to-end architecture design (from business to technology) with unprecedented elegance and intelligence. Named after the ancient Greek word for "master builder" or "chief of works," ARKITEKTON combines the expressiveness of code, the intuitiveness of visual representation, and the power of AI to create, build, and evolve complex systems.
+ARKHITEKTON is an enterprise-grade, AI-first systems design modeling platform that empowers systems architects to perform end-to-end architecture design (from business to technology) with unprecedented elegance and intelligence. Named after the ancient Greek word for "master builder" or "chief of works," ARKHITEKTON combines the expressiveness of code, the intuitiveness of visual representation, and the power of AI to create, build, and evolve complex systems.
 
 ## Vision Statement
 To create the ultimate universal design and modeling platform that empowers any designer or modeler - from systems architects to business analysts to creative designers - with comprehensive capabilities that surpass existing tools like Figma, Miro, Mural, Lucidchart, and Visio. The platform combines enterprise architecture modeling with general-purpose design capabilities, featuring distributed version control at the model and component level (similar to Git) and providing portfolio views for design leadership across all disciplines.
 
 ## Competitive Positioning
-ARKITEKTON is designed as an advanced competitor spanning multiple design and modeling categories:
+ARKHITEKTON is designed as an advanced competitor spanning multiple design and modeling categories:
 - **Enterprise Architecture**: Mega, SoftwareAG's Aries & Alphabet, Ardoq, BlueDolphin, Avolution, Sparx Enterprise Architect, LeanIX
 - **General Design & Collaboration**: Miro, Mural, Lucidchart, Visio, Figma
 - **Unified Platform**: No existing tool combines enterprise architecture depth with general design flexibility
@@ -72,7 +72,7 @@ The application currently provides a comprehensive design palette interface supp
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
-Design Preference: Unique ARKITEKTON identity with sophisticated, elegant design language inspired by the concept of master builders.
+Design Preference: Unique ARKHITEKTON identity with sophisticated, elegant design language inspired by the concept of master builders.
 
 # System Architecture
 

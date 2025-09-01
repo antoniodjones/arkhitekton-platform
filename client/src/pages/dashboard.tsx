@@ -131,7 +131,7 @@ function DashboardContent() {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-slate-800 dark:from-white dark:via-slate-200 dark:to-slate-300 bg-clip-text text-transparent tracking-tight">
-                    ARKITEKTON
+                    ARKHITEKTON
                   </h1>
                   <p className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide">MASTER BUILDER</p>
                 </div>
@@ -159,7 +159,7 @@ function DashboardContent() {
           </div>
           <div className="space-y-4">
             <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-emerald-800 dark:from-white dark:via-slate-200 dark:to-emerald-200 bg-clip-text text-transparent leading-tight">
-              Welcome to ARKITEKTON
+              Welcome to ARKHITEKTON
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed font-light">
               The master builder's platform for visionary architecture, strategic design, and intelligent modeling

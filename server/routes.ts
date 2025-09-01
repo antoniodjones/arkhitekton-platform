@@ -84,7 +84,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // System prompt for architecture guidance
-      const systemPrompt = `You are an expert enterprise architect and AI assistant for ARKITEKTON, a sophisticated architecture modeling platform. You help architects understand models, analyze relationships, and provide strategic guidance.
+      const systemPrompt = `You are an expert enterprise architect and AI assistant for ARKHITEKTON, a sophisticated architecture modeling platform. You help architects understand models, analyze relationships, and provide strategic guidance.
 
 Your expertise includes:
 - Enterprise Architecture frameworks (ArchiMate, TOGAF, BPMN)
