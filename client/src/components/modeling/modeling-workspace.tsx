@@ -4,6 +4,8 @@ import { ArchitecturalObjectPalette } from './architectural-object-palette';
 import { PropertiesPanel } from './properties-panel';
 import { ModelingToolbar } from './modeling-toolbar';
 import { ResizableSplitter } from '../workspace/resizable-splitter';
+import { AchievementTracker } from '../achievements/achievement-tracker';
+import { AchievementCelebration } from '../achievements/achievement-celebration';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { 
@@ -17,7 +19,8 @@ import {
   ZoomIn,
   ZoomOut,
   Grid,
-  Eye
+  Eye,
+  Trophy
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ArchitecturalModel, ArchitecturalObject, ObjectConnection } from '@shared/schema';
@@ -43,6 +46,57 @@ export function ModelingWorkspace({
   const [viewMode, setViewMode] = useState<'detailed' | 'overview' | 'executive' | 'presentation'>('detailed');
   const [selectedObjects, setSelectedObjects] = useState<string[]>([]);
   const [showGrid, setShowGrid] = useState(true);
+  
+  // Achievement system state
+  const [celebrationVisible, setCelebrationVisible] = useState(false);
+  const [celebrationAchievements, setCelebrationAchievements] = useState<any[]>([]);
+  const [levelUpData, setLevelUpData] = useState<any>(null);
+  const [showAchievementDashboard, setShowAchievementDashboard] = useState(false);
+  
+  // Mock user achievement data for demo
+  const mockUserLevel = 8;
+  const mockUserExp = 1250;
+  const mockNextLevelExp = 1600;
+  const mockCurrentStreak = 12;
+  
+  const mockAchievementProgress = [
+    {
+      id: 'semantic-master',
+      name: 'Semantic Master',
+      currentProgress: 6.8,
+      maxProgress: 7,
+      category: 'quality' as const,
+      pointsToEarn: 500,
+      isClose: true
+    },
+    {
+      id: 'connected-thinking',
+      name: 'Connected Thinking', 
+      currentProgress: 1.9,
+      maxProgress: 2,
+      category: 'complexity' as const,
+      pointsToEarn: 200,
+      isClose: true
+    },
+    {
+      id: 'pattern-virtuoso',
+      name: 'Pattern Virtuoso',
+      currentProgress: 6,
+      maxProgress: 8,
+      category: 'quality' as const,
+      pointsToEarn: 600,
+      isClose: false
+    },
+    {
+      id: 'multi-domain-expert',
+      name: 'Multi-Domain Expert',
+      currentProgress: 7.5,
+      maxProgress: 8,
+      category: 'consistency' as const,
+      pointsToEarn: 300,
+      isClose: true
+    }
+  ];
   
   // E-commerce architecture demo - ARKITEKTON universal objects vs AWS-specific shapes
   const [objects, setObjects] = useState<ArchitecturalObject[]>([
@@ -662,11 +716,41 @@ export function ModelingWorkspace({
         ? { ...obj, ...updates, updatedAt: new Date() }
         : obj
     ));
+    
+    // Trigger achievement evaluation for model complexity (demo simulation)
+    if (Math.random() > 0.7) { // 30% chance to trigger celebration for demo
+      triggerAchievementCelebration();
+    }
   }, []);
 
   const handleObjectDelete = useCallback((objectId: string) => {
     setObjects(prev => prev.filter(obj => obj.id !== objectId));
     setSelectedObjects(prev => prev.filter(id => id !== objectId));
+  }, []);
+
+  // Achievement celebration handler
+  const triggerAchievementCelebration = useCallback(() => {
+    // Simulate achieving the "Connected Thinking" achievement
+    const mockAchievement = {
+      id: 'connected-thinking',
+      name: 'Connected Thinking',
+      description: 'Create a model with high connection density (2+ connections per object)',
+      category: 'complexity' as const,
+      tier: 'silver' as const,
+      iconName: 'network',
+      color: '#c0c0c0',
+      pointsEarned: 200,
+      isNew: true
+    };
+    
+    setCelebrationAchievements([mockAchievement]);
+    setCelebrationVisible(true);
+  }, []);
+
+  const handleCelebrationDismiss = useCallback(() => {
+    setCelebrationVisible(false);
+    setCelebrationAchievements([]);
+    setLevelUpData(null);
   }, []);
 
   const handleConnectionCreate = useCallback((connectionData: Partial<ObjectConnection>) => {
@@ -750,6 +834,19 @@ export function ModelingWorkspace({
         </div>
         
         <div className="flex items-center space-x-2">
+          {/* Achievement Tracker */}
+          <AchievementTracker
+            achievements={mockAchievementProgress}
+            userLevel={mockUserLevel}
+            userExp={mockUserExp}
+            nextLevelExp={mockNextLevelExp}
+            currentStreak={mockCurrentStreak}
+            onViewDashboard={() => setShowAchievementDashboard(true)}
+            className="mr-4"
+          />
+          
+          <Separator orientation="vertical" className="h-6" />
+          
           <Button variant="ghost" size="sm" title="Undo" data-testid="button-undo">
             <Undo className="h-4 w-4" />
           </Button>
@@ -905,6 +1002,14 @@ export function ModelingWorkspace({
           </Button>
         )}
       </div>
+
+      {/* Achievement Celebration Modal */}
+      <AchievementCelebration
+        achievements={celebrationAchievements}
+        levelUp={levelUpData}
+        onDismiss={handleCelebrationDismiss}
+        visible={celebrationVisible}
+      />
     </div>
   );
 }

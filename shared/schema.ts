@@ -276,3 +276,172 @@ export type ObjectConnection = typeof objectConnections.$inferSelect;
 export type DocumentationPage = typeof documentationPages.$inferSelect;
 export type InsertDocumentationPage = z.infer<typeof insertDocumentationPageSchema>;
 export type ModelVersion = typeof modelVersions.$inferSelect;
+
+// Gamified Achievement System for Modeling Complexity
+export const achievements = pgTable("achievements", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  
+  // Achievement definition
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // 'complexity', 'collaboration', 'quality', 'consistency', 'innovation'
+  tier: text("tier").notNull(), // 'bronze', 'silver', 'gold', 'platinum', 'diamond'
+  
+  // Visual representation
+  iconName: text("icon_name").notNull(),
+  color: text("color").notNull(),
+  
+  // Scoring criteria
+  criteria: jsonb("criteria").$type<{
+    metric: string; // 'object_count', 'connection_density', 'semantic_depth', 'pattern_usage'
+    threshold: number;
+    operator: 'gte' | 'lte' | 'eq'; // greater than equal, less than equal, equal
+    weight: number; // scoring weight
+  }[]>().notNull(),
+  
+  // Points awarded
+  basePoints: integer("base_points").notNull(),
+  bonusMultiplier: integer("bonus_multiplier").default(1),
+  
+  // Progression requirements  
+  prerequisites: jsonb("prerequisites").$type<string[]>().default([]), // Achievement IDs required first
+  isHidden: integer("is_hidden").default(0), // 0 = visible, 1 = hidden until unlocked
+  
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+// User achievement progress and unlocks
+export const userAchievements = pgTable("user_achievements", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: varchar("user_id").notNull(),
+  achievementId: uuid("achievement_id").references(() => achievements.id).notNull(),
+  
+  // Progress tracking
+  currentProgress: integer("current_progress").default(0),
+  maxProgress: integer("max_progress").notNull(),
+  isUnlocked: integer("is_unlocked").default(0), // 0 = in progress, 1 = unlocked
+  
+  // Achievement context
+  modelId: uuid("model_id").references(() => architecturalModels.id), // Model that triggered achievement
+  triggerData: jsonb("trigger_data").$type<Record<string, any>>().default({}),
+  
+  // Rewards
+  pointsEarned: integer("points_earned").default(0),
+  bonusEarned: integer("bonus_earned").default(0),
+  
+  // Timestamps
+  firstProgressAt: timestamp("first_progress_at").defaultNow(),
+  unlockedAt: timestamp("unlocked_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+// User gamification profile
+export const userGameProfiles = pgTable("user_game_profiles", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: varchar("user_id").notNull().unique(),
+  
+  // Experience and progression
+  totalPoints: integer("total_points").default(0),
+  currentLevel: integer("current_level").default(1),
+  experiencePoints: integer("experience_points").default(0),
+  nextLevelThreshold: integer("next_level_threshold").default(100),
+  
+  // Achievement statistics
+  achievementsUnlocked: integer("achievements_unlocked").default(0),
+  bronzeCount: integer("bronze_count").default(0),
+  silverCount: integer("silver_count").default(0),
+  goldCount: integer("gold_count").default(0),
+  platinumCount: integer("platinum_count").default(0),
+  diamondCount: integer("diamond_count").default(0),
+  
+  // Modeling complexity metrics
+  modelingStats: jsonb("modeling_stats").$type<{
+    totalModels: number;
+    totalObjects: number;
+    totalConnections: number;
+    averageComplexity: number;
+    semanticDepthScore: number;
+    patternDiversityScore: number;
+    consistencyScore: number;
+    collaborationScore: number;
+  }>().default({}),
+  
+  // Streaks and engagement
+  currentStreak: integer("current_streak").default(0), // Days of consecutive modeling
+  longestStreak: integer("longest_streak").default(0),
+  lastActivityAt: timestamp("last_activity_at").defaultNow(),
+  
+  // Preferences
+  celebrationEnabled: integer("celebration_enabled").default(1), // 0 = disabled, 1 = enabled
+  leaderboardVisible: integer("leaderboard_visible").default(1),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+// Team leaderboards and competitions
+export const leaderboards = pgTable("leaderboards", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  
+  // Leaderboard configuration
+  name: text("name").notNull(),
+  description: text("description"),
+  type: text("type").notNull(), // 'global', 'team', 'department', 'time-period'
+  scope: text("scope").notNull(), // 'points', 'achievements', 'complexity', 'collaboration'
+  
+  // Time period (for time-based leaderboards)
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  
+  // Participants and rankings
+  rankings: jsonb("rankings").$type<{
+    userId: string;
+    displayName: string;
+    score: number;
+    rank: number;
+    change: number; // +/- position change from previous period
+    achievements: string[];
+  }[]>().default([]),
+  
+  // Configuration
+  maxParticipants: integer("max_participants").default(100),
+  isActive: integer("is_active").default(1),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+// Achievement schema exports
+export const insertAchievementSchema = createInsertSchema(achievements).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertUserAchievementSchema = createInsertSchema(userAchievements).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserGameProfileSchema = createInsertSchema(userGameProfiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertLeaderboardSchema = createInsertSchema(leaderboards).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Achievement system types
+export type Achievement = typeof achievements.$inferSelect;
+export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
+export type UserAchievement = typeof userAchievements.$inferSelect;
+export type InsertUserAchievement = z.infer<typeof insertUserAchievementSchema>;
+export type UserGameProfile = typeof userGameProfiles.$inferSelect;
+export type InsertUserGameProfile = z.infer<typeof insertUserGameProfileSchema>;
+export type Leaderboard = typeof leaderboards.$inferSelect;
+export type InsertLeaderboard = z.infer<typeof insertLeaderboardSchema>;
