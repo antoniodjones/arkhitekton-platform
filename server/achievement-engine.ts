@@ -9,123 +9,193 @@ import {
   InsertUserGameProfile 
 } from '@shared/schema';
 
-// Complexity scoring algorithms for architectural models
-export class ModelComplexityAnalyzer {
-  // Calculate overall complexity score for a model
-  static calculateComplexity(
+// Simplicity and clarity scoring algorithms for architectural models
+export class ModelSimplicityAnalyzer {
+  // Calculate overall simplicity and clarity score for a model
+  static calculateSimplicity(
     model: ArchitecturalModel,
     objects: ArchitecturalObject[],
     connections: ObjectConnection[]
-  ): ComplexityMetrics {
+  ): SimplicityMetrics {
     const objectCount = objects.length;
     const connectionCount = connections.length;
     
-    // Connection density: connections per object ratio
-    const connectionDensity = objectCount > 0 ? connectionCount / objectCount : 0;
+    // Simplicity: reward concise, focused architectures
+    const simplicityScore = this.calculateSimplicityScore(objectCount, connectionCount);
     
-    // Semantic depth: average semantic richness across objects
-    const semanticDepth = this.calculateSemanticDepth(objects);
+    // Clarity: measure how well-documented and understandable objects are
+    const clarityScore = this.calculateClarityScore(objects);
     
-    // Pattern diversity: unique architectural patterns used
-    const patternDiversity = this.calculatePatternDiversity(objects);
+    // Universality: measure use of universal vs vendor-specific objects
+    const universalityScore = this.calculateUniversalityScore(objects);
     
-    // Domain diversity: spread across different architectural domains
-    const domainDiversity = this.calculateDomainDiversity(objects);
+    // Transformation: measure conversion from complex to simple patterns
+    const transformationScore = this.calculateTransformationScore(objects, model);
     
-    // Implementation linkage: objects linked to real implementations
-    const implementationLinkage = this.calculateImplementationLinkage(objects);
+    // Documentation quality: comprehensive annotations and descriptions
+    const documentationScore = this.calculateDocumentationScore(objects);
     
-    // Overall complexity score (0-100)
-    const complexityScore = Math.min(100, 
-      (objectCount * 2) + 
-      (connectionDensity * 15) + 
-      (semanticDepth * 20) + 
-      (patternDiversity * 15) + 
-      (domainDiversity * 10) + 
-      (implementationLinkage * 10)
+    // Overall sophistication score (rewards simplicity over complexity)
+    const sophisticationScore = Math.min(100, 
+      (simplicityScore * 0.25) + 
+      (clarityScore * 0.25) + 
+      (universalityScore * 0.20) + 
+      (transformationScore * 0.15) + 
+      (documentationScore * 0.15)
     );
 
     return {
-      overallScore: Math.round(complexityScore * 100) / 100,
+      overallScore: Math.round(sophisticationScore * 100) / 100,
       objectCount,
       connectionCount,
-      connectionDensity: Math.round(connectionDensity * 100) / 100,
-      semanticDepth: Math.round(semanticDepth * 100) / 100,
-      patternDiversity: Math.round(patternDiversity * 100) / 100,
-      domainDiversity: Math.round(domainDiversity * 100) / 100,
-      implementationLinkage: Math.round(implementationLinkage * 100) / 100
+      simplicityScore: Math.round(simplicityScore * 100) / 100,
+      clarityScore: Math.round(clarityScore * 100) / 100,
+      universalityScore: Math.round(universalityScore * 100) / 100,
+      transformationScore: Math.round(transformationScore * 100) / 100,
+      documentationScore: Math.round(documentationScore * 100) / 100
     };
   }
 
-  // Calculate semantic richness based on object properties
-  private static calculateSemanticDepth(objects: ArchitecturalObject[]): number {
-    if (objects.length === 0) return 0;
+  // Calculate simplicity score (rewards concise, focused architectures)
+  private static calculateSimplicityScore(objectCount: number, connectionCount: number): number {
+    // Sweet spot: 5-12 objects for most architectures
+    let simplicityScore = 0;
     
-    const totalDepth = objects.reduce((sum, obj) => {
-      let depth = 0;
-      
-      // Semantic properties scoring
-      if (obj.semantics?.purpose && obj.semantics.purpose.length > 10) depth += 1;
-      if (obj.semantics?.responsibilities && obj.semantics.responsibilities.length > 0) {
-        depth += Math.min(3, obj.semantics.responsibilities.length * 0.5);
-      }
-      if (obj.semantics?.constraints && obj.semantics.constraints.length > 0) {
-        depth += Math.min(2, obj.semantics.constraints.length * 0.3);
-      }
-      if (obj.semantics?.patterns && obj.semantics.patterns.length > 0) {
-        depth += Math.min(2, obj.semantics.patterns.length * 0.4);
-      }
-      
-      // Metrics scoring
-      if (obj.metrics && Object.keys(obj.metrics).length > 0) depth += 1;
-      
-      // Implementation linkage scoring
-      if (obj.implementation && Object.keys(obj.implementation).length > 0) depth += 1;
-      
-      return sum + Math.min(10, depth); // Cap individual object depth at 10
-    }, 0);
+    if (objectCount >= 3 && objectCount <= 8) {
+      simplicityScore = 100; // Perfect simplicity
+    } else if (objectCount >= 9 && objectCount <= 15) {
+      simplicityScore = 80; // Good balance
+    } else if (objectCount >= 16 && objectCount <= 25) {
+      simplicityScore = 60; // Getting complex
+    } else if (objectCount > 25) {
+      simplicityScore = 20; // Too complex
+    } else {
+      simplicityScore = 40; // Too simple
+    }
     
-    return totalDepth / objects.length;
+    // Penalize excessive connections (clutter)
+    const connectionRatio = objectCount > 0 ? connectionCount / objectCount : 0;
+    if (connectionRatio > 2.0) {
+      simplicityScore *= 0.7; // Penalty for over-connection
+    }
+    
+    return simplicityScore;
   }
 
-  // Calculate architectural pattern diversity
-  private static calculatePatternDiversity(objects: ArchitecturalObject[]): number {
-    const allPatterns = new Set<string>();
+  // Calculate clarity score based on documentation quality
+  private static calculateClarityScore(objects: ArchitecturalObject[]): number {
+    if (objects.length === 0) return 0;
     
+    const clarityScores = objects.map(obj => {
+      let score = 0;
+      
+      // Clear, descriptive naming (not generic)
+      if (obj.label && obj.label.length > 2 && !obj.label.includes('Object') && !obj.label.includes('Item')) {
+        score += 25;
+      }
+      
+      // Comprehensive description
+      if (obj.description && obj.description.length > 20) {
+        score += 25;
+      }
+      
+      // Annotations present
+      if (obj.annotations && obj.annotations.length > 0) {
+        score += 25;
+      }
+      
+      // Purpose is clearly defined
+      if (obj.semantics?.purpose && obj.semantics.purpose.length > 10) {
+        score += 25;
+      }
+      
+      return score;
+    });
+    
+    return clarityScores.reduce((sum, score) => sum + score, 0) / clarityScores.length;
+  }
+
+  // Calculate universality score (universal vs vendor-specific objects)
+  private static calculateUniversalityScore(objects: ArchitecturalObject[]): number {
+    if (objects.length === 0) return 0;
+    
+    const universalObjects = objects.filter(obj => {
+      // Check if object uses universal/generic patterns
+      const isUniversal = 
+        obj.category === 'universal' || 
+        obj.type?.includes('generic') ||
+        (!obj.type?.includes('aws-') && 
+         !obj.type?.includes('azure-') && 
+         !obj.type?.includes('gcp-') &&
+         !obj.type?.includes('oracle-'));
+      
+      return isUniversal;
+    });
+    
+    const universalRatio = universalObjects.length / objects.length;
+    return universalRatio * 100; // Higher score for more universal objects
+  }
+
+  // Calculate transformation score (evidence of simplification)
+  private static calculateTransformationScore(objects: ArchitecturalObject[], model: ArchitecturalModel): number {
+    let transformationScore = 0;
+    
+    // Look for evidence of architectural transformation
     objects.forEach(obj => {
-      if (obj.semantics?.patterns) {
-        obj.semantics.patterns.forEach(pattern => allPatterns.add(pattern.toLowerCase()));
+      // Reward objects that replaced vendor-specific solutions
+      if (obj.semantics?.purpose?.toLowerCase().includes('replaces') ||
+          obj.semantics?.purpose?.toLowerCase().includes('simplifies') ||
+          obj.semantics?.purpose?.toLowerCase().includes('consolidates')) {
+        transformationScore += 20;
+      }
+      
+      // Reward clear architectural patterns over ad-hoc solutions
+      if (obj.semantics?.patterns && obj.semantics.patterns.length > 0) {
+        const hasStandardPatterns = obj.semantics.patterns.some(pattern => 
+          ['mvc', 'mvp', 'microservices', 'layered', 'event-driven', 'pipe-filter'].includes(pattern.toLowerCase())
+        );
+        if (hasStandardPatterns) transformationScore += 15;
       }
     });
     
-    // Score based on pattern count and diversity
-    return Math.min(10, allPatterns.size * 0.8);
-  }
-
-  // Calculate domain diversity across architectural layers
-  private static calculateDomainDiversity(objects: ArchitecturalObject[]): number {
-    const domains = new Set(objects.map(obj => obj.domain));
-    const categories = new Set(objects.map(obj => obj.category));
+    // Bonus for model metadata indicating transformation
+    if (model.description?.toLowerCase().includes('simplified') ||
+        model.description?.toLowerCase().includes('refactored') ||
+        model.description?.toLowerCase().includes('modernized')) {
+      transformationScore += 25;
+    }
     
-    // Score for having objects across multiple domains and categories
-    return Math.min(10, (domains.size * 2) + (categories.size * 1));
+    return Math.min(100, transformationScore);
   }
 
-  // Calculate implementation linkage score
-  private static calculateImplementationLinkage(objects: ArchitecturalObject[]): number {
+  // Calculate documentation score
+  private static calculateDocumentationScore(objects: ArchitecturalObject[]): number {
     if (objects.length === 0) return 0;
     
-    const linkedObjects = objects.filter(obj => {
-      const impl = obj.implementation;
-      return impl && (
-        (impl.codeRepositories && impl.codeRepositories.length > 0) ||
-        (impl.deployments && impl.deployments.length > 0) ||
-        (impl.infrastructure && impl.infrastructure.length > 0) ||
-        (impl.apis && impl.apis.length > 0)
-      );
+    const documentationScores = objects.map(obj => {
+      let score = 0;
+      
+      // Comprehensive annotations
+      if (obj.annotations && obj.annotations.length > 0) {
+        score += 30;
+        // Bonus for multiple annotation types
+        if (obj.annotations.length >= 3) score += 10;
+      }
+      
+      // Detailed descriptions
+      if (obj.description && obj.description.length > 50) {
+        score += 30;
+      }
+      
+      // Semantic information
+      if (obj.semantics?.purpose && obj.semantics.purpose.length > 20) score += 20;
+      if (obj.semantics?.responsibilities && obj.semantics.responsibilities.length > 0) score += 10;
+      if (obj.semantics?.constraints && obj.semantics.constraints.length > 0) score += 10;
+      
+      return Math.min(100, score);
     });
     
-    return (linkedObjects.length / objects.length) * 10;
+    return documentationScores.reduce((sum, score) => sum + score, 0) / documentationScores.length;
   }
 }
 
@@ -145,7 +215,7 @@ export class AchievementEngine {
     connections: ObjectConnection[],
     currentProfile?: UserGameProfile
   ): Promise<AchievementResult[]> {
-    const complexity = ModelComplexityAnalyzer.calculateComplexity(model, objects, connections);
+    const simplicity = ModelSimplicityAnalyzer.calculateSimplicity(model, objects, connections);
     const results: AchievementResult[] = [];
 
     for (const achievement of this.achievements) {
@@ -153,7 +223,7 @@ export class AchievementEngine {
         achievement,
         userId,
         model,
-        complexity,
+        simplicity,
         currentProfile
       );
       
@@ -170,7 +240,7 @@ export class AchievementEngine {
     achievement: Achievement,
     userId: string,
     model: ArchitecturalModel,
-    complexity: ComplexityMetrics,
+    simplicity: SimplicityMetrics,
     profile?: UserGameProfile
   ): Promise<AchievementResult> {
     let progress = 0;
@@ -179,7 +249,7 @@ export class AchievementEngine {
     
     // Evaluate each criterion
     for (const criterion of achievement.criteria) {
-      const value = this.getMetricValue(criterion.metric, complexity, model, profile);
+      const value = this.getMetricValue(criterion.metric, simplicity, model, profile);
       const threshold = criterion.threshold;
       
       let criterionMet = false;
@@ -215,34 +285,34 @@ export class AchievementEngine {
       currentProgress: Math.round(progress),
       maxProgress: Math.round(maxProgress),
       pointsEarned: triggered ? achievement.basePoints : 0,
-      complexityData: complexity
+      simplicityData: simplicity
     };
   }
 
   // Get metric value for evaluation
   private getMetricValue(
     metric: string, 
-    complexity: ComplexityMetrics, 
+    simplicity: SimplicityMetrics, 
     model: ArchitecturalModel,
     profile?: UserGameProfile
   ): number {
     switch (metric) {
       case 'object_count':
-        return complexity.objectCount;
+        return simplicity.objectCount;
       case 'connection_count':
-        return complexity.connectionCount;
-      case 'connection_density':
-        return complexity.connectionDensity;
-      case 'semantic_depth':
-        return complexity.semanticDepth;
-      case 'pattern_diversity':
-        return complexity.patternDiversity;
-      case 'domain_diversity':
-        return complexity.domainDiversity;
-      case 'implementation_linkage':
-        return complexity.implementationLinkage;
-      case 'overall_complexity':
-        return complexity.overallScore;
+        return simplicity.connectionCount;
+      case 'simplicity_score':
+        return simplicity.simplicityScore;
+      case 'clarity_score':
+        return simplicity.clarityScore;
+      case 'universality_score':
+        return simplicity.universalityScore;
+      case 'transformation_score':
+        return simplicity.transformationScore;
+      case 'documentation_score':
+        return simplicity.documentationScore;
+      case 'overall_sophistication':
+        return simplicity.overallScore;
       case 'total_models':
         return profile?.modelingStats?.totalModels || 0;
       case 'user_level':
@@ -256,14 +326,14 @@ export class AchievementEngine {
     }
   }
 
-  // Generate default achievements for the system
+  // Generate default achievements for the system (focused on simplification)
   static getDefaultAchievements(): Omit<Achievement, 'id' | 'createdAt'>[] {
     return [
-      // Complexity Achievements
+      // Simplicity Achievements
       {
         name: "First Steps",
-        description: "Create your first architectural model with at least 3 objects",
-        category: "complexity",
+        description: "Create your first architectural model with clear, simple design",
+        category: "simplicity",
         tier: "bronze",
         iconName: "baby",
         color: "#cd7f32",
@@ -274,99 +344,102 @@ export class AchievementEngine {
         isHidden: 0
       },
       {
-        name: "Growing Architecture",
-        description: "Build a model with 10+ architectural objects",
-        category: "complexity",
-        tier: "bronze",
-        iconName: "building",
-        color: "#cd7f32",
-        criteria: [{ metric: "object_count", threshold: 10, operator: "gte", weight: 1 }],
-        basePoints: 100,
-        bonusMultiplier: 1,
-        prerequisites: [],
-        isHidden: 0
-      },
-      {
-        name: "Connected Thinking",
-        description: "Create a model with high connection density (2+ connections per object)",
-        category: "complexity",
-        tier: "silver",
-        iconName: "network",
-        color: "#c0c0c0",
-        criteria: [{ metric: "connection_density", threshold: 2, operator: "gte", weight: 1 }],
-        basePoints: 200,
-        bonusMultiplier: 1,
-        prerequisites: [],
-        isHidden: 0
-      },
-      {
-        name: "Semantic Master",
-        description: "Achieve high semantic depth (7+) with rich object descriptions",
-        category: "quality",
+        name: "Elegant Simplicity",
+        description: "Create a sophisticated model with perfect simplicity (5-8 objects)",
+        category: "simplicity",
         tier: "gold",
-        iconName: "brain",
+        iconName: "star",
         color: "#ffd700",
-        criteria: [{ metric: "semantic_depth", threshold: 7, operator: "gte", weight: 1 }],
+        criteria: [{ metric: "simplicity_score", threshold: 90, operator: "gte", weight: 1 }],
         basePoints: 500,
         bonusMultiplier: 2,
         prerequisites: [],
         isHidden: 0
       },
       {
-        name: "Pattern Virtuoso",
-        description: "Use 8+ different architectural patterns in a single model",
-        category: "quality",
-        tier: "gold",
-        iconName: "puzzle",
-        color: "#ffd700",
-        criteria: [{ metric: "pattern_diversity", threshold: 8, operator: "gte", weight: 1 }],
-        basePoints: 600,
-        bonusMultiplier: 2,
-        prerequisites: [],
-        isHidden: 0
-      },
-      {
-        name: "Multi-Domain Expert",
-        description: "Create a model spanning multiple architectural domains",
-        category: "consistency",
+        name: "Crystal Clear",
+        description: "Achieve exceptional clarity with comprehensive documentation",
+        category: "clarity",
         tier: "silver",
-        iconName: "layers",
+        iconName: "eye",
         color: "#c0c0c0",
-        criteria: [{ metric: "domain_diversity", threshold: 8, operator: "gte", weight: 1 }],
+        criteria: [{ metric: "clarity_score", threshold: 80, operator: "gte", weight: 1 }],
         basePoints: 300,
         bonusMultiplier: 1,
         prerequisites: [],
         isHidden: 0
       },
       {
-        name: "Implementation Pioneer",
-        description: "Link 80%+ of your objects to real implementations",
-        category: "innovation",
+        name: "Universal Thinker",
+        description: "Use universal objects over vendor-specific solutions (80%+ universal)",
+        category: "transformation",
         tier: "platinum",
-        iconName: "link",
+        iconName: "globe",
         color: "#e5e4e2",
-        criteria: [{ metric: "implementation_linkage", threshold: 8, operator: "gte", weight: 1 }],
+        criteria: [{ metric: "universality_score", threshold: 80, operator: "gte", weight: 1 }],
         basePoints: 1000,
         bonusMultiplier: 3,
         prerequisites: [],
         isHidden: 0
       },
       {
-        name: "Complexity Champion",
-        description: "Achieve maximum complexity score (90+) in a single model",
-        category: "complexity",
+        name: "Transformation Master",
+        description: "Demonstrate architectural transformation and simplification",
+        category: "transformation",
+        tier: "diamond",
+        iconName: "sparkles",
+        color: "#b9f2ff",
+        criteria: [{ metric: "transformation_score", threshold: 70, operator: "gte", weight: 1 }],
+        basePoints: 2000,
+        bonusMultiplier: 5,
+        prerequisites: [],
+        isHidden: 0
+      },
+      {
+        name: "Documentation Virtuoso",
+        description: "Excel in comprehensive annotations and clear descriptions",
+        category: "documentation",
+        tier: "gold",
+        iconName: "book",
+        color: "#ffd700",
+        criteria: [{ metric: "documentation_score", threshold: 85, operator: "gte", weight: 1 }],
+        basePoints: 600,
+        bonusMultiplier: 2,
+        prerequisites: [],
+        isHidden: 0
+      },
+      {
+        name: "Sophisticated Architect",
+        description: "Achieve overall sophistication through simplicity and clarity",
+        category: "sophistication",
         tier: "diamond",
         iconName: "crown",
         color: "#b9f2ff",
-        criteria: [{ metric: "overall_complexity", threshold: 90, operator: "gte", weight: 1 }],
-        basePoints: 2000,
-        bonusMultiplier: 5,
+        criteria: [{ metric: "overall_sophistication", threshold: 85, operator: "gte", weight: 1 }],
+        basePoints: 1800,
+        bonusMultiplier: 4,
         prerequisites: [],
         isHidden: 1
       },
       {
-        name: "Prolific Architect",
-        description: "Create 25 architectural models",
+        name: "Clean Architecture Advocate",
+        description: "Consistently create models that balance simplicity and functionality",
+        category: "consistency",
+        tier: "platinum",
+        iconName: "shield",
+        color: "#e5e4e2",
+        criteria: [
+          { metric: "simplicity_score", threshold: 70, operator: "gte", weight: 0.5 },
+          { metric: "clarity_score", threshold: 70, operator: "gte", weight: 0.5 }
+        ],
+        basePoints: 1200,
+        bonusMultiplier: 3,
+        prerequisites: [],
+        isHidden: 0
+      },
+      {
+        name: "Prolific Simplifier",
+        description: "Create 25 architectural models focusing on simplicity",
         category: "collaboration",
         tier: "gold",
         iconName: "trophy",
@@ -378,8 +451,8 @@ export class AchievementEngine {
         isHidden: 0
       },
       {
-        name: "Dedicated Modeler",
-        description: "Maintain a 30-day modeling streak",
+        name: "Dedicated Simplifier",
+        description: "Maintain a 30-day streak of clear, simple modeling",
         category: "collaboration",
         tier: "platinum",
         iconName: "flame",
@@ -444,15 +517,15 @@ export class LevelSystem {
 }
 
 // Type definitions
-export interface ComplexityMetrics {
+export interface SimplicityMetrics {
   overallScore: number;
   objectCount: number;
   connectionCount: number;
-  connectionDensity: number;
-  semanticDepth: number;
-  patternDiversity: number;
-  domainDiversity: number;
-  implementationLinkage: number;
+  simplicityScore: number;
+  clarityScore: number;
+  universalityScore: number;
+  transformationScore: number;
+  documentationScore: number;
 }
 
 export interface AchievementResult {
@@ -464,7 +537,7 @@ export interface AchievementResult {
   currentProgress: number;
   maxProgress: number;
   pointsEarned: number;
-  complexityData: ComplexityMetrics;
+  simplicityData: SimplicityMetrics;
 }
 
 export interface LevelProgress {
