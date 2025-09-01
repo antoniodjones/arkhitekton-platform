@@ -4,7 +4,7 @@
 @tailwind utilities;
 
 :root {
-  /* ARKHITEKTON Orange Design System - Inspired by warm terracotta and architectural materials */
+  /* ARKHITEKTON Orange Design System - Inspired by warm terracotta and architectural materials - Updated! */
   --background: hsl(30 12% 95%);
   --foreground: hsl(25 8% 15%);
   --card: hsl(30 25% 98%);
