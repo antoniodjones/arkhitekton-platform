@@ -18,7 +18,8 @@ import {
   Workflow,
   Database,
   GitBranch,
-  Ticket
+  Ticket,
+  Shapes
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -55,6 +56,13 @@ export function MainSidebar({ className }: MainSidebarProps) {
       href: '/portfolio',
       icon: TrendingUp,
       description: 'Track transformation initiatives'
+    },
+    {
+      id: 'modeling',
+      label: 'Architecture Modeling',
+      href: '/modeling',
+      icon: Shapes,
+      description: 'Universal modeling engine for architects'
     },
     {
       id: 'workspace',

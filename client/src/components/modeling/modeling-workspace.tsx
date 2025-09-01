@@ -1,0 +1,421 @@
+import React, { useState, useCallback } from 'react';
+import { ModelingCanvas } from './modeling-canvas';
+import { ArchitecturalObjectPalette } from './architectural-object-palette';
+import { PropertiesPanel } from './properties-panel';
+import { ModelingToolbar } from './modeling-toolbar';
+import { ResizableSplitter } from '../workspace/resizable-splitter';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { 
+  PanelLeftOpen, 
+  PanelLeftClose, 
+  PanelRightOpen, 
+  PanelRightClose,
+  Save,
+  Undo,
+  Redo,
+  ZoomIn,
+  ZoomOut,
+  Grid,
+  Eye
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { ArchitecturalModel, ArchitecturalObject, ObjectConnection } from '@shared/schema';
+
+interface ModelingWorkspaceProps {
+  model?: ArchitecturalModel;
+  onModelSave?: (model: ArchitecturalModel) => void;
+  onModelUpdate?: (updates: Partial<ArchitecturalModel>) => void;
+  className?: string;
+}
+
+export function ModelingWorkspace({
+  model,
+  onModelSave,
+  onModelUpdate,
+  className
+}: ModelingWorkspaceProps) {
+  const [leftPanelOpen, setLeftPanelOpen] = useState(true);
+  const [rightPanelOpen, setRightPanelOpen] = useState(true);
+  const [leftPanelWidth, setLeftPanelWidth] = useState(320);
+  const [rightPanelWidth, setRightPanelWidth] = useState(320);
+  
+  const [viewMode, setViewMode] = useState<'detailed' | 'overview' | 'executive' | 'presentation'>('detailed');
+  const [selectedObjects, setSelectedObjects] = useState<string[]>([]);
+  const [showGrid, setShowGrid] = useState(true);
+  
+  // Mock data for development - will be replaced with actual data
+  const [objects, setObjects] = useState<ArchitecturalObject[]>([
+    {
+      id: 'obj-1',
+      modelId: model?.id || 'model-1',
+      name: 'Payment Gateway',
+      objectType: 'standard',
+      domain: 'software',
+      category: 'service',
+      visual: {
+        shape: 'rectangle',
+        position: { x: 100, y: 100 },
+        size: { width: 200, height: 80 },
+        styling: { color: '#10b981', borderWidth: 2 },
+        ports: [],
+        annotations: []
+      },
+      semantics: {
+        purpose: 'Process payment transactions',
+        responsibilities: ['Validate payments', 'Handle card processing', 'Manage refunds'],
+        constraints: [],
+        patterns: ['Gateway Pattern', 'Circuit Breaker']
+      },
+      lifecycle: {
+        state: 'implemented',
+        milestones: [],
+        decisions: [],
+        changes: []
+      },
+      metrics: {
+        performance: { latency: 150, throughput: 1000 },
+        reliability: { uptime: 99.9, errorRate: 0.01 },
+        businessValue: { revenueImpact: 85, userSatisfaction: 92 }
+      },
+      implementation: {
+        codeRepositories: ['payment-service-repo'],
+        apis: ['POST /payments', 'GET /payments/{id}']
+      },
+      metadata: {},
+      createdAt: new Date(),
+      updatedAt: new Date()
+    } as ArchitecturalObject,
+    {
+      id: 'obj-2',
+      modelId: model?.id || 'model-1',
+      name: 'User Database',
+      objectType: 'standard',
+      domain: 'data',
+      category: 'store',
+      visual: {
+        shape: 'cylinder',
+        position: { x: 400, y: 200 },
+        size: { width: 160, height: 80 },
+        styling: { color: '#3b82f6', borderWidth: 2 },
+        ports: [],
+        annotations: []
+      },
+      semantics: {
+        purpose: 'Store user account information',
+        responsibilities: ['User data persistence', 'Authentication data', 'Profile management'],
+        constraints: [],
+        patterns: ['Repository Pattern']
+      },
+      lifecycle: {
+        state: 'implemented',
+        milestones: [],
+        decisions: [],
+        changes: []
+      },
+      metrics: {
+        performance: { queryTime: 50, storageSize: 2000 },
+        reliability: { availability: 99.99, backupFrequency: 24 }
+      },
+      implementation: {
+        infrastructure: ['postgresql-cluster-1']
+      },
+      metadata: {},
+      createdAt: new Date(),
+      updatedAt: new Date()
+    } as ArchitecturalObject
+  ]);
+  
+  const [connections, setConnections] = useState<ObjectConnection[]>([]);
+
+  // Object management handlers
+  const handleObjectCreate = useCallback((objectData: Partial<ArchitecturalObject>) => {
+    const newObject: ArchitecturalObject = {
+      id: `obj-${Date.now()}`,
+      modelId: model?.id || 'model-1',
+      name: objectData.name || 'New Object',
+      objectType: objectData.objectType || 'custom',
+      domain: objectData.domain || 'software',
+      category: objectData.category || 'component',
+      visual: objectData.visual || {
+        shape: 'rectangle',
+        position: { x: 200, y: 200 },
+        size: { width: 180, height: 80 },
+        styling: { color: '#64748b', borderWidth: 2 },
+        ports: [],
+        annotations: []
+      },
+      semantics: objectData.semantics || {
+        purpose: '',
+        responsibilities: [],
+        constraints: [],
+        patterns: []
+      },
+      lifecycle: {
+        state: 'planned',
+        milestones: [],
+        decisions: [],
+        changes: []
+      },
+      metrics: {},
+      implementation: {},
+      metadata: {},
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    setObjects(prev => [...prev, newObject]);
+  }, [model?.id]);
+
+  const handleObjectUpdate = useCallback((objectId: string, updates: Partial<ArchitecturalObject>) => {
+    setObjects(prev => prev.map(obj => 
+      obj.id === objectId 
+        ? { ...obj, ...updates, updatedAt: new Date() }
+        : obj
+    ));
+  }, []);
+
+  const handleObjectDelete = useCallback((objectId: string) => {
+    setObjects(prev => prev.filter(obj => obj.id !== objectId));
+    setSelectedObjects(prev => prev.filter(id => id !== objectId));
+  }, []);
+
+  const handleConnectionCreate = useCallback((connectionData: Partial<ObjectConnection>) => {
+    const newConnection: ObjectConnection = {
+      id: `conn-${Date.now()}`,
+      sourceObjectId: connectionData.sourceObjectId || '',
+      targetObjectId: connectionData.targetObjectId || '',
+      relationshipType: connectionData.relationshipType || 'depends_on',
+      direction: connectionData.direction || 'directed',
+      visual: connectionData.visual || {
+        path: [],
+        styling: { strokeWidth: 2, color: '#64748b' },
+        labels: []
+      },
+      properties: {},
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    setConnections(prev => [...prev, newConnection]);
+  }, []);
+
+  // View mode switching
+  const handleViewModeChange = useCallback((mode: typeof viewMode) => {
+    setViewMode(mode);
+  }, []);
+
+  // Save functionality
+  const handleSave = useCallback(() => {
+    if (model && onModelSave) {
+      const updatedModel: ArchitecturalModel = {
+        ...model,
+        canvasData: {
+          objects: objects,
+          connections: connections,
+          viewport: { x: 0, y: 0, zoom: 1 }, // This should come from canvas
+          layouts: []
+        },
+        updatedAt: new Date()
+      };
+      onModelSave(updatedModel);
+    }
+  }, [model, objects, connections, onModelSave]);
+
+  return (
+    <div className={cn("flex flex-col h-full bg-background", className)}>
+      {/* Header toolbar */}
+      <header className="bg-card border-b border-border px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
+              <div className="w-4 h-4 bg-white/90 rounded transform rotate-45" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-foreground">
+                {model?.name || 'New Architecture Model'}
+              </h1>
+              <p className="text-xs text-muted-foreground">
+                {model?.domain || 'software'} · {model?.type || 'system'}
+              </p>
+            </div>
+          </div>
+          
+          <Separator orientation="vertical" className="h-6" />
+          
+          {/* View mode selector */}
+          <div className="flex items-center space-x-1 bg-muted rounded-lg p-1">
+            {(['detailed', 'overview', 'executive', 'presentation'] as const).map((mode) => (
+              <Button
+                key={mode}
+                variant={viewMode === mode ? "default" : "ghost"}
+                size="sm"
+                onClick={() => handleViewModeChange(mode)}
+                className="text-xs capitalize"
+                data-testid={`button-view-${mode}`}
+              >
+                {mode}
+              </Button>
+            ))}
+          </div>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <Button variant="ghost" size="sm" title="Undo" data-testid="button-undo">
+            <Undo className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="sm" title="Redo" data-testid="button-redo">
+            <Redo className="h-4 w-4" />
+          </Button>
+          
+          <Separator orientation="vertical" className="h-6" />
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => setShowGrid(!showGrid)}
+            title="Toggle Grid"
+            data-testid="button-toggle-grid"
+          >
+            <Grid className={cn("h-4 w-4", showGrid && "text-emerald-500")} />
+          </Button>
+          
+          <Button variant="ghost" size="sm" title="Zoom In" data-testid="button-zoom-in">
+            <ZoomIn className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="sm" title="Zoom Out" data-testid="button-zoom-out">
+            <ZoomOut className="h-4 w-4" />
+          </Button>
+          
+          <Separator orientation="vertical" className="h-6" />
+          
+          <Button 
+            variant="default" 
+            size="sm" 
+            onClick={handleSave}
+            data-testid="button-save-model"
+          >
+            <Save className="h-4 w-4 mr-2" />
+            Save
+          </Button>
+        </div>
+      </header>
+      
+      {/* Main workspace */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left panel - Object palette */}
+        {leftPanelOpen && (
+          <>
+            <div 
+              className="bg-card border-r border-border flex flex-col"
+              style={{ width: leftPanelWidth }}
+            >
+              <div className="p-4 border-b border-border flex items-center justify-between">
+                <h3 className="font-medium text-foreground">Object Palette</h3>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setLeftPanelOpen(false)}
+                  data-testid="button-close-left-panel"
+                >
+                  <PanelLeftClose className="h-4 w-4" />
+                </Button>
+              </div>
+              <ArchitecturalObjectPalette 
+                domain={model?.domain || 'software'}
+                onObjectCreate={handleObjectCreate}
+              />
+            </div>
+            <ResizableSplitter
+              leftWidth={leftPanelWidth}
+              onWidthChange={setLeftPanelWidth}
+              minWidth={200}
+              maxWidth={500}
+            />
+          </>
+        )}
+        
+        {/* Center panel - Canvas */}
+        <div className="flex-1 flex flex-col">
+          {!leftPanelOpen && (
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => setLeftPanelOpen(true)}
+              className="absolute top-16 left-4 z-10"
+              data-testid="button-open-left-panel"
+            >
+              <PanelLeftOpen className="h-4 w-4" />
+            </Button>
+          )}
+          
+          <ModelingCanvas
+            modelId={model?.id}
+            objects={objects}
+            connections={connections}
+            viewMode={viewMode}
+            onObjectCreate={handleObjectCreate}
+            onObjectUpdate={handleObjectUpdate}
+            onObjectDelete={handleObjectDelete}
+            onConnectionCreate={handleConnectionCreate}
+            className="flex-1"
+          />
+          
+          <ModelingToolbar 
+            selectedObjects={selectedObjects}
+            viewMode={viewMode}
+            onObjectDelete={handleObjectDelete}
+            className="border-t border-border"
+          />
+        </div>
+        
+        {/* Right panel - Properties */}
+        {rightPanelOpen && (
+          <>
+            <ResizableSplitter
+              leftWidth={rightPanelWidth}
+              onWidthChange={setRightPanelWidth}
+              minWidth={250}
+              maxWidth={500}
+              direction="right"
+            />
+            <div 
+              className="bg-card border-l border-border flex flex-col"
+              style={{ width: rightPanelWidth }}
+            >
+              <div className="p-4 border-b border-border flex items-center justify-between">
+                <h3 className="font-medium text-foreground">Properties</h3>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setRightPanelOpen(false)}
+                  data-testid="button-close-right-panel"
+                >
+                  <PanelRightClose className="h-4 w-4" />
+                </Button>
+              </div>
+              <PropertiesPanel 
+                selectedObjects={selectedObjects.map(id => 
+                  objects.find(obj => obj.id === id)
+                ).filter(Boolean) as ArchitecturalObject[]}
+                onObjectUpdate={handleObjectUpdate}
+              />
+            </div>
+          </>
+        )}
+        
+        {!rightPanelOpen && (
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => setRightPanelOpen(true)}
+            className="absolute top-16 right-4 z-10"
+            data-testid="button-open-right-panel"
+          >
+            <PanelRightOpen className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import DesignPalette from "@/pages/design-palette";
 import { WorkspacePage } from "@/pages/workspace";
+import ModelingPage from "@/pages/modeling";
 import Dashboard from "@/pages/dashboard";
 import { GovernancePage } from "@/pages/governance";
 import { DecisionsPage } from "@/pages/decisions";
@@ -23,6 +24,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/design-palette" component={DesignPalette} />
+      <Route path="/modeling" component={ModelingPage} />
       <Route path="/workspace" component={WorkspacePage} />
       <Route path="/governance" component={GovernancePage} />
       <Route path="/decisions" component={DecisionsPage} />
