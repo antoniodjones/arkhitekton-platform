@@ -192,7 +192,7 @@ export function MainSidebar({ className }: MainSidebarProps) {
           {!isCollapsed && (
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 via-orange-400 to-amber-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/25">
                   <div className="w-5 h-5 bg-white/90 rounded-lg transform rotate-45" />
                 </div>
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full" />
@@ -208,7 +208,7 @@ export function MainSidebar({ className }: MainSidebarProps) {
           {isCollapsed && (
             <div className="mx-auto">
               <div className="relative">
-                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                <div className="w-8 h-8 bg-gradient-to-br from-orange-500 via-orange-400 to-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/25">
                   <div className="w-4 h-4 bg-white/90 rounded-md transform rotate-45" />
                 </div>
                 <div className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full" />
@@ -244,7 +244,7 @@ export function MainSidebar({ className }: MainSidebarProps) {
                 className={cn(
                   "w-full justify-start h-auto p-3 text-left transition-all duration-200",
                   isActive 
-                    ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/25" 
+                    ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25" 
                     : "text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800",
                   isCollapsed && "justify-center px-0"
                 )}
@@ -290,7 +290,7 @@ export function MainSidebar({ className }: MainSidebarProps) {
                 className={cn(
                   "w-full justify-start h-auto p-3 text-left transition-all duration-200",
                   isActive 
-                    ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/25" 
+                    ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25" 
                     : "text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800",
                   isCollapsed && "justify-center px-0"
                 )}
@@ -319,8 +319,8 @@ export function MainSidebar({ className }: MainSidebarProps) {
       {/* AI Assistant Indicator */}
       {!isCollapsed && (
         <div className="p-3 border-t border-slate-200/50 dark:border-slate-700/50">
-          <div className="flex items-center space-x-3 p-3 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-lg">
-            <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
+          <div className="flex items-center space-x-3 p-3 bg-gradient-to-r from-orange-500/10 to-amber-500/10 rounded-lg">
+            <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-amber-500 rounded-lg flex items-center justify-center">
               <Sparkles className="h-4 w-4 text-white" />
             </div>
             <div className="flex-1 min-w-0">
@@ -334,7 +334,7 @@ export function MainSidebar({ className }: MainSidebarProps) {
       {/* Resize Handle */}
       {!isCollapsed && (
         <div
-          className="absolute top-0 right-0 w-1 h-full cursor-col-resize bg-transparent hover:bg-emerald-500/20 transition-colors group"
+          className="absolute top-0 right-0 w-1 h-full cursor-col-resize bg-transparent hover:bg-orange-500/20 transition-colors group"
           onMouseDown={startResize}
           data-testid="sidebar-resize-handle"
         >
