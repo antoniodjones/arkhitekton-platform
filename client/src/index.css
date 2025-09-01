@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -50,7 +50,7 @@
   --passive: hsl(262 80% 60%);
   --motivational: hsl(45 95% 55%);
   
-  --font-sans: 'Nunito Sans', system-ui, sans-serif;
+  --font-sans: 'Lexend', system-ui, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: 'JetBrains Mono', Menlo, monospace;
   --radius: 0.75rem;
