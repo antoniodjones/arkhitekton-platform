@@ -72,6 +72,13 @@ export function MainSidebar({ className }: MainSidebarProps) {
       description: 'Design and model architectures'
     },
     {
+      id: 'design-options',
+      label: 'Logo Design Options',
+      href: '/design-options',
+      icon: Sparkles,
+      description: 'Choose ARKHITEKTON visual identity'
+    },
+    {
       id: 'governance',
       label: 'Governance',
       href: '/governance',
