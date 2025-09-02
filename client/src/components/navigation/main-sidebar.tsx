@@ -114,11 +114,18 @@ export function MainSidebar({ className }: MainSidebarProps) {
       description: 'Review requests and architect assignments'
     },
     {
+      id: 'plan',
+      label: 'ARKHITEKTON Plan',
+      href: '/plan',
+      icon: GitBranch,
+      description: 'Development roadmap and task tracking'
+    },
+    {
       id: 'wiki',
       label: 'Knowledge Base',
       href: '/wiki',
       icon: BookOpen,
-      description: 'Governance documentation'
+      description: 'Implementation documentation & guides'
     }
   ];
 
