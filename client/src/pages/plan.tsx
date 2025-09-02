@@ -16,7 +16,8 @@ import {
   Trophy,
   Rocket,
   Zap,
-  ArrowLeft
+  ArrowLeft,
+  BookOpen
 } from 'lucide-react';
 import { Link } from 'wouter';
 
@@ -26,7 +27,7 @@ interface Task {
   description: string;
   completed: boolean;
   priority: 'high' | 'medium' | 'low';
-  category: 'foundation' | 'ai' | 'modeling' | 'integration' | 'ux';
+  category: 'foundation' | 'knowledge-base' | 'ai' | 'modeling' | 'integration' | 'ux';
 }
 
 export default function PlanPage() {
@@ -87,6 +88,56 @@ export default function PlanPage() {
       completed: false, 
       priority: 'low', 
       category: 'foundation' 
+    },
+    
+    // Knowledge Base Platform - Enterprise Documentation System
+    {
+      id: 'kb1',
+      title: 'Hierarchical Page Structure & Navigation',
+      description: 'Create foundation with nested page organization, drag-and-drop reorganization, and smart breadcrumb navigation system',
+      completed: false,
+      priority: 'high',
+      category: 'knowledge-base'
+    },
+    {
+      id: 'kb2',
+      title: 'Rich WYSIWYG Editor',
+      description: 'Build powerful editor with architecture-specific content blocks, code snippets, diagrams, tables, and advanced formatting',
+      completed: false,
+      priority: 'high',
+      category: 'knowledge-base'
+    },
+    {
+      id: 'kb3',
+      title: 'Architecture Template Library',
+      description: 'Design template collection for ADRs, Implementation Guides, Best Practices, Project Showcases, and technical documentation',
+      completed: false,
+      priority: 'high',
+      category: 'knowledge-base'
+    },
+    {
+      id: 'kb4',
+      title: 'Advanced Search & Discovery',
+      description: 'Implement intelligent search across all documentation with filters, tags, content recommendations, and semantic search',
+      completed: false,
+      priority: 'medium',
+      category: 'knowledge-base'
+    },
+    {
+      id: 'kb5',
+      title: 'Team Collaboration Features',
+      description: 'Add commenting system, reviews, version history, change tracking, and approval workflows for enterprise collaboration',
+      completed: false,
+      priority: 'medium',
+      category: 'knowledge-base'
+    },
+    {
+      id: 'kb6',
+      title: 'Design Canvas Integration',
+      description: 'Connect documentation to live architecture diagrams, embed models, sync design changes, and create living documentation',
+      completed: false,
+      priority: 'medium',
+      category: 'knowledge-base'
     },
     
     // Core Modeling Engine
@@ -230,6 +281,7 @@ export default function PlanPage() {
   const getCategoryIcon = (category: Task['category']) => {
     switch (category) {
       case 'foundation': return Rocket;
+      case 'knowledge-base': return BookOpen;
       case 'ai': return Brain;
       case 'modeling': return Palette;
       case 'integration': return Link2;
@@ -241,6 +293,7 @@ export default function PlanPage() {
   const getCategoryColor = (category: Task['category']) => {
     switch (category) {
       case 'foundation': return 'bg-orange-500';
+      case 'knowledge-base': return 'bg-indigo-500';
       case 'ai': return 'bg-purple-500';
       case 'modeling': return 'bg-blue-500';
       case 'integration': return 'bg-green-500';
@@ -320,10 +373,14 @@ export default function PlanPage() {
 
       {/* Task Categories */}
       <Tabs defaultValue="foundation" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="foundation" className="flex items-center gap-2">
             <Rocket className="w-4 h-4" />
             Foundation
+          </TabsTrigger>
+          <TabsTrigger value="knowledge-base" className="flex items-center gap-2">
+            <BookOpen className="w-4 h-4" />
+            Knowledge Base
           </TabsTrigger>
           <TabsTrigger value="modeling" className="flex items-center gap-2">
             <Palette className="w-4 h-4" />
@@ -343,7 +400,7 @@ export default function PlanPage() {
           </TabsTrigger>
         </TabsList>
 
-        {(['foundation', 'modeling', 'ai', 'integration', 'ux'] as const).map(category => {
+        {(['foundation', 'knowledge-base', 'modeling', 'ai', 'integration', 'ux'] as const).map(category => {
           const categoryTasks = getTasksByCategory(category);
           const categoryCompleted = categoryTasks.filter(t => t.completed).length;
           const categoryProgress = Math.round((categoryCompleted / categoryTasks.length) * 100);
@@ -360,6 +417,7 @@ export default function PlanPage() {
                       })()}
                       {category === 'ai' ? 'AI Intelligence Layer' : 
                        category === 'ux' ? 'UX Excellence' : 
+                       category === 'knowledge-base' ? 'Knowledge Base Platform' :
                        category.charAt(0).toUpperCase() + category.slice(1)} Phase
                     </CardTitle>
                     <Badge variant="outline">
