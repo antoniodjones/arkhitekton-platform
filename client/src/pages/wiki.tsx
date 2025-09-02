@@ -695,12 +695,17 @@ Creates a distinctive, professional identity that architects associate with crea
                     <PageEditor 
                       pageId="new-page"
                       onSave={(savedPage) => {
-                        setIsCreatingNewPage(false);
-                        setSelectedPageId(savedPage.id);
+                        // Don't change the view immediately - keep editing until user manually exits
+                        console.log('Page saved:', savedPage.id);
                       }}
                       onCancel={() => {
                         setIsCreatingNewPage(false);
-                        setSelectedPageId(undefined);
+                        // Find the most recently created page and select it
+                        setTimeout(() => {
+                          // This will trigger a refresh and show the new page in read mode
+                          setSelectedPageId(undefined);
+                          window.location.reload();
+                        }, 100);
                       }}
                       autoFocus={true}
                       inline={true}

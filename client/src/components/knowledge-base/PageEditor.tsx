@@ -90,9 +90,8 @@ export function PageEditor({
         const newPage = await response.json();
         setPageCreated(true);
         queryClient.invalidateQueries({ queryKey: ['/api/knowledge-base/pages'] });
-        if (onSave) {
-          onSave(newPage);
-        }
+        // Don't call onSave for auto-save - only for manual save
+        console.log('Auto-saved new page:', newPage.id);
       }
     } catch (error) {
       console.error('Auto-save failed:', error);
@@ -322,6 +321,20 @@ export function PageEditor({
           <div className="flex justify-between items-center text-sm text-slate-500 dark:text-slate-400 pt-4 border-t">
             <span>Auto-save: {isLoading ? 'Saving...' : 'Saved'}</span>
             <div className="flex gap-2">
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={() => {
+                  // Trigger a final save then exit
+                  if (title.trim() || content.trim()) {
+                    handleSave();
+                  }
+                  if (onCancel) onCancel();
+                }}
+                className="bg-emerald-600 hover:bg-emerald-700"
+              >
+                Done Editing
+              </Button>
               {onCancel && (
                 <Button variant="outline" size="sm" onClick={onCancel}>
                   Discard
