@@ -84,15 +84,10 @@ export function PageEditor({
 
     try {
       if (pageId && pageId !== 'new-page') {
-        await apiRequest(`/api/knowledge-base/pages/${pageId}`, {
-          method: 'PUT',
-          body: pageData
-        });
+        await apiRequest('PUT', `/api/knowledge-base/pages/${pageId}`, pageData);
       } else if (!pageCreated) {
-        const newPage = await apiRequest('/api/knowledge-base/pages', {
-          method: 'POST',
-          body: pageData as InsertKnowledgeBasePage
-        });
+        const response = await apiRequest('POST', '/api/knowledge-base/pages', pageData as InsertKnowledgeBasePage);
+        const newPage = await response.json();
         setPageCreated(true);
         queryClient.invalidateQueries({ queryKey: ['/api/knowledge-base/pages'] });
         if (onSave) {
