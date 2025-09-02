@@ -173,7 +173,7 @@ export function PageEditor({ pageId, parentId, isOpen, onClose, onSave }: PageEd
       category,
       status,
       tags,
-      parentId: parentId || null,
+      parentPageId: parentId || null,
       order,
     };
 
