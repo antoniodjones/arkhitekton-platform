@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/breadcrumb';
 import type { KnowledgeBasePage as KBPage } from '@shared/schema';
 import { cn } from '@/lib/utils';
+import { RichContentEditor } from './RichContentEditor';
 
 interface KnowledgeBasePageProps {
   pageId?: string;
@@ -221,7 +222,7 @@ export function KnowledgeBasePage({ pageId, onBack, className }: KnowledgeBasePa
               <div className="flex items-center space-x-4 text-sm text-slate-600 dark:text-slate-400">
                 <div className="flex items-center space-x-1">
                   <User className="h-4 w-4" />
-                  <span>By {page.authorId}</span>
+                  <span>By System</span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Calendar className="h-4 w-4" />
@@ -235,11 +236,11 @@ export function KnowledgeBasePage({ pageId, onBack, className }: KnowledgeBasePa
             </div>
 
             <div className="flex flex-col items-end space-y-2">
-              <Badge className={getStatusColor(page.status)}>
-                {page.status === 'under_review' ? 'Under Review' : page.status}
+              <Badge className={getStatusColor(page.status || 'Draft')}>
+                {page.status === 'under_review' ? 'Under Review' : (page.status || 'Draft')}
               </Badge>
               <div className="text-xs text-slate-500 dark:text-slate-400">
-                Version {page.content.template || '1.0'}
+                Version 1.0
               </div>
             </div>
           </div>
@@ -269,17 +270,15 @@ export function KnowledgeBasePage({ pageId, onBack, className }: KnowledgeBasePa
         <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border-slate-200/50 dark:border-slate-700/50">
           <CardContent className="p-8">
             {isEditing ? (
-              <div className="space-y-4">
-                <div className="text-center py-12 border-2 border-dashed border-orange-200 dark:border-orange-800 rounded-lg">
-                  <Edit className="h-12 w-12 mx-auto mb-4 text-orange-400" />
-                  <p className="text-lg font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Rich Editor Coming Soon
-                  </p>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
-                    The WYSIWYG editor will be implemented in the next phase
-                  </p>
-                </div>
-              </div>
+              <RichContentEditor
+                content={page.content || ''}
+                onChange={(newContent) => {
+                  // Auto-save functionality can be added here
+                  console.log('Content changed:', newContent);
+                }}
+                placeholder="Start writing your knowledge base content..."
+                className="min-h-[400px]"
+              />
             ) : (
               <div className="prose prose-slate dark:prose-invert max-w-none">
                 {renderContent(page.content)}
@@ -304,12 +303,16 @@ export function KnowledgeBasePage({ pageId, onBack, className }: KnowledgeBasePa
                 </Badge>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600 dark:text-slate-400">Type:</span>
-                <span className="font-medium">{page.pageType}</span>
+                <span className="text-slate-600 dark:text-slate-400">Status:</span>
+                <Badge variant="outline" className="text-xs">
+                  {page.status}
+                </Badge>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600 dark:text-slate-400">Visibility:</span>
-                <span className="font-medium">{page.visibility}</span>
+                <span className="text-slate-600 dark:text-slate-400">Created:</span>
+                <span className="font-medium text-xs">
+                  {page.createdAt ? new Date(page.createdAt).toLocaleDateString() : 'N/A'}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -322,17 +325,19 @@ export function KnowledgeBasePage({ pageId, onBack, className }: KnowledgeBasePa
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-slate-600 dark:text-slate-400">Collaborators:</span>
-                <span className="font-medium">{page.collaborators?.length || 0}</span>
+                <span className="text-slate-600 dark:text-slate-400">Tags:</span>
+                <span className="font-medium">{page.tags?.length || 0}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600 dark:text-slate-400">Reviewers:</span>
-                <span className="font-medium">{page.reviewers?.length || 0}</span>
+                <span className="text-slate-600 dark:text-slate-400">Updated:</span>
+                <span className="font-medium text-xs">
+                  {page.updatedAt ? new Date(page.updatedAt).toLocaleDateString() : 'N/A'}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600 dark:text-slate-400">Path:</span>
+                <span className="text-slate-600 dark:text-slate-400">Slug:</span>
                 <code className="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">
-                  {page.path}
+                  {page.slug || 'auto-generated'}
                 </code>
               </div>
             </CardContent>
@@ -346,16 +351,16 @@ export function KnowledgeBasePage({ pageId, onBack, className }: KnowledgeBasePa
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-slate-600 dark:text-slate-400">Linked Models:</span>
-                <span className="font-medium">{page.linkedModelIds?.length || 0}</span>
+                <span className="text-slate-600 dark:text-slate-400">Parent Page:</span>
+                <span className="font-medium">{page.parentPageId ? 'Yes' : 'Root'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600 dark:text-slate-400">Depth:</span>
-                <span className="font-medium">Level {page.depth}</span>
+                <span className="text-slate-600 dark:text-slate-400">Content Length:</span>
+                <span className="font-medium">{page.content.length} chars</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-600 dark:text-slate-400">Order:</span>
-                <span className="font-medium">{page.order}</span>
+                <span className="font-medium">{page.order || 0}</span>
               </div>
             </CardContent>
           </Card>
