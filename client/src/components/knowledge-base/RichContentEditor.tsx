@@ -386,17 +386,24 @@ export function RichContentEditor({
           editor={editor} 
           className={`
             prose prose-slate max-w-none min-h-[400px]
-            prose-headings:text-slate-900 dark:prose-headings:text-white
-            prose-p:text-slate-700 dark:prose-p:text-slate-300
+            prose-headings:text-slate-900 dark:prose-headings:text-white prose-headings:leading-tight prose-headings:mb-1 prose-headings:mt-1
+            prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-p:leading-tight prose-p:mb-1 prose-p:mt-0
             prose-strong:text-slate-900 dark:prose-strong:text-white
             prose-code:text-emerald-700 dark:prose-code:text-emerald-400
             prose-code:bg-slate-100 dark:prose-code:bg-slate-800
             prose-pre:bg-slate-900 dark:prose-pre:bg-slate-950
             prose-blockquote:border-emerald-500
             prose-blockquote:text-slate-600 dark:prose-blockquote:text-slate-400
-            focus-within:outline-none
+            prose-li:leading-tight prose-li:mb-0 prose-li:mt-0
+            prose-ul:mb-1 prose-ul:mt-1 prose-ol:mb-1 prose-ol:mt-1
+            focus-within:outline-none leading-tight
             ${readOnly ? 'cursor-default' : 'cursor-text'}
           `}
+          style={{ 
+            lineHeight: '1.1',
+            fontSize: '14px',
+            fontWeight: '300'
+          }}
           data-testid="editor-content"
         />
       </CardContent>
