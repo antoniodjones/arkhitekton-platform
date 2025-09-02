@@ -15,8 +15,10 @@ import {
   Sparkles,
   Trophy,
   Rocket,
-  Zap
+  Zap,
+  ArrowLeft
 } from 'lucide-react';
+import { Link } from 'wouter';
 
 interface Task {
   id: string;
@@ -253,6 +255,14 @@ export default function PlanPage() {
     <div className="flex-1 space-y-8 p-8" data-testid="plan-page">
       {/* Header */}
       <div className="space-y-4">
+        <div className="flex items-center gap-4 mb-6">
+          <Link href="/">
+            <Button variant="ghost" size="sm" data-testid="back-to-dashboard">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </Link>
+        </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 text-white">
             <Target className="w-6 h-6" />
