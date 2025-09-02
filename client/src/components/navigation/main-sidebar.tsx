@@ -19,7 +19,8 @@ import {
   Database,
   GitBranch,
   Ticket,
-  Shapes
+  Shapes,
+  Wrench
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -75,7 +76,7 @@ export function MainSidebar({ className }: MainSidebarProps) {
       id: 'design-options',
       label: 'Logo Design Options',
       href: '/design-options',
-      icon: Sparkles,
+      icon: Wrench,
       description: 'Choose ARKHITEKTON visual identity'
     },
     {
