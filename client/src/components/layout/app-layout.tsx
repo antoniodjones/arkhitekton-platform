@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { MainSidebar } from '@/components/navigation/main-sidebar';
+import { CompactSidebar } from '@/components/navigation/compact-sidebar';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -13,7 +13,7 @@ export function AppLayout({ children, showSidebar = true }: AppLayoutProps) {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-      <MainSidebar />
+      <CompactSidebar />
       <main className="flex-1 overflow-hidden">
         {children}
       </main>

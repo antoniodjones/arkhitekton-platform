@@ -195,6 +195,34 @@ function DecisionsContent() {
       tags: ['visual-identity', 'brand', 'traditional', 'human-centered', 'heritage']
     },
     {
+      id: 'ARKDD-00006',
+      title: 'UI Font Size and Spacing Customization System',
+      status: 'Under Review',
+      impact: 'Medium',
+      technicalDebt: 'Low',
+      category: 'Technical',
+      architect: 'ARKHITEKTON Team',
+      decidedDate: '2025-09-02',
+      context: 'Enterprise architects require maximum screen real estate to view complex models and data. Current UI uses standard font sizes that limit information density and require excessive scrolling.',
+      decision: 'Implement ultra-compact default UI with 12px base font size, reduced spacing, and user-customizable font size settings in application preferences.',
+      consequences: [
+        'Maximizes screen real estate for architecture modeling and complex data views',
+        'Reduces scrolling requirements across all application pages',
+        'Icons-only navigation sidebar (48px width) provides more space for content',
+        'User preferences allow customization for accessibility needs',
+        'May require user adjustment period for smaller default text',
+        'Ensures consistency with enterprise tool expectations'
+      ],
+      alternatives: [
+        'Keep standard font sizes with responsive scaling',
+        'Adaptive font sizing based on screen resolution',
+        'Multiple preset size themes (compact, standard, large)'
+      ],
+      linkedModels: ['arkhitekton-design-system', 'user-experience-architecture'],
+      debtScore: 15,
+      tags: ['ui-design', 'accessibility', 'user-experience', 'font-sizing', 'customization']
+    },
+    {
       id: 'ADR-001',
       title: 'Adopt Microservices Architecture for Customer Platform',
       status: 'Accepted',
