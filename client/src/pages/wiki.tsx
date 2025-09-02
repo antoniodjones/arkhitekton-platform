@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   BookOpen, 
@@ -656,9 +657,9 @@ Creates a distinctive, professional identity that architects associate with crea
           </TabsContent>
 
           <TabsContent value="tree" className="h-full">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-full">
+            <ResizablePanelGroup direction="horizontal" className="h-full">
               {/* Tree Navigation Sidebar */}
-              <div className="lg:col-span-1">
+              <ResizablePanel defaultSize={25} minSize={15} maxSize={40}>
                 <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border-slate-200/50 dark:border-slate-700/50 h-full">
                   <TreeNavigation 
                     onPageSelect={handlePageSelect}
@@ -666,19 +667,21 @@ Creates a distinctive, professional identity that architects associate with crea
                     className="h-full"
                   />
                 </Card>
-              </div>
-
+              </ResizablePanel>
+              
+              <ResizableHandle withHandle />
+              
               {/* Page Content */}
-              <div className="lg:col-span-3">
-                <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border-slate-200/50 dark:border-slate-700/50 h-full">
+              <ResizablePanel defaultSize={75} minSize={60}>
+                <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border-slate-200/50 dark:border-slate-700/50 h-full ml-2">
                   <KnowledgeBasePage 
                     pageId={selectedPageId}
                     onBack={handleBackToOverview}
                     className="h-full"
                   />
                 </Card>
-              </div>
-            </div>
+              </ResizablePanel>
+            </ResizablePanelGroup>
           </TabsContent>
         </Tabs>
       </div>
