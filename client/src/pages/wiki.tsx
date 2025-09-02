@@ -411,7 +411,7 @@ Creates a distinctive, professional identity that architects associate with crea
               setSelectedPageId('new-page');
               setShowTreeView(true);
             }}
-            className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+            className="bg-orange-600 hover:bg-orange-700 text-white"
             data-testid="button-create-page"
           >
             <Plus className="h-4 w-4 mr-2" />
