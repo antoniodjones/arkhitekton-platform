@@ -27,6 +27,9 @@ import {
   Zap
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/app-layout';
+import { TreeNavigation } from '@/components/knowledge-base/TreeNavigation';
+import { KnowledgeBasePage } from '@/components/knowledge-base/KnowledgeBasePage';
+import type { KnowledgeBasePage as KBPage } from '@shared/schema';
 
 interface WikiPage {
   id: string;
@@ -54,6 +57,18 @@ function WikiContent() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
+  const [selectedPageId, setSelectedPageId] = useState<string | undefined>();
+  const [showTreeView, setShowTreeView] = useState(false);
+
+  const handlePageSelect = (page: KBPage) => {
+    setSelectedPageId(page.id);
+    setShowTreeView(true);
+  };
+
+  const handleBackToOverview = () => {
+    setSelectedPageId(undefined);
+    setShowTreeView(false);
+  };
 
   // Implementation documentation tracking what we've built
   const implementationDocs: WikiPage[] = [
@@ -507,8 +522,30 @@ Creates a distinctive, professional identity that architects associate with crea
           </Select>
         </div>
 
-        {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Knowledge Base Tree View or Content Grid */}
+        <Tabs value={showTreeView ? "tree" : "overview"} className="w-full">
+          <TabsList className="mb-6">
+            <TabsTrigger 
+              value="overview" 
+              onClick={handleBackToOverview}
+              data-testid="tab-overview"
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger 
+              value="tree" 
+              onClick={() => setShowTreeView(true)}
+              data-testid="tab-tree-view"
+            >
+              <Folder className="h-4 w-4 mr-2" />
+              Tree View
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview">
+            {/* Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {filteredPages.map((page) => {
             const CategoryIcon = getCategoryIcon(page.category);
             
@@ -600,22 +637,50 @@ Creates a distinctive, professional identity that architects associate with crea
               </Card>
             );
           })}
-        </div>
+            </div>
 
-        {filteredPages.length === 0 && (
-          <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50">
-            <CardContent className="p-12 text-center">
-              <BookOpen className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">No pages found</h3>
-              <p className="text-slate-600 dark:text-slate-300 mb-4">
-                No knowledge base pages match your current filters.
-              </p>
-              <Button variant="outline">
-                Clear Filters
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+            {filteredPages.length === 0 && (
+              <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50">
+                <CardContent className="p-12 text-center">
+                  <BookOpen className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">No pages found</h3>
+                  <p className="text-slate-600 dark:text-slate-300 mb-4">
+                    No knowledge base pages match your current filters.
+                  </p>
+                  <Button variant="outline">
+                    Clear Filters
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="tree" className="h-full">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-full">
+              {/* Tree Navigation Sidebar */}
+              <div className="lg:col-span-1">
+                <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border-slate-200/50 dark:border-slate-700/50 h-full">
+                  <TreeNavigation 
+                    onPageSelect={handlePageSelect}
+                    selectedPageId={selectedPageId}
+                    className="h-full"
+                  />
+                </Card>
+              </div>
+
+              {/* Page Content */}
+              <div className="lg:col-span-3">
+                <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border-slate-200/50 dark:border-slate-700/50 h-full">
+                  <KnowledgeBasePage 
+                    pageId={selectedPageId}
+                    onBack={handleBackToOverview}
+                    className="h-full"
+                  />
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
