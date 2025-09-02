@@ -323,7 +323,10 @@ export default function PlanPage() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-3 capitalize">
-                      {React.createElement(getCategoryIcon(category), { className: "w-5 h-5" })}
+                      {(() => {
+                        const IconComponent = getCategoryIcon(category);
+                        return <IconComponent className="w-5 h-5" />;
+                      })()}
                       {category === 'ai' ? 'AI Intelligence Layer' : 
                        category === 'ux' ? 'UX Excellence' : 
                        category.charAt(0).toUpperCase() + category.slice(1)} Phase
