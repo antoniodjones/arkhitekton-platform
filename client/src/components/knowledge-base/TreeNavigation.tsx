@@ -11,7 +11,9 @@ import {
   MoreHorizontal,
   Edit,
   Trash2,
-  Move
+  Move,
+  Copy,
+  Type
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -43,6 +45,35 @@ export function TreeNavigation({ onPageSelect, selectedPageId, isCreatingNewPage
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
+
+  // Action handlers
+  const handleRename = (page: KnowledgeBasePage) => {
+    const newTitle = prompt('Enter new page title:', page.title);
+    if (newTitle && newTitle !== page.title) {
+      // TODO: Implement rename API call
+      console.log('Rename page:', page.id, 'to:', newTitle);
+    }
+  };
+
+  const handleCopyLink = (page: KnowledgeBasePage) => {
+    const url = `${window.location.origin}/wiki/${page.slug || page.id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      // TODO: Show toast notification
+      console.log('Link copied to clipboard:', url);
+    });
+  };
+
+  const handleMove = (page: KnowledgeBasePage) => {
+    // TODO: Implement move dialog/functionality
+    console.log('Move page:', page.id);
+  };
+
+  const handleDelete = (page: KnowledgeBasePage) => {
+    if (confirm(`Are you sure you want to delete "${page.title}"?`)) {
+      // TODO: Implement delete API call
+      console.log('Delete page:', page.id);
+    }
+  };
 
   // Fetch all pages
   const { data: pages = [], isLoading } = useQuery<KnowledgeBasePage[]>({
@@ -135,7 +166,7 @@ export function TreeNavigation({ onPageSelect, selectedPageId, isCreatingNewPage
       <div key={node.id} className="relative">
         <div
           className={cn(
-            "flex items-center space-x-2 py-2 px-3 rounded-lg cursor-pointer transition-all duration-200",
+            "group flex items-center space-x-2 py-2 px-3 rounded-lg cursor-pointer transition-all duration-200",
             "hover:bg-orange-50 dark:hover:bg-orange-900/10",
             isSelected && "bg-orange-100 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800",
             depth > 0 && "ml-4"
@@ -201,21 +232,61 @@ export function TreeNavigation({ onPageSelect, selectedPageId, isCreatingNewPage
                 <MoreHorizontal className="h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-36">
-              <DropdownMenuItem className="text-xs">
+            <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuItem 
+                className="text-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onPageSelect?.(node);
+                }}
+                data-testid="menu-edit"
+              >
                 <Edit className="h-3 w-3 mr-2" />
-                Edit Page
+                Edit
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-xs">
-                <Plus className="h-3 w-3 mr-2" />
-                Add Child
+              <DropdownMenuItem 
+                className="text-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRename(node);
+                }}
+                data-testid="menu-rename"
+              >
+                <Type className="h-3 w-3 mr-2" />
+                Rename
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-xs">
-                <Move className="h-3 w-3 mr-2" />
-                Move Page
+              <DropdownMenuItem 
+                className="text-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCopyLink(node);
+                }}
+                data-testid="menu-copy-link"
+              >
+                <Copy className="h-3 w-3 mr-2" />
+                Copy link
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-xs text-red-600 dark:text-red-400">
+              <DropdownMenuItem 
+                className="text-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleMove(node);
+                }}
+                data-testid="menu-move"
+              >
+                <Move className="h-3 w-3 mr-2" />
+                Move
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                className="text-xs text-red-600 dark:text-red-400"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(node);
+                }}
+                data-testid="menu-delete"
+              >
                 <Trash2 className="h-3 w-3 mr-2" />
                 Delete
               </DropdownMenuItem>
