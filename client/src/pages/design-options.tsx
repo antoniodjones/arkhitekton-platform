@@ -94,6 +94,44 @@ function Option3Logo() {
   );
 }
 
+function Option4Logo() {
+  return (
+    <div className="relative w-32 h-20 flex items-center justify-center">
+      {/* Left side - Hexagon cluster with flame */}
+      <div className="absolute left-0 flex items-center">
+        <div className="relative">
+          {/* Base hexagon cluster inspired by your original */}
+          <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-purple-700 transform rotate-12 rounded-lg"></div>
+          <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-purple-500 to-purple-600 transform rotate-45 rounded-lg"></div>
+          <div className="absolute -bottom-1 -left-1 w-5 h-5 bg-gradient-to-br from-purple-700 to-purple-800 transform rotate-12 rounded-lg"></div>
+          
+          {/* Flame element positioned quarter way down from top */}
+          <div className="absolute top-2 left-1/2 transform -translate-x-1/2">
+            {/* Main flame body */}
+            <div className="w-3 h-4 bg-gradient-to-t from-orange-600 via-orange-400 to-yellow-300 rounded-full transform scale-y-125"></div>
+            {/* Flame tip */}
+            <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gradient-to-t from-yellow-400 to-yellow-200 rounded-full"></div>
+            {/* Inner flame glow */}
+            <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-1.5 h-2 bg-gradient-to-t from-orange-300 to-yellow-100 rounded-full"></div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Right side - Transitioning shapes */}
+      <div className="absolute right-0 flex items-center space-x-1">
+        <div className="w-5 h-5 bg-gradient-to-br from-purple-400 to-orange-400 transform rotate-12 rounded-lg opacity-80"></div>
+        <div className="w-4 h-4 bg-orange-300 rounded-lg opacity-60"></div>
+        <div className="w-3 h-3 bg-orange-200 rounded-full opacity-40"></div>
+        <div className="flex space-x-1 opacity-30">
+          <div className="w-1 h-1 bg-orange-200 rounded-full"></div>
+          <div className="w-1 h-1 bg-orange-200 rounded-full"></div>
+          <div className="w-1 h-1 bg-orange-200 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function DesignOptionsPage() {
   const options = [
     {
@@ -122,6 +160,15 @@ export default function DesignOptionsPage() {
       logo: <Option3Logo />,
       pros: ["Organic, flowing feel", "Great scalability", "Clean abstraction"],
       cons: ["Less architectural", "Might be too abstract"]
+    },
+    {
+      id: 4,
+      title: "Hexagon Cluster with Flame",
+      description: "Inspired by your original hexagon design, but with a flame element positioned quarter-way down from the top. The flame represents the creative spark and passion of master builders.",
+      concept: "Creative Spark → Architectural Excellence",
+      logo: <Option4Logo />,
+      pros: ["Honors original design", "Flame adds energy/creativity", "Strong architectural feel", "Unique identity"],
+      cons: ["More complex flame details", "Purple/orange combo needs refinement"]
     }
   ];
 
