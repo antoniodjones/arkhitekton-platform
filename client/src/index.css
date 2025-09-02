@@ -49,7 +49,7 @@
   --passive: hsl(262 80% 60%);
   --motivational: hsl(45 95% 55%);
   
-  --font-sans: 'Montserrat', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: 'JetBrains Mono', Menlo, monospace;
   --radius: 0.75rem;
@@ -100,29 +100,29 @@
     overflow: hidden;
   }
   
-  /* Montserrat typography utilities */
-  .font-montserrat {
-    font-family: 'Montserrat', system-ui, sans-serif;
+  /* Inter typography utilities */
+  .font-inter {
+    font-family: 'Inter', system-ui, sans-serif;
   }
   
-  .font-montserrat-bold {
-    font-family: 'Montserrat', system-ui, sans-serif;
+  .font-inter-bold {
+    font-family: 'Inter', system-ui, sans-serif;
     font-weight: 700;
   }
   
-  /* Header classes with Montserrat Bold */
+  /* Header classes with Inter Bold */
   .header-1 {
-    font-family: 'Montserrat', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     font-weight: 700;
   }
   
   .header-2 {
-    font-family: 'Montserrat', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     font-weight: 700;
   }
   
   .header-3 {
-    font-family: 'Montserrat', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     font-weight: 700;
   }
 }
