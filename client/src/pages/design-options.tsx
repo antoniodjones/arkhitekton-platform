@@ -335,7 +335,7 @@ export default function DesignOptionsPage() {
       <div className="max-w-6xl mx-auto mb-8">
         <div className="flex items-center gap-4 mb-6">
           <Link href="/">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" data-testid="back-to-dashboard">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Dashboard
             </Button>
