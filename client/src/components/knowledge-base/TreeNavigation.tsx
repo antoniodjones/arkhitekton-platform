@@ -34,6 +34,7 @@ interface TreeNavigationProps {
   onPageSelect?: (page: KnowledgeBasePage) => void;
   selectedPageId?: string;
   isCreatingNewPage?: boolean;
+  onCreateNewPage?: () => void;
   className?: string;
 }
 
@@ -41,7 +42,7 @@ interface TreeNode extends KnowledgeBasePage {
   children?: TreeNode[];
 }
 
-export function TreeNavigation({ onPageSelect, selectedPageId, isCreatingNewPage, className }: TreeNavigationProps) {
+export function TreeNavigation({ onPageSelect, selectedPageId, isCreatingNewPage, onCreateNewPage, className }: TreeNavigationProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
@@ -334,6 +335,7 @@ export function TreeNavigation({ onPageSelect, selectedPageId, isCreatingNewPage
           <Button 
             size="sm" 
             variant="outline"
+            onClick={onCreateNewPage}
             className="h-7 px-2 text-xs bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0"
             data-testid="button-create-page"
           >

@@ -676,6 +676,11 @@ Creates a distinctive, professional identity that architects associate with crea
                     onPageSelect={handlePageSelect}
                     selectedPageId={selectedPageId}
                     isCreatingNewPage={isCreatingNewPage}
+                    onCreateNewPage={() => {
+                      setIsCreatingNewPage(true);
+                      setSelectedPageId('new-page');
+                      setShowTreeView(true);
+                    }}
                     className="h-full"
                   />
                 </Card>
