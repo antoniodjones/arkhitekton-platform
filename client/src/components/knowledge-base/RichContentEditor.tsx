@@ -47,6 +47,7 @@ interface RichContentEditorProps {
   placeholder?: string;
   className?: string;
   readOnly?: boolean;
+  autoFocus?: boolean;
 }
 
 export function RichContentEditor({ 
@@ -54,7 +55,8 @@ export function RichContentEditor({
   onChange, 
   placeholder = 'Start writing...', 
   className,
-  readOnly = false 
+  readOnly = false,
+  autoFocus = false
 }: RichContentEditorProps) {
   const [linkUrl, setLinkUrl] = useState('');
   const [imageUrl, setImageUrl] = useState('');
@@ -95,6 +97,7 @@ export function RichContentEditor({
     ],
     content,
     editable: !readOnly,
+    autofocus: autoFocus,
     onUpdate: ({ editor }) => {
       onChange?.(editor.getHTML());
     },

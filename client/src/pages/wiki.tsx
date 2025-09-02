@@ -693,6 +693,7 @@ Creates a distinctive, professional identity that architects associate with crea
                 <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border-slate-200/50 dark:border-slate-700/50 h-full ml-2">
                   {selectedPageId === 'new-page' && isCreatingNewPage ? (
                     <PageEditor 
+                      pageId="new-page"
                       onSave={(savedPage) => {
                         setIsCreatingNewPage(false);
                         setSelectedPageId(savedPage.id);

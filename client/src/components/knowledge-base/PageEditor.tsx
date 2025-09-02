@@ -275,7 +275,7 @@ export function PageEditor({
               placeholder="Give this page a title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              autoFocus={autoFocus}
+              autoFocus={true}
               data-testid="input-page-title-inline"
             />
           </div>
@@ -315,6 +315,7 @@ export function PageEditor({
             onChange={setContent}
             placeholder="Type / to insert elements"
             className="min-h-[400px] border-none"
+            autoFocus={autoFocus && !title.trim()}
           />
 
           {/* Auto-save indicator */}
