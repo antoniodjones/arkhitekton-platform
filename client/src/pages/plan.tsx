@@ -265,6 +265,27 @@ export default function PlanPage() {
           </div>
         </div>
         
+        {/* Vision Statement */}
+        <Card className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 border-orange-200 dark:border-orange-800">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3 text-orange-800 dark:text-orange-200">
+              <Trophy className="w-6 h-6" />
+              Our Mission
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-orange-700 dark:text-orange-300 leading-relaxed">
+              Build ARKHITEKTON to be so <strong>advanced, elegant, and simple</strong> that every other enterprise 
+              architecture tool becomes obsolete. We're not just building software - we're creating the future of 
+              how architects design, collaborate, and transform complex systems into understandable excellence.
+            </p>
+            <div className="flex items-center gap-2 mt-4 text-sm text-orange-600 dark:text-orange-400">
+              <Zap className="w-4 h-4" />
+              <span>Making enterprise architecture tools that architects actually love to use</span>
+            </div>
+          </CardContent>
+        </Card>
+        
         {/* Progress Overview */}
         <Card>
           <CardHeader className="pb-3">
@@ -377,26 +398,6 @@ export default function PlanPage() {
         })}
       </Tabs>
 
-      {/* Vision Statement */}
-      <Card className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 border-orange-200 dark:border-orange-800">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-orange-800 dark:text-orange-200">
-            <Trophy className="w-6 h-6" />
-            Our Mission
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-orange-700 dark:text-orange-300 leading-relaxed">
-            Build ARKHITEKTON to be so <strong>advanced, elegant, and simple</strong> that every other enterprise 
-            architecture tool becomes obsolete. We're not just building software - we're creating the future of 
-            how architects design, collaborate, and transform complex systems into understandable excellence.
-          </p>
-          <div className="flex items-center gap-2 mt-4 text-sm text-orange-600 dark:text-orange-400">
-            <Zap className="w-4 h-4" />
-            <span>Making enterprise architecture tools that architects actually love to use</span>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
