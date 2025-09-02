@@ -266,9 +266,9 @@ export function PageEditor({
   if (inline) {
     return (
       <div className={`h-full overflow-y-auto ${className || ''}`}>
-        <div className="space-y-3">
+        <div className="space-y-1">
           {/* Confluence-style title */}
-          <div className="border-b border-slate-200 dark:border-slate-700 pb-4">
+          <div className="border-b border-slate-200 dark:border-slate-700 pb-2">
             <input
               className="text-4xl font-bold bg-transparent border-none outline-none text-slate-600 dark:text-slate-300 w-full placeholder-slate-400 dark:placeholder-slate-500"
               placeholder="Untitled"
@@ -280,7 +280,7 @@ export function PageEditor({
           </div>
 
           {/* Quick metadata */}
-          <div className="flex gap-4 text-sm mt-3">
+          <div className="flex gap-4 text-sm mt-2">
             <Select value={category} onValueChange={setCategory}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Category" />
@@ -313,7 +313,7 @@ export function PageEditor({
             content={content}
             onChange={setContent}
             placeholder="Type / to insert elements"
-            className="min-h-[400px] border-none mt-3"
+            className="min-h-[400px] border-none mt-2"
             autoFocus={autoFocus && !title.trim()}
           />
 
