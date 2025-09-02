@@ -263,63 +263,76 @@ function Option7Logo() {
 }
 
 export default function DesignOptionsPage() {
-  const options = [
+  const designDecisions = [
     {
-      id: 1,
+      id: "ARKDD-00001",
+      dateProposed: "2025-09-02",
       title: "Mixed Geometric Cascade",
       description: "Diverse architectural shapes (hexagon, circle, triangle, square) flowing from complex to simple. Shows systematic thinking and architectural diversity.",
       concept: "Architectural Diversity & System Organization",
       logo: <Option1Logo />,
       pros: ["Clear shape variety", "Professional look", "Shows systematic approach"],
-      cons: ["Might be too busy", "Complex to reproduce at small sizes"]
+      cons: ["Might be too busy", "Complex to reproduce at small sizes"],
+      status: "Proposed"
     },
     {
-      id: 2,
+      id: "ARKDD-00002", 
+      dateProposed: "2025-09-02",
       title: "Architectural Building Blocks",
       description: "3D geometric forms (cube, cone, cylinder, pyramid) transforming into 2D shapes and dots. Represents the journey from complex architecture to documentation.",
       concept: "3D Architecture → 2D Documentation",
       logo: <Option2Logo />,
       pros: ["Strong 3D architectural feel", "Clear transformation story", "Unique depth"],
-      cons: ["More complex to implement", "Might not scale well"]
+      cons: ["More complex to implement", "Might not scale well"],
+      status: "Proposed"
     },
     {
-      id: 3,
+      id: "ARKDD-00003",
+      dateProposed: "2025-09-02",
       title: "Dynamic Shape Flow",
       description: "Overlapping organic shapes (circles, triangles, hexagons) that progressively abstract into dots. Emphasizes the master builder organizing complexity into elegance.",
       concept: "Complexity → Elegant Simplicity",
       logo: <Option3Logo />,
       pros: ["Organic, flowing feel", "Great scalability", "Clean abstraction"],
-      cons: ["Less architectural", "Might be too abstract"]
+      cons: ["Less architectural", "Might be too abstract"],
+      status: "Proposed"
     },
     {
-      id: 4,
+      id: "ARKDD-00004",
+      dateProposed: "2025-09-02",
       title: "Orange Icon with Flame",
       description: "Clean orange rounded square with diamond center and flame positioned quarter-way down from the top. The flame represents the creative spark and passion of master builders transforming complexity into simplicity.",
       concept: "Creative Spark → Architectural Excellence",
       logo: <Option4Logo />,
       pros: ["Clean, professional look", "Flame adds energy/creativity", "Great scalability", "Matches orange theme", "Unique identity"],
-      cons: ["Simpler than other options", "Flame details at small sizes"]
+      cons: ["Simpler than other options", "Flame details at small sizes"],
+      status: "Proposed"
     },
     {
-      id: 5,
+      id: "ARKDD-00005",
+      dateProposed: "2025-09-02",
       title: "Architect with Drafting Easel",
       description: "Classic professional architect at drafting easel with blueprints, representing the traditional master builder concept. Shows the human element of architecture and design thinking.",
       concept: "Master Builder at Work → Digital Excellence",
       logo: <Option5Logo />,
       pros: ["Instantly recognizable", "Human-centered design", "Professional credibility", "Storytelling power", "Clear architectural connection"],
-      cons: ["More complex to reproduce", "May feel traditional vs. modern", "Detailed elements at small sizes"]
+      cons: ["More complex to reproduce", "May feel traditional vs. modern", "Detailed elements at small sizes"],
+      status: "Proposed"
     },
     {
-      id: 6,
+      id: "ARKDD-00006",
+      dateProposed: "2025-09-02",
       title: "Hybrid: Orange Box + Architect",
       description: "Combines the clean orange diamond box with a mini architect figure and easel inside. Best of both worlds - modern simplicity with human architectural storytelling.",
       concept: "Traditional Architecture → Modern Digital Tools",
       logo: <Option6Logo />,
       pros: ["Combines both concepts", "Unique hybrid approach", "Modern yet human", "Scalable base with story", "Brand differentiation"],
-      cons: ["Complex internal details", "May be busy at small sizes", "Two concepts competing"]
+      cons: ["Complex internal details", "May be busy at small sizes", "Two concepts competing"],
+      status: "Proposed"
     },
     {
-      id: 7,
+      id: "ARKDD-00007",
+      dateProposed: "2025-09-02",
       title: "Modern Architectural Professional",
       description: "Minimalist, stylized architect with digital drafting table showing grid/blueprint patterns. Clean, contemporary interpretation of the master builder working with modern tools.",
       concept: "Digital Architecture Mastery → Simple Excellence",

@@ -74,7 +74,7 @@ export function MainSidebar({ className }: MainSidebarProps) {
     },
     {
       id: 'design-options',
-      label: 'Logo Design Options',
+      label: 'ARKHITEKTON Design Options',
       href: '/design-options',
       icon: Wrench,
       description: 'Choose ARKHITEKTON visual identity'
