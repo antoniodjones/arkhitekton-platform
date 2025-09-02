@@ -224,32 +224,42 @@ Keep response concise but comprehensive.`;
   // Create new page
   app.post("/api/knowledge-base/pages", async (req, res) => {
     try {
-      const validatedData = insertKnowledgeBasePageSchema.parse(req.body);
+      // Generate slug if not provided
+      const slug = req.body.slug || req.body.title.toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
       
-      // Generate path and slug if not provided
-      if (!validatedData.slug) {
-        validatedData.slug = validatedData.title.toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/^-|-$/g, '');
-      }
-      
-      // Calculate path and depth based on parent
-      if (validatedData.parentPageId) {
-        const parentPage = await storage.getKnowledgeBasePage(validatedData.parentPageId);
+      // Generate path based on parent
+      let path, depth;
+      if (req.body.parentPageId) {
+        const parentPage = await storage.getKnowledgeBasePage(req.body.parentPageId);
         if (parentPage) {
-          validatedData.path = `${parentPage.path}/${validatedData.slug}`;
-          validatedData.depth = parentPage.depth + 1;
+          path = `${parentPage.path}/${slug}`;
+          depth = parentPage.depth + 1;
+        } else {
+          path = `/${slug}`;
+          depth = 0;
         }
       } else {
-        validatedData.path = `/${validatedData.slug}`;
-        validatedData.depth = 0;
+        path = `/${slug}`;
+        depth = 0;
       }
       
+      // Add all required fields including generated ones
+      const requestData = {
+        ...req.body,
+        slug,
+        path,
+        depth: depth || 0,
+        authorId: req.body.authorId || 'system', // Default author for now
+      };
+      
+      const validatedData = insertKnowledgeBasePageSchema.parse(requestData);
       const page = await storage.createKnowledgeBasePage(validatedData);
       res.status(201).json(page);
     } catch (error) {
       console.error("Failed to create page:", error);
-      res.status(400).json({ message: "Failed to create page" });
+      res.status(400).json({ message: "Failed to create page", error: error.message });
     }
   });
 
