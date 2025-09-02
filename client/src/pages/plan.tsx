@@ -95,7 +95,7 @@ export default function PlanPage() {
       id: 'kb1',
       title: 'Hierarchical Page Structure & Navigation',
       description: 'Create foundation with nested page organization, drag-and-drop reorganization, and smart breadcrumb navigation system',
-      completed: false,
+      completed: true,
       priority: 'high',
       category: 'knowledge-base'
     },

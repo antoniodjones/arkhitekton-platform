@@ -179,7 +179,107 @@ export const objectConnections = pgTable("object_connections", {
   updatedAt: timestamp("updated_at").defaultNow()
 });
 
-// Documentation pages with model embedding
+// Knowledge Base Pages - Hierarchical documentation system
+export const knowledgeBasePages = pgTable("knowledge_base_pages", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  
+  // Page identity and organization
+  title: text("title").notNull(),
+  slug: text("slug").notNull(), // URL-friendly path segment
+  parentPageId: uuid("parent_page_id"),
+  
+  // Hierarchical structure
+  path: text("path").notNull(), // Full hierarchical path like "/foundation/architecture-patterns/microservices"
+  depth: integer("depth").notNull().default(0),
+  order: integer("order").default(0), // Order within same parent
+  
+  // Content and metadata
+  content: jsonb("content").$type<{
+    blocks: any[]; // Rich editor content blocks
+    embeddings: { type: string; id: string; position: number }[]; // Embedded models/diagrams
+    template: string; // Template type: 'adr', 'implementation-guide', 'best-practice', 'showcase'
+  }>().notNull(),
+  
+  // Page classification
+  pageType: text("page_type").notNull().default("documentation"), // 'documentation', 'adr', 'guide', 'template', 'showcase'
+  category: text("category"), // 'architecture', 'development', 'operations', 'governance'
+  tags: jsonb("tags").$type<string[]>().default([]),
+  
+  // Content status and lifecycle
+  status: text("status").notNull().default("draft"), // 'draft', 'review', 'published', 'archived'
+  
+  // Collaboration and ownership
+  authorId: varchar("author_id").notNull(),
+  collaborators: jsonb("collaborators").$type<string[]>().default([]),
+  reviewers: jsonb("reviewers").$type<string[]>().default([]),
+  
+  // Model linking (for architecture-connected pages)
+  linkedModelIds: jsonb("linked_model_ids").$type<string[]>().default([]),
+  
+  // Access control
+  visibility: text("visibility").notNull().default("team"), // 'public', 'team', 'private'
+  
+  // External integrations
+  externalSync: jsonb("external_sync").$type<{
+    confluence?: { spaceId: string; pageId: string; lastSync: string };
+    sharepoint?: { siteId: string; listId: string; itemId: string; lastSync: string };
+    notion?: { databaseId: string; pageId: string; lastSync: string };
+  }>(),
+  
+  // Search and discovery
+  searchKeywords: text("search_keywords"), // Additional keywords for search
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+// Page comments for collaboration
+export const pageComments = pgTable("page_comments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  pageId: uuid("page_id").references(() => knowledgeBasePages.id).notNull(),
+  parentCommentId: uuid("parent_comment_id"), // For threaded comments
+  
+  // Comment content
+  content: text("content").notNull(),
+  authorId: varchar("author_id").notNull(),
+  
+  // Position in document (for inline comments)
+  blockId: text("block_id"), // Which content block this comment is attached to
+  position: integer("position"), // Character position within block
+  
+  // Comment status
+  isResolved: integer("is_resolved").default(0), // 0 = open, 1 = resolved
+  resolvedBy: varchar("resolved_by"),
+  resolvedAt: timestamp("resolved_at"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+// Page version history
+export const pageVersions = pgTable("page_versions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  pageId: uuid("page_id").references(() => knowledgeBasePages.id).notNull(),
+  versionNumber: integer("version_number").notNull(),
+  
+  // Version metadata
+  title: text("title").notNull(),
+  content: jsonb("content").notNull(),
+  changeLog: text("change_log"), // Summary of changes
+  authorId: varchar("author_id").notNull(),
+  
+  // Change tracking
+  changes: jsonb("changes").$type<{
+    type: 'create' | 'update' | 'delete';
+    field: string;
+    oldValue?: any;
+    newValue?: any;
+  }[]>().default([]),
+  
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+// Legacy documentation pages (keeping for backward compatibility)
 export const documentationPages = pgTable("documentation_pages", {
   id: uuid("id").primaryKey().defaultRandom(),
   modelId: uuid("model_id").references(() => architecturalModels.id),
@@ -259,6 +359,24 @@ export const insertDocumentationPageSchema = createInsertSchema(documentationPag
   updatedAt: true,
 });
 
+// Knowledge Base schema exports
+export const insertKnowledgeBasePageSchema = createInsertSchema(knowledgeBasePages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertPageCommentSchema = createInsertSchema(pageComments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertPageVersionSchema = createInsertSchema(pageVersions).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Type exports
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -276,6 +394,14 @@ export type ObjectConnection = typeof objectConnections.$inferSelect;
 export type DocumentationPage = typeof documentationPages.$inferSelect;
 export type InsertDocumentationPage = z.infer<typeof insertDocumentationPageSchema>;
 export type ModelVersion = typeof modelVersions.$inferSelect;
+
+// Knowledge Base types
+export type KnowledgeBasePage = typeof knowledgeBasePages.$inferSelect;
+export type InsertKnowledgeBasePage = z.infer<typeof insertKnowledgeBasePageSchema>;
+export type PageComment = typeof pageComments.$inferSelect;
+export type InsertPageComment = z.infer<typeof insertPageCommentSchema>;
+export type PageVersion = typeof pageVersions.$inferSelect;
+export type InsertPageVersion = z.infer<typeof insertPageVersionSchema>;
 
 // Gamified Achievement System for Modeling Complexity
 export const achievements = pgTable("achievements", {

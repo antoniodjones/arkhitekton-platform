@@ -1,7 +1,12 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertArchitectureElementSchema } from "@shared/schema";
+import { 
+  insertArchitectureElementSchema,
+  insertKnowledgeBasePageSchema,
+  insertPageCommentSchema,
+  type KnowledgeBasePage 
+} from "@shared/schema";
 import Anthropic from '@anthropic-ai/sdk';
 
 // Initialize Anthropic AI client
@@ -167,6 +172,156 @@ Keep response concise but comprehensive.`;
         error: 'Failed to analyze element',
         details: error instanceof Error ? error.message : 'Unknown error'
       });
+    }
+  });
+
+  // Knowledge Base API - Hierarchical Documentation System
+  
+  // Get all root-level pages (no parent)
+  app.get("/api/knowledge-base/pages", async (req, res) => {
+    try {
+      const { parentId, search, category } = req.query;
+      let pages;
+      
+      if (search && typeof search === 'string') {
+        pages = await storage.searchKnowledgeBasePages(search);
+      } else if (category && typeof category === 'string') {
+        pages = await storage.getKnowledgeBasePagesByCategory(category);
+      } else if (parentId === 'null' || !parentId) {
+        // Get root pages (no parent)
+        pages = await storage.getRootKnowledgeBasePages();
+      } else if (typeof parentId === 'string') {
+        // Get child pages of specific parent
+        pages = await storage.getChildKnowledgeBasePages(parentId);
+      } else {
+        pages = await storage.getAllKnowledgeBasePages();
+      }
+      
+      res.json(pages);
+    } catch (error) {
+      console.error("Failed to fetch knowledge base pages:", error);
+      res.status(500).json({ message: "Failed to fetch pages" });
+    }
+  });
+
+  // Get single page by ID
+  app.get("/api/knowledge-base/pages/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const page = await storage.getKnowledgeBasePage(id);
+      
+      if (!page) {
+        return res.status(404).json({ message: "Page not found" });
+      }
+      
+      res.json(page);
+    } catch (error) {
+      console.error("Failed to fetch page:", error);
+      res.status(500).json({ message: "Failed to fetch page" });
+    }
+  });
+
+  // Create new page
+  app.post("/api/knowledge-base/pages", async (req, res) => {
+    try {
+      const validatedData = insertKnowledgeBasePageSchema.parse(req.body);
+      
+      // Generate path and slug if not provided
+      if (!validatedData.slug) {
+        validatedData.slug = validatedData.title.toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '');
+      }
+      
+      // Calculate path and depth based on parent
+      if (validatedData.parentPageId) {
+        const parentPage = await storage.getKnowledgeBasePage(validatedData.parentPageId);
+        if (parentPage) {
+          validatedData.path = `${parentPage.path}/${validatedData.slug}`;
+          validatedData.depth = parentPage.depth + 1;
+        }
+      } else {
+        validatedData.path = `/${validatedData.slug}`;
+        validatedData.depth = 0;
+      }
+      
+      const page = await storage.createKnowledgeBasePage(validatedData);
+      res.status(201).json(page);
+    } catch (error) {
+      console.error("Failed to create page:", error);
+      res.status(400).json({ message: "Failed to create page" });
+    }
+  });
+
+  // Update page
+  app.patch("/api/knowledge-base/pages/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      
+      // If title changed, update slug and path
+      if (updates.title && !updates.slug) {
+        updates.slug = updates.title.toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '');
+      }
+      
+      const updatedPage = await storage.updateKnowledgeBasePage(id, updates);
+      if (!updatedPage) {
+        return res.status(404).json({ message: "Page not found" });
+      }
+      
+      res.json(updatedPage);
+    } catch (error) {
+      console.error("Failed to update page:", error);
+      res.status(500).json({ message: "Failed to update page" });
+    }
+  });
+
+  // Delete page
+  app.delete("/api/knowledge-base/pages/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteKnowledgeBasePage(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Page not found" });
+      }
+      
+      res.json({ message: "Page deleted successfully" });
+    } catch (error) {
+      console.error("Failed to delete page:", error);
+      res.status(500).json({ message: "Failed to delete page" });
+    }
+  });
+
+  // Get page hierarchy (breadcrumb trail)
+  app.get("/api/knowledge-base/pages/:id/breadcrumbs", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const breadcrumbs = await storage.getPageBreadcrumbs(id);
+      res.json(breadcrumbs);
+    } catch (error) {
+      console.error("Failed to fetch breadcrumbs:", error);
+      res.status(500).json({ message: "Failed to fetch breadcrumbs" });
+    }
+  });
+
+  // Move page to different parent (drag & drop support)
+  app.post("/api/knowledge-base/pages/:id/move", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { newParentId, newOrder } = req.body;
+      
+      const success = await storage.moveKnowledgeBasePage(id, newParentId, newOrder);
+      if (!success) {
+        return res.status(404).json({ message: "Page not found" });
+      }
+      
+      res.json({ message: "Page moved successfully" });
+    } catch (error) {
+      console.error("Failed to move page:", error);
+      res.status(500).json({ message: "Failed to move page" });
     }
   });
 

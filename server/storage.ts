@@ -1,4 +1,13 @@
-import { type User, type InsertUser, type ArchitectureElement, type InsertArchitectureElement, type RecentElement, type InsertRecentElement } from "@shared/schema";
+import { 
+  type User, 
+  type InsertUser, 
+  type ArchitectureElement, 
+  type InsertArchitectureElement, 
+  type RecentElement, 
+  type InsertRecentElement,
+  type KnowledgeBasePage,
+  type InsertKnowledgeBasePage 
+} from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -15,20 +24,37 @@ export interface IStorage {
   // Recent Elements
   getRecentElementsByUser(userId: string): Promise<RecentElement[]>;
   addRecentElement(recentElement: InsertRecentElement): Promise<RecentElement>;
+  
+  // Knowledge Base Pages
+  getAllKnowledgeBasePages(): Promise<KnowledgeBasePage[]>;
+  getRootKnowledgeBasePages(): Promise<KnowledgeBasePage[]>;
+  getChildKnowledgeBasePages(parentId: string): Promise<KnowledgeBasePage[]>;
+  getKnowledgeBasePage(id: string): Promise<KnowledgeBasePage | undefined>;
+  getKnowledgeBasePagesByCategory(category: string): Promise<KnowledgeBasePage[]>;
+  searchKnowledgeBasePages(query: string): Promise<KnowledgeBasePage[]>;
+  createKnowledgeBasePage(page: InsertKnowledgeBasePage): Promise<KnowledgeBasePage>;
+  updateKnowledgeBasePage(id: string, updates: Partial<KnowledgeBasePage>): Promise<KnowledgeBasePage | undefined>;
+  deleteKnowledgeBasePage(id: string): Promise<boolean>;
+  getPageBreadcrumbs(id: string): Promise<{ id: string; title: string; path: string }[]>;
+  moveKnowledgeBasePage(id: string, newParentId: string | null, newOrder?: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
   private architectureElements: Map<string, ArchitectureElement>;
   private recentElements: Map<string, RecentElement>;
+  private knowledgeBasePages: Map<string, KnowledgeBasePage>;
 
   constructor() {
     this.users = new Map();
     this.architectureElements = new Map();
     this.recentElements = new Map();
+    this.knowledgeBasePages = new Map();
     
     // Initialize with some sample architecture elements
     this.initializeArchitectureElements();
+    // Initialize with sample knowledge base pages
+    this.initializeKnowledgeBasePages();
   }
 
   private initializeArchitectureElements() {
@@ -129,6 +155,199 @@ export class MemStorage implements IStorage {
     };
     this.recentElements.set(id, recentElement);
     return recentElement;
+  }
+
+  private initializeKnowledgeBasePages() {
+    const samplePages: InsertKnowledgeBasePage[] = [
+      {
+        title: 'Getting Started',
+        slug: 'getting-started',
+        path: '/getting-started',
+        depth: 0,
+        order: 0,
+        content: {
+          blocks: [
+            { type: 'paragraph', content: 'Welcome to the ARKHITEKTON Knowledge Base! This is your central hub for all architecture documentation, best practices, and implementation guides.' }
+          ],
+          embeddings: [],
+          template: 'documentation'
+        },
+        pageType: 'documentation',
+        category: 'architecture',
+        tags: ['introduction', 'onboarding'],
+        status: 'published',
+        authorId: 'system',
+        visibility: 'team'
+      },
+      {
+        title: 'Architecture Patterns',
+        slug: 'architecture-patterns',
+        path: '/architecture-patterns',
+        depth: 0,
+        order: 1,
+        content: {
+          blocks: [
+            { type: 'paragraph', content: 'Comprehensive guide to enterprise architecture patterns used in modern systems.' }
+          ],
+          embeddings: [],
+          template: 'guide'
+        },
+        pageType: 'guide',
+        category: 'architecture',
+        tags: ['patterns', 'design'],
+        status: 'published',
+        authorId: 'system',
+        visibility: 'team'
+      }
+    ];
+
+    samplePages.forEach(page => {
+      const id = randomUUID();
+      const fullPage: KnowledgeBasePage = {
+        ...page,
+        id,
+        parentPageId: null,
+        linkedModelIds: [],
+        collaborators: [],
+        reviewers: [],
+        externalSync: null,
+        searchKeywords: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      this.knowledgeBasePages.set(id, fullPage);
+    });
+  }
+
+  // Knowledge Base Pages Implementation
+  async getAllKnowledgeBasePages(): Promise<KnowledgeBasePage[]> {
+    return Array.from(this.knowledgeBasePages.values());
+  }
+
+  async getRootKnowledgeBasePages(): Promise<KnowledgeBasePage[]> {
+    return Array.from(this.knowledgeBasePages.values())
+      .filter(page => !page.parentPageId)
+      .sort((a, b) => a.order - b.order);
+  }
+
+  async getChildKnowledgeBasePages(parentId: string): Promise<KnowledgeBasePage[]> {
+    return Array.from(this.knowledgeBasePages.values())
+      .filter(page => page.parentPageId === parentId)
+      .sort((a, b) => a.order - b.order);
+  }
+
+  async getKnowledgeBasePage(id: string): Promise<KnowledgeBasePage | undefined> {
+    return this.knowledgeBasePages.get(id);
+  }
+
+  async getKnowledgeBasePagesByCategory(category: string): Promise<KnowledgeBasePage[]> {
+    return Array.from(this.knowledgeBasePages.values())
+      .filter(page => page.category === category);
+  }
+
+  async searchKnowledgeBasePages(query: string): Promise<KnowledgeBasePage[]> {
+    const searchTerm = query.toLowerCase();
+    return Array.from(this.knowledgeBasePages.values())
+      .filter(page => 
+        page.title.toLowerCase().includes(searchTerm) ||
+        page.tags.some(tag => tag.toLowerCase().includes(searchTerm)) ||
+        (page.searchKeywords && page.searchKeywords.toLowerCase().includes(searchTerm))
+      );
+  }
+
+  async createKnowledgeBasePage(pageData: InsertKnowledgeBasePage): Promise<KnowledgeBasePage> {
+    const id = randomUUID();
+    const page: KnowledgeBasePage = {
+      ...pageData,
+      id,
+      parentPageId: pageData.parentPageId || null,
+      linkedModelIds: pageData.linkedModelIds || [],
+      collaborators: pageData.collaborators || [],
+      reviewers: pageData.reviewers || [],
+      externalSync: pageData.externalSync || null,
+      searchKeywords: pageData.searchKeywords || null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    this.knowledgeBasePages.set(id, page);
+    return page;
+  }
+
+  async updateKnowledgeBasePage(id: string, updates: Partial<KnowledgeBasePage>): Promise<KnowledgeBasePage | undefined> {
+    const existingPage = this.knowledgeBasePages.get(id);
+    if (!existingPage) {
+      return undefined;
+    }
+
+    const updatedPage = {
+      ...existingPage,
+      ...updates,
+      updatedAt: new Date()
+    };
+
+    this.knowledgeBasePages.set(id, updatedPage);
+    return updatedPage;
+  }
+
+  async deleteKnowledgeBasePage(id: string): Promise<boolean> {
+    // Also delete all child pages
+    const childPages = await this.getChildKnowledgeBasePages(id);
+    for (const child of childPages) {
+      await this.deleteKnowledgeBasePage(child.id);
+    }
+
+    return this.knowledgeBasePages.delete(id);
+  }
+
+  async getPageBreadcrumbs(id: string): Promise<{ id: string; title: string; path: string }[]> {
+    const breadcrumbs: { id: string; title: string; path: string }[] = [];
+    let currentPage = await this.getKnowledgeBasePage(id);
+
+    while (currentPage) {
+      breadcrumbs.unshift({
+        id: currentPage.id,
+        title: currentPage.title,
+        path: currentPage.path
+      });
+
+      if (currentPage.parentPageId) {
+        currentPage = await this.getKnowledgeBasePage(currentPage.parentPageId);
+      } else {
+        currentPage = undefined;
+      }
+    }
+
+    return breadcrumbs;
+  }
+
+  async moveKnowledgeBasePage(id: string, newParentId: string | null, newOrder?: number): Promise<boolean> {
+    const page = await this.getKnowledgeBasePage(id);
+    if (!page) {
+      return false;
+    }
+
+    // Update parent and recalculate path/depth
+    let newPath = `/${page.slug}`;
+    let newDepth = 0;
+
+    if (newParentId) {
+      const newParent = await this.getKnowledgeBasePage(newParentId);
+      if (newParent) {
+        newPath = `${newParent.path}/${page.slug}`;
+        newDepth = newParent.depth + 1;
+      }
+    }
+
+    const updates = {
+      parentPageId: newParentId,
+      path: newPath,
+      depth: newDepth,
+      order: newOrder !== undefined ? newOrder : page.order
+    };
+
+    const updatedPage = await this.updateKnowledgeBasePage(id, updates);
+    return updatedPage !== undefined;
   }
 }
 
