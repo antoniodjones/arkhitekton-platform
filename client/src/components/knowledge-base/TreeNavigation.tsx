@@ -367,7 +367,7 @@ export function TreeNavigation({ onPageSelect, selectedPageId, isCreatingNewPage
             size="sm" 
             variant="outline"
             onClick={onCreateNewPage}
-            className="h-7 px-2 text-xs bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0"
+            className="h-7 px-2 text-xs bg-orange-600 hover:bg-orange-700 text-white border-0"
             data-testid="button-create-page"
           >
             <Plus className="h-3 w-3 mr-1" />
