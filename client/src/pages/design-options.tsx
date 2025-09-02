@@ -133,6 +133,135 @@ function Option4Logo() {
   );
 }
 
+function Option5Logo() {
+  return (
+    <div className="relative w-32 h-20 flex items-center justify-center">
+      {/* Left side - Architect with drafting easel */}
+      <div className="absolute left-0 flex items-center">
+        <div className="relative">
+          {/* Easel/Drawing board */}
+          <div className="w-9 h-7 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 rounded-sm border border-slate-300 dark:border-slate-600"></div>
+          
+          {/* Blueprint/Plans on easel */}
+          <div className="absolute top-0.5 left-0.5 w-8 h-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 rounded-sm">
+            {/* Blueprint lines */}
+            <div className="absolute top-1 left-1 w-6 h-0.5 bg-blue-300 dark:bg-blue-600 rounded-full"></div>
+            <div className="absolute top-2 left-1 w-4 h-0.5 bg-blue-300 dark:bg-blue-600 rounded-full"></div>
+            <div className="absolute top-3 left-1 w-5 h-0.5 bg-blue-300 dark:bg-blue-600 rounded-full"></div>
+          </div>
+          
+          {/* Architect figure */}
+          <div className="absolute -bottom-1 -right-2">
+            {/* Head */}
+            <div className="w-2 h-2 bg-gradient-to-br from-amber-200 to-amber-300 rounded-full"></div>
+            {/* Body */}
+            <div className="w-2.5 h-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded-sm mt-0.5"></div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Right side - Transitioning elements */}
+      <div className="absolute right-0 flex items-center space-x-1">
+        <div className="w-5 h-4 bg-gradient-to-br from-blue-300 to-orange-400 rounded-lg opacity-80"></div>
+        <div className="w-4 h-3 bg-orange-300 rounded-lg opacity-60"></div>
+        <div className="w-3 h-3 bg-orange-200 rounded-full opacity-40"></div>
+        <div className="flex space-x-1 opacity-30">
+          <div className="w-1 h-1 bg-orange-200 rounded-full"></div>
+          <div className="w-1 h-1 bg-orange-200 rounded-full"></div>
+          <div className="w-1 h-1 bg-orange-200 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Option6Logo() {
+  return (
+    <div className="relative w-32 h-20 flex items-center justify-center">
+      {/* Left side - Hybrid: Orange box + Architect */}
+      <div className="absolute left-0 flex items-center">
+        <div className="relative">
+          {/* Orange diamond box background */}
+          <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-gradient-to-br from-orange-100 to-orange-200 transform rotate-45 rounded-sm"></div>
+          
+          {/* Mini architect figure inside */}
+          <div className="absolute top-2 left-2">
+            {/* Simplified easel */}
+            <div className="w-4 h-3 bg-white/80 dark:bg-slate-100 rounded-sm border border-orange-300"></div>
+            {/* Blueprint lines */}
+            <div className="absolute top-0.5 left-0.5 w-3 h-0.5 bg-blue-400 rounded-full"></div>
+            <div className="absolute top-1.5 left-0.5 w-2 h-0.5 bg-blue-400 rounded-full"></div>
+          </div>
+          
+          {/* Mini architect */}
+          <div className="absolute bottom-2 right-2">
+            <div className="w-1.5 h-1.5 bg-amber-300 rounded-full"></div>
+            <div className="w-2 h-3 bg-slate-600 rounded-sm mt-0.5"></div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Right side - Flowing transition */}
+      <div className="absolute right-0 flex items-center space-x-1">
+        <div className="w-5 h-5 bg-gradient-to-br from-orange-400 to-blue-400 rounded-lg opacity-80"></div>
+        <div className="w-4 h-4 bg-orange-300 rounded-lg opacity-60"></div>
+        <div className="w-3 h-3 bg-orange-200 rounded-full opacity-40"></div>
+        <div className="flex space-x-1 opacity-30">
+          <div className="w-1 h-1 bg-orange-200 rounded-full"></div>
+          <div className="w-1 h-1 bg-orange-200 rounded-full"></div>
+          <div className="w-1 h-1 bg-orange-200 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Option7Logo() {
+  return (
+    <div className="relative w-32 h-20 flex items-center justify-center">
+      {/* Left side - Modern minimalist architect */}
+      <div className="absolute left-0 flex items-center">
+        <div className="relative">
+          {/* Modern drafting table */}
+          <div className="w-9 h-6 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg transform -rotate-6"></div>
+          
+          {/* Digital blueprint/screen effect */}
+          <div className="absolute top-0.5 left-1 w-7 h-4 bg-gradient-to-br from-blue-100 to-orange-100 dark:from-blue-900 dark:to-orange-900 rounded transform -rotate-6 border border-orange-300">
+            {/* Grid pattern */}
+            <div className="absolute inset-1 grid grid-cols-3 gap-0.5">
+              <div className="bg-orange-400/40 rounded-sm"></div>
+              <div className="bg-blue-400/40 rounded-sm"></div>
+              <div className="bg-orange-400/40 rounded-sm"></div>
+              <div className="bg-blue-400/40 rounded-sm"></div>
+              <div className="bg-orange-400/40 rounded-sm"></div>
+              <div className="bg-blue-400/40 rounded-sm"></div>
+            </div>
+          </div>
+          
+          {/* Stylized architect icon */}
+          <div className="absolute -bottom-0.5 -right-1">
+            <div className="w-2 h-6 bg-gradient-to-b from-orange-400 to-orange-600 rounded-full"></div>
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gradient-to-br from-amber-300 to-orange-400 rounded-full"></div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Right side - Digital transformation trail */}
+      <div className="absolute right-0 flex items-center space-x-1">
+        <div className="w-5 h-4 bg-gradient-to-br from-orange-400 to-blue-400 rounded-lg opacity-80 transform rotate-3"></div>
+        <div className="w-4 h-3 bg-gradient-to-br from-orange-300 to-blue-300 rounded-lg opacity-60"></div>
+        <div className="w-3 h-3 bg-orange-200 rounded-full opacity-40"></div>
+        <div className="flex space-x-1 opacity-30">
+          <div className="w-1 h-1 bg-orange-200 rounded-full"></div>
+          <div className="w-1 h-1 bg-orange-200 rounded-full"></div>
+          <div className="w-1 h-1 bg-orange-200 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function DesignOptionsPage() {
   const options = [
     {
@@ -170,6 +299,33 @@ export default function DesignOptionsPage() {
       logo: <Option4Logo />,
       pros: ["Clean, professional look", "Flame adds energy/creativity", "Great scalability", "Matches orange theme", "Unique identity"],
       cons: ["Simpler than other options", "Flame details at small sizes"]
+    },
+    {
+      id: 5,
+      title: "Architect with Drafting Easel",
+      description: "Classic professional architect at drafting easel with blueprints, representing the traditional master builder concept. Shows the human element of architecture and design thinking.",
+      concept: "Master Builder at Work → Digital Excellence",
+      logo: <Option5Logo />,
+      pros: ["Instantly recognizable", "Human-centered design", "Professional credibility", "Storytelling power", "Clear architectural connection"],
+      cons: ["More complex to reproduce", "May feel traditional vs. modern", "Detailed elements at small sizes"]
+    },
+    {
+      id: 6,
+      title: "Hybrid: Orange Box + Architect",
+      description: "Combines the clean orange diamond box with a mini architect figure and easel inside. Best of both worlds - modern simplicity with human architectural storytelling.",
+      concept: "Traditional Architecture → Modern Digital Tools",
+      logo: <Option6Logo />,
+      pros: ["Combines both concepts", "Unique hybrid approach", "Modern yet human", "Scalable base with story", "Brand differentiation"],
+      cons: ["Complex internal details", "May be busy at small sizes", "Two concepts competing"]
+    },
+    {
+      id: 7,
+      title: "Modern Architectural Professional",
+      description: "Minimalist, stylized architect with digital drafting table showing grid/blueprint patterns. Clean, contemporary interpretation of the master builder working with modern tools.",
+      concept: "Digital Architecture Mastery → Simple Excellence",
+      logo: <Option7Logo />,
+      pros: ["Modern and clean", "Digital-first approach", "Great scalability", "Contemporary feel", "Tech-forward identity"],
+      cons: ["Less traditional", "May be too abstract", "Could lose human element"]
     }
   ];
 
