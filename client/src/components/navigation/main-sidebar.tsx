@@ -75,9 +75,9 @@ export function MainSidebar({ className }: MainSidebarProps) {
     {
       id: 'design-options',
       label: 'ARKHITEKTON Design Options',
-      href: '/design-options',
+      href: '/decisions',
       icon: Wrench,
-      description: 'Choose ARKHITEKTON visual identity'
+      description: 'Review ARKHITEKTON design decisions (ARKDD)'
     },
     {
       id: 'governance',

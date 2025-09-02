@@ -54,6 +54,146 @@ function DecisionsContent() {
 
   // Mock ADR data - would come from backend
   const decisions: DecisionRecord[] = [
+    // ARKHITEKTON Design Decision Records (ARKDD)
+    {
+      id: 'ARKDD-00001',
+      title: 'Visual Identity: Mixed Geometric Cascade',
+      status: 'Under Review',
+      impact: 'Medium',
+      technicalDebt: 'Low',
+      category: 'Strategic',
+      architect: 'ARKHITEKTON Team',
+      decidedDate: '2025-09-02',
+      context: 'ARKHITEKTON requires a distinctive visual identity that conveys architectural mastery, system thinking, and professional credibility to differentiate from traditional EA tools.',
+      decision: 'Adopt diverse architectural shapes (hexagon, circle, triangle, square) flowing from complex to simple, representing systematic thinking and architectural diversity.',
+      consequences: [
+        'Clear visual representation of architectural variety and methodology',
+        'Professional appearance suitable for enterprise environments',
+        'Demonstrates systematic approach to complexity management',
+        'May appear visually busy in some contexts',
+        'Complex reproduction requirements at smaller sizes'
+      ],
+      alternatives: [
+        'Single geometric shape with variations',
+        'Text-based logo approach', 
+        'Minimalist abstract symbol'
+      ],
+      linkedModels: ['arkhitekton-brand-architecture'],
+      debtScore: 20,
+      tags: ['visual-identity', 'brand', 'design-system']
+    },
+    {
+      id: 'ARKDD-00002',
+      title: 'Visual Identity: Architectural Building Blocks',
+      status: 'Under Review',
+      impact: 'Medium',
+      technicalDebt: 'Medium',
+      category: 'Strategic',
+      architect: 'ARKHITEKTON Team',
+      decidedDate: '2025-09-02',
+      context: 'Need visual identity that emphasizes the journey from 3D architectural thinking to 2D documentation and planning.',
+      decision: 'Use 3D geometric forms (cube, cone, cylinder, pyramid) transforming into 2D shapes and dots to represent architecture-to-documentation workflow.',
+      consequences: [
+        'Strong 3D architectural feel connects to building/construction metaphors',
+        'Clear transformation story from concept to implementation',
+        'Unique depth and dimensionality in logo design',
+        'Implementation complexity for web and print reproduction',
+        'Potential scaling challenges for small format usage'
+      ],
+      alternatives: [
+        'Flat 2D geometric approach',
+        'Isometric architectural elements',
+        'Blueprint-style line drawings'
+      ],
+      linkedModels: ['arkhitekton-brand-architecture'],
+      debtScore: 45,
+      tags: ['visual-identity', 'brand', 'architecture', '3d-design']
+    },
+    {
+      id: 'ARKDD-00003',
+      title: 'Visual Identity: Dynamic Shape Flow',
+      status: 'Under Review',
+      impact: 'High',
+      technicalDebt: 'Low',
+      category: 'Strategic',
+      architect: 'ARKHITEKTON Team',
+      decidedDate: '2025-09-02',
+      context: 'Visual identity should embody the core ARKHITEKTON philosophy of organizing complexity into elegant simplicity.',
+      decision: 'Implement overlapping organic shapes (circles, triangles, hexagons) that progressively abstract into dots, emphasizing master builder transformation of complexity.',
+      consequences: [
+        'Organic, flowing aesthetic appeals to modern design sensibilities',
+        'Excellent scalability across different media and sizes',
+        'Clean abstraction supports versatile brand applications',
+        'May appear less architectural/building-focused than alternatives',
+        'Risk of being too abstract for immediate recognition'
+      ],
+      alternatives: [
+        'Rigid geometric progression',
+        'Building-specific iconography',
+        'Tool-based architectural symbols'
+      ],
+      linkedModels: ['arkhitekton-brand-architecture'],
+      debtScore: 15,
+      tags: ['visual-identity', 'brand', 'organic-design', 'scalability']
+    },
+    {
+      id: 'ARKDD-00004',
+      title: 'Visual Identity: Orange Icon with Creative Flame',
+      status: 'Under Review',
+      impact: 'High',
+      technicalDebt: 'Low',
+      category: 'Strategic',
+      architect: 'ARKHITEKTON Team',
+      decidedDate: '2025-09-02',
+      context: 'Brand identity needs to convey both professional architectural expertise and the creative spark that drives innovation in system design.',
+      decision: 'Clean orange rounded square with diamond center and flame element positioned to represent the creative spark of master builders.',
+      consequences: [
+        'Clean, professional appearance suitable for enterprise contexts',
+        'Flame element adds energy and creativity to static geometric form',
+        'Excellent scalability and reproduction across media',
+        'Strong alignment with ARKHITEKTON orange theme and brand colors',
+        'Unique identity that differentiates from generic architectural symbols',
+        'Flame details may lose clarity at very small sizes'
+      ],
+      alternatives: [
+        'Geometric forms without flame element',
+        'Different creative symbols (lightbulb, spark, etc.)',
+        'Tool-based architectural imagery'
+      ],
+      linkedModels: ['arkhitekton-brand-architecture', 'arkhitekton-design-system'],
+      debtScore: 10,
+      tags: ['visual-identity', 'brand', 'creativity', 'professional', 'scalable']
+    },
+    {
+      id: 'ARKDD-00005',
+      title: 'Visual Identity: Traditional Architect with Drafting Easel',
+      status: 'Under Review',
+      impact: 'High',
+      technicalDebt: 'Medium',
+      category: 'Strategic',
+      architect: 'ARKHITEKTON Team',
+      decidedDate: '2025-09-02',
+      context: 'ARKHITEKTON name derives from ancient Greek for "master builder" - visual identity should honor this heritage while appealing to modern enterprise architects.',
+      decision: 'Classic professional architect at drafting easel with blueprints, representing traditional master builder concept with human element of architectural design.',
+      consequences: [
+        'Instantly recognizable architectural profession imagery',
+        'Human-centered design approach resonates with practitioners',
+        'Strong professional credibility and trustworthiness',
+        'Powerful storytelling element connects to ARKHITEKTON heritage',
+        'Clear connection to architectural and design thinking processes',
+        'Higher complexity may challenge reproduction at small sizes',
+        'May appear traditional rather than modern/digital-first',
+        'Detailed elements require careful implementation across media'
+      ],
+      alternatives: [
+        'Modern digital designer at computer',
+        'Abstract architectural tools',
+        'Simplified geometric architect representation'
+      ],
+      linkedModels: ['arkhitekton-brand-architecture', 'arkhitekton-heritage-story'],
+      debtScore: 35,
+      tags: ['visual-identity', 'brand', 'traditional', 'human-centered', 'heritage']
+    },
     {
       id: 'ADR-001',
       title: 'Adopt Microservices Architecture for Customer Platform',
