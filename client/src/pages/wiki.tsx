@@ -30,6 +30,7 @@ import {
 import { AppLayout } from '@/components/layout/app-layout';
 import { TreeNavigation } from '@/components/knowledge-base/TreeNavigation';
 import { KnowledgeBasePage } from '@/components/knowledge-base/KnowledgeBasePage';
+import { PageEditor } from '@/components/knowledge-base/PageEditor';
 import type { KnowledgeBasePage as KBPage } from '@shared/schema';
 
 interface WikiPage {
@@ -60,6 +61,7 @@ function WikiContent() {
   const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
   const [selectedPageId, setSelectedPageId] = useState<string | undefined>();
   const [showTreeView, setShowTreeView] = useState(false);
+  const [showPageEditor, setShowPageEditor] = useState(false);
 
   const handlePageSelect = (page: KBPage) => {
     setSelectedPageId(page.id);
@@ -402,9 +404,13 @@ Creates a distinctive, professional identity that architects associate with crea
               Centralized governance documentation and enterprise architecture knowledge
             </p>
           </div>
-          <Button className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white">
+          <Button 
+            onClick={() => setShowPageEditor(true)}
+            className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+            data-testid="button-create-page"
+          >
             <Plus className="h-4 w-4 mr-2" />
-            New Page
+            Create Page
           </Button>
         </div>
 
@@ -684,6 +690,16 @@ Creates a distinctive, professional identity that architects associate with crea
             </ResizablePanelGroup>
           </TabsContent>
         </Tabs>
+        
+        {/* Page Editor Modal */}
+        <PageEditor
+          isOpen={showPageEditor}
+          onClose={() => setShowPageEditor(false)}
+          onSave={() => {
+            // Refresh the page list after saving
+            setShowPageEditor(false);
+          }}
+        />
       </div>
     </div>
   );
