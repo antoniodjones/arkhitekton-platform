@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,9 +16,13 @@ import type { KnowledgeBasePage, InsertKnowledgeBasePage } from '@shared/schema'
 interface PageEditorProps {
   pageId?: string;
   parentId?: string;
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
   onSave?: (page: KnowledgeBasePage) => void;
+  onCancel?: () => void;
+  autoFocus?: boolean;
+  inline?: boolean;
+  className?: string;
 }
 
 const CATEGORIES = [
@@ -39,8 +43,18 @@ const STATUSES = [
   'Archived'
 ];
 
-export function PageEditor({ pageId, parentId, isOpen, onClose, onSave }: PageEditorProps) {
-  const [title, setTitle] = useState('');
+export function PageEditor({ 
+  pageId, 
+  parentId, 
+  isOpen = true, 
+  onClose, 
+  onSave, 
+  onCancel,
+  autoFocus = false,
+  inline = false,
+  className 
+}: PageEditorProps) {
+  const [title, setTitle] = useState(inline ? 'Untitled' : '');
   const [slug, setSlug] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
@@ -48,9 +62,66 @@ export function PageEditor({ pageId, parentId, isOpen, onClose, onSave }: PageEd
   const [tags, setTags] = useState<string[]>([]);
   const [newTag, setNewTag] = useState('');
   const [order, setOrder] = useState(0);
+  const [pageCreated, setPageCreated] = useState(false);
+  const [autoSaveTimer, setAutoSaveTimer] = useState<NodeJS.Timeout | null>(null);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Auto-save for inline editing
+  const autoSave = useCallback(async () => {
+    if (!inline || (!title.trim() && !content.trim())) return;
+    
+    const pageData = {
+      title: title.trim() || 'Untitled',
+      content: typeof content === 'string' ? content : JSON.stringify(content),
+      category: category || "Governance",
+      status: status || "Draft",
+      tags: tags || [],
+      parentPageId: parentId || null,
+      order: order || 0,
+    };
+
+    try {
+      if (pageId && pageId !== 'new-page') {
+        await apiRequest(`/api/knowledge-base/pages/${pageId}`, {
+          method: 'PUT',
+          body: pageData
+        });
+      } else if (!pageCreated) {
+        const newPage = await apiRequest('/api/knowledge-base/pages', {
+          method: 'POST',
+          body: pageData as InsertKnowledgeBasePage
+        });
+        setPageCreated(true);
+        queryClient.invalidateQueries({ queryKey: ['/api/knowledge-base/pages'] });
+        if (onSave) {
+          onSave(newPage);
+        }
+      }
+    } catch (error) {
+      console.error('Auto-save failed:', error);
+    }
+  }, [inline, title, content, category, status, tags, parentId, order, pageId, pageCreated, queryClient, onSave]);
+
+  // Debounced auto-save
+  useEffect(() => {
+    if (!inline) return;
+
+    if (autoSaveTimer) {
+      clearTimeout(autoSaveTimer);
+    }
+
+    const timer = setTimeout(() => {
+      autoSave();
+    }, 2000); // Auto-save after 2 seconds of inactivity
+
+    setAutoSaveTimer(timer);
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [title, content, category, status, autoSave, inline]);
 
   // Fetch existing page data if editing
   const { data: existingPage } = useQuery({
@@ -196,6 +267,76 @@ export function PageEditor({ pageId, parentId, isOpen, onClose, onSave }: PageEd
   };
 
   const isLoading = createPageMutation.isPending || updatePageMutation.isPending;
+
+  // Confluence-style inline editor
+  if (inline) {
+    return (
+      <div className={`h-full overflow-y-auto ${className || ''}`}>
+        <div className="space-y-6">
+          {/* Confluence-style title */}
+          <div className="border-b border-slate-200 dark:border-slate-700 pb-4">
+            <input
+              className="text-4xl font-bold bg-transparent border-none outline-none text-slate-600 dark:text-slate-300 w-full placeholder-slate-400 dark:placeholder-slate-500"
+              placeholder="Give this page a title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              autoFocus={autoFocus}
+              data-testid="input-page-title-inline"
+            />
+          </div>
+
+          {/* Quick metadata */}
+          <div className="flex gap-4 text-sm">
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                {CATEGORIES.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUSES.map((stat) => (
+                  <SelectItem key={stat} value={stat}>
+                    {stat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Rich Content Editor */}
+          <RichContentEditor
+            content={content}
+            onChange={setContent}
+            placeholder="Type / to insert elements"
+            className="min-h-[400px] border-none"
+          />
+
+          {/* Auto-save indicator */}
+          <div className="flex justify-between items-center text-sm text-slate-500 dark:text-slate-400 pt-4 border-t">
+            <span>Auto-save: {isLoading ? 'Saving...' : 'Saved'}</span>
+            <div className="flex gap-2">
+              {onCancel && (
+                <Button variant="outline" size="sm" onClick={onCancel}>
+                  Discard
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

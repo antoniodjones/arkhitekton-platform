@@ -31,6 +31,7 @@ import { cn } from '@/lib/utils';
 interface TreeNavigationProps {
   onPageSelect?: (page: KnowledgeBasePage) => void;
   selectedPageId?: string;
+  isCreatingNewPage?: boolean;
   className?: string;
 }
 
@@ -38,7 +39,7 @@ interface TreeNode extends KnowledgeBasePage {
   children?: TreeNode[];
 }
 
-export function TreeNavigation({ onPageSelect, selectedPageId, className }: TreeNavigationProps) {
+export function TreeNavigation({ onPageSelect, selectedPageId, isCreatingNewPage, className }: TreeNavigationProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
@@ -182,7 +183,7 @@ export function TreeNavigation({ onPageSelect, selectedPageId, className }: Tree
           {/* Status Badge */}
           <Badge 
             variant="outline" 
-            className={cn("text-xs px-1.5 py-0.5", getStatusColor(node.status))}
+            className={cn("text-xs px-1.5 py-0.5", getStatusColor(node.status || 'Draft'))}
           >
             {node.status === 'under_review' ? 'Review' : node.status}
           </Badge>
@@ -195,7 +196,7 @@ export function TreeNavigation({ onPageSelect, selectedPageId, className }: Tree
                 size="sm" 
                 className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-orange-200 dark:hover:bg-orange-800"
                 onClick={(e) => e.stopPropagation()}
-                data-testid={`tree-node-menu-${node.slug}`}
+                data-testid={`tree-node-menu-${node.slug || node.id}`}
               >
                 <MoreHorizontal className="h-3 w-3" />
               </Button>

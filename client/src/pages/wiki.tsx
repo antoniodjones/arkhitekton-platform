@@ -62,6 +62,7 @@ function WikiContent() {
   const [selectedPageId, setSelectedPageId] = useState<string | undefined>();
   const [showTreeView, setShowTreeView] = useState(false);
   const [showPageEditor, setShowPageEditor] = useState(false);
+  const [isCreatingNewPage, setIsCreatingNewPage] = useState(false);
 
   const handlePageSelect = (page: KBPage) => {
     setSelectedPageId(page.id);
@@ -405,7 +406,11 @@ Creates a distinctive, professional identity that architects associate with crea
             </p>
           </div>
           <Button 
-            onClick={() => setShowPageEditor(true)}
+            onClick={() => {
+              setIsCreatingNewPage(true);
+              setSelectedPageId('new-page');
+              setShowTreeView(true);
+            }}
             className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
             data-testid="button-create-page"
           >
@@ -670,6 +675,7 @@ Creates a distinctive, professional identity that architects associate with crea
                   <TreeNavigation 
                     onPageSelect={handlePageSelect}
                     selectedPageId={selectedPageId}
+                    isCreatingNewPage={isCreatingNewPage}
                     className="h-full"
                   />
                 </Card>
@@ -680,26 +686,34 @@ Creates a distinctive, professional identity that architects associate with crea
               {/* Page Content */}
               <ResizablePanel defaultSize={75} minSize={60}>
                 <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border-slate-200/50 dark:border-slate-700/50 h-full ml-2">
-                  <KnowledgeBasePage 
-                    pageId={selectedPageId}
-                    onBack={handleBackToOverview}
-                    className="h-full"
-                  />
+                  {selectedPageId === 'new-page' && isCreatingNewPage ? (
+                    <PageEditor 
+                      onSave={(savedPage) => {
+                        setIsCreatingNewPage(false);
+                        setSelectedPageId(savedPage.id);
+                      }}
+                      onCancel={() => {
+                        setIsCreatingNewPage(false);
+                        setSelectedPageId(undefined);
+                      }}
+                      autoFocus={true}
+                      inline={true}
+                      className="h-full p-6"
+                    />
+                  ) : (
+                    <KnowledgeBasePage 
+                      pageId={selectedPageId}
+                      onBack={handleBackToOverview}
+                      className="h-full"
+                    />
+                  )}
                 </Card>
               </ResizablePanel>
             </ResizablePanelGroup>
           </TabsContent>
         </Tabs>
         
-        {/* Page Editor Modal */}
-        <PageEditor
-          isOpen={showPageEditor}
-          onClose={() => setShowPageEditor(false)}
-          onSave={() => {
-            // Refresh the page list after saving
-            setShowPageEditor(false);
-          }}
-        />
+        {/* Remove old modal editor - now using inline */}
       </div>
     </div>
   );
