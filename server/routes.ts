@@ -221,40 +221,24 @@ Keep response concise but comprehensive.`;
     }
   });
 
-  // Create new page
+  // Create new page - simplified
   app.post("/api/knowledge-base/pages", async (req, res) => {
     try {
-      // Generate slug if not provided
-      const slug = req.body.slug || req.body.title.toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '');
-      
-      // Generate path based on parent
-      let path, depth;
-      if (req.body.parentPageId) {
-        const parentPage = await storage.getKnowledgeBasePage(req.body.parentPageId);
-        if (parentPage) {
-          path = `${parentPage.path}/${slug}`;
-          depth = parentPage.depth + 1;
-        } else {
-          path = `/${slug}`;
-          depth = 0;
-        }
-      } else {
-        path = `/${slug}`;
-        depth = 0;
-      }
-      
-      // Add all required fields including generated ones
-      const requestData = {
-        ...req.body,
-        slug,
-        path,
-        depth: depth || 0,
-        authorId: req.body.authorId || 'system', // Default author for now
+      // Auto-generate slug if not provided
+      const pageData = {
+        title: req.body.title,
+        slug: req.body.slug || req.body.title.toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, ''),
+        content: req.body.content || "",
+        category: req.body.category || "General",
+        status: req.body.status || "draft",
+        tags: req.body.tags || [],
+        parentPageId: req.body.parentPageId || null,
+        order: req.body.order || 0
       };
       
-      const validatedData = insertKnowledgeBasePageSchema.parse(requestData);
+      const validatedData = insertKnowledgeBasePageSchema.parse(pageData);
       const page = await storage.createKnowledgeBasePage(validatedData);
       res.status(201).json(page);
     } catch (error) {

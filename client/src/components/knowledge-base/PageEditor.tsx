@@ -168,13 +168,13 @@ export function PageEditor({ pageId, parentId, isOpen, onClose, onSave }: PageEd
 
     const pageData = {
       title: title.trim(),
-      slug: slug.trim(),
-      content,
-      category,
-      status,
-      tags,
+      slug: slug.trim() || undefined, // Let backend auto-generate if empty
+      content: typeof content === 'string' ? content : JSON.stringify(content),
+      category: category || "General",
+      status: status || "draft",
+      tags: tags || [],
       parentPageId: parentId || null,
-      order,
+      order: order || 0,
     };
 
     if (pageId) {

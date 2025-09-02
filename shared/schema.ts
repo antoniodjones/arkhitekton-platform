@@ -179,56 +179,25 @@ export const objectConnections = pgTable("object_connections", {
   updatedAt: timestamp("updated_at").defaultNow()
 });
 
-// Knowledge Base Pages - Hierarchical documentation system
+// Knowledge Base Pages - Simplified documentation system
 export const knowledgeBasePages = pgTable("knowledge_base_pages", {
   id: uuid("id").primaryKey().defaultRandom(),
   
-  // Page identity and organization
+  // Essential fields only
   title: text("title").notNull(),
-  slug: text("slug").notNull(), // URL-friendly path segment
-  parentPageId: uuid("parent_page_id"),
+  slug: text("slug"), // Optional - will auto-generate
+  content: text("content").notNull().default(""), // Simple text content
   
-  // Hierarchical structure
-  path: text("path").notNull(), // Full hierarchical path like "/foundation/architecture-patterns/microservices"
-  depth: integer("depth").notNull().default(0),
-  order: integer("order").default(0), // Order within same parent
-  
-  // Content and metadata
-  content: jsonb("content").$type<{
-    blocks: any[]; // Rich editor content blocks
-    embeddings: { type: string; id: string; position: number }[]; // Embedded models/diagrams
-    template: string; // Template type: 'adr', 'implementation-guide', 'best-practice', 'showcase'
-  }>().notNull(),
-  
-  // Page classification
-  pageType: text("page_type").notNull().default("documentation"), // 'documentation', 'adr', 'guide', 'template', 'showcase'
-  category: text("category"), // 'architecture', 'development', 'operations', 'governance'
+  // Basic organization
+  category: text("category").default("General"),
+  status: text("status").default("draft"), // 'draft', 'published'
   tags: jsonb("tags").$type<string[]>().default([]),
   
-  // Content status and lifecycle
-  status: text("status").notNull().default("draft"), // 'draft', 'review', 'published', 'archived'
+  // Optional hierarchy
+  parentPageId: uuid("parent_page_id"),
+  order: integer("order").default(0),
   
-  // Collaboration and ownership
-  authorId: varchar("author_id").notNull(),
-  collaborators: jsonb("collaborators").$type<string[]>().default([]),
-  reviewers: jsonb("reviewers").$type<string[]>().default([]),
-  
-  // Model linking (for architecture-connected pages)
-  linkedModelIds: jsonb("linked_model_ids").$type<string[]>().default([]),
-  
-  // Access control
-  visibility: text("visibility").notNull().default("team"), // 'public', 'team', 'private'
-  
-  // External integrations
-  externalSync: jsonb("external_sync").$type<{
-    confluence?: { spaceId: string; pageId: string; lastSync: string };
-    sharepoint?: { siteId: string; listId: string; itemId: string; lastSync: string };
-    notion?: { databaseId: string; pageId: string; lastSync: string };
-  }>(),
-  
-  // Search and discovery
-  searchKeywords: text("search_keywords"), // Additional keywords for search
-  
+  // Timestamps
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow()
 });
