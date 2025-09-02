@@ -37,7 +37,8 @@ interface KnowledgeBasePageProps {
 }
 
 export function KnowledgeBasePage({ pageId, onBack, className }: KnowledgeBasePageProps) {
-  const [isEditing, setIsEditing] = useState(false);
+  // Auto-start edit mode for new pages
+  const [isEditing, setIsEditing] = useState(pageId === 'new-page');
 
   // Fetch page data
   const { data: page, isLoading } = useQuery<KBPage>({
@@ -131,6 +132,39 @@ export function KnowledgeBasePage({ pageId, onBack, className }: KnowledgeBasePa
           Select a page from the navigation tree to start exploring your documentation, 
           or create a new page to begin building your knowledge base.
         </p>
+      </div>
+    );
+  }
+
+  // Handle new page creation
+  if (pageId === 'new-page') {
+    const newPage: KBPage = {
+      id: 'new-page',
+      title: 'Untitled',
+      slug: null,
+      content: '',
+      category: null,
+      status: 'Draft',
+      tags: null,
+      parentPageId: null,
+      order: null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    return (
+      <div className={cn("max-w-6xl mx-auto p-6", className)}>
+        <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border-slate-200/50 dark:border-slate-700/50">
+          <CardContent className="p-8">
+            <RichContentEditor
+              content={newPage.content || ''}
+              onChange={(content) => {
+                // Auto-save logic will be handled by the editor
+              }}
+              placeholder="Start writing your new page..."
+            />
+          </CardContent>
+        </Card>
       </div>
     );
   }
