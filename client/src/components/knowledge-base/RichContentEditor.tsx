@@ -328,7 +328,7 @@ export function RichContentEditor({
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="ghost" size="sm" data-testid="button-add-diagram">
-                    <Diagram3 className="h-4 w-4" />
+                    <Network className="h-4 w-4" />
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-2xl">
