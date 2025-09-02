@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 import { 
   Folder, 
   FolderOpen, 
@@ -48,31 +49,61 @@ export function TreeNavigation({ onPageSelect, selectedPageId, isCreatingNewPage
   const queryClient = useQueryClient();
 
   // Action handlers
-  const handleRename = (page: KnowledgeBasePage) => {
+  const handleRename = async (page: KnowledgeBasePage) => {
     const newTitle = prompt('Enter new page title:', page.title);
     if (newTitle && newTitle !== page.title) {
-      // TODO: Implement rename API call
-      console.log('Rename page:', page.id, 'to:', newTitle);
+      try {
+        await apiRequest(`/api/knowledge-base/pages/${page.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ title: newTitle })
+        });
+        queryClient.invalidateQueries({ queryKey: ['/api/knowledge-base/pages'] });
+      } catch (error) {
+        console.error('Failed to rename page:', error);
+      }
     }
   };
 
   const handleCopyLink = (page: KnowledgeBasePage) => {
-    const url = `${window.location.origin}/wiki/${page.slug || page.id}`;
+    const url = `${window.location.origin}/wiki?page=${page.id}`;
     navigator.clipboard.writeText(url).then(() => {
-      // TODO: Show toast notification
       console.log('Link copied to clipboard:', url);
+    }).catch(() => {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
     });
   };
 
-  const handleMove = (page: KnowledgeBasePage) => {
-    // TODO: Implement move dialog/functionality
-    console.log('Move page:', page.id);
+  const handleMove = async (page: KnowledgeBasePage) => {
+    // Simple move to root for now (remove parent)
+    if (confirm(`Move "${page.title}" to the root level?`)) {
+      try {
+        await apiRequest(`/api/knowledge-base/pages/${page.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ parentPageId: null })
+        });
+        queryClient.invalidateQueries({ queryKey: ['/api/knowledge-base/pages'] });
+      } catch (error) {
+        console.error('Failed to move page:', error);
+      }
+    }
   };
 
-  const handleDelete = (page: KnowledgeBasePage) => {
+  const handleDelete = async (page: KnowledgeBasePage) => {
     if (confirm(`Are you sure you want to delete "${page.title}"?`)) {
-      // TODO: Implement delete API call
-      console.log('Delete page:', page.id);
+      try {
+        await apiRequest(`/api/knowledge-base/pages/${page.id}`, {
+          method: 'DELETE'
+        });
+        queryClient.invalidateQueries({ queryKey: ['/api/knowledge-base/pages'] });
+      } catch (error) {
+        console.error('Failed to delete page:', error);
+      }
     }
   };
 
