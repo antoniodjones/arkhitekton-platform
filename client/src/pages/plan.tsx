@@ -68,6 +68,9 @@ interface Task {
   status: 'todo' | 'in-progress' | 'completed';
   assignee?: string;
   dueDate?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  completedAt?: Date;
 }
 
 // Draggable Task Card Component
@@ -280,6 +283,16 @@ type ViewMode = 'board' | 'list' | 'gantt' | 'calendar' | 'table';
 export default function PlanPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<ViewMode>('board');
+  const [dateRangeFilter, setDateRangeFilter] = useState<'all' | 'last-12-months' | 'last-6-months' | 'last-3-months'>('all');
+  
+  // Helper function to generate historical dates
+  const getHistoricalDate = (monthsAgo: number, dayOffset: number = 0) => {
+    const date = new Date();
+    date.setMonth(date.getMonth() - monthsAgo);
+    date.setDate(date.getDate() + dayOffset);
+    return date;
+  };
+
   const [tasks, setTasks] = useState<Task[]>([
     // Foundation Phase (Current)
     { 
@@ -697,7 +710,29 @@ export default function PlanPage() {
       
       const matchesCategory = selectedCategory === 'all' || task.category === selectedCategory;
       
-      return matchesSearch && matchesCategory;
+      // Date range filtering
+      const matchesDateRange = (() => {
+        if (dateRangeFilter === 'all') return true;
+        
+        // For tasks without dates, show them in current view for now
+        if (!task.createdAt && !task.updatedAt) return true;
+        
+        const now = new Date();
+        const monthsToSubtract = {
+          'last-3-months': 3,
+          'last-6-months': 6,
+          'last-12-months': 12
+        }[dateRangeFilter] || 0;
+        
+        const cutoffDate = new Date();
+        cutoffDate.setMonth(cutoffDate.getMonth() - monthsToSubtract);
+        
+        // Check if task was created, updated, or completed within the range
+        const taskDate = task.updatedAt || task.createdAt;
+        return taskDate instanceof Date ? taskDate >= cutoffDate : true;
+      })();
+      
+      return matchesSearch && matchesCategory && matchesDateRange;
     });
   };
 
@@ -901,6 +936,20 @@ export default function PlanPage() {
                     data-testid="search-tasks"
                   />
                 </div>
+              </div>
+              <div className="w-full sm:w-48">
+                <Select value={dateRangeFilter} onValueChange={(value: 'all' | 'last-12-months' | 'last-6-months' | 'last-3-months') => setDateRangeFilter(value)}>
+                  <SelectTrigger data-testid="filter-date-range">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    <SelectValue placeholder="Date Range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Time</SelectItem>
+                    <SelectItem value="last-12-months">Last 12 Months</SelectItem>
+                    <SelectItem value="last-6-months">Last 6 Months</SelectItem>
+                    <SelectItem value="last-3-months">Last 3 Months</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="w-full sm:w-64">
                 <Select value={selectedCategory} onValueChange={(value: Task['category'] | 'all') => setSelectedCategory(value)}>
