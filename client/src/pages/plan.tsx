@@ -26,7 +26,12 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  GripVertical
+  GripVertical,
+  List,
+  BarChart3,
+  Calendar,
+  Table,
+  Columns3
 } from 'lucide-react';
 import { Link } from 'wouter';
 import {
@@ -270,8 +275,11 @@ function DroppableColumn({
   );
 }
 
+type ViewMode = 'board' | 'list' | 'gantt' | 'calendar' | 'table';
+
 export default function PlanPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [currentView, setCurrentView] = useState<ViewMode>('board');
   const [tasks, setTasks] = useState<Task[]>([
     // Foundation Phase (Current)
     { 
@@ -822,109 +830,390 @@ export default function PlanPage() {
         </Card>
       </div>
 
-      {/* Filters and Search */}
+      {/* View Selector */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input
-                  placeholder="Search tasks..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9"
-                  data-testid="search-tasks"
-                />
-              </div>
+          <div className="flex flex-col gap-4">
+            {/* View Mode Selector */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant={currentView === 'board' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setCurrentView('board')}
+                className="flex items-center gap-2"
+                data-testid="view-board"
+              >
+                <Columns3 className="w-4 h-4" />
+                Board
+              </Button>
+              <Button
+                variant={currentView === 'list' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setCurrentView('list')}
+                className="flex items-center gap-2"
+                data-testid="view-list"
+              >
+                <List className="w-4 h-4" />
+                List
+              </Button>
+              <Button
+                variant={currentView === 'gantt' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setCurrentView('gantt')}
+                className="flex items-center gap-2"
+                data-testid="view-gantt"
+              >
+                <BarChart3 className="w-4 h-4" />
+                Gantt
+              </Button>
+              <Button
+                variant={currentView === 'calendar' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setCurrentView('calendar')}
+                className="flex items-center gap-2"
+                data-testid="view-calendar"
+              >
+                <Calendar className="w-4 h-4" />
+                Calendar
+              </Button>
+              <Button
+                variant={currentView === 'table' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setCurrentView('table')}
+                className="flex items-center gap-2"
+                data-testid="view-table"
+              >
+                <Table className="w-4 h-4" />
+                Table
+              </Button>
             </div>
-            <div className="w-full sm:w-64">
-              <Select value={selectedCategory} onValueChange={(value: Task['category'] | 'all') => setSelectedCategory(value)}>
-                <SelectTrigger data-testid="filter-category">
-                  <Filter className="w-4 h-4 mr-2" />
-                  <SelectValue placeholder="All Categories" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="foundation">Foundation</SelectItem>
-                  <SelectItem value="knowledge-base">Knowledge Base</SelectItem>
-                  <SelectItem value="modeling">Modeling</SelectItem>
-                  <SelectItem value="ai">AI Intelligence</SelectItem>
-                  <SelectItem value="integration">Integration</SelectItem>
-                  <SelectItem value="ux">UX Excellence</SelectItem>
-                </SelectContent>
-              </Select>
+
+            {/* Filters and Search */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Input
+                    placeholder="Search tasks..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-9"
+                    data-testid="search-tasks"
+                  />
+                </div>
+              </div>
+              <div className="w-full sm:w-64">
+                <Select value={selectedCategory} onValueChange={(value: Task['category'] | 'all') => setSelectedCategory(value)}>
+                  <SelectTrigger data-testid="filter-category">
+                    <Filter className="w-4 h-4 mr-2" />
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="foundation">Foundation</SelectItem>
+                    <SelectItem value="knowledge-base">Knowledge Base</SelectItem>
+                    <SelectItem value="modeling">Modeling</SelectItem>
+                    <SelectItem value="ai">AI Intelligence</SelectItem>
+                    <SelectItem value="integration">Integration</SelectItem>
+                    <SelectItem value="ux">UX Excellence</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Drag and Drop Kanban Board */}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-96">
-          <div id="todo">
-            <DroppableColumn
-              id="todo"
-              title="To Do"
-              icon={Circle}
-              iconColor="text-gray-400"
-              tasks={getTasksByStatus('todo')}
-              getCategoryBadgeColor={getCategoryBadgeColor}
-              getPriorityColor={getPriorityColor}
-              toggleTask={toggleTask}
-              updateTaskStatus={updateTaskStatus}
-            />
-          </div>
-
-          <div id="in-progress">
-            <DroppableColumn
-              id="in-progress"
-              title="In Progress"
-              icon={Clock}
-              iconColor="text-blue-500"
-              tasks={getTasksByStatus('in-progress')}
-              getCategoryBadgeColor={getCategoryBadgeColor}
-              getPriorityColor={getPriorityColor}
-              toggleTask={toggleTask}
-              updateTaskStatus={updateTaskStatus}
-            />
-          </div>
-
-          <div id="completed">
-            <DroppableColumn
-              id="completed"
-              title="Completed"
-              icon={CheckCircle2}
-              iconColor="text-green-500"
-              tasks={getTasksByStatus('completed')}
-              getCategoryBadgeColor={getCategoryBadgeColor}
-              getPriorityColor={getPriorityColor}
-              toggleTask={toggleTask}
-              updateTaskStatus={updateTaskStatus}
-            />
-          </div>
-        </div>
-
-        <DragOverlay>
-          {activeId ? (
-            <div className="opacity-95 rotate-3 scale-105">
-              <DraggableTaskCard
-                task={tasks.find(t => t.id === activeId)!}
+      {/* Dynamic View Content */}
+      {currentView === 'board' && (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-96">
+            <div id="todo">
+              <DroppableColumn
+                id="todo"
+                title="To Do"
+                icon={Circle}
+                iconColor="text-gray-400"
+                tasks={getTasksByStatus('todo')}
                 getCategoryBadgeColor={getCategoryBadgeColor}
                 getPriorityColor={getPriorityColor}
                 toggleTask={toggleTask}
                 updateTaskStatus={updateTaskStatus}
               />
             </div>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
+
+            <div id="in-progress">
+              <DroppableColumn
+                id="in-progress"
+                title="In Progress"
+                icon={Clock}
+                iconColor="text-blue-500"
+                tasks={getTasksByStatus('in-progress')}
+                getCategoryBadgeColor={getCategoryBadgeColor}
+                getPriorityColor={getPriorityColor}
+                toggleTask={toggleTask}
+                updateTaskStatus={updateTaskStatus}
+              />
+            </div>
+
+            <div id="completed">
+              <DroppableColumn
+                id="completed"
+                title="Completed"
+                icon={CheckCircle2}
+                iconColor="text-green-500"
+                tasks={getTasksByStatus('completed')}
+                getCategoryBadgeColor={getCategoryBadgeColor}
+                getPriorityColor={getPriorityColor}
+                toggleTask={toggleTask}
+                updateTaskStatus={updateTaskStatus}
+              />
+            </div>
+          </div>
+
+          <DragOverlay>
+            {activeId ? (
+              <div className="opacity-95 rotate-3 scale-105">
+                <DraggableTaskCard
+                  task={tasks.find(t => t.id === activeId)!}
+                  getCategoryBadgeColor={getCategoryBadgeColor}
+                  getPriorityColor={getPriorityColor}
+                  toggleTask={toggleTask}
+                  updateTaskStatus={updateTaskStatus}
+                />
+              </div>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+      )}
+
+      {currentView === 'list' && (
+        <Tabs defaultValue="foundation" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="foundation" className="flex items-center gap-2">
+              <Rocket className="w-4 h-4" />
+              Foundation
+            </TabsTrigger>
+            <TabsTrigger value="knowledge-base" className="flex items-center gap-2">
+              <BookOpen className="w-4 h-4" />
+              Knowledge Base
+            </TabsTrigger>
+            <TabsTrigger value="modeling" className="flex items-center gap-2">
+              <Palette className="w-4 h-4" />
+              Modeling
+            </TabsTrigger>
+            <TabsTrigger value="ai" className="flex items-center gap-2">
+              <Brain className="w-4 h-4" />
+              AI Intelligence
+            </TabsTrigger>
+            <TabsTrigger value="integration" className="flex items-center gap-2">
+              <Link2 className="w-4 h-4" />
+              Integration
+            </TabsTrigger>
+            <TabsTrigger value="ux" className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4" />
+              UX Excellence
+            </TabsTrigger>
+          </TabsList>
+
+          {(['foundation', 'knowledge-base', 'modeling', 'ai', 'integration', 'ux'] as const).map(category => {
+            const categoryTasks = getFilteredTasks().filter(task => task.category === category);
+            const categoryCompleted = categoryTasks.filter(t => t.completed).length;
+            const categoryProgress = Math.round((categoryCompleted / categoryTasks.length) * 100);
+            
+            return (
+              <TabsContent key={category} value={category} className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center gap-3 capitalize">
+                        {(() => {
+                          const IconComponent = getCategoryIcon(category);
+                          return <IconComponent className="w-5 h-5" />;
+                        })()}
+                        {category === 'ai' ? 'AI Intelligence Layer' : 
+                         category === 'ux' ? 'UX Excellence' : 
+                         category === 'knowledge-base' ? 'Knowledge Base Platform' :
+                         category.charAt(0).toUpperCase() + category.slice(1)} Phase
+                      </CardTitle>
+                      <Badge variant="outline">
+                        {categoryCompleted} / {categoryTasks.length} Complete
+                      </Badge>
+                    </div>
+                    <Progress value={categoryProgress} className="h-2 mt-2" />
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {categoryTasks.map(task => (
+                      <div 
+                        key={task.id} 
+                        className="flex items-start gap-3 p-3 rounded-lg border transition-colors hover:bg-accent/50"
+                      >
+                        <Checkbox
+                          checked={task.completed}
+                          onCheckedChange={() => toggleTask(task.id)}
+                          className="mt-1"
+                          data-testid={`task-checkbox-${task.id}`}
+                        />
+                        <div className="flex-1 space-y-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className={`font-medium ${task.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                              {task.title}
+                            </h4>
+                            <Badge className={`text-xs px-2 py-0.5 ${getPriorityColor(task.priority)}`}>
+                              {task.priority}
+                            </Badge>
+                            <Badge className={`text-xs px-2 py-0.5 ${task.status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : task.status === 'in-progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'}`}>
+                              {task.status === 'in-progress' ? 'In Progress' : task.status === 'todo' ? 'To Do' : 'Completed'}
+                            </Badge>
+                          </div>
+                          <p className={`text-sm ${task.completed ? 'line-through text-muted-foreground' : 'text-muted-foreground'}`}>
+                            {task.description}
+                          </p>
+                        </div>
+                        {task.completed && (
+                          <CheckCircle2 className="w-5 h-5 text-green-500 mt-1" />
+                        )}
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            );
+          })}
+        </Tabs>
+      )}
+
+      {currentView === 'table' && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Task Table</CardTitle>
+            <CardDescription>
+              Comprehensive view of all development tasks
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left p-3 font-semibold">✓</th>
+                    <th className="text-left p-3 font-semibold">Task</th>
+                    <th className="text-left p-3 font-semibold">Category</th>
+                    <th className="text-left p-3 font-semibold">Priority</th>
+                    <th className="text-left p-3 font-semibold">Status</th>
+                    <th className="text-left p-3 font-semibold">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {getFilteredTasks().map(task => (
+                    <tr key={task.id} className="border-b hover:bg-accent/50 transition-colors">
+                      <td className="p-3">
+                        <Checkbox
+                          checked={task.completed}
+                          onCheckedChange={() => toggleTask(task.id)}
+                          data-testid={`task-checkbox-${task.id}`}
+                        />
+                      </td>
+                      <td className="p-3">
+                        <span className={`font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
+                          {task.title}
+                        </span>
+                      </td>
+                      <td className="p-3">
+                        <Badge className={`text-xs px-2 py-0.5 ${getCategoryBadgeColor(task.category)}`}>
+                          {task.category === 'knowledge-base' ? 'Knowledge Base' : 
+                           task.category === 'ai' ? 'AI Intelligence' : 
+                           task.category.charAt(0).toUpperCase() + task.category.slice(1)}
+                        </Badge>
+                      </td>
+                      <td className="p-3">
+                        <Badge className={`text-xs px-2 py-0.5 ${getPriorityColor(task.priority)}`}>
+                          {task.priority}
+                        </Badge>
+                      </td>
+                      <td className="p-3">
+                        <Select value={task.status} onValueChange={(value: Task['status']) => updateTaskStatus(task.id, value)}>
+                          <SelectTrigger className="w-32">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="todo">To Do</SelectItem>
+                            <SelectItem value="in-progress">In Progress</SelectItem>
+                            <SelectItem value="completed">Completed</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </td>
+                      <td className="p-3 max-w-xs">
+                        <span className={`text-sm ${task.completed ? 'line-through text-muted-foreground' : 'text-muted-foreground'}`}>
+                          {task.description}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {currentView === 'gantt' && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="w-5 h-5" />
+              Gantt Chart
+            </CardTitle>
+            <CardDescription>
+              Project timeline and task dependencies
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="text-center py-12 text-muted-foreground">
+                <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <h3 className="text-lg font-semibold mb-2">Gantt Chart View</h3>
+                <p className="text-sm max-w-md mx-auto">
+                  Interactive timeline view showing task dependencies, durations, and project milestones. 
+                  Coming soon with drag-and-drop scheduling capabilities.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {currentView === 'calendar' && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="w-5 h-5" />
+              Calendar View
+            </CardTitle>
+            <CardDescription>
+              Schedule and manage task deadlines
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="text-center py-12 text-muted-foreground">
+                <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <h3 className="text-lg font-semibold mb-2">Calendar View</h3>
+                <p className="text-sm max-w-md mx-auto">
+                  Monthly and weekly calendar views for scheduling tasks, setting deadlines, 
+                  and tracking project milestones across different time periods.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
