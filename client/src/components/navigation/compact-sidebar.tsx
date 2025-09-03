@@ -242,8 +242,8 @@ export function CompactSidebar() {
                         variant={isActive ? 'default' : 'ghost'}
                         size="sm"
                         className={cn(
-                          'relative flex items-center justify-start gap-2 h-10 p-0',
-                          showLabels ? 'w-full px-2' : 'w-10',
+                          'relative flex items-center gap-2 h-10 p-0',
+                          showLabels ? 'w-full px-2 justify-start' : 'w-10 justify-center',
                           isActive
                             ? 'bg-orange-600 text-white hover:bg-orange-700 shadow-lg shadow-orange-500/25'
                             : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100'
@@ -295,8 +295,8 @@ export function CompactSidebar() {
                         variant={isActive ? 'default' : 'ghost'}
                         size="sm"
                         className={cn(
-                          'flex items-center justify-start gap-2 h-10 p-0',
-                          showLabels ? 'w-full px-2' : 'w-10',
+                          'flex items-center gap-2 h-10 p-0',
+                          showLabels ? 'w-full px-2 justify-start' : 'w-10 justify-center',
                           isActive
                             ? 'bg-orange-600 text-white hover:bg-orange-700 shadow-lg shadow-orange-500/25'
                             : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100'
