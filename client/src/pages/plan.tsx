@@ -397,7 +397,7 @@ export default function PlanPage() {
   };
 
   const handleEditTask = (task: Task) => {
-    console.log('Edit task clicked:', task.id, task.title);
+    console.log('EDIT CLICK:', task.id, task.title);
     setEditingTask(task);
     setIsDialogOpen(true);
   };
