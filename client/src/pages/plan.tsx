@@ -85,6 +85,7 @@ interface Task {
   updatedAt?: Date;
   completedAt?: Date;
   comments?: TaskComment[];
+  abilities?: string[];
 }
 
 // Task Dialog Component for Add/Edit
@@ -106,7 +107,8 @@ function TaskDialog({
     priority: task?.priority || 'medium' as Task['priority'],
     status: task?.status || 'todo' as Task['status'],
     dueDate: task?.dueDate || '',
-    assignee: task?.assignee || ''
+    assignee: task?.assignee || '',
+    abilities: task?.abilities || []
   });
   const [newComment, setNewComment] = useState('');
   const [comments, setComments] = useState<TaskComment[]>(task?.comments || []);
@@ -141,7 +143,7 @@ function TaskDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
         <DialogHeader>
           <DialogTitle data-testid="task-dialog-title">
             {task ? 'Edit Task' : 'Create New Task'}
@@ -247,6 +249,24 @@ function TaskDialog({
               placeholder="Enter assignee name..."
               data-testid="input-task-assignee"
             />
+          </div>
+
+          {/* Abilities */}
+          <div>
+            <Label htmlFor="abilities">Abilities</Label>
+            <Input
+              id="abilities"
+              value={formData.abilities.join(', ')}
+              onChange={(e) => setFormData({ 
+                ...formData, 
+                abilities: e.target.value.split(',').map(a => a.trim()).filter(a => a) 
+              })}
+              placeholder="Enter abilities (e.g., React, TypeScript, Design)..."
+              data-testid="input-task-abilities"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Separate abilities with commas
+            </p>
           </div>
 
           {/* Comments Section */}
@@ -455,8 +475,7 @@ function DraggableTaskCard({
         ) : (
           <Checkbox
             checked={task.completed}
-            onCheckedChange={(e) => {
-              e.stopPropagation?.();
+            onCheckedChange={(checked) => {
               toggleTask(task.id);
             }}
             className="h-4 w-4"
@@ -1341,7 +1360,7 @@ export default function PlanPage() {
                   getPriorityColor={getPriorityColor}
                   toggleTask={toggleTask}
                   updateTaskStatus={updateTaskStatus}
-                  onEditTask={onEditTask}
+                  onEditTask={handleEditTask}
                 />
               </div>
             ) : null}
