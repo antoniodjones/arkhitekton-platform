@@ -25,9 +25,33 @@ import {
   Plus,
   Clock,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  GripVertical
 } from 'lucide-react';
 import { Link } from 'wouter';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  DragOverEvent,
+  useDroppable
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface Task {
   id: string;
@@ -41,7 +65,213 @@ interface Task {
   dueDate?: string;
 }
 
+// Draggable Task Card Component
+function DraggableTaskCard({ 
+  task, 
+  getCategoryBadgeColor, 
+  getPriorityColor, 
+  toggleTask, 
+  updateTaskStatus 
+}: {
+  task: Task;
+  getCategoryBadgeColor: (category: Task['category']) => string;
+  getPriorityColor: (priority: Task['priority']) => string;
+  toggleTask: (taskId: string) => void;
+  updateTaskStatus: (taskId: string, newStatus: Task['status']) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: task.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`group p-4 border rounded-lg hover:shadow-md transition-all cursor-grab active:cursor-grabbing ${
+        isDragging ? 'opacity-50' : ''
+      } ${
+        task.status === 'completed' 
+          ? 'bg-green-50/50 dark:bg-green-950/10 border-green-200 dark:border-green-800' 
+          : task.status === 'in-progress'
+          ? 'bg-blue-50/50 dark:bg-blue-950/10 border-blue-200 dark:border-blue-800'
+          : 'bg-background'
+      }`}
+      data-testid={`task-card-${task.id}`}
+      {...attributes}
+      {...listeners}
+    >
+      <div className="flex items-start justify-between mb-2">
+        <div className="flex items-start gap-2 flex-1 pr-2">
+          <GripVertical className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+          <h4 className={`font-medium text-sm leading-tight ${
+            task.completed ? 'line-through text-muted-foreground' : ''
+          }`}>
+            {task.title}
+          </h4>
+        </div>
+        <div className="flex items-center gap-1">
+          {task.status !== 'in-progress' && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                updateTaskStatus(task.id, 'in-progress');
+              }}
+              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              data-testid={`move-to-progress-${task.id}`}
+            >
+              <Clock className="w-3 h-3" />
+            </Button>
+          )}
+          {task.status === 'in-progress' && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                updateTaskStatus(task.id, 'todo');
+              }}
+              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              data-testid={`move-to-todo-${task.id}`}
+            >
+              <Circle className="w-3 h-3" />
+            </Button>
+          )}
+          {task.status !== 'completed' && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                updateTaskStatus(task.id, 'completed');
+              }}
+              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              data-testid={`move-to-completed-${task.id}`}
+            >
+              <CheckCircle2 className="w-3 h-3" />
+            </Button>
+          )}
+        </div>
+      </div>
+      <p className={`text-xs text-muted-foreground mb-3 line-clamp-2 ${
+        task.completed ? 'line-through' : ''
+      }`}>
+        {task.description}
+      </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Badge className={`text-xs px-2 py-0.5 ${getCategoryBadgeColor(task.category)} ${
+            task.completed ? 'opacity-60' : ''
+          }`}>
+            {task.category === 'knowledge-base' ? 'KB' : 
+             task.category === 'ai' ? 'AI' : 
+             task.category.charAt(0).toUpperCase() + task.category.slice(1)}
+          </Badge>
+          <Badge className={`text-xs px-2 py-0.5 ${getPriorityColor(task.priority)} ${
+            task.completed ? 'opacity-60' : ''
+          }`}>
+            {task.priority}
+          </Badge>
+        </div>
+        {task.completed ? (
+          <CheckCircle2 className="w-4 h-4 text-green-500" />
+        ) : (
+          <Checkbox
+            checked={task.completed}
+            onCheckedChange={(e) => {
+              e.stopPropagation?.();
+              toggleTask(task.id);
+            }}
+            className="h-4 w-4"
+            data-testid={`task-checkbox-${task.id}`}
+            onClick={(e) => e.stopPropagation()}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Droppable Column Component
+function DroppableColumn({ 
+  id, 
+  title, 
+  icon: Icon, 
+  tasks, 
+  iconColor,
+  getCategoryBadgeColor,
+  getPriorityColor,
+  toggleTask,
+  updateTaskStatus 
+}: {
+  id: string;
+  title: string;
+  icon: any;
+  tasks: Task[];
+  iconColor: string;
+  getCategoryBadgeColor: (category: Task['category']) => string;
+  getPriorityColor: (priority: Task['priority']) => string;
+  toggleTask: (taskId: string) => void;
+  updateTaskStatus: (taskId: string, newStatus: Task['status']) => void;
+}) {
+  const { isOver, setNodeRef } = useDroppable({
+    id,
+  });
+
+  return (
+    <Card className="flex flex-col">
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Icon className={`w-5 h-5 ${iconColor}`} />
+            {title}
+          </CardTitle>
+          <Badge variant="outline" className="text-sm">
+            {tasks.length}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent 
+        ref={setNodeRef}
+        className={`flex-1 space-y-3 min-h-32 transition-colors ${
+          isOver ? 'bg-accent/50 ring-2 ring-primary/20 ring-inset' : ''
+        }`}
+      >
+        <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+          {tasks.map(task => (
+            <DraggableTaskCard
+              key={task.id}
+              task={task}
+              getCategoryBadgeColor={getCategoryBadgeColor}
+              getPriorityColor={getPriorityColor}
+              toggleTask={toggleTask}
+              updateTaskStatus={updateTaskStatus}
+            />
+          ))}
+        </SortableContext>
+        {tasks.length === 0 && (
+          <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+            Drop tasks here
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function PlanPage() {
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [tasks, setTasks] = useState<Task[]>([
     // Foundation Phase (Current)
     { 
@@ -302,6 +532,120 @@ export default function PlanPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<Task['category'] | 'all'>('all');
 
+  // Drag and Drop Sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  function handleDragStart(event: DragStartEvent) {
+    const { active } = event;
+    setActiveId(active.id as string);
+  }
+
+  function handleDragOver(event: DragOverEvent) {
+    const { active, over } = event;
+
+    if (!over) return;
+
+    const activeId = active.id as string;
+    const overId = over.id as string;
+
+    // Find the containers
+    const activeTask = tasks.find(t => t.id === activeId);
+    const activeContainer = activeTask?.status;
+
+    // Check if we're over a column or a task
+    const overTask = tasks.find(t => t.id === overId);
+    let overContainer: Task['status'];
+    
+    if (overTask) {
+      overContainer = overTask.status;
+    } else {
+      // We're over a column
+      overContainer = overId as Task['status'];
+    }
+
+    if (!activeContainer || !overContainer) return;
+    
+    if (activeContainer === overContainer) return;
+
+    setTasks((tasks) => {
+      const activeItems = tasks.filter(t => t.status === activeContainer);
+      const overItems = tasks.filter(t => t.status === overContainer);
+
+      // Find the indexes
+      const activeIndex = activeItems.findIndex(t => t.id === activeId);
+      const overIndex = overTask ? overItems.findIndex(t => t.id === overId) : overItems.length;
+
+      let newIndex: number;
+      if (overId in tasks.map(t => t.status)) {
+        // We're over a column
+        newIndex = overItems.length + 1;
+      } else {
+        // We're over a task
+        const isBelowOverItem = over && overIndex < overItems.length - 1;
+        const modifier = isBelowOverItem ? 1 : 0;
+        newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
+      }
+
+      return tasks.map(task => {
+        if (task.id === activeId) {
+          return {
+            ...task,
+            status: overContainer,
+            completed: overContainer === 'completed'
+          };
+        }
+        return task;
+      });
+    });
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (!over) {
+      setActiveId(null);
+      return;
+    }
+
+    const activeId = active.id as string;
+    const overId = over.id as string;
+
+    // Find the containers
+    const activeTask = tasks.find(t => t.id === activeId);
+    const overTask = tasks.find(t => t.id === overId);
+    
+    let overContainer: Task['status'] | undefined;
+    
+    if (overTask) {
+      overContainer = overTask.status;
+    } else {
+      // Check if we're over a column
+      if (['todo', 'in-progress', 'completed'].includes(overId)) {
+        overContainer = overId as Task['status'];
+      }
+    }
+
+    if (activeTask && overContainer && activeTask.status !== overContainer) {
+      setTasks(tasks => tasks.map(task => {
+        if (task.id === activeId) {
+          return {
+            ...task,
+            status: overContainer!,
+            completed: overContainer === 'completed'
+          };
+        }
+        return task;
+      }));
+    }
+
+    setActiveId(null);
+  }
+
   const toggleTask = (taskId: string) => {
     setTasks(tasks.map(task => {
       if (task.id === taskId) {
@@ -515,192 +859,72 @@ export default function PlanPage() {
         </CardContent>
       </Card>
 
-      {/* Kanban Board */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-96">
-        {/* To Do Column */}
-        <Card className="flex flex-col">
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Circle className="w-5 h-5 text-gray-400" />
-                To Do
-              </CardTitle>
-              <Badge variant="outline" className="text-sm">
-                {getTasksByStatus('todo').length}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="flex-1 space-y-3">
-            {getTasksByStatus('todo').map(task => (
-              <div
-                key={task.id}
-                className="group p-4 border rounded-lg hover:shadow-md transition-all bg-background cursor-pointer"
-                data-testid={`task-card-${task.id}`}
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <h4 className="font-medium text-sm leading-tight pr-2">{task.title}</h4>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => updateTaskStatus(task.id, 'in-progress')}
-                      className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                      data-testid={`move-to-progress-${task.id}`}
-                    >
-                      <Clock className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
-                  {task.description}
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Badge className={`text-xs px-2 py-0.5 ${getCategoryBadgeColor(task.category)}`}>
-                      {task.category === 'knowledge-base' ? 'KB' : 
-                       task.category === 'ai' ? 'AI' : 
-                       task.category.charAt(0).toUpperCase() + task.category.slice(1)}
-                    </Badge>
-                    <Badge className={`text-xs px-2 py-0.5 ${getPriorityColor(task.priority)}`}>
-                      {task.priority}
-                    </Badge>
-                  </div>
-                  <Checkbox
-                    checked={task.completed}
-                    onCheckedChange={() => toggleTask(task.id)}
-                    className="h-4 w-4"
-                    data-testid={`task-checkbox-${task.id}`}
-                  />
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+      {/* Drag and Drop Kanban Board */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-96">
+          <div id="todo">
+            <DroppableColumn
+              id="todo"
+              title="To Do"
+              icon={Circle}
+              iconColor="text-gray-400"
+              tasks={getTasksByStatus('todo')}
+              getCategoryBadgeColor={getCategoryBadgeColor}
+              getPriorityColor={getPriorityColor}
+              toggleTask={toggleTask}
+              updateTaskStatus={updateTaskStatus}
+            />
+          </div>
 
-        {/* In Progress Column */}
-        <Card className="flex flex-col">
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Clock className="w-5 h-5 text-blue-500" />
-                In Progress
-              </CardTitle>
-              <Badge variant="outline" className="text-sm">
-                {getTasksByStatus('in-progress').length}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="flex-1 space-y-3">
-            {getTasksByStatus('in-progress').map(task => (
-              <div
-                key={task.id}
-                className="group p-4 border rounded-lg hover:shadow-md transition-all bg-blue-50/50 dark:bg-blue-950/10 border-blue-200 dark:border-blue-800 cursor-pointer"
-                data-testid={`task-card-${task.id}`}
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <h4 className="font-medium text-sm leading-tight pr-2">{task.title}</h4>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => updateTaskStatus(task.id, 'todo')}
-                      className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                      data-testid={`move-to-todo-${task.id}`}
-                    >
-                      <Circle className="w-3 h-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => updateTaskStatus(task.id, 'completed')}
-                      className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                      data-testid={`move-to-completed-${task.id}`}
-                    >
-                      <CheckCircle2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
-                  {task.description}
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Badge className={`text-xs px-2 py-0.5 ${getCategoryBadgeColor(task.category)}`}>
-                      {task.category === 'knowledge-base' ? 'KB' : 
-                       task.category === 'ai' ? 'AI' : 
-                       task.category.charAt(0).toUpperCase() + task.category.slice(1)}
-                    </Badge>
-                    <Badge className={`text-xs px-2 py-0.5 ${getPriorityColor(task.priority)}`}>
-                      {task.priority}
-                    </Badge>
-                  </div>
-                  <Checkbox
-                    checked={task.completed}
-                    onCheckedChange={() => toggleTask(task.id)}
-                    className="h-4 w-4"
-                    data-testid={`task-checkbox-${task.id}`}
-                  />
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+          <div id="in-progress">
+            <DroppableColumn
+              id="in-progress"
+              title="In Progress"
+              icon={Clock}
+              iconColor="text-blue-500"
+              tasks={getTasksByStatus('in-progress')}
+              getCategoryBadgeColor={getCategoryBadgeColor}
+              getPriorityColor={getPriorityColor}
+              toggleTask={toggleTask}
+              updateTaskStatus={updateTaskStatus}
+            />
+          </div>
 
-        {/* Completed Column */}
-        <Card className="flex flex-col">
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <CheckCircle2 className="w-5 h-5 text-green-500" />
-                Completed
-              </CardTitle>
-              <Badge variant="outline" className="text-sm">
-                {getTasksByStatus('completed').length}
-              </Badge>
+          <div id="completed">
+            <DroppableColumn
+              id="completed"
+              title="Completed"
+              icon={CheckCircle2}
+              iconColor="text-green-500"
+              tasks={getTasksByStatus('completed')}
+              getCategoryBadgeColor={getCategoryBadgeColor}
+              getPriorityColor={getPriorityColor}
+              toggleTask={toggleTask}
+              updateTaskStatus={updateTaskStatus}
+            />
+          </div>
+        </div>
+
+        <DragOverlay>
+          {activeId ? (
+            <div className="opacity-95 rotate-3 scale-105">
+              <DraggableTaskCard
+                task={tasks.find(t => t.id === activeId)!}
+                getCategoryBadgeColor={getCategoryBadgeColor}
+                getPriorityColor={getPriorityColor}
+                toggleTask={toggleTask}
+                updateTaskStatus={updateTaskStatus}
+              />
             </div>
-          </CardHeader>
-          <CardContent className="flex-1 space-y-3">
-            {getTasksByStatus('completed').map(task => (
-              <div
-                key={task.id}
-                className="group p-4 border rounded-lg hover:shadow-md transition-all bg-green-50/50 dark:bg-green-950/10 border-green-200 dark:border-green-800 cursor-pointer"
-                data-testid={`task-card-${task.id}`}
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <h4 className="font-medium text-sm leading-tight pr-2 line-through text-muted-foreground">{task.title}</h4>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => updateTaskStatus(task.id, 'in-progress')}
-                      className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                      data-testid={`move-to-progress-${task.id}`}
-                    >
-                      <Clock className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground mb-3 line-clamp-2 line-through">
-                  {task.description}
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Badge className={`text-xs px-2 py-0.5 ${getCategoryBadgeColor(task.category)} opacity-60`}>
-                      {task.category === 'knowledge-base' ? 'KB' : 
-                       task.category === 'ai' ? 'AI' : 
-                       task.category.charAt(0).toUpperCase() + task.category.slice(1)}
-                    </Badge>
-                    <Badge className={`text-xs px-2 py-0.5 ${getPriorityColor(task.priority)} opacity-60`}>
-                      {task.priority}
-                    </Badge>
-                  </div>
-                  <CheckCircle2 className="w-4 h-4 text-green-500" />
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
     </div>
   );
 }
