@@ -222,17 +222,21 @@ function TaskCard({ task, onEdit }: { task: Task; onEdit: (task: Task) => void }
     <div
       ref={setNodeRef}
       style={style}
-      className={`group p-4 border rounded-lg hover:shadow-md transition-all cursor-grab active:cursor-grabbing ${
+      className={`group p-4 border rounded-lg hover:shadow-md transition-all ${
         isDragging ? 'opacity-50' : ''
       } ${task.completed ? 'bg-green-50/50 dark:bg-green-950/10 border-green-200 dark:border-green-800' : 'bg-background'}`}
       data-testid={`task-card-${task.id}`}
       onDoubleClick={() => onEdit(task)}
-      {...attributes}
-      {...listeners}
     >
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-start gap-2 flex-1">
-          <GripVertical className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+          <div
+            className="cursor-grab active:cursor-grabbing"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+          </div>
           <h4 className={`font-medium text-sm leading-tight ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
             {task.title}
           </h4>
@@ -243,6 +247,7 @@ function TaskCard({ task, onEdit }: { task: Task; onEdit: (task: Task) => void }
             size="sm"
             onClick={(e) => {
               e.stopPropagation();
+              e.preventDefault();
               onEdit(task);
             }}
             className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
