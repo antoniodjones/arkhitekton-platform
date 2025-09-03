@@ -343,8 +343,15 @@ export default function PlanPage() {
 
   // Create task mutation
   const createTaskMutation = useMutation({
-    mutationFn: (newTask: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => 
-      apiRequest('/api/tasks', { method: 'POST', body: newTask }),
+    mutationFn: async (newTask: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
+      const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newTask),
+      });
+      if (!response.ok) throw new Error('Failed to create task');
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
     },
@@ -352,8 +359,15 @@ export default function PlanPage() {
 
   // Update task mutation
   const updateTaskMutation = useMutation({
-    mutationFn: ({ id, ...updates }: { id: string } & Partial<Task>) => 
-      apiRequest(`/api/tasks/${id}`, { method: 'PATCH', body: updates }),
+    mutationFn: async ({ id, ...updates }: { id: string } & Partial<Task>) => {
+      const response = await fetch(`/api/tasks/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      if (!response.ok) throw new Error('Failed to update task');
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
     },
