@@ -381,6 +381,7 @@ function DraggableTaskCard({
           : 'bg-background'
       }`}
       data-testid={`task-card-${task.id}`}
+      onDoubleClick={() => onEditTask(task)}
       {...attributes}
       {...listeners}
     >
@@ -837,6 +838,38 @@ export default function PlanPage() {
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
 
+  // Task dialog handlers
+  const handleCreateTask = () => {
+    setEditingTask(undefined);
+    setIsTaskDialogOpen(true);
+  };
+
+  const handleEditTask = (task: Task) => {
+    setEditingTask(task);
+    setIsTaskDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsTaskDialogOpen(false);
+    setEditingTask(undefined);
+  };
+
+  const handleSaveTask = (taskData: Omit<Task, 'id'>) => {
+    if (editingTask) {
+      // Update existing task
+      setTasks(tasks.map(task =>
+        task.id === editingTask.id ? { ...taskData, id: editingTask.id } : task
+      ));
+    } else {
+      // Create new task
+      const newTask: Task = {
+        ...taskData,
+        id: `task-${Date.now()}`
+      };
+      setTasks([...tasks, newTask]);
+    }
+  };
+
   // Drag and Drop Sensors
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -973,38 +1006,6 @@ export default function PlanPage() {
         completed: newStatus === 'completed'
       } : task
     ));
-  };
-
-  // Task dialog handlers
-  const handleCreateTask = () => {
-    setEditingTask(undefined);
-    setIsTaskDialogOpen(true);
-  };
-
-  const handleEditTask = (task: Task) => {
-    setEditingTask(task);
-    setIsTaskDialogOpen(true);
-  };
-
-  const handleCloseDialog = () => {
-    setIsTaskDialogOpen(false);
-    setEditingTask(undefined);
-  };
-
-  const handleSaveTask = (taskData: Omit<Task, 'id'>) => {
-    if (editingTask) {
-      // Update existing task
-      setTasks(tasks.map(task =>
-        task.id === editingTask.id ? { ...taskData, id: editingTask.id } : task
-      ));
-    } else {
-      // Create new task
-      const newTask: Task = {
-        ...taskData,
-        id: `task-${Date.now()}`
-      };
-      setTasks([...tasks, newTask]);
-    }
   };
 
   const getCompletionStats = () => {
