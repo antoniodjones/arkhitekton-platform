@@ -6,7 +6,9 @@ import {
   type RecentElement, 
   type InsertRecentElement,
   type KnowledgeBasePage,
-  type InsertKnowledgeBasePage 
+  type InsertKnowledgeBasePage,
+  type Task,
+  type InsertTask
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -37,6 +39,13 @@ export interface IStorage {
   deleteKnowledgeBasePage(id: string): Promise<boolean>;
   getPageBreadcrumbs(id: string): Promise<{ id: string; title: string; path: string }[]>;
   moveKnowledgeBasePage(id: string, newParentId: string | null, newOrder?: number): Promise<boolean>;
+
+  // Tasks
+  getAllTasks(): Promise<Task[]>;
+  getTask(id: string): Promise<Task | undefined>;
+  createTask(task: InsertTask): Promise<Task>;
+  updateTask(id: string, updates: Partial<Task>): Promise<Task | undefined>;
+  deleteTask(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -44,12 +53,14 @@ export class MemStorage implements IStorage {
   private architectureElements: Map<string, ArchitectureElement>;
   private recentElements: Map<string, RecentElement>;
   private knowledgeBasePages: Map<string, KnowledgeBasePage>;
+  private tasks: Map<string, Task>;
 
   constructor() {
     this.users = new Map();
     this.architectureElements = new Map();
     this.recentElements = new Map();
     this.knowledgeBasePages = new Map();
+    this.tasks = new Map();
     
     // Initialize with some sample architecture elements
     this.initializeArchitectureElements();
@@ -348,6 +359,52 @@ export class MemStorage implements IStorage {
 
     const updatedPage = await this.updateKnowledgeBasePage(id, updates);
     return updatedPage !== undefined;
+  }
+
+  // Task implementation
+  async getAllTasks(): Promise<Task[]> {
+    return Array.from(this.tasks.values());
+  }
+
+  async getTask(id: string): Promise<Task | undefined> {
+    return this.tasks.get(id);
+  }
+
+  async createTask(taskData: InsertTask): Promise<Task> {
+    const id = randomUUID();
+    const task: Task = {
+      ...taskData,
+      id,
+      completed: taskData.completed || 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      completedAt: taskData.completed === 1 ? new Date() : null
+    };
+    this.tasks.set(id, task);
+    return task;
+  }
+
+  async updateTask(id: string, updates: Partial<Task>): Promise<Task | undefined> {
+    const existingTask = this.tasks.get(id);
+    if (!existingTask) {
+      return undefined;
+    }
+
+    const updatedTask: Task = {
+      ...existingTask,
+      ...updates,
+      updatedAt: new Date(),
+      completedAt: updates.completed === 1 || updates.status === 'completed' ? new Date() : 
+                   updates.completed === 0 || updates.status !== 'completed' ? null :
+                   existingTask.completedAt
+    };
+
+    this.tasks.set(id, updatedTask);
+    return updatedTask;
+  }
+
+  async deleteTask(id: string): Promise<boolean> {
+    return this.tasks.delete(id);
   }
 }
 
