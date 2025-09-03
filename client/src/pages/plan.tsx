@@ -576,8 +576,47 @@ export default function PlanPage() {
     return date;
   };
 
-  const [tasks, setTasks] = useState<Task[]>([
-    // Foundation Phase (Current)
+  const queryClient = useQueryClient();
+
+  // Fetch tasks from database
+  const { data: tasks = [], isLoading, error } = useQuery({
+    queryKey: ['/api/tasks'],
+    queryFn: async () => {
+      const response = await fetch('/api/tasks');
+      if (!response.ok) throw new Error('Failed to fetch tasks');
+      return response.json();
+    },
+  });
+
+  // Create task mutation
+  const createTaskMutation = useMutation({
+    mutationFn: (newTask: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => 
+      apiRequest('/api/tasks', { method: 'POST', body: newTask }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+    },
+  });
+
+  // Update task mutation
+  const updateTaskMutation = useMutation({
+    mutationFn: ({ id, ...updates }: { id: string } & Partial<Task>) => 
+      apiRequest(`/api/tasks/${id}`, { method: 'PATCH', body: updates }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+    },
+  });
+
+  // Delete task mutation  
+  const deleteTaskMutation = useMutation({
+    mutationFn: (id: string) => 
+      apiRequest(`/api/tasks/${id}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+    },
+  });
+
+  // Placeholder for the old data - this will be removed when the API is working
+  const [_oldTasks] = useState<Task[]>([
     { 
       id: 'f1', 
       title: 'Core Application Structure', 
@@ -858,18 +897,16 @@ export default function PlanPage() {
 
   const handleSaveTask = (taskData: Omit<Task, 'id'>) => {
     if (editingTask) {
-      // Update existing task
-      setTasks(tasks.map(task =>
-        task.id === editingTask.id ? { ...taskData, id: editingTask.id } : task
-      ));
+      // Update existing task using API
+      updateTaskMutation.mutate({ 
+        id: editingTask.id, 
+        ...taskData 
+      });
     } else {
-      // Create new task
-      const newTask: Task = {
-        ...taskData,
-        id: `task-${Date.now()}`
-      };
-      setTasks([...tasks, newTask]);
+      // Create new task using API
+      createTaskMutation.mutate(taskData);
     }
+    handleCloseDialog();
   };
 
   // Drag and Drop Sensors

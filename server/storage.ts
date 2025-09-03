@@ -11,6 +11,9 @@ import {
   type InsertTask
 } from "@shared/schema";
 import { randomUUID } from "crypto";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
+import * as schema from "@shared/schema";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -408,4 +411,234 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage implements IStorage {
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(schema.users).where(eq(schema.users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(schema.users).where(eq(schema.users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(userData: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(schema.users)
+      .values(userData)
+      .returning();
+    return user;
+  }
+
+  // Architecture Elements (stub implementations - using memory for now)
+  async getArchitectureElements(): Promise<ArchitectureElement[]> {
+    // For now, fallback to memory storage for these features
+    const memStorage = new MemStorage();
+    return memStorage.getArchitectureElements();
+  }
+
+  async getArchitectureElementsByCategory(category: string): Promise<ArchitectureElement[]> {
+    const memStorage = new MemStorage();
+    return memStorage.getArchitectureElementsByCategory(category);
+  }
+
+  async getArchitectureElementsByFramework(framework: string): Promise<ArchitectureElement[]> {
+    const memStorage = new MemStorage();
+    return memStorage.getArchitectureElementsByFramework(framework);
+  }
+
+  async createArchitectureElement(element: InsertArchitectureElement): Promise<ArchitectureElement> {
+    const memStorage = new MemStorage();
+    return memStorage.createArchitectureElement(element);
+  }
+
+  // Recent Elements (stub implementations)
+  async getRecentElementsByUser(userId: string): Promise<RecentElement[]> {
+    const memStorage = new MemStorage();
+    return memStorage.getRecentElementsByUser(userId);
+  }
+
+  async addRecentElement(recentElement: InsertRecentElement): Promise<RecentElement> {
+    const memStorage = new MemStorage();
+    return memStorage.addRecentElement(recentElement);
+  }
+
+  // Knowledge Base Pages - Using Database
+  async getAllKnowledgeBasePages(): Promise<KnowledgeBasePage[]> {
+    return await db.select().from(schema.knowledgeBasePages);
+  }
+
+  async getRootKnowledgeBasePages(): Promise<KnowledgeBasePage[]> {
+    return await db.select()
+      .from(schema.knowledgeBasePages)
+      .where(eq(schema.knowledgeBasePages.parentId, ''));
+  }
+
+  async getChildKnowledgeBasePages(parentId: string): Promise<KnowledgeBasePage[]> {
+    return await db.select()
+      .from(schema.knowledgeBasePages)
+      .where(eq(schema.knowledgeBasePages.parentId, parentId));
+  }
+
+  async getKnowledgeBasePage(id: string): Promise<KnowledgeBasePage | undefined> {
+    const [page] = await db.select()
+      .from(schema.knowledgeBasePages)
+      .where(eq(schema.knowledgeBasePages.id, id));
+    return page || undefined;
+  }
+
+  async getKnowledgeBasePagesByCategory(category: string): Promise<KnowledgeBasePage[]> {
+    return await db.select()
+      .from(schema.knowledgeBasePages)
+      .where(eq(schema.knowledgeBasePages.category, category));
+  }
+
+  async searchKnowledgeBasePages(query: string): Promise<KnowledgeBasePage[]> {
+    // Simple text search implementation
+    const allPages = await db.select().from(schema.knowledgeBasePages);
+    return allPages.filter(page => 
+      page.title.toLowerCase().includes(query.toLowerCase()) ||
+      page.content.toLowerCase().includes(query.toLowerCase())
+    );
+  }
+
+  async createKnowledgeBasePage(pageData: InsertKnowledgeBasePage): Promise<KnowledgeBasePage> {
+    const [page] = await db
+      .insert(schema.knowledgeBasePages)
+      .values(pageData)
+      .returning();
+    return page;
+  }
+
+  async updateKnowledgeBasePage(id: string, updates: Partial<KnowledgeBasePage>): Promise<KnowledgeBasePage | undefined> {
+    const [updatedPage] = await db
+      .update(schema.knowledgeBasePages)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(schema.knowledgeBasePages.id, id))
+      .returning();
+    return updatedPage || undefined;
+  }
+
+  async deleteKnowledgeBasePage(id: string): Promise<boolean> {
+    const result = await db
+      .delete(schema.knowledgeBasePages)
+      .where(eq(schema.knowledgeBasePages.id, id));
+    return result.rowCount > 0;
+  }
+
+  async getPageBreadcrumbs(id: string): Promise<{ id: string; title: string; path: string }[]> {
+    // Simple breadcrumb implementation
+    const page = await this.getKnowledgeBasePage(id);
+    if (!page) return [];
+    
+    const breadcrumbs = [{ id: page.id, title: page.title, path: `/knowledge-base/${page.id}` }];
+    
+    if (page.parentId) {
+      const parentBreadcrumbs = await this.getPageBreadcrumbs(page.parentId);
+      return [...parentBreadcrumbs, ...breadcrumbs];
+    }
+    
+    return breadcrumbs;
+  }
+
+  async moveKnowledgeBasePage(id: string, newParentId: string | null, newOrder?: number): Promise<boolean> {
+    const updateData: Partial<KnowledgeBasePage> = {
+      parentId: newParentId || '',
+      updatedAt: new Date()
+    };
+    
+    if (newOrder !== undefined) {
+      updateData.order = newOrder;
+    }
+    
+    const [updatedPage] = await db
+      .update(schema.knowledgeBasePages)
+      .set(updateData)
+      .where(eq(schema.knowledgeBasePages.id, id))
+      .returning();
+    
+    return !!updatedPage;
+  }
+
+  // Tasks - Using Database
+  async getAllTasks(): Promise<Task[]> {
+    const tasks = await db.select().from(schema.tasks);
+    return tasks.map(task => ({
+      ...task,
+      completed: Boolean(task.completed),
+      abilities: Array.isArray(task.abilities) ? task.abilities : []
+    }));
+  }
+
+  async getTask(id: string): Promise<Task | undefined> {
+    const [task] = await db.select()
+      .from(schema.tasks)
+      .where(eq(schema.tasks.id, id));
+    
+    if (!task) return undefined;
+    
+    return {
+      ...task,
+      completed: Boolean(task.completed),
+      abilities: Array.isArray(task.abilities) ? task.abilities : []
+    };
+  }
+
+  async createTask(taskData: InsertTask): Promise<Task> {
+    const [task] = await db
+      .insert(schema.tasks)
+      .values({
+        ...taskData,
+        completed: taskData.completed ? 1 : 0,
+        abilities: JSON.stringify(taskData.abilities || []),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+    
+    return {
+      ...task,
+      completed: Boolean(task.completed),
+      abilities: Array.isArray(task.abilities) ? task.abilities : []
+    };
+  }
+
+  async updateTask(id: string, updates: Partial<Task>): Promise<Task | undefined> {
+    const updateData: any = {
+      ...updates,
+      updatedAt: new Date()
+    };
+    
+    if (updates.completed !== undefined) {
+      updateData.completed = updates.completed ? 1 : 0;
+      updateData.completedAt = updates.completed ? new Date() : null;
+    }
+    
+    if (updates.abilities !== undefined) {
+      updateData.abilities = JSON.stringify(updates.abilities);
+    }
+
+    const [updatedTask] = await db
+      .update(schema.tasks)
+      .set(updateData)
+      .where(eq(schema.tasks.id, id))
+      .returning();
+    
+    if (!updatedTask) return undefined;
+    
+    return {
+      ...updatedTask,
+      completed: Boolean(updatedTask.completed),
+      abilities: Array.isArray(updatedTask.abilities) ? updatedTask.abilities : []
+    };
+  }
+
+  async deleteTask(id: string): Promise<boolean> {
+    const result = await db
+      .delete(schema.tasks)
+      .where(eq(schema.tasks.id, id));
+    return result.rowCount > 0;
+  }
+}
+
+export const storage = new DatabaseStorage();
