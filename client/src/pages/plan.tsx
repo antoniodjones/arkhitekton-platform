@@ -15,7 +15,9 @@ import {
   Clock, 
   GripVertical,
   Edit,
-  ArrowLeft
+  ArrowLeft,
+  Archive,
+  Trash2
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { 
@@ -185,7 +187,17 @@ function TaskDialog({
 }
 
 // Draggable Task Card Component
-function TaskCard({ task, onEdit }: { task: Task; onEdit: (task: Task) => void }) {
+function TaskCard({ 
+  task, 
+  onEdit, 
+  onArchive, 
+  onDelete 
+}: { 
+  task: Task; 
+  onEdit: (task: Task) => void;
+  onArchive: (task: Task) => void;
+  onDelete: (task: Task) => void;
+}) {
   const {
     attributes,
     listeners,
@@ -258,6 +270,32 @@ function TaskCard({ task, onEdit }: { task: Task; onEdit: (task: Task) => void }
           >
             <Edit className="w-3 h-3" />
           </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              onArchive(task);
+            }}
+            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+            data-testid={`archive-task-${task.id}`}
+          >
+            <Archive className="w-3 h-3" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              onDelete(task);
+            }}
+            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
+            data-testid={`delete-task-${task.id}`}
+          >
+            <Trash2 className="w-3 h-3" />
+          </Button>
         </div>
       </div>
       
@@ -286,7 +324,9 @@ function TaskColumn({
   icon: Icon, 
   iconColor, 
   tasks, 
-  onEdit 
+  onEdit,
+  onArchive,
+  onDelete
 }: { 
   id: string;
   title: string;
@@ -294,6 +334,8 @@ function TaskColumn({
   iconColor: string;
   tasks: Task[];
   onEdit: (task: Task) => void;
+  onArchive: (task: Task) => void;
+  onDelete: (task: Task) => void;
 }) {
   const { isOver, setNodeRef } = useDroppable({ id });
 
@@ -318,7 +360,7 @@ function TaskColumn({
       >
         <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
           {tasks.map(task => (
-            <TaskCard key={task.id} task={task} onEdit={onEdit} />
+            <TaskCard key={task.id} task={task} onEdit={onEdit} onArchive={onArchive} onDelete={onDelete} />
           ))}
         </SortableContext>
         {tasks.length === 0 && (
@@ -385,6 +427,19 @@ export default function PlanPage() {
     },
   });
 
+  const deleteTaskMutation = useMutation({
+    mutationFn: async (taskId: string) => {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete task');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+    },
+  });
+
   // Drag and drop setup
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -428,6 +483,22 @@ export default function PlanPage() {
     setEditingTask(task);
     setIsDialogOpen(true);
     console.log('✅ Dialog should be open now');
+  };
+
+  const handleArchiveTask = (task: Task) => {
+    // For now, we'll update the status to 'completed' as an archive simulation
+    updateTaskMutation.mutate({
+      id: task.id,
+      status: 'completed',
+      completed: 1
+    });
+  };
+
+  const handleDeleteTask = (task: Task) => {
+    // Add confirmation before deleting
+    if (window.confirm(`Are you sure you want to delete "${task.title}"? This action cannot be undone.`)) {
+      deleteTaskMutation.mutate(task.id);
+    }
   };
 
   const handleSaveTask = (taskData: Omit<Task, 'id'>) => {
@@ -498,6 +569,8 @@ export default function PlanPage() {
             iconColor="text-gray-400"
             tasks={getTasksByStatus('todo')}
             onEdit={handleEditTask}
+            onArchive={handleArchiveTask}
+            onDelete={handleDeleteTask}
           />
           
           <TaskColumn
@@ -507,6 +580,8 @@ export default function PlanPage() {
             iconColor="text-blue-500"
             tasks={getTasksByStatus('in-progress')}
             onEdit={handleEditTask}
+            onArchive={handleArchiveTask}
+            onDelete={handleDeleteTask}
           />
           
           <TaskColumn
@@ -516,6 +591,8 @@ export default function PlanPage() {
             iconColor="text-green-500"
             tasks={getTasksByStatus('completed')}
             onEdit={handleEditTask}
+            onArchive={handleArchiveTask}
+            onDelete={handleDeleteTask}
           />
         </div>
 
@@ -524,7 +601,9 @@ export default function PlanPage() {
             <div className="opacity-95 rotate-3 scale-105">
               <TaskCard 
                 task={tasks.find((t: Task) => t.id === activeId)!} 
-                onEdit={handleEditTask} 
+                onEdit={handleEditTask}
+                onArchive={handleArchiveTask}
+                onDelete={handleDeleteTask}
               />
             </div>
           ) : null}
