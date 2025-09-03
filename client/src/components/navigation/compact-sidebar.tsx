@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'wouter';
+import { useState, useRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,7 +24,8 @@ import {
   Ticket,
   Shapes,
   Wrench,
-  GitBranch
+  GitBranch,
+  GripVertical
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -150,6 +152,35 @@ const bottomItems: NavigationItem[] = [
 
 export function CompactSidebar() {
   const [location] = useLocation();
+  const [sidebarWidth, setSidebarWidth] = useState(48); // Start at 48px (3rem)
+  const [isResizing, setIsResizing] = useState(false);
+  const sidebarRef = useRef<HTMLElement>(null);
+  
+  const minWidth = 48; // 3rem minimum
+  const maxWidth = 320; // 20rem maximum
+  
+  const startResize = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      if (sidebarRef.current) {
+        const newWidth = Math.min(Math.max(e.clientX, minWidth), maxWidth);
+        setSidebarWidth(newWidth);
+      }
+    };
+    
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  }, []);
+  
+  const showLabels = sidebarWidth > 80; // Show labels when width > 80px
 
   const isActiveRoute = (href: string) => {
     if (href === '/') {
@@ -159,104 +190,151 @@ export function CompactSidebar() {
   };
 
   return (
-    <aside className="h-screen w-12 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-r border-slate-200/50 dark:border-slate-700/50 flex flex-col shadow-xl">
-      {/* Compact Header - Icon Only */}
-      <div className="flex h-10 items-center justify-center border-b border-slate-200/50 dark:border-slate-700/50 p-1">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 cursor-pointer">
-                <span className="text-xs font-bold text-white">A</span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="right" className="bg-slate-900 dark:bg-slate-50">
-              <div className="text-xs">
-                <p className="font-semibold text-white dark:text-slate-900">ARKHITEKTON</p>
-                <p className="text-slate-300 dark:text-slate-600">Enterprise Architecture</p>
-              </div>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-
-      {/* Compact Navigation - Icons Only */}
-      <div className="flex-1 p-1 space-y-1 overflow-y-auto">
-        <TooltipProvider>
-          {navigationItems.map((item) => {
-            const isActive = isActiveRoute(item.href);
-            
-            return (
-              <Tooltip key={item.id}>
-                <TooltipTrigger asChild>
-                  <Link href={item.href}>
-                    <Button
-                      variant={isActive ? 'default' : 'ghost'}
-                      size="sm"
-                      className={cn(
-                        'w-10 h-10 p-0 relative',
-                        isActive
-                          ? 'bg-orange-600 text-white hover:bg-orange-700 shadow-lg shadow-orange-500/25'
-                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100'
-                      )}
-                    >
-                      <item.icon className="h-4 w-4" />
-                      {item.badge && (
-                        <Badge 
-                          variant="secondary" 
-                          className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center min-w-4 bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300"
-                        >
-                          {item.badge}
-                        </Badge>
-                      )}
-                    </Button>
-                  </Link>
-                </TooltipTrigger>
+    <aside 
+      ref={sidebarRef}
+      className="h-screen bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-r border-slate-200/50 dark:border-slate-700/50 flex shadow-xl relative"
+      style={{ width: `${sidebarWidth}px` }}
+    >
+      {/* Main sidebar content */}
+      <div className="flex flex-col flex-1">
+        {/* Header */}
+        <div className={cn(
+          "flex h-10 items-center border-b border-slate-200/50 dark:border-slate-700/50 p-1",
+          showLabels ? "justify-start px-3" : "justify-center"
+        )}>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center cursor-pointer">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 flex-shrink-0">
+                    <span className="text-xs font-bold text-white">A</span>
+                  </div>
+                  {showLabels && (
+                    <div className="ml-2 overflow-hidden">
+                      <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">ARKHITEKTON</p>
+                    </div>
+                  )}
+                </div>
+              </TooltipTrigger>
+              {!showLabels && (
                 <TooltipContent side="right" className="bg-slate-900 dark:bg-slate-50">
                   <div className="text-xs">
-                    <p className="font-medium text-white dark:text-slate-900">{item.label}</p>
-                    <p className="text-slate-300 dark:text-slate-600">{item.description}</p>
+                    <p className="font-semibold text-white dark:text-slate-900">ARKHITEKTON</p>
+                    <p className="text-slate-300 dark:text-slate-600">Enterprise Architecture</p>
                   </div>
                 </TooltipContent>
-              </Tooltip>
-            );
-          })}
-        </TooltipProvider>
-      </div>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+        </div>
 
-      {/* Bottom Navigation */}
-      <div className="border-t border-slate-200/50 dark:border-slate-700/50 p-1 space-y-1">
-        <TooltipProvider>
-          {bottomItems.map((item) => {
-            const isActive = isActiveRoute(item.href);
-            
-            return (
-              <Tooltip key={item.id}>
-                <TooltipTrigger asChild>
-                  <Link href={item.href}>
-                    <Button
-                      variant={isActive ? 'default' : 'ghost'}
-                      size="sm"
-                      className={cn(
-                        'w-10 h-10 p-0',
-                        isActive
-                          ? 'bg-orange-600 text-white hover:bg-orange-700 shadow-lg shadow-orange-500/25'
-                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100'
-                      )}
-                    >
-                      <item.icon className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right" className="bg-slate-900 dark:bg-slate-50">
-                  <div className="text-xs">
-                    <p className="font-medium text-white dark:text-slate-900">{item.label}</p>
-                    <p className="text-slate-300 dark:text-slate-600">{item.description}</p>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            );
-          })}
-        </TooltipProvider>
+        {/* Navigation */}
+        <div className="flex-1 p-1 space-y-1 overflow-y-auto">
+          <TooltipProvider>
+            {navigationItems.map((item) => {
+              const isActive = isActiveRoute(item.href);
+              
+              return (
+                <Tooltip key={item.id}>
+                  <TooltipTrigger asChild>
+                    <Link href={item.href}>
+                      <Button
+                        variant={isActive ? 'default' : 'ghost'}
+                        size="sm"
+                        className={cn(
+                          'relative flex items-center justify-start gap-2 h-10 p-0',
+                          showLabels ? 'w-full px-2' : 'w-10',
+                          isActive
+                            ? 'bg-orange-600 text-white hover:bg-orange-700 shadow-lg shadow-orange-500/25'
+                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100'
+                        )}
+                      >
+                        <item.icon className="h-4 w-4 flex-shrink-0" />
+                        {showLabels && (
+                          <span className="text-sm truncate">{item.label}</span>
+                        )}
+                        {item.badge && (
+                          <Badge 
+                            variant="secondary" 
+                            className={cn(
+                              "h-4 w-4 p-0 text-xs flex items-center justify-center min-w-4 bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+                              showLabels ? "ml-auto" : "absolute -top-1 -right-1"
+                            )}
+                          >
+                            {item.badge}
+                          </Badge>
+                        )}
+                      </Button>
+                    </Link>
+                  </TooltipTrigger>
+                  {!showLabels && (
+                    <TooltipContent side="right" className="bg-slate-900 dark:bg-slate-50">
+                      <div className="text-xs">
+                        <p className="font-medium text-white dark:text-slate-900">{item.label}</p>
+                        <p className="text-slate-300 dark:text-slate-600">{item.description}</p>
+                      </div>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              );
+            })}
+          </TooltipProvider>
+        </div>
+
+        {/* Bottom Navigation */}
+        <div className="border-t border-slate-200/50 dark:border-slate-700/50 p-1 space-y-1">
+          <TooltipProvider>
+            {bottomItems.map((item) => {
+              const isActive = isActiveRoute(item.href);
+              
+              return (
+                <Tooltip key={item.id}>
+                  <TooltipTrigger asChild>
+                    <Link href={item.href}>
+                      <Button
+                        variant={isActive ? 'default' : 'ghost'}
+                        size="sm"
+                        className={cn(
+                          'flex items-center justify-start gap-2 h-10 p-0',
+                          showLabels ? 'w-full px-2' : 'w-10',
+                          isActive
+                            ? 'bg-orange-600 text-white hover:bg-orange-700 shadow-lg shadow-orange-500/25'
+                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100'
+                        )}
+                      >
+                        <item.icon className="h-4 w-4 flex-shrink-0" />
+                        {showLabels && (
+                          <span className="text-sm truncate">{item.label}</span>
+                        )}
+                      </Button>
+                    </Link>
+                  </TooltipTrigger>
+                  {!showLabels && (
+                    <TooltipContent side="right" className="bg-slate-900 dark:bg-slate-50">
+                      <div className="text-xs">
+                        <p className="font-medium text-white dark:text-slate-900">{item.label}</p>
+                        <p className="text-slate-300 dark:text-slate-600">{item.description}</p>
+                      </div>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              );
+            })}
+          </TooltipProvider>
+        </div>
+      </div>
+      
+      {/* Resize Handle */}
+      <div 
+        className={cn(
+          "absolute top-0 right-0 w-1 h-full cursor-col-resize bg-transparent hover:bg-orange-400/50 transition-colors group",
+          isResizing && "bg-orange-400/50"
+        )}
+        onMouseDown={startResize}
+      >
+        <div className="absolute top-1/2 -translate-y-1/2 right-0 w-3 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <GripVertical className="h-4 w-4 text-slate-400" />
+        </div>
       </div>
     </aside>
   );
