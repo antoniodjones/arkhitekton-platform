@@ -6,6 +6,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Target, 
@@ -31,7 +34,10 @@ import {
   BarChart3,
   Calendar,
   Table,
-  Columns3
+  Columns3,
+  Edit,
+  MessageSquare,
+  Send
 } from 'lucide-react';
 import { Link } from 'wouter';
 import {
@@ -58,6 +64,13 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
+interface TaskComment {
+  id: string;
+  text: string;
+  timestamp: Date;
+  author: string;
+}
+
 interface Task {
   id: string;
   title: string;
@@ -71,6 +84,237 @@ interface Task {
   createdAt?: Date;
   updatedAt?: Date;
   completedAt?: Date;
+  comments?: TaskComment[];
+}
+
+// Task Dialog Component for Add/Edit
+function TaskDialog({ 
+  task, 
+  isOpen, 
+  onClose, 
+  onSave 
+}: { 
+  task?: Task; 
+  isOpen: boolean; 
+  onClose: () => void; 
+  onSave: (task: Omit<Task, 'id'>) => void; 
+}) {
+  const [formData, setFormData] = useState({
+    title: task?.title || '',
+    description: task?.description || '',
+    category: task?.category || 'foundation' as Task['category'],
+    priority: task?.priority || 'medium' as Task['priority'],
+    status: task?.status || 'todo' as Task['status'],
+    dueDate: task?.dueDate || '',
+    assignee: task?.assignee || ''
+  });
+  const [newComment, setNewComment] = useState('');
+  const [comments, setComments] = useState<TaskComment[]>(task?.comments || []);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (formData.title.trim()) {
+      onSave({
+        ...formData,
+        completed: formData.status === 'completed',
+        createdAt: task?.createdAt || new Date(),
+        updatedAt: new Date(),
+        completedAt: formData.status === 'completed' ? new Date() : undefined,
+        comments: comments
+      });
+      onClose();
+    }
+  };
+
+  const handleAddComment = () => {
+    if (newComment.trim()) {
+      const comment: TaskComment = {
+        id: `comment-${Date.now()}`,
+        text: newComment.trim(),
+        timestamp: new Date(),
+        author: 'Current User'
+      };
+      setComments([...comments, comment]);
+      setNewComment('');
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle data-testid="task-dialog-title">
+            {task ? 'Edit Task' : 'Create New Task'}
+          </DialogTitle>
+        </DialogHeader>
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Title */}
+          <div>
+            <Label htmlFor="title">Title *</Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              placeholder="Enter task title..."
+              required
+              data-testid="input-task-title"
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Enter task description..."
+              className="min-h-[100px]"
+              data-testid="textarea-task-description"
+            />
+          </div>
+
+          {/* Category and Priority Row */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="category">Category</Label>
+              <Select value={formData.category} onValueChange={(value: Task['category']) => setFormData({ ...formData, category: value })}>
+                <SelectTrigger data-testid="select-task-category">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="foundation">Foundation</SelectItem>
+                  <SelectItem value="knowledge-base">Knowledge Base</SelectItem>
+                  <SelectItem value="modeling">Modeling</SelectItem>
+                  <SelectItem value="ai">AI Intelligence</SelectItem>
+                  <SelectItem value="integration">Integration</SelectItem>
+                  <SelectItem value="ux">UX Excellence</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="priority">Priority</Label>
+              <Select value={formData.priority} onValueChange={(value: Task['priority']) => setFormData({ ...formData, priority: value })}>
+                <SelectTrigger data-testid="select-task-priority">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Status and Due Date Row */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="status">Status</Label>
+              <Select value={formData.status} onValueChange={(value: Task['status']) => setFormData({ ...formData, status: value })}>
+                <SelectTrigger data-testid="select-task-status">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todo">To Do</SelectItem>
+                  <SelectItem value="in-progress">In Progress</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="dueDate">Due Date</Label>
+              <Input
+                id="dueDate"
+                type="date"
+                value={formData.dueDate}
+                onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+                data-testid="input-task-due-date"
+              />
+            </div>
+          </div>
+
+          {/* Assignee */}
+          <div>
+            <Label htmlFor="assignee">Assignee</Label>
+            <Input
+              id="assignee"
+              value={formData.assignee}
+              onChange={(e) => setFormData({ ...formData, assignee: e.target.value })}
+              placeholder="Enter assignee name..."
+              data-testid="input-task-assignee"
+            />
+          </div>
+
+          {/* Comments Section */}
+          <div className="border-t pt-6">
+            <div className="flex items-center gap-2 mb-4">
+              <MessageSquare className="w-4 h-4" />
+              <Label className="text-base font-medium">Comments & Updates</Label>
+            </div>
+            
+            {/* Existing Comments */}
+            <div className="space-y-3 mb-4">
+              {comments.map((comment) => (
+                <div key={comment.id} className="bg-muted/50 p-3 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-medium text-sm">{comment.author}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {comment.timestamp.toLocaleDateString()} {comment.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <p className="text-sm">{comment.text}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Add New Comment */}
+            <div className="flex gap-2">
+              <Textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Add a comment or update..."
+                className="flex-1"
+                rows={2}
+                data-testid="textarea-new-comment"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAddComment}
+                disabled={!newComment.trim()}
+                data-testid="button-add-comment"
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Form Actions */}
+          <div className="flex justify-end gap-2 border-t pt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              data-testid="button-cancel-task"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              data-testid="button-save-task"
+            >
+              {task ? 'Update Task' : 'Create Task'}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 // Draggable Task Card Component
@@ -79,13 +323,15 @@ function DraggableTaskCard({
   getCategoryBadgeColor, 
   getPriorityColor, 
   toggleTask, 
-  updateTaskStatus 
+  updateTaskStatus,
+  onEditTask
 }: {
   task: Task;
   getCategoryBadgeColor: (category: Task['category']) => string;
   getPriorityColor: (priority: Task['priority']) => string;
   toggleTask: (taskId: string) => void;
   updateTaskStatus: (taskId: string, newStatus: Task['status']) => void;
+  onEditTask: (task: Task) => void;
 }) {
   const {
     attributes,
@@ -170,6 +416,18 @@ function DraggableTaskCard({
               <CheckCircle2 className="w-3 h-3" />
             </Button>
           )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEditTask(task);
+            }}
+            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+            data-testid={`edit-task-${task.id}`}
+          >
+            <Edit className="w-3 h-3" />
+          </Button>
         </div>
       </div>
       <p className={`text-xs text-muted-foreground mb-3 line-clamp-2 ${
@@ -221,7 +479,8 @@ function DroppableColumn({
   getCategoryBadgeColor,
   getPriorityColor,
   toggleTask,
-  updateTaskStatus 
+  updateTaskStatus,
+  onEditTask
 }: {
   id: string;
   title: string;
@@ -232,6 +491,7 @@ function DroppableColumn({
   getPriorityColor: (priority: Task['priority']) => string;
   toggleTask: (taskId: string) => void;
   updateTaskStatus: (taskId: string, newStatus: Task['status']) => void;
+  onEditTask: (task: Task) => void;
 }) {
   const { isOver, setNodeRef } = useDroppable({
     id,
@@ -265,6 +525,7 @@ function DroppableColumn({
               getPriorityColor={getPriorityColor}
               toggleTask={toggleTask}
               updateTaskStatus={updateTaskStatus}
+              onEditTask={onEditTask}
             />
           ))}
         </SortableContext>
@@ -552,6 +813,10 @@ export default function PlanPage() {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<Task['category'] | 'all'>('all');
+  
+  // Dialog state for task creation/editing
+  const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
 
   // Drag and Drop Sensors
   const sensors = useSensors(
@@ -691,6 +956,38 @@ export default function PlanPage() {
     ));
   };
 
+  // Task dialog handlers
+  const handleCreateTask = () => {
+    setEditingTask(undefined);
+    setIsTaskDialogOpen(true);
+  };
+
+  const handleEditTask = (task: Task) => {
+    setEditingTask(task);
+    setIsTaskDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsTaskDialogOpen(false);
+    setEditingTask(undefined);
+  };
+
+  const handleSaveTask = (taskData: Omit<Task, 'id'>) => {
+    if (editingTask) {
+      // Update existing task
+      setTasks(tasks.map(task =>
+        task.id === editingTask.id ? { ...taskData, id: editingTask.id } : task
+      ));
+    } else {
+      // Create new task
+      const newTask: Task = {
+        ...taskData,
+        id: `task-${Date.now()}`
+      };
+      setTasks([...tasks, newTask]);
+    }
+  };
+
   const getCompletionStats = () => {
     const total = tasks.length;
     const completed = tasks.filter(t => t.completed).length;
@@ -810,16 +1107,22 @@ export default function PlanPage() {
             </Button>
           </Link>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 text-white">
-            <Target className="w-6 h-6" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 text-white">
+              <Target className="w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">ARKHITEKTON Development Plan</h1>
+              <p className="text-muted-foreground mt-1">
+                Building the ultimate enterprise architecture platform - advanced, elegant, and simple
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">ARKHITEKTON Development Plan</h1>
-            <p className="text-muted-foreground mt-1">
-              Building the ultimate enterprise architecture platform - advanced, elegant, and simple
-            </p>
-          </div>
+          <Button onClick={handleCreateTask} className="flex items-center gap-2" data-testid="button-new-task">
+            <Plus className="w-4 h-4" />
+            New Task
+          </Button>
         </div>
         
         {/* Vision Statement */}
@@ -994,6 +1297,7 @@ export default function PlanPage() {
                 getPriorityColor={getPriorityColor}
                 toggleTask={toggleTask}
                 updateTaskStatus={updateTaskStatus}
+                onEditTask={handleEditTask}
               />
             </div>
 
@@ -1008,6 +1312,7 @@ export default function PlanPage() {
                 getPriorityColor={getPriorityColor}
                 toggleTask={toggleTask}
                 updateTaskStatus={updateTaskStatus}
+                onEditTask={handleEditTask}
               />
             </div>
 
@@ -1022,6 +1327,7 @@ export default function PlanPage() {
                 getPriorityColor={getPriorityColor}
                 toggleTask={toggleTask}
                 updateTaskStatus={updateTaskStatus}
+                onEditTask={handleEditTask}
               />
             </div>
           </div>
@@ -1035,6 +1341,7 @@ export default function PlanPage() {
                   getPriorityColor={getPriorityColor}
                   toggleTask={toggleTask}
                   updateTaskStatus={updateTaskStatus}
+                  onEditTask={onEditTask}
                 />
               </div>
             ) : null}
@@ -1263,6 +1570,14 @@ export default function PlanPage() {
           </CardContent>
         </Card>
       )}
+      
+      {/* Task Dialog */}
+      <TaskDialog 
+        task={editingTask}
+        isOpen={isTaskDialogOpen}
+        onClose={handleCloseDialog}
+        onSave={handleSaveTask}
+      />
     </div>
   );
 }
