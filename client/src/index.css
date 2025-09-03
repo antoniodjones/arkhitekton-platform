@@ -421,21 +421,21 @@ h4 {
 
 /* Tooltip z-index fix - ensure tooltips always appear on top */
 [data-radix-popper-content-wrapper] {
-  z-index: 9999 !important;
+  z-index: 999999 !important;
 }
 
 [role="tooltip"] {
-  z-index: 9999 !important;
+  z-index: 999999 !important;
 }
 
 /* Additional tooltip positioning fixes */
 .tooltip-content {
-  z-index: 9999 !important;
+  z-index: 999999 !important;
   position: relative;
 }
 
 /* Ensure sidebar tooltips appear above all content */
 aside [role="tooltip"],
 aside [data-radix-popper-content-wrapper] {
-  z-index: 10000 !important;
+  z-index: 1000000 !important;
 }
