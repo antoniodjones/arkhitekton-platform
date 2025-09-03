@@ -50,7 +50,7 @@ interface Task {
   assignee?: string | null;
   dueDate?: string | null;
   abilities?: string[] | null;
-  completed: boolean;
+  completed: number; // 0 = false, 1 = true (matches database schema)
   createdAt?: Date | null;
   updatedAt?: Date | null;
   completedAt?: Date | null;
@@ -83,7 +83,7 @@ function TaskDialog({
       priority,
       category,
       status,
-      completed: status === 'completed',
+      completed: status === 'completed' ? 1 : 0, // Convert boolean to integer for schema
       abilities: [],
       assignee: null,
       dueDate: null,
@@ -332,6 +332,7 @@ function TaskColumn({
 }
 
 // Main Plan Page Component
+// Cache busting - v2.0 - Force browser reload
 export default function PlanPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -410,7 +411,7 @@ export default function PlanPage() {
       updateTaskMutation.mutate({
         id: activeTask.id,
         status: newStatus,
-        completed: newStatus === 'completed'
+        completed: newStatus === 'completed' ? 1 : 0
       });
     }
   };
