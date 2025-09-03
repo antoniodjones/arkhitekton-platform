@@ -89,7 +89,9 @@ export function PageEditor({
         const response = await apiRequest('POST', '/api/knowledge-base/pages', pageData as InsertKnowledgeBasePage);
         const newPage = await response.json();
         setPageCreated(true);
-        queryClient.invalidateQueries({ queryKey: ['/api/knowledge-base/pages'] });
+        // Force immediate cache refresh
+        await queryClient.invalidateQueries({ queryKey: ['/api/knowledge-base/pages'] });
+        queryClient.refetchQueries({ queryKey: ['/api/knowledge-base/pages'] });
         // Don't call onSave for auto-save - only for manual save
         console.log('Auto-saved new page:', newPage.id);
       }
