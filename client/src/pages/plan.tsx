@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Target, 
   CheckCircle2, 
@@ -17,7 +19,13 @@ import {
   Rocket,
   Zap,
   ArrowLeft,
-  BookOpen
+  BookOpen,
+  Search,
+  Filter,
+  Plus,
+  Clock,
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react';
 import { Link } from 'wouter';
 
@@ -28,6 +36,9 @@ interface Task {
   completed: boolean;
   priority: 'high' | 'medium' | 'low';
   category: 'foundation' | 'knowledge-base' | 'ai' | 'modeling' | 'integration' | 'ux';
+  status: 'todo' | 'in-progress' | 'completed';
+  assignee?: string;
+  dueDate?: string;
 }
 
 export default function PlanPage() {
@@ -39,7 +50,8 @@ export default function PlanPage() {
       description: 'React/TypeScript foundation with modern tooling',
       completed: true, 
       priority: 'high', 
-      category: 'foundation' 
+      category: 'foundation',
+      status: 'completed'
     },
     { 
       id: 'f2', 
@@ -47,7 +59,8 @@ export default function PlanPage() {
       description: 'Warm orange architectural palette throughout UI',
       completed: true, 
       priority: 'high', 
-      category: 'foundation' 
+      category: 'foundation',
+      status: 'completed'
     },
     { 
       id: 'f3', 
@@ -55,7 +68,8 @@ export default function PlanPage() {
       description: 'Responsive sidebar navigation and dashboard layout',
       completed: true, 
       priority: 'high', 
-      category: 'foundation' 
+      category: 'foundation',
+      status: 'completed'
     },
     { 
       id: 'f4', 
@@ -63,7 +77,8 @@ export default function PlanPage() {
       description: 'Light/Dark/Auto mode switcher with system detection',
       completed: true, 
       priority: 'medium', 
-      category: 'foundation' 
+      category: 'foundation',
+      status: 'completed'
     },
     { 
       id: 'f5', 
@@ -71,7 +86,8 @@ export default function PlanPage() {
       description: 'Ticket system with JIRA-like functionality',
       completed: true, 
       priority: 'medium', 
-      category: 'foundation' 
+      category: 'foundation',
+      status: 'completed'
     },
     { 
       id: 'f6', 
@@ -79,7 +95,8 @@ export default function PlanPage() {
       description: 'Choose final ARKHITEKTON visual identity',
       completed: false, 
       priority: 'medium', 
-      category: 'foundation' 
+      category: 'foundation',
+      status: 'todo'
     },
     { 
       id: 'f7', 
@@ -87,7 +104,8 @@ export default function PlanPage() {
       description: 'Implement geometric font system matching design vision',
       completed: false, 
       priority: 'low', 
-      category: 'foundation' 
+      category: 'foundation',
+      status: 'todo'
     },
     
     // Knowledge Base Platform - Enterprise Documentation System
@@ -97,7 +115,8 @@ export default function PlanPage() {
       description: 'Create foundation with nested page organization, drag-and-drop reorganization, and smart breadcrumb navigation system',
       completed: true,
       priority: 'high',
-      category: 'knowledge-base'
+      category: 'knowledge-base',
+      status: 'completed'
     },
     {
       id: 'kb2',
@@ -105,7 +124,8 @@ export default function PlanPage() {
       description: 'Build powerful editor with architecture-specific content blocks, code snippets, diagrams, tables, and advanced formatting',
       completed: false,
       priority: 'high',
-      category: 'knowledge-base'
+      category: 'knowledge-base',
+      status: 'in-progress'
     },
     {
       id: 'kb3',
@@ -113,7 +133,8 @@ export default function PlanPage() {
       description: 'Design template collection for ADRs, Implementation Guides, Best Practices, Project Showcases, and technical documentation',
       completed: false,
       priority: 'high',
-      category: 'knowledge-base'
+      category: 'knowledge-base',
+      status: 'todo'
     },
     {
       id: 'kb4',
@@ -121,7 +142,8 @@ export default function PlanPage() {
       description: 'Implement intelligent search across all documentation with filters, tags, content recommendations, and semantic search',
       completed: false,
       priority: 'medium',
-      category: 'knowledge-base'
+      category: 'knowledge-base',
+      status: 'todo'
     },
     {
       id: 'kb5',
@@ -129,7 +151,8 @@ export default function PlanPage() {
       description: 'Add commenting system, reviews, version history, change tracking, and approval workflows for enterprise collaboration',
       completed: false,
       priority: 'medium',
-      category: 'knowledge-base'
+      category: 'knowledge-base',
+      status: 'todo'
     },
     {
       id: 'kb6',
@@ -137,7 +160,8 @@ export default function PlanPage() {
       description: 'Connect documentation to live architecture diagrams, embed models, sync design changes, and create living documentation',
       completed: false,
       priority: 'medium',
-      category: 'knowledge-base'
+      category: 'knowledge-base',
+      status: 'todo'
     },
     
     // Core Modeling Engine
@@ -147,7 +171,8 @@ export default function PlanPage() {
       description: 'Infinite canvas with smooth zooming/panning',
       completed: false, 
       priority: 'high', 
-      category: 'modeling' 
+      category: 'modeling',
+      status: 'todo'
     },
     { 
       id: 'm2', 
@@ -155,7 +180,8 @@ export default function PlanPage() {
       description: 'AWS, Azure, GCP, Oracle Cloud architecture elements',
       completed: false, 
       priority: 'high', 
-      category: 'modeling' 
+      category: 'modeling',
+      status: 'todo'
     },
     { 
       id: 'm3', 
@@ -163,7 +189,8 @@ export default function PlanPage() {
       description: 'Intuitive drag-drop with magnetic snap-to-grid',
       completed: false, 
       priority: 'high', 
-      category: 'modeling' 
+      category: 'modeling',
+      status: 'todo'
     },
     { 
       id: 'm4', 
@@ -171,7 +198,8 @@ export default function PlanPage() {
       description: 'Intelligent connections between architectural components',
       completed: false, 
       priority: 'high', 
-      category: 'modeling' 
+      category: 'modeling',
+      status: 'todo'
     },
     
     // AI Intelligence Layer
@@ -181,7 +209,8 @@ export default function PlanPage() {
       description: 'AI-powered architecture suggestions and best practices',
       completed: false, 
       priority: 'high', 
-      category: 'ai' 
+      category: 'ai',
+      status: 'todo'
     },
     { 
       id: 'ai2', 
@@ -189,7 +218,8 @@ export default function PlanPage() {
       description: 'Automatic monitoring of architecture changes and impacts',
       completed: false, 
       priority: 'high', 
-      category: 'ai' 
+      category: 'ai',
+      status: 'todo'
     },
     { 
       id: 'ai3', 
@@ -197,7 +227,8 @@ export default function PlanPage() {
       description: 'AI detection of architectural patterns and anti-patterns',
       completed: false, 
       priority: 'medium', 
-      category: 'ai' 
+      category: 'ai',
+      status: 'todo'
     },
     { 
       id: 'ai4', 
@@ -205,7 +236,8 @@ export default function PlanPage() {
       description: 'Ask architecture questions in plain English',
       completed: false, 
       priority: 'medium', 
-      category: 'ai' 
+      category: 'ai',
+      status: 'todo'
     },
     
     // Integration Ecosystem
@@ -215,7 +247,8 @@ export default function PlanPage() {
       description: 'Jira, Confluence, Azure DevOps integration',
       completed: false, 
       priority: 'medium', 
-      category: 'integration' 
+      category: 'integration',
+      status: 'todo'
     },
     { 
       id: 'i2', 
@@ -223,7 +256,8 @@ export default function PlanPage() {
       description: 'VS Code, IntelliJ extensions for bi-directional sync',
       completed: false, 
       priority: 'medium', 
-      category: 'integration' 
+      category: 'integration',
+      status: 'todo'
     },
     { 
       id: 'i3', 
@@ -231,7 +265,8 @@ export default function PlanPage() {
       description: 'RESTful APIs for third-party integrations',
       completed: false, 
       priority: 'low', 
-      category: 'integration' 
+      category: 'integration',
+      status: 'todo'
     },
     
     // UX Excellence
@@ -241,7 +276,8 @@ export default function PlanPage() {
       description: 'Sub-100ms response times and 60fps animations',
       completed: false, 
       priority: 'high', 
-      category: 'ux' 
+      category: 'ux',
+      status: 'todo'
     },
     { 
       id: 'ux2', 
@@ -249,7 +285,8 @@ export default function PlanPage() {
       description: 'Multi-user editing with live cursors and presence',
       completed: false, 
       priority: 'high', 
-      category: 'ux' 
+      category: 'ux',
+      status: 'todo'
     },
     { 
       id: 'ux3', 
@@ -257,13 +294,35 @@ export default function PlanPage() {
       description: 'Global semantic search across all models',
       completed: false, 
       priority: 'medium', 
-      category: 'ux' 
+      category: 'ux',
+      status: 'todo'
     }
   ]);
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<Task['category'] | 'all'>('all');
+
   const toggleTask = (taskId: string) => {
+    setTasks(tasks.map(task => {
+      if (task.id === taskId) {
+        const newCompleted = !task.completed;
+        return { 
+          ...task, 
+          completed: newCompleted,
+          status: newCompleted ? 'completed' : 'todo'
+        };
+      }
+      return task;
+    }));
+  };
+
+  const updateTaskStatus = (taskId: string, newStatus: Task['status']) => {
     setTasks(tasks.map(task => 
-      task.id === taskId ? { ...task, completed: !task.completed } : task
+      task.id === taskId ? { 
+        ...task, 
+        status: newStatus,
+        completed: newStatus === 'completed'
+      } : task
     ));
   };
 
@@ -274,8 +333,20 @@ export default function PlanPage() {
     return { total, completed, percentage };
   };
 
-  const getTasksByCategory = (category: Task['category']) => {
-    return tasks.filter(task => task.category === category);
+  const getTasksByStatus = (status: Task['status']) => {
+    return getFilteredTasks().filter(task => task.status === status);
+  };
+
+  const getFilteredTasks = () => {
+    return tasks.filter(task => {
+      const matchesSearch = searchTerm === '' || 
+        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.description.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesCategory = selectedCategory === 'all' || task.category === selectedCategory;
+      
+      return matchesSearch && matchesCategory;
+    });
   };
 
   const getCategoryIcon = (category: Task['category']) => {
@@ -299,6 +370,42 @@ export default function PlanPage() {
       case 'integration': return 'bg-green-500';
       case 'ux': return 'bg-pink-500';
       default: return 'bg-gray-500';
+    }
+  };
+
+  const getCategoryBadgeColor = (category: Task['category']) => {
+    switch (category) {
+      case 'foundation': return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300';
+      case 'knowledge-base': return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300';
+      case 'ai': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
+      case 'modeling': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
+      case 'integration': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+      case 'ux': return 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300';
+    }
+  };
+
+  const getPriorityColor = (priority: Task['priority']) => {
+    switch (priority) {
+      case 'high': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
+      case 'low': return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300';
+    }
+  };
+
+  const getStatusIcon = (status: Task['status']) => {
+    switch (status) {
+      case 'todo': return Circle;
+      case 'in-progress': return Clock;
+      case 'completed': return CheckCircle2;
+    }
+  };
+
+  const getStatusColor = (status: Task['status']) => {
+    switch (status) {
+      case 'todo': return 'text-gray-400';
+      case 'in-progress': return 'text-blue-500';
+      case 'completed': return 'text-green-500';
     }
   };
 
@@ -371,101 +478,229 @@ export default function PlanPage() {
         </Card>
       </div>
 
-      {/* Task Categories */}
-      <Tabs defaultValue="foundation" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="foundation" className="flex items-center gap-2">
-            <Rocket className="w-4 h-4" />
-            Foundation
-          </TabsTrigger>
-          <TabsTrigger value="knowledge-base" className="flex items-center gap-2">
-            <BookOpen className="w-4 h-4" />
-            Knowledge Base
-          </TabsTrigger>
-          <TabsTrigger value="modeling" className="flex items-center gap-2">
-            <Palette className="w-4 h-4" />
-            Modeling
-          </TabsTrigger>
-          <TabsTrigger value="ai" className="flex items-center gap-2">
-            <Brain className="w-4 h-4" />
-            AI Intelligence
-          </TabsTrigger>
-          <TabsTrigger value="integration" className="flex items-center gap-2">
-            <Link2 className="w-4 h-4" />
-            Integration
-          </TabsTrigger>
-          <TabsTrigger value="ux" className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4" />
-            UX Excellence
-          </TabsTrigger>
-        </TabsList>
+      {/* Filters and Search */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input
+                  placeholder="Search tasks..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9"
+                  data-testid="search-tasks"
+                />
+              </div>
+            </div>
+            <div className="w-full sm:w-64">
+              <Select value={selectedCategory} onValueChange={(value: Task['category'] | 'all') => setSelectedCategory(value)}>
+                <SelectTrigger data-testid="filter-category">
+                  <Filter className="w-4 h-4 mr-2" />
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value="foundation">Foundation</SelectItem>
+                  <SelectItem value="knowledge-base">Knowledge Base</SelectItem>
+                  <SelectItem value="modeling">Modeling</SelectItem>
+                  <SelectItem value="ai">AI Intelligence</SelectItem>
+                  <SelectItem value="integration">Integration</SelectItem>
+                  <SelectItem value="ux">UX Excellence</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-        {(['foundation', 'knowledge-base', 'modeling', 'ai', 'integration', 'ux'] as const).map(category => {
-          const categoryTasks = getTasksByCategory(category);
-          const categoryCompleted = categoryTasks.filter(t => t.completed).length;
-          const categoryProgress = Math.round((categoryCompleted / categoryTasks.length) * 100);
-          
-          return (
-            <TabsContent key={category} value={category} className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-3 capitalize">
-                      {(() => {
-                        const IconComponent = getCategoryIcon(category);
-                        return <IconComponent className="w-5 h-5" />;
-                      })()}
-                      {category === 'ai' ? 'AI Intelligence Layer' : 
-                       category === 'ux' ? 'UX Excellence' : 
-                       category === 'knowledge-base' ? 'Knowledge Base Platform' :
-                       category.charAt(0).toUpperCase() + category.slice(1)} Phase
-                    </CardTitle>
-                    <Badge variant="outline">
-                      {categoryCompleted} / {categoryTasks.length} Complete
+      {/* Kanban Board */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-96">
+        {/* To Do Column */}
+        <Card className="flex flex-col">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Circle className="w-5 h-5 text-gray-400" />
+                To Do
+              </CardTitle>
+              <Badge variant="outline" className="text-sm">
+                {getTasksByStatus('todo').length}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="flex-1 space-y-3">
+            {getTasksByStatus('todo').map(task => (
+              <div
+                key={task.id}
+                className="group p-4 border rounded-lg hover:shadow-md transition-all bg-background cursor-pointer"
+                data-testid={`task-card-${task.id}`}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="font-medium text-sm leading-tight pr-2">{task.title}</h4>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => updateTaskStatus(task.id, 'in-progress')}
+                      className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                      data-testid={`move-to-progress-${task.id}`}
+                    >
+                      <Clock className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
+                  {task.description}
+                </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Badge className={`text-xs px-2 py-0.5 ${getCategoryBadgeColor(task.category)}`}>
+                      {task.category === 'knowledge-base' ? 'KB' : 
+                       task.category === 'ai' ? 'AI' : 
+                       task.category.charAt(0).toUpperCase() + task.category.slice(1)}
+                    </Badge>
+                    <Badge className={`text-xs px-2 py-0.5 ${getPriorityColor(task.priority)}`}>
+                      {task.priority}
                     </Badge>
                   </div>
-                  <Progress value={categoryProgress} className="h-2 mt-2" />
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {categoryTasks.map(task => (
-                    <div 
-                      key={task.id} 
-                      className="flex items-start gap-3 p-3 rounded-lg border transition-colors hover:bg-accent/50"
-                    >
-                      <Checkbox
-                        checked={task.completed}
-                        onCheckedChange={() => toggleTask(task.id)}
-                        className="mt-1"
-                        data-testid={`task-checkbox-${task.id}`}
-                      />
-                      <div className="flex-1 space-y-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className={`font-medium ${task.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
-                            {task.title}
-                          </h4>
-                          <Badge 
-                            variant={task.priority === 'high' ? 'destructive' : task.priority === 'medium' ? 'secondary' : 'outline'}
-                            className="text-xs"
-                          >
-                            {task.priority}
-                          </Badge>
-                        </div>
-                        <p className={`text-sm ${task.completed ? 'line-through text-muted-foreground' : 'text-muted-foreground'}`}>
-                          {task.description}
-                        </p>
-                      </div>
-                      {task.completed && (
-                        <CheckCircle2 className="w-5 h-5 text-green-500 mt-1" />
-                      )}
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          );
-        })}
-      </Tabs>
+                  <Checkbox
+                    checked={task.completed}
+                    onCheckedChange={() => toggleTask(task.id)}
+                    className="h-4 w-4"
+                    data-testid={`task-checkbox-${task.id}`}
+                  />
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
 
+        {/* In Progress Column */}
+        <Card className="flex flex-col">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Clock className="w-5 h-5 text-blue-500" />
+                In Progress
+              </CardTitle>
+              <Badge variant="outline" className="text-sm">
+                {getTasksByStatus('in-progress').length}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="flex-1 space-y-3">
+            {getTasksByStatus('in-progress').map(task => (
+              <div
+                key={task.id}
+                className="group p-4 border rounded-lg hover:shadow-md transition-all bg-blue-50/50 dark:bg-blue-950/10 border-blue-200 dark:border-blue-800 cursor-pointer"
+                data-testid={`task-card-${task.id}`}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="font-medium text-sm leading-tight pr-2">{task.title}</h4>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => updateTaskStatus(task.id, 'todo')}
+                      className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                      data-testid={`move-to-todo-${task.id}`}
+                    >
+                      <Circle className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => updateTaskStatus(task.id, 'completed')}
+                      className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                      data-testid={`move-to-completed-${task.id}`}
+                    >
+                      <CheckCircle2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
+                  {task.description}
+                </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Badge className={`text-xs px-2 py-0.5 ${getCategoryBadgeColor(task.category)}`}>
+                      {task.category === 'knowledge-base' ? 'KB' : 
+                       task.category === 'ai' ? 'AI' : 
+                       task.category.charAt(0).toUpperCase() + task.category.slice(1)}
+                    </Badge>
+                    <Badge className={`text-xs px-2 py-0.5 ${getPriorityColor(task.priority)}`}>
+                      {task.priority}
+                    </Badge>
+                  </div>
+                  <Checkbox
+                    checked={task.completed}
+                    onCheckedChange={() => toggleTask(task.id)}
+                    className="h-4 w-4"
+                    data-testid={`task-checkbox-${task.id}`}
+                  />
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Completed Column */}
+        <Card className="flex flex-col">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <CheckCircle2 className="w-5 h-5 text-green-500" />
+                Completed
+              </CardTitle>
+              <Badge variant="outline" className="text-sm">
+                {getTasksByStatus('completed').length}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="flex-1 space-y-3">
+            {getTasksByStatus('completed').map(task => (
+              <div
+                key={task.id}
+                className="group p-4 border rounded-lg hover:shadow-md transition-all bg-green-50/50 dark:bg-green-950/10 border-green-200 dark:border-green-800 cursor-pointer"
+                data-testid={`task-card-${task.id}`}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="font-medium text-sm leading-tight pr-2 line-through text-muted-foreground">{task.title}</h4>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => updateTaskStatus(task.id, 'in-progress')}
+                      className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                      data-testid={`move-to-progress-${task.id}`}
+                    >
+                      <Clock className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mb-3 line-clamp-2 line-through">
+                  {task.description}
+                </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Badge className={`text-xs px-2 py-0.5 ${getCategoryBadgeColor(task.category)} opacity-60`}>
+                      {task.category === 'knowledge-base' ? 'KB' : 
+                       task.category === 'ai' ? 'AI' : 
+                       task.category.charAt(0).toUpperCase() + task.category.slice(1)}
+                    </Badge>
+                    <Badge className={`text-xs px-2 py-0.5 ${getPriorityColor(task.priority)} opacity-60`}>
+                      {task.priority}
+                    </Badge>
+                  </div>
+                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
