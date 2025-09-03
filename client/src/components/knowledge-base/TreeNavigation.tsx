@@ -234,7 +234,9 @@ export function TreeNavigation({ onPageSelect, selectedPageId, isCreatingNewPage
           {/* Page Title */}
           <span 
             className={cn(
-              "flex-1 text-sm font-medium truncate",
+              "flex-1 text-sm truncate",
+              // Make saved/published pages bold
+              node.status === 'published' ? "font-bold" : "font-medium",
               isSelected 
                 ? "text-orange-900 dark:text-orange-100" 
                 : "text-slate-700 dark:text-slate-200"

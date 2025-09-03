@@ -98,8 +98,20 @@ export function RichContentEditor({
     content,
     editable: !readOnly,
     autofocus: autoFocus,
+    editorProps: {
+      attributes: {
+        class: 'prose prose-slate max-w-none min-h-[400px] focus:outline-none cursor-text p-4',
+        'data-placeholder': placeholder,
+      },
+    },
     onUpdate: ({ editor }) => {
       onChange?.(editor.getHTML());
+    },
+    onCreate: ({ editor }) => {
+      // Ensure editor is focusable
+      if (autoFocus) {
+        setTimeout(() => editor.commands.focus(), 100);
+      }
     },
   });
 
@@ -382,30 +394,46 @@ export function RichContentEditor({
       )}
       
       <CardContent className="p-4">
-        <EditorContent 
-          editor={editor} 
-          className={`
-            prose prose-slate max-w-none min-h-[400px]
-            prose-headings:text-slate-900 dark:prose-headings:text-white prose-headings:leading-tight prose-headings:mb-1 prose-headings:mt-1
-            prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-p:leading-tight prose-p:mb-1 prose-p:mt-0
-            prose-strong:text-slate-900 dark:prose-strong:text-white
-            prose-code:text-emerald-700 dark:prose-code:text-emerald-400
-            prose-code:bg-slate-100 dark:prose-code:bg-slate-800
-            prose-pre:bg-slate-900 dark:prose-pre:bg-slate-950
-            prose-blockquote:border-emerald-500
-            prose-blockquote:text-slate-600 dark:prose-blockquote:text-slate-400
-            prose-li:leading-tight prose-li:mb-0 prose-li:mt-0
-            prose-ul:mb-1 prose-ul:mt-1 prose-ol:mb-1 prose-ol:mt-1
-            focus-within:outline-none leading-tight
-            ${readOnly ? 'cursor-default' : 'cursor-text'}
-          `}
-          style={{ 
-            lineHeight: '1.1',
-            fontSize: '14px',
-            fontWeight: '300'
-          }}
-          data-testid="editor-content"
-        />
+        <div 
+          className={`relative ${readOnly ? '' : 'cursor-text'}`}
+          onClick={() => !readOnly && editor?.commands.focus()}
+        >
+          <EditorContent 
+            editor={editor} 
+            className={`
+              prose prose-slate max-w-none min-h-[400px] w-full
+              prose-headings:text-slate-900 dark:prose-headings:text-white prose-headings:leading-tight prose-headings:mb-1 prose-headings:mt-1
+              prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-p:leading-tight prose-p:mb-1 prose-p:mt-0
+              prose-strong:text-slate-900 dark:prose-strong:text-white
+              prose-code:text-emerald-700 dark:prose-code:text-emerald-400
+              prose-code:bg-slate-100 dark:prose-code:bg-slate-800
+              prose-pre:bg-slate-900 dark:prose-pre:bg-slate-950
+              prose-blockquote:border-emerald-500
+              prose-blockquote:text-slate-600 dark:prose-blockquote:text-slate-400
+              prose-li:leading-tight prose-li:mb-0 prose-li:mt-0
+              prose-ul:mb-1 prose-ul:mt-1 prose-ol:mb-1 prose-ol:mt-1
+              focus-within:outline-none focus-within:ring-2 focus-within:ring-orange-500/20
+              leading-tight
+              ${readOnly ? 'cursor-default' : 'cursor-text'}
+              ${className || ''}
+            `}
+            style={{ 
+              lineHeight: '1.1',
+              fontSize: '14px',
+              fontWeight: '300'
+            }}
+            data-testid="editor-content"
+          />
+          {/* Placeholder when empty */}
+          {!readOnly && editor && editor.isEmpty && (
+            <div 
+              className="absolute top-4 left-4 text-slate-400 pointer-events-none select-none"
+              style={{ fontSize: '14px' }}
+            >
+              {placeholder}
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
