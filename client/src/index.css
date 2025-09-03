@@ -249,14 +249,14 @@
 
 /* Ultra-compact ARKHITEKTON design system */
 :root {
-  /* Increased sizing by 12% */
-  --font-size-xs: 0.7rem; /* 11.2px (was 10px) */
-  --font-size-sm: 0.77rem; /* 12.32px (was 11px) */
-  --font-size-base: 0.84rem; /* 13.44px (was 12px) */
-  --font-size-lg: 0.91rem; /* 14.56px (was 13px) */
-  --font-size-xl: 0.98rem; /* 15.68px (was 14px) */
-  --font-size-2xl: 1.12rem; /* 17.92px (was 16px) */
-  --font-size-3xl: 1.26rem; /* 20.16px (was 18px) */
+  /* Increased sizing by 20.96% total (12% + 8%) */
+  --font-size-xs: 0.756rem; /* 12.1px (+8% from 11.2px) */
+  --font-size-sm: 0.832rem; /* 13.31px (+8% from 12.32px) */
+  --font-size-base: 0.908rem; /* 14.53px (+8% from 13.44px) */
+  --font-size-lg: 0.983rem; /* 15.72px (+8% from 14.56px) */
+  --font-size-xl: 1.058rem; /* 16.93px (+8% from 15.68px) */
+  --font-size-2xl: 1.21rem; /* 19.35px (+8% from 17.92px) */
+  --font-size-3xl: 1.361rem; /* 21.77px (+8% from 20.16px) */
   
   --spacing-1: 0.125rem; /* 2px */
   --spacing-2: 0.25rem; /* 4px */
@@ -306,14 +306,14 @@ h4 {
   line-height: 1.3;
 }
 
-/* Preserve original Welcome title size */
+/* Welcome title reduced by 8% from original */
 .welcome-title-preserve {
-  font-size: 3rem !important; /* text-5xl equivalent - keep original */
+  font-size: 2.76rem !important; /* 44.16px (original 48px - 8%) */
 }
 
 @media (min-width: 768px) {
   .welcome-title-preserve {
-    font-size: 3.75rem !important; /* text-6xl equivalent - keep original */
+    font-size: 3.45rem !important; /* 55.2px (original 60px - 8%) */
   }
 }
 
@@ -326,10 +326,10 @@ h4 {
 .text-2xl { font-size: var(--font-size-2xl) !important; line-height: 1.5; }
 .text-3xl { font-size: var(--font-size-3xl) !important; line-height: 1.5; }
 
-/* Larger text sizes also increased by 12% */
-.text-4xl { font-size: 2.52rem !important; line-height: 1.1; } /* 40.32px (was 36px) */
-.text-5xl { font-size: 3.36rem !important; line-height: 1; } /* 53.76px (was 48px) */
-.text-6xl { font-size: 4.2rem !important; line-height: 1; } /* 67.2px (was 60px) */
+/* Larger text sizes increased by 20.96% total (12% + 8%) */
+.text-4xl { font-size: 2.722rem !important; line-height: 1.1; } /* 43.55px (+8% from 40.32px) */
+.text-5xl { font-size: 3.629rem !important; line-height: 1; } /* 58.06px (+8% from 53.76px) */
+.text-6xl { font-size: 4.536rem !important; line-height: 1; } /* 72.58px (+8% from 67.2px) */
 
 /* Compact spacing overrides */
 .p-1 { padding: var(--spacing-1) !important; }
