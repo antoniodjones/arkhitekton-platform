@@ -70,7 +70,9 @@ export function PageEditor({
 
   // Auto-save for inline editing
   const autoSave = useCallback(async () => {
-    if (!inline || (!title.trim() && !content.trim())) return;
+    if (!inline) return;
+    // Save if we have either a title or content (not requiring both)
+    if (!title.trim() && !content.trim()) return;
     
     const pageData = {
       title: title.trim() || 'Untitled',
@@ -85,6 +87,9 @@ export function PageEditor({
     try {
       if (pageId && pageId !== 'new-page') {
         await apiRequest('PUT', `/api/knowledge-base/pages/${pageId}`, pageData);
+        // Force refresh for updates too
+        await queryClient.invalidateQueries({ queryKey: ['/api/knowledge-base/pages'] });
+        queryClient.refetchQueries({ queryKey: ['/api/knowledge-base/pages'] });
       } else if (!pageCreated) {
         const response = await apiRequest('POST', '/api/knowledge-base/pages', pageData as InsertKnowledgeBasePage);
         const newPage = await response.json();
@@ -98,7 +103,7 @@ export function PageEditor({
     } catch (error) {
       console.error('Auto-save failed:', error);
     }
-  }, [inline, title, content, category, status, tags, parentId, order, pageId, pageCreated, queryClient, onSave]);
+  }, [inline, title, content, category, status, tags, parentId, order, pageId, pageCreated, queryClient]);
 
   // Debounced auto-save
   useEffect(() => {
