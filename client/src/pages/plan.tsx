@@ -338,11 +338,14 @@ export default function PlanPage() {
 
   // Fetch tasks from API
   const { data: tasks = [], isLoading } = useQuery({
-    queryKey: ['/api/tasks'],
+    queryKey: ['/api/tasks', 'v2'], // Force cache break
     queryFn: async () => {
+      console.log('🔄 FETCHING TASKS (NEW VERSION)');
       const response = await fetch('/api/tasks');
       if (!response.ok) throw new Error('Failed to fetch tasks');
-      return response.json();
+      const data = await response.json();
+      console.log('📊 LOADED TASKS:', data.length, 'tasks');
+      return data;
     },
   });
 
@@ -416,9 +419,11 @@ export default function PlanPage() {
   };
 
   const handleEditTask = (task: Task) => {
-    console.log('EDIT CLICK:', task.id, task.title);
+    console.log('🚀 EDIT CLICK (NEW VERSION):', task.id, task.title);
+    console.log('📝 Setting editing task:', task);
     setEditingTask(task);
     setIsDialogOpen(true);
+    console.log('✅ Dialog should be open now');
   };
 
   const handleSaveTask = (taskData: Omit<Task, 'id'>) => {
