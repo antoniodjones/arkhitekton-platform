@@ -160,7 +160,7 @@ function DashboardContent() {
             <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full animate-pulse" />
           </div>
           <div className="space-y-4">
-            <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-orange-800 dark:from-white dark:via-slate-200 dark:to-orange-200 bg-clip-text text-transparent leading-tight">
+            <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-orange-800 dark:from-white dark:via-slate-200 dark:to-orange-200 bg-clip-text text-transparent leading-tight welcome-title-preserve">
               Welcome to ARKHITEKTON
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed font-light">
