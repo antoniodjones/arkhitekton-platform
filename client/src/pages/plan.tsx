@@ -722,6 +722,7 @@ export default function PlanPage() {
     }
   };
 
+  // Toggle task completion status and update database
   const handleToggleTaskComplete = (task: Task) => {
     updateTaskMutation.mutate({
       id: task.id,
