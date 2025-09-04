@@ -92,6 +92,8 @@ function TaskDialog({
   const [dependencies, setDependencies] = useState<string[]>(task?.dependencies || []);
   const [subtasks, setSubtasks] = useState<Array<{ id: string; title: string; completed: boolean; createdAt: Date }>>(task?.subtasks || []);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
+  const [dependencySearch, setDependencySearch] = useState('');
+  const [showDependencyResults, setShowDependencyResults] = useState(false);
 
   // Circular dependency detection
   const wouldCreateCircularDependency = (newDepId: string): boolean => {
@@ -110,6 +112,24 @@ function TaskDialog({
     return checkCircular(newDepId, new Set());
   };
 
+  // Filter tasks for dependency search
+  const filteredTasks = allTasks.filter(t => 
+    t.id !== task?.id && 
+    !dependencies.includes(t.id) &&
+    !wouldCreateCircularDependency(t.id) &&
+    t.title.toLowerCase().includes(dependencySearch.toLowerCase())
+  );
+
+  const addDependency = (taskId: string) => {
+    setDependencies([...dependencies, taskId]);
+    setDependencySearch('');
+    setShowDependencyResults(false);
+  };
+
+  const removeDependency = (taskId: string) => {
+    setDependencies(dependencies.filter(id => id !== taskId));
+  };
+
   const addSubtask = () => {
     if (newSubtaskTitle.trim()) {
       setSubtasks([...subtasks, {
@@ -126,7 +146,7 @@ function TaskDialog({
     setSubtasks(subtasks.filter(st => st.id !== subtaskId));
   };
 
-  const toggleSubtask = (subtaskId: string) => {
+  const toggleSubtaskComplete = (subtaskId: string) => {
     setSubtasks(subtasks.map(st => 
       st.id === subtaskId ? { ...st, completed: !st.completed } : st
     ));
@@ -219,27 +239,35 @@ function TaskDialog({
           <div>
             <Label>Dependencies</Label>
             <div className="space-y-2">
-              <Select 
-                onValueChange={(taskId) => {
-                  if (!dependencies.includes(taskId) && taskId !== task?.id && !wouldCreateCircularDependency(taskId)) {
-                    setDependencies([...dependencies, taskId]);
-                  }
-                }}
-              >
-                <SelectTrigger data-testid="select-dependency">
-                  <SelectValue placeholder="Add a dependency..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {allTasks
-                    .filter(t => t.id !== task?.id && !dependencies.includes(t.id))
-                    .map(availableTask => (
-                      <SelectItem key={availableTask.id} value={availableTask.id}>
-                        {availableTask.title}
-                      </SelectItem>
-                    ))
-                  }
-                </SelectContent>
-              </Select>
+              <div className="relative">
+                <Input
+                  placeholder="Search for tasks to add as dependencies..."
+                  value={dependencySearch}
+                  onChange={(e) => {
+                    setDependencySearch(e.target.value);
+                    setShowDependencyResults(e.target.value.length > 0);
+                  }}
+                  onFocus={() => setShowDependencyResults(dependencySearch.length > 0)}
+                  onBlur={() => setTimeout(() => setShowDependencyResults(false), 150)}
+                  data-testid="input-dependency-search"
+                />
+                {showDependencyResults && filteredTasks.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border rounded-md shadow-lg max-h-40 overflow-y-auto">
+                    {filteredTasks.slice(0, 10).map(t => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                        onClick={() => addDependency(t.id)}
+                        data-testid={`dependency-option-${t.id}`}
+                      >
+                        <div className="font-medium">{t.title}</div>
+                        <div className="text-xs text-gray-500">{t.category} • {t.priority}</div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
               {dependencies.length > 0 && (
                 <div className="flex flex-wrap gap-1">
                   {dependencies.map(depId => {
@@ -249,7 +277,7 @@ function TaskDialog({
                         <span>{depTask.title}</span>
                         <button
                           type="button"
-                          onClick={() => setDependencies(dependencies.filter(id => id !== depId))}
+                          onClick={() => removeDependency(depId)}
                           className="hover:text-red-600"
                         >
                           ×
@@ -285,7 +313,7 @@ function TaskDialog({
                       <input
                         type="checkbox"
                         checked={subtask.completed}
-                        onChange={() => toggleSubtask(subtask.id)}
+                        onChange={() => toggleSubtaskComplete(subtask.id)}
                         className="rounded"
                       />
                       <span className={`flex-1 text-sm ${subtask.completed ? 'line-through text-gray-500' : ''}`}>
