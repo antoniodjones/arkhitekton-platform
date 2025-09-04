@@ -60,6 +60,8 @@ interface Task {
   category: 'foundation' | 'knowledge-base' | 'modeling' | 'ai' | 'integration' | 'ux';
   assignee?: string | null;
   dueDate?: string | null;
+  dependencies?: string[] | null; // Array of task IDs this task depends on
+  subtasks?: Array<{ id: string; title: string; completed: boolean; createdAt: Date }> | null;
   abilities?: string[] | null;
   completed: number; // 0 = false, 1 = true (matches database schema)
   createdAt?: Date | null;
@@ -73,18 +75,62 @@ function TaskDialog({
   open, 
   onClose, 
   task, 
-  onSave 
+  onSave,
+  allTasks 
 }: { 
   open: boolean; 
   onClose: () => void; 
   task?: Task; 
   onSave: (data: Omit<Task, 'id'>) => void; 
+  allTasks: Task[];
 }) {
   const [title, setTitle] = useState(task?.title || '');
   const [description, setDescription] = useState(task?.description || '');
   const [priority, setPriority] = useState<Task['priority']>(task?.priority || 'medium');
   const [category, setCategory] = useState<Task['category']>(task?.category || 'foundation');
   const [status, setStatus] = useState<Task['status']>(task?.status || 'todo');
+  const [dependencies, setDependencies] = useState<string[]>(task?.dependencies || []);
+  const [subtasks, setSubtasks] = useState<Array<{ id: string; title: string; completed: boolean; createdAt: Date }>>(task?.subtasks || []);
+  const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
+
+  // Circular dependency detection
+  const wouldCreateCircularDependency = (newDepId: string): boolean => {
+    if (!task?.id || newDepId === task.id) return true;
+    
+    const checkCircular = (taskId: string, visited: Set<string>): boolean => {
+      if (visited.has(taskId)) return true;
+      
+      const currentTask = allTasks.find(t => t.id === taskId);
+      if (!currentTask?.dependencies) return false;
+      
+      visited.add(taskId);
+      return currentTask.dependencies.some(depId => checkCircular(depId, new Set(visited)));
+    };
+    
+    return checkCircular(newDepId, new Set());
+  };
+
+  const addSubtask = () => {
+    if (newSubtaskTitle.trim()) {
+      setSubtasks([...subtasks, {
+        id: Date.now().toString(),
+        title: newSubtaskTitle,
+        completed: false,
+        createdAt: new Date()
+      }]);
+      setNewSubtaskTitle('');
+    }
+  };
+
+  const removeSubtask = (subtaskId: string) => {
+    setSubtasks(subtasks.filter(st => st.id !== subtaskId));
+  };
+
+  const toggleSubtask = (subtaskId: string) => {
+    setSubtasks(subtasks.map(st => 
+      st.id === subtaskId ? { ...st, completed: !st.completed } : st
+    ));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,6 +140,8 @@ function TaskDialog({
       priority,
       category,
       status,
+      dependencies,
+      subtasks,
       completed: status === 'completed' ? 1 : 0, // Convert boolean to integer for schema
       abilities: [],
       assignee: null,
@@ -107,7 +155,7 @@ function TaskDialog({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{task ? 'Edit Task' : 'Create Task'}</DialogTitle>
           <DialogDescription>
@@ -165,6 +213,96 @@ function TaskDialog({
                 <SelectItem value="ux">UX Excellence</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Dependencies Section */}
+          <div>
+            <Label>Dependencies</Label>
+            <div className="space-y-2">
+              <Select 
+                onValueChange={(taskId) => {
+                  if (!dependencies.includes(taskId) && taskId !== task?.id && !wouldCreateCircularDependency(taskId)) {
+                    setDependencies([...dependencies, taskId]);
+                  }
+                }}
+              >
+                <SelectTrigger data-testid="select-dependency">
+                  <SelectValue placeholder="Add a dependency..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {allTasks
+                    .filter(t => t.id !== task?.id && !dependencies.includes(t.id))
+                    .map(availableTask => (
+                      <SelectItem key={availableTask.id} value={availableTask.id}>
+                        {availableTask.title}
+                      </SelectItem>
+                    ))
+                  }
+                </SelectContent>
+              </Select>
+              {dependencies.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {dependencies.map(depId => {
+                    const depTask = allTasks.find(t => t.id === depId);
+                    return depTask ? (
+                      <div key={depId} className="flex items-center gap-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 px-2 py-1 rounded text-xs">
+                        <span>{depTask.title}</span>
+                        <button
+                          type="button"
+                          onClick={() => setDependencies(dependencies.filter(id => id !== depId))}
+                          className="hover:text-red-600"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ) : null;
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Subtasks Section */}
+          <div>
+            <Label>Subtasks</Label>
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <Input
+                  value={newSubtaskTitle}
+                  onChange={(e) => setNewSubtaskTitle(e.target.value)}
+                  placeholder="Add a subtask..."
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSubtask())}
+                  data-testid="input-subtask"
+                />
+                <Button type="button" onClick={addSubtask} size="sm" data-testid="button-add-subtask">
+                  Add
+                </Button>
+              </div>
+              {subtasks.length > 0 && (
+                <div className="space-y-1">
+                  {subtasks.map(subtask => (
+                    <div key={subtask.id} className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                      <input
+                        type="checkbox"
+                        checked={subtask.completed}
+                        onChange={() => toggleSubtask(subtask.id)}
+                        className="rounded"
+                      />
+                      <span className={`flex-1 text-sm ${subtask.completed ? 'line-through text-gray-500' : ''}`}>
+                        {subtask.title}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeSubtask(subtask.id)}
+                        className="text-red-600 hover:text-red-800 text-xs"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div>
@@ -311,6 +449,26 @@ function TaskCard({
       <p className={`text-xs text-muted-foreground mb-3 line-clamp-2 ${task.completed ? 'line-through' : ''}`}>
         {task.description}
       </p>
+
+      {/* Dependencies and Subtasks Indicators */}
+      {(task.dependencies?.length || task.subtasks?.length) && (
+        <div className="flex items-center gap-2 mb-3">
+          {task.dependencies && task.dependencies.length > 0 && (
+            <div className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
+              <span className="text-blue-500">🔗</span>
+              <span>{task.dependencies.length} dep{task.dependencies.length !== 1 ? 's' : ''}</span>
+            </div>
+          )}
+          {task.subtasks && task.subtasks.length > 0 && (
+            <div className="flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400">
+              <span className="text-purple-500">📋</span>
+              <span>
+                {task.subtasks.filter(st => st.completed).length}/{task.subtasks.length} subtasks
+              </span>
+            </div>
+          )}
+        </div>
+      )}
       
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -782,6 +940,7 @@ export default function PlanPage() {
         onClose={handleCloseDialog}
         task={editingTask}
         onSave={handleSaveTask}
+        allTasks={tasks}
       />
       </div>
     </div>

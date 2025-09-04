@@ -552,6 +552,13 @@ export const tasks = pgTable("tasks", {
   status: text("status").notNull().default("todo"), // 'todo', 'in-progress', 'completed'
   assignee: text("assignee"),
   dueDate: text("due_date"),
+  dependencies: jsonb("dependencies").$type<string[]>().default([]), // Array of task IDs this task depends on
+  subtasks: jsonb("subtasks").$type<{
+    id: string;
+    title: string;
+    completed: boolean;
+    createdAt: Date;
+  }[]>().default([]), // Array of subtasks
   abilities: jsonb("abilities").$type<string[]>().default([]),
   comments: jsonb("comments").$type<{
     id: string;
