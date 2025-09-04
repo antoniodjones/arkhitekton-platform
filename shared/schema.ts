@@ -552,6 +552,8 @@ export const tasks = pgTable("tasks", {
   status: text("status").notNull().default("todo"), // 'todo', 'in-progress', 'completed'
   assignee: text("assignee"),
   dueDate: text("due_date"),
+  startDate: text("start_date"), // Task start date for Gantt chart
+  endDate: text("end_date"), // Task end date for Gantt chart  
   dependencies: jsonb("dependencies").$type<string[]>().default([]), // Array of task IDs this task depends on
   subtasks: jsonb("subtasks").$type<{
     id: string;

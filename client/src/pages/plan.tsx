@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, parseISO, isWithinInterval, addDays } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
@@ -65,6 +66,8 @@ interface Task {
   category: 'foundation' | 'knowledge-base' | 'modeling' | 'ai' | 'integration' | 'ux';
   assignee?: string | null;
   dueDate?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
   dependencies?: string[] | null; // Array of task IDs this task depends on (max 1)
   subtasks?: Array<{ id: string; title: string; completed: boolean; createdAt: string }> | null;
   abilities?: string[] | null;
@@ -99,6 +102,8 @@ function TaskDialog({
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [dependencySearch, setDependencySearch] = useState('');
   const [showDependencyResults, setShowDependencyResults] = useState(false);
+  const [startDate, setStartDate] = useState(task?.startDate || '');
+  const [endDate, setEndDate] = useState(task?.endDate || '');
 
   // Update form state when task prop changes
   useEffect(() => {
@@ -110,6 +115,8 @@ function TaskDialog({
       setStatus(task.status || 'todo');
       setDependency((task.dependencies && task.dependencies.length > 0) ? task.dependencies[0] : null);
       setSubtasks(task.subtasks || []);
+      setStartDate(task.startDate || '');
+      setEndDate(task.endDate || '');
     } else {
       // Reset form for new task
       setTitle('');
@@ -119,6 +126,8 @@ function TaskDialog({
       setStatus('todo');
       setDependency(null);
       setSubtasks([]);
+      setStartDate('');
+      setEndDate('');
     }
   }, [task]);
 
@@ -198,6 +207,8 @@ function TaskDialog({
       abilities: task?.abilities || [],
       assignee: task?.assignee || null,
       dueDate: task?.dueDate || null,
+      startDate: startDate || null,
+      endDate: endDate || null,
       comments: task?.comments || null,
     };
 
@@ -274,6 +285,30 @@ function TaskDialog({
                 <SelectItem value="ux">UX Excellence</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Date Fields */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="startDate">Start Date</Label>
+              <Input
+                id="startDate"
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                data-testid="input-start-date"
+              />
+            </div>
+            <div>
+              <Label htmlFor="endDate">End Date</Label>
+              <Input
+                id="endDate"
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                data-testid="input-end-date"
+              />
+            </div>
           </div>
 
           {/* Dependencies Section */}
@@ -1254,16 +1289,14 @@ export default function PlanPage() {
         </div>
       )}
 
-      {/* Calendar and Gantt Views - Coming Soon */}
-      {(currentView === 'calendar' || currentView === 'gantt') && (
-        <div className="text-center py-12">
-          <div className="text-muted-foreground">
-            <div className="text-lg font-medium mb-2">
-              {currentView.charAt(0).toUpperCase() + currentView.slice(1)} View
-            </div>
-            <p>Coming soon! This view is under development.</p>
-          </div>
-        </div>
+      {/* Calendar View */}
+      {currentView === 'calendar' && (
+        <CalendarView tasks={filteredTasks} onEditTask={handleEditTask} />
+      )}
+
+      {/* Gantt Chart View */}
+      {currentView === 'gantt' && (
+        <GanttView tasks={filteredTasks} onEditTask={handleEditTask} />
       )}
 
       {/* Task Dialog */}
@@ -1274,6 +1307,315 @@ export default function PlanPage() {
         onSave={handleSaveTask}
         allTasks={tasks}
       />
+      </div>
+    </div>
+  );
+}
+
+// Calendar View Component
+function CalendarView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: Task) => void }) {
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  const monthStart = startOfMonth(currentMonth);
+  const monthEnd = endOfMonth(currentMonth);
+  const calendarStart = startOfWeek(monthStart);
+  const calendarEnd = endOfWeek(monthEnd);
+  
+  const calendarDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
+
+  const getTasksForDate = (date: Date) => {
+    return tasks.filter(task => {
+      if (task.dueDate && isSameDay(parseISO(task.dueDate), date)) return true;
+      if (task.startDate && isSameDay(parseISO(task.startDate), date)) return true;
+      if (task.endDate && isSameDay(parseISO(task.endDate), date)) return true;
+      
+      // Check if date is within task duration
+      if (task.startDate && task.endDate) {
+        const start = parseISO(task.startDate);
+        const end = parseISO(task.endDate);
+        return isWithinInterval(date, { start, end });
+      }
+      
+      return false;
+    });
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'low': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+    }
+  };
+
+  const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
+  const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg border">
+      {/* Calendar Header */}
+      <div className="p-4 border-b flex items-center justify-between">
+        <h2 className="text-lg font-semibold">{format(currentMonth, 'MMMM yyyy')}</h2>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={prevMonth}>
+            ← Previous
+          </Button>
+          <Button variant="outline" size="sm" onClick={nextMonth}>
+            Next →
+          </Button>
+        </div>
+      </div>
+
+      {/* Calendar Grid */}
+      <div className="p-4">
+        {/* Day Headers */}
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+            <div key={day} className="p-2 text-center text-sm font-medium text-gray-500">
+              {day}
+            </div>
+          ))}
+        </div>
+
+        {/* Calendar Days */}
+        <div className="grid grid-cols-7 gap-1">
+          {calendarDays.map(day => {
+            const dayTasks = getTasksForDate(day);
+            const isCurrentMonth = isSameMonth(day, currentMonth);
+            const isToday = isSameDay(day, new Date());
+
+            return (
+              <div
+                key={day.toISOString()}
+                className={`min-h-[120px] p-2 border rounded-lg ${
+                  isCurrentMonth ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'
+                } ${isToday ? 'ring-2 ring-orange-500' : ''}`}
+              >
+                <div className={`text-sm font-medium mb-1 ${
+                  isCurrentMonth ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400'
+                }`}>
+                  {format(day, 'd')}
+                </div>
+                
+                <div className="space-y-1">
+                  {dayTasks.slice(0, 3).map(task => (
+                    <div
+                      key={task.id}
+                      onClick={() => onEditTask(task)}
+                      className={`text-xs p-1 rounded cursor-pointer hover:shadow-sm ${
+                        getPriorityColor(task.priority)
+                      }`}
+                      title={task.title}
+                    >
+                      {task.title.length > 15 ? `${task.title.substring(0, 15)}...` : task.title}
+                    </div>
+                  ))}
+                  {dayTasks.length > 3 && (
+                    <div className="text-xs text-gray-500">+{dayTasks.length - 3} more</div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Sortable Task Row Component for Gantt Chart
+function SortableTaskRow({ task, timelineDates, oneMonthAgo, twoMonthsLater, onEditTask, onTaskUpdate }: {
+  task: Task;
+  timelineDates: Date[];
+  oneMonthAgo: Date;
+  twoMonthsLater: Date;
+  onEditTask: (task: Task) => void;
+  onTaskUpdate: (taskId: string, updates: Partial<Task>) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: task.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'low': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+    }
+  };
+
+  const getTaskBarWidth = (task: Task) => {
+    if (!task.startDate || !task.endDate) return '0%';
+    
+    const start = parseISO(task.startDate);
+    const end = parseISO(task.endDate);
+    const totalDays = Math.max(1, Math.abs(twoMonthsLater.getTime() - oneMonthAgo.getTime()) / (1000 * 60 * 60 * 24));
+    const taskDays = Math.abs(end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
+    
+    return `${Math.min(100, (taskDays / totalDays) * 100)}%`;
+  };
+
+  const getTaskBarPosition = (task: Task) => {
+    if (!task.startDate) return '0%';
+    
+    const start = parseISO(task.startDate);
+    const totalDays = Math.abs(twoMonthsLater.getTime() - oneMonthAgo.getTime()) / (1000 * 60 * 60 * 24);
+    const offsetDays = Math.abs(start.getTime() - oneMonthAgo.getTime()) / (1000 * 60 * 60 * 24);
+    
+    return `${Math.max(0, (offsetDays / totalDays) * 100)}%`;
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="flex hover:bg-gray-50 dark:hover:bg-gray-700/50">
+      <div className="w-64 p-3 border-r flex items-center gap-2">
+        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
+          <GripVertical className="h-4 w-4 text-gray-400" />
+        </div>
+        <div className="flex-1">
+          <div className="font-medium text-sm">{task.title}</div>
+          <div className="text-xs text-gray-500">
+            {task.startDate && task.endDate && (
+              <>
+                {format(parseISO(task.startDate), 'MMM d')} - {format(parseISO(task.endDate), 'MMM d')}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="flex-1 p-3 relative min-w-[600px]">
+        <div className="relative h-6">
+          <div
+            className={`absolute h-4 rounded cursor-pointer hover:shadow-lg transition-shadow ${
+              getPriorityColor(task.priority)
+            }`}
+            style={{
+              left: getTaskBarPosition(task),
+              width: getTaskBarWidth(task),
+              top: '2px'
+            }}
+            onClick={() => onEditTask(task)}
+            title={`${task.title} (${task.priority} priority)`}
+          >
+            <div className="px-2 py-1 text-xs font-medium overflow-hidden">
+              {task.title}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Gantt Chart View Component  
+function GanttView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: Task) => void }) {
+  const today = new Date();
+  const oneMonthAgo = subMonths(today, 1);
+  const twoMonthsLater = addMonths(today, 2);
+  
+  // Generate timeline dates (weekly intervals)
+  const timelineDates = eachDayOfInterval({ start: oneMonthAgo, end: twoMonthsLater })
+    .filter((_, index) => index % 7 === 0); // Show every 7th day for weekly view
+
+  // Only show tasks with start and end dates
+  const [ganttTasks, setGanttTasks] = useState(tasks.filter(task => task.startDate && task.endDate));
+
+  // Update local state when props change
+  useEffect(() => {
+    setGanttTasks(tasks.filter(task => task.startDate && task.endDate));
+  }, [tasks]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      setGanttTasks((items) => {
+        const oldIndex = items.findIndex(item => item.id === active.id);
+        const newIndex = items.findIndex(item => item.id === over?.id);
+
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
+  const handleTaskUpdate = (taskId: string, updates: Partial<Task>) => {
+    // This would trigger a mutation to update the task
+    console.log('Updating task:', taskId, updates);
+  };
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg border overflow-hidden">
+      <div className="p-4 border-b">
+        <h2 className="text-lg font-semibold">Gantt Chart</h2>
+        <p className="text-sm text-gray-500 mt-1">
+          Showing tasks with start and end dates ({ganttTasks.length} of {tasks.length} tasks)
+        </p>
+      </div>
+
+      <div className="overflow-x-auto">
+        {/* Timeline Header */}
+        <div className="flex bg-gray-50 dark:bg-gray-700 border-b">
+          <div className="w-64 p-3 font-medium border-r">Task</div>
+          <div className="flex-1 relative min-w-[600px]">
+            <div className="flex">
+              {timelineDates.map(date => (
+                <div key={date.toISOString()} className="flex-1 p-2 text-xs text-center border-r">
+                  {format(date, 'MMM d')}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Task Rows with Drag and Drop */}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={ganttTasks.map(task => task.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="divide-y">
+              {ganttTasks.map(task => (
+                <SortableTaskRow
+                  key={task.id}
+                  task={task}
+                  timelineDates={timelineDates}
+                  oneMonthAgo={oneMonthAgo}
+                  twoMonthsLater={twoMonthsLater}
+                  onEditTask={onEditTask}
+                  onTaskUpdate={handleTaskUpdate}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+
+        {ganttTasks.length === 0 && (
+          <div className="text-center py-12 text-gray-500">
+            <p>No tasks with start and end dates found.</p>
+            <p className="text-sm mt-1">Add start and end dates to tasks to see them in the Gantt chart.</p>
+          </div>
+        )}
       </div>
     </div>
   );
