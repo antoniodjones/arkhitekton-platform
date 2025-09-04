@@ -61,7 +61,7 @@ interface Task {
   category: 'foundation' | 'knowledge-base' | 'modeling' | 'ai' | 'integration' | 'ux';
   assignee?: string | null;
   dueDate?: string | null;
-  dependencies?: string[] | null; // Array of task IDs this task depends on
+  dependencies?: string[] | null; // Array of task IDs this task depends on (max 1)
   subtasks?: Array<{ id: string; title: string; completed: boolean; createdAt: Date }> | null;
   abilities?: string[] | null;
   completed: number; // 0 = false, 1 = true (matches database schema)
@@ -90,7 +90,7 @@ function TaskDialog({
   const [priority, setPriority] = useState<Task['priority']>(task?.priority || 'medium');
   const [category, setCategory] = useState<Task['category']>(task?.category || 'foundation');
   const [status, setStatus] = useState<Task['status']>(task?.status || 'todo');
-  const [dependencies, setDependencies] = useState<string[]>(task?.dependencies || []);
+  const [dependency, setDependency] = useState<string | null>((task?.dependencies && task.dependencies.length > 0) ? task.dependencies[0] : null);
   const [subtasks, setSubtasks] = useState<Array<{ id: string; title: string; completed: boolean; createdAt: Date }>>(task?.subtasks || []);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [dependencySearch, setDependencySearch] = useState('');
@@ -104,7 +104,7 @@ function TaskDialog({
       setPriority(task.priority || 'medium');
       setCategory(task.category || 'foundation');
       setStatus(task.status || 'todo');
-      setDependencies(task.dependencies || []);
+      setDependency((task.dependencies && task.dependencies.length > 0) ? task.dependencies[0] : null);
       setSubtasks(task.subtasks || []);
     } else {
       // Reset form for new task
@@ -113,7 +113,7 @@ function TaskDialog({
       setPriority('medium');
       setCategory('foundation');
       setStatus('todo');
-      setDependencies([]);
+      setDependency(null);
       setSubtasks([]);
     }
   }, [task]);
@@ -126,10 +126,10 @@ function TaskDialog({
       if (visited.has(taskId)) return true;
       
       const currentTask = allTasks.find(t => t.id === taskId);
-      if (!currentTask?.dependencies) return false;
+      if (!currentTask?.dependencies || currentTask.dependencies.length === 0) return false;
       
       visited.add(taskId);
-      return currentTask.dependencies.some(depId => checkCircular(depId, new Set(visited)));
+      return checkCircular(currentTask.dependencies[0], new Set(visited));
     };
     
     return checkCircular(newDepId, new Set());
@@ -138,19 +138,19 @@ function TaskDialog({
   // Filter tasks for dependency search
   const filteredTasks = allTasks.filter(t => 
     t.id !== task?.id && 
-    !dependencies.includes(t.id) &&
+    t.id !== dependency &&
     !wouldCreateCircularDependency(t.id) &&
     t.title.toLowerCase().includes(dependencySearch.toLowerCase())
   );
 
-  const addDependency = (taskId: string) => {
-    setDependencies([...dependencies, taskId]);
+  const setDependencyTask = (taskId: string) => {
+    setDependency(taskId);
     setDependencySearch('');
     setShowDependencyResults(false);
   };
 
-  const removeDependency = (taskId: string) => {
-    setDependencies(dependencies.filter(id => id !== taskId));
+  const clearDependency = () => {
+    setDependency(null);
   };
 
   const addSubtask = () => {
@@ -185,7 +185,7 @@ function TaskDialog({
       priority,
       category,
       status,
-      dependencies,
+      dependencies: dependency ? [dependency] : [],
       subtasks,
       completed: status === 'completed' ? 1 : 0, // Convert boolean to integer for schema
       abilities: task?.abilities || [],
@@ -275,7 +275,7 @@ function TaskDialog({
             <div className="space-y-2">
               <div className="relative">
                 <Input
-                  placeholder="Search for tasks to add as dependencies..."
+                  placeholder="Search for a task to set as dependency..."
                   value={dependencySearch}
                   onChange={(e) => {
                     setDependencySearch(e.target.value);
@@ -292,7 +292,7 @@ function TaskDialog({
                         key={t.id}
                         type="button"
                         className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
-                        onClick={() => addDependency(t.id)}
+                        onClick={() => setDependencyTask(t.id)}
                         data-testid={`dependency-option-${t.id}`}
                       >
                         <div className="font-medium">{t.title}</div>
@@ -302,23 +302,23 @@ function TaskDialog({
                   </div>
                 )}
               </div>
-              {dependencies.length > 0 && (
+              {dependency && (
                 <div className="flex flex-wrap gap-1">
-                  {dependencies.map(depId => {
-                    const depTask = allTasks.find(t => t.id === depId);
+                  {(() => {
+                    const depTask = allTasks.find(t => t.id === dependency);
                     return depTask ? (
-                      <div key={depId} className="flex items-center gap-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 px-2 py-1 rounded text-xs">
+                      <div className="flex items-center gap-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 px-2 py-1 rounded text-xs">
                         <span>{depTask.title}</span>
                         <button
                           type="button"
-                          onClick={() => removeDependency(depId)}
+                          onClick={clearDependency}
                           className="hover:text-red-600"
                         >
                           ×
                         </button>
                       </div>
                     ) : null;
-                  })}
+                  })()} 
                 </div>
               )}
             </div>
