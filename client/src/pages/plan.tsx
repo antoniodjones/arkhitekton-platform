@@ -62,7 +62,7 @@ interface Task {
   assignee?: string | null;
   dueDate?: string | null;
   dependencies?: string[] | null; // Array of task IDs this task depends on (max 1)
-  subtasks?: Array<{ id: string; title: string; completed: boolean; createdAt: Date }> | null;
+  subtasks?: Array<{ id: string; title: string; completed: boolean; createdAt: string }> | null;
   abilities?: string[] | null;
   completed: number; // 0 = false, 1 = true (matches database schema)
   createdAt?: Date | null;
@@ -91,7 +91,7 @@ function TaskDialog({
   const [category, setCategory] = useState<Task['category']>(task?.category || 'foundation');
   const [status, setStatus] = useState<Task['status']>(task?.status || 'todo');
   const [dependency, setDependency] = useState<string | null>((task?.dependencies && task.dependencies.length > 0) ? task.dependencies[0] : null);
-  const [subtasks, setSubtasks] = useState<Array<{ id: string; title: string; completed: boolean; createdAt: Date }>>(task?.subtasks || []);
+  const [subtasks, setSubtasks] = useState<Array<{ id: string; title: string; completed: boolean; createdAt: string }>>(task?.subtasks || []);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [dependencySearch, setDependencySearch] = useState('');
   const [showDependencyResults, setShowDependencyResults] = useState(false);
@@ -159,7 +159,7 @@ function TaskDialog({
         id: Date.now().toString(),
         title: newSubtaskTitle,
         completed: false,
-        createdAt: new Date()
+        createdAt: new Date().toISOString()
       }]);
       setNewSubtaskTitle('');
     }
@@ -186,7 +186,10 @@ function TaskDialog({
       category,
       status,
       dependencies: dependency ? [dependency] : [],
-      subtasks,
+      subtasks: subtasks.map(st => ({
+        ...st,
+        createdAt: typeof st.createdAt === 'object' ? st.createdAt.toISOString() : st.createdAt
+      })),
       completed: status === 'completed' ? 1 : 0, // Convert boolean to integer for schema
       abilities: task?.abilities || [],
       assignee: task?.assignee || null,
