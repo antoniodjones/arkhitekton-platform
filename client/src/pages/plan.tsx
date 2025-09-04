@@ -25,7 +25,8 @@ import {
   Table,
   Search,
   Filter,
-  GitBranch
+  GitBranch,
+  CheckCircle
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { GovernanceHeader } from '@/components/layout/governance-header';
@@ -366,12 +367,14 @@ function TaskCard({
   task, 
   onEdit, 
   onArchive, 
-  onDelete 
+  onDelete,
+  onToggleComplete 
 }: { 
   task: Task; 
   onEdit: (task: Task) => void;
   onArchive: (task: Task) => void;
   onDelete: (task: Task) => void;
+  onToggleComplete: (task: Task) => void;
 }) {
   const {
     attributes,
@@ -432,6 +435,24 @@ function TaskCard({
           </h4>
         </div>
         <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              onToggleComplete(task);
+            }}
+            className={`h-6 w-6 p-0 transition-all ${
+              task.completed 
+                ? 'text-green-600 hover:text-green-700 opacity-100' 
+                : 'opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-green-600'
+            }`}
+            data-testid={`toggle-complete-task-${task.id}`}
+            title={task.completed ? 'Mark as incomplete' : 'Mark as complete'}
+          >
+            <CheckCircle className={`w-4 h-4 ${task.completed ? 'fill-current' : ''}`} />
+          </Button>
           <Button
             variant="ghost"
             size="sm"
@@ -521,7 +542,8 @@ function TaskColumn({
   tasks, 
   onEdit,
   onArchive,
-  onDelete
+  onDelete,
+  onToggleComplete
 }: { 
   id: string;
   title: string;
@@ -531,6 +553,7 @@ function TaskColumn({
   onEdit: (task: Task) => void;
   onArchive: (task: Task) => void;
   onDelete: (task: Task) => void;
+  onToggleComplete: (task: Task) => void;
 }) {
   const { isOver, setNodeRef } = useDroppable({ id });
 
@@ -555,7 +578,7 @@ function TaskColumn({
       >
         <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
           {tasks.map(task => (
-            <TaskCard key={task.id} task={task} onEdit={onEdit} onArchive={onArchive} onDelete={onDelete} />
+            <TaskCard key={task.id} task={task} onEdit={onEdit} onArchive={onArchive} onDelete={onDelete} onToggleComplete={onToggleComplete} />
           ))}
         </SortableContext>
         {tasks.length === 0 && (
@@ -697,6 +720,14 @@ export default function PlanPage() {
     if (window.confirm(`Are you sure you want to delete "${task.title}"? This action cannot be undone.`)) {
       deleteTaskMutation.mutate(task.id);
     }
+  };
+
+  const handleToggleTaskComplete = (task: Task) => {
+    updateTaskMutation.mutate({
+      id: task.id,
+      completed: task.completed ? 0 : 1,
+      status: task.completed ? 'todo' : 'completed'
+    });
   };
 
   const handleSaveTask = (taskData: Omit<Task, 'id'>) => {
@@ -909,6 +940,7 @@ export default function PlanPage() {
             onEdit={handleEditTask}
             onArchive={handleArchiveTask}
             onDelete={handleDeleteTask}
+            onToggleComplete={handleToggleTaskComplete}
           />
           
           <TaskColumn
@@ -920,6 +952,7 @@ export default function PlanPage() {
             onEdit={handleEditTask}
             onArchive={handleArchiveTask}
             onDelete={handleDeleteTask}
+            onToggleComplete={handleToggleTaskComplete}
           />
           
           <TaskColumn
@@ -931,6 +964,7 @@ export default function PlanPage() {
             onEdit={handleEditTask}
             onArchive={handleArchiveTask}
             onDelete={handleDeleteTask}
+            onToggleComplete={handleToggleTaskComplete}
           />
         </div>
 
@@ -942,6 +976,7 @@ export default function PlanPage() {
                 onEdit={handleEditTask}
                 onArchive={handleArchiveTask}
                 onDelete={handleDeleteTask}
+                onToggleComplete={handleToggleTaskComplete}
               />
             </div>
           ) : null}
