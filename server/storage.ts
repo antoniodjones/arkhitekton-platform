@@ -606,12 +606,19 @@ export class DatabaseStorage implements IStorage {
   async updateTask(id: string, updates: Partial<Task>): Promise<Task | undefined> {
     const updateData: any = {
       ...updates,
-      updatedAt: new Date()
+      updatedAt: new Date().toISOString()
     };
     
     if (updates.completed !== undefined) {
       updateData.completed = updates.completed ? 1 : 0;
-      updateData.completedAt = updates.completed ? new Date() : null;
+      updateData.completedAt = updates.completed ? new Date().toISOString() : null;
+    }
+    
+    // Handle completedAt from status changes
+    if (updates.completedAt === null) {
+      updateData.completedAt = null;
+    } else if (updates.completedAt) {
+      updateData.completedAt = typeof updates.completedAt === 'string' ? updates.completedAt : new Date(updates.completedAt).toISOString();
     }
     
     if (updates.abilities !== undefined) {

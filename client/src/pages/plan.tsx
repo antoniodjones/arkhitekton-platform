@@ -177,7 +177,9 @@ function TaskDialog({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({
+    
+    // Prepare the task data - only include fields that should be updated
+    const taskData: any = {
       title,
       description,
       priority,
@@ -186,14 +188,23 @@ function TaskDialog({
       dependencies,
       subtasks,
       completed: status === 'completed' ? 1 : 0, // Convert boolean to integer for schema
-      abilities: [],
-      assignee: null,
-      dueDate: null,
-      comments: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      completedAt: status === 'completed' ? new Date() : null
-    });
+      abilities: task?.abilities || [],
+      assignee: task?.assignee || null,
+      dueDate: task?.dueDate || null,
+      comments: task?.comments || null,
+    };
+
+    // For new tasks, the database will handle createdAt and updatedAt automatically
+    // For existing tasks, only include completedAt if status is completed
+    if (status === 'completed' && task?.status !== 'completed') {
+      // Task just got completed, set completedAt
+      taskData.completedAt = new Date().toISOString();
+    } else if (status !== 'completed') {
+      // Task is not completed, clear completedAt
+      taskData.completedAt = null;
+    }
+
+    onSave(taskData);
   };
 
   return (
