@@ -542,21 +542,70 @@ export default function PlanPage() {
     );
   }
 
+  // Calculate overall progress
+  const completedTasks = tasks.filter((task: Task) => task.status === 'completed').length;
+  const totalTasks = tasks.length;
+  const progressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/">
-            <Button variant="ghost" size="sm" data-testid="button-back">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">DEVELOPMENT PLAN</h1>
-            <p className="text-muted-foreground">Comprehensive task management and progress tracking</p>
+      {/* Back Button */}
+      <div>
+        <Link href="/">
+          <Button variant="ghost" size="sm" data-testid="button-back">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+        </Link>
+      </div>
+
+      {/* Mission Section */}
+      <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 rounded-lg p-6 border border-orange-200 dark:border-orange-800">
+        <div className="flex items-start gap-3">
+          <div className="w-6 h-6 bg-orange-100 dark:bg-orange-900 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
+            <span className="text-orange-600 dark:text-orange-400 text-sm">🏆</span>
           </div>
+          <div className="space-y-3">
+            <h2 className="text-lg font-semibold text-orange-900 dark:text-orange-100">Our Mission</h2>
+            <p className="text-orange-800 dark:text-orange-200 leading-relaxed">
+              Build ARKHITEKTON to be so <span className="font-semibold text-orange-900 dark:text-orange-100">advanced, elegant, and simple</span> that every other enterprise architecture tool becomes obsolete. We're not just building software - we're creating the future of how architects design, collaborate, and transform complex systems into understandable excellence.
+            </p>
+            <div className="flex items-center gap-2 mt-4">
+              <span className="text-orange-600 dark:text-orange-400 text-sm">⚡</span>
+              <span className="text-orange-700 dark:text-orange-300 text-sm font-medium">Making enterprise architecture tools that architects actually love to use</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Overall Progress */}
+      <div className="bg-card dark:bg-card border border-border dark:border-border rounded-lg p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-foreground dark:text-foreground">Overall Progress</h3>
+          <div className="flex items-center gap-2">
+            <span className="text-2xl font-bold text-foreground dark:text-foreground">{completedTasks}/{totalTasks}</span>
+            <span className="text-muted-foreground dark:text-muted-foreground">Complete</span>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <div className="w-full bg-muted dark:bg-muted rounded-full h-3">
+            <div 
+              className="bg-gradient-to-r from-orange-500 to-amber-500 h-3 rounded-full transition-all duration-500" 
+              style={{ width: `${progressPercentage}%` }}
+            ></div>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-foreground dark:text-foreground font-medium">{progressPercentage}% Complete</span>
+            <span className="text-muted-foreground dark:text-muted-foreground">Making every other EA tool obsolete</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Header with Create Button */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">DEVELOPMENT PLAN</h1>
+          <p className="text-muted-foreground">Comprehensive task management and progress tracking</p>
         </div>
         <Button onClick={handleCreateTask} data-testid="button-create-task">
           <span className="mr-2">+</span>
