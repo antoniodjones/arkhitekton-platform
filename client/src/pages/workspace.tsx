@@ -7,6 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { ResizableSplitter } from '@/components/workspace/resizable-splitter';
 import { Button } from '@/components/ui/button';
 import { PanelLeftOpen, PanelLeftClose, Home, Save, Users, Search, Sparkles, Bot, AlertTriangle, ArrowLeft, Building, Settings } from 'lucide-react';
+import { GovernanceHeader } from '@/components/layout/governance-header';
 import { Link } from 'wouter';
 import { archimateElements, ArchimateElement } from '@/data/archimate-elements';
 import type { WorkspaceState } from '@/components/workspace/workspace';
@@ -74,38 +75,10 @@ function WorkspaceContent() {
 
   return (
     <div className="h-full overflow-hidden flex flex-col">
-      {/* Header */}
-      <header className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-700/50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/25">
-                  <Building className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-slate-800 dark:from-white dark:via-slate-200 dark:to-slate-300 bg-clip-text text-transparent tracking-tight">
-                    ARCHITECTURE WORKSPACE
-                  </h1>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide">DYNAMIC WORKSPACE FOR ARCHITECTURAL MODELING</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              <Link href="/">
-                <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
-                  <Home className="h-4 w-4 mr-2" />
-                  Dashboard
-                </Button>
-              </Link>
-              <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
-                <Settings className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <GovernanceHeader 
+        moduleTitle="Architecture Workspace" 
+        moduleIcon={Building} 
+      />
 
       <div className="flex-1 overflow-hidden flex">
         {/* Palette Sidebar with Resizable Splitter */}
@@ -136,7 +109,7 @@ function WorkspaceContent() {
             </div>
           </div>
           <ResizableSplitter
-            leftWidth={paletteWidth}
+            width={paletteWidth}
             onResize={setPaletteWidth}
             minWidth={250}
             maxWidth={600}

@@ -28,6 +28,7 @@ import {
   GitBranch
 } from 'lucide-react';
 import { Link } from 'wouter';
+import { GovernanceHeader } from '@/components/layout/governance-header';
 import { 
   DndContext,
   closestCenter,
@@ -549,31 +550,20 @@ export default function PlanPage() {
   const progressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   return (
-    <div className="space-y-6">
-      {/* Page Header - At Top */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/">
-            <Button variant="ghost" size="sm" data-testid="button-back">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          </Link>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/25">
-              <GitBranch className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">DEVELOPMENT PLAN</h1>
-              <p className="text-muted-foreground">Comprehensive task management and progress tracking</p>
-            </div>
-          </div>
+    <div className="h-full overflow-hidden flex flex-col">
+      <GovernanceHeader 
+        moduleTitle="Development Plan" 
+        moduleIcon={GitBranch} 
+      />
+
+      <div className="flex-1 overflow-auto p-6 space-y-6">
+        {/* Create Task Button */}
+        <div className="flex justify-end">
+          <Button onClick={handleCreateTask} data-testid="button-create-task">
+            <span className="mr-2">+</span>
+            Create Task
+          </Button>
         </div>
-        <Button onClick={handleCreateTask} data-testid="button-create-task">
-          <span className="mr-2">+</span>
-          Create Task
-        </Button>
-      </div>
 
       {/* Mission Section */}
       <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 rounded-lg p-6 border border-orange-200 dark:border-orange-800">
@@ -793,6 +783,7 @@ export default function PlanPage() {
         task={editingTask}
         onSave={handleSaveTask}
       />
+      </div>
     </div>
   );
 }
