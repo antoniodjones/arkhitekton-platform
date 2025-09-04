@@ -6,7 +6,7 @@ import { PropertiesPanel } from '@/components/palette/properties-panel';
 import { Separator } from '@/components/ui/separator';
 import { ResizableSplitter } from '@/components/workspace/resizable-splitter';
 import { Button } from '@/components/ui/button';
-import { PanelLeftOpen, PanelLeftClose, Home, Save, Users, Search, Sparkles, Bot, AlertTriangle } from 'lucide-react';
+import { PanelLeftOpen, PanelLeftClose, Home, Save, Users, Search, Sparkles, Bot, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { Link } from 'wouter';
 import { archimateElements, ArchimateElement } from '@/data/archimate-elements';
 import type { WorkspaceState } from '@/components/workspace/workspace';
@@ -129,24 +129,19 @@ function WorkspaceContent() {
               )}
             </Button>
             <div className="flex items-center space-x-3">
-              <div className="relative">
-                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/25">
-                  <div className="w-4 h-4 bg-white/90 rounded-md transform rotate-45" />
-                </div>
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full" />
+              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                <div className="w-5 h-5 bg-white/90 rounded-md transform rotate-45" />
               </div>
               <div>
-                <h1 className="text-lg font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-slate-800 dark:from-white dark:via-slate-200 dark:to-slate-300 bg-clip-text text-transparent tracking-tight">
-                  ARKITEKTON
-                </h1>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide">WORKSPACE</p>
+                <h1 className="text-2xl font-bold tracking-tight">ARCHITECTURE WORKSPACE</h1>
+                <p className="text-muted-foreground">Interactive workspace for collaborative architecture design and element organization</p>
               </div>
             </div>
             <div className="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-2" />
             <Link href="/">
               <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white" data-testid="button-dashboard">
-                <Home className="h-4 w-4 mr-2" />
-                Dashboard
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Dashboard
               </Button>
             </Link>
           </div>
