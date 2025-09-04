@@ -96,6 +96,28 @@ function TaskDialog({
   const [dependencySearch, setDependencySearch] = useState('');
   const [showDependencyResults, setShowDependencyResults] = useState(false);
 
+  // Update form state when task prop changes
+  useEffect(() => {
+    if (task) {
+      setTitle(task.title || '');
+      setDescription(task.description || '');
+      setPriority(task.priority || 'medium');
+      setCategory(task.category || 'foundation');
+      setStatus(task.status || 'todo');
+      setDependencies(task.dependencies || []);
+      setSubtasks(task.subtasks || []);
+    } else {
+      // Reset form for new task
+      setTitle('');
+      setDescription('');
+      setPriority('medium');
+      setCategory('foundation');
+      setStatus('todo');
+      setDependencies([]);
+      setSubtasks([]);
+    }
+  }, [task]);
+
   // Circular dependency detection
   const wouldCreateCircularDependency = (newDepId: string): boolean => {
     if (!task?.id || newDepId === task.id) return true;
