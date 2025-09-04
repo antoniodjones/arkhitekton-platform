@@ -17,7 +17,14 @@ import {
   Edit,
   ArrowLeft,
   Archive,
-  Trash2
+  Trash2,
+  LayoutGrid,
+  List,
+  BarChart3,
+  Calendar,
+  Table,
+  Search,
+  Filter
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { 
@@ -379,6 +386,9 @@ export default function PlanPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
+  const [currentView, setCurrentView] = useState<'board' | 'list' | 'gantt' | 'calendar' | 'table'>('board');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('All Categories');
 
   const queryClient = useQueryClient();
 
@@ -554,8 +564,106 @@ export default function PlanPage() {
         </Button>
       </div>
 
-      {/* Kanban Board */}
-      <DndContext
+      {/* View Selection and Filters */}
+      <div className="space-y-4">
+        {/* View Selection Tabs */}
+        <div className="flex items-center gap-1 bg-muted p-1 rounded-lg w-fit">
+          <Button
+            variant={currentView === 'board' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setCurrentView('board')}
+            className="flex items-center gap-2"
+          >
+            <LayoutGrid className="w-4 h-4" />
+            Board
+          </Button>
+          <Button
+            variant={currentView === 'list' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setCurrentView('list')}
+            className="flex items-center gap-2"
+          >
+            <List className="w-4 h-4" />
+            List
+          </Button>
+          <Button
+            variant={currentView === 'gantt' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setCurrentView('gantt')}
+            className="flex items-center gap-2"
+          >
+            <BarChart3 className="w-4 h-4" />
+            Gantt
+          </Button>
+          <Button
+            variant={currentView === 'calendar' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setCurrentView('calendar')}
+            className="flex items-center gap-2"
+          >
+            <Calendar className="w-4 h-4" />
+            Calendar
+          </Button>
+          <Button
+            variant={currentView === 'table' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setCurrentView('table')}
+            className="flex items-center gap-2"
+          >
+            <Table className="w-4 h-4" />
+            Table
+          </Button>
+        </div>
+
+        {/* Filter Controls */}
+        <div className="flex items-center gap-4">
+          {/* Search Input */}
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input
+              placeholder="Search tasks..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+              data-testid="input-search-tasks"
+            />
+          </div>
+
+          {/* Time Filter */}
+          <Select defaultValue="all-time">
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="All Time" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all-time">All Time</SelectItem>
+              <SelectItem value="today">Today</SelectItem>
+              <SelectItem value="this-week">This Week</SelectItem>
+              <SelectItem value="this-month">This Month</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Category Filter */}
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="All Categories" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All Categories">All Categories</SelectItem>
+              <SelectItem value="foundation">Foundation</SelectItem>
+              <SelectItem value="modeling">Modeling</SelectItem>
+              <SelectItem value="knowledge-base">Knowledge Base</SelectItem>
+              <SelectItem value="architecture">Architecture</SelectItem>
+              <SelectItem value="ui-ux">UI/UX</SelectItem>
+              <SelectItem value="development">Development</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Content Based on Current View */}
+      {currentView === 'board' && (
+        <>{/* Kanban Board */}
+        <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragStart={handleDragStart}
@@ -608,7 +716,21 @@ export default function PlanPage() {
             </div>
           ) : null}
         </DragOverlay>
-      </DndContext>
+        </DndContext>
+        </>
+      )}
+
+      {/* Other Views - Coming Soon */}
+      {currentView !== 'board' && (
+        <div className="text-center py-12">
+          <div className="text-muted-foreground">
+            <div className="text-lg font-medium mb-2">
+              {currentView.charAt(0).toUpperCase() + currentView.slice(1)} View
+            </div>
+            <p>Coming soon! This view is under development.</p>
+          </div>
+        </div>
+      )}
 
       {/* Task Dialog */}
       <TaskDialog
