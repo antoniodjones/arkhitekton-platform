@@ -236,6 +236,9 @@ export class MemStorage implements IStorage {
   }
 
   private initializeSampleTasks() {
+    // Clear any existing tasks first
+    this.tasks.clear();
+    
     const now = new Date();
     const addDays = (date: Date, days: number) => new Date(date.getTime() + (days * 24 * 60 * 60 * 1000));
     const formatDate = (date: Date) => date.toISOString().split('T')[0];
