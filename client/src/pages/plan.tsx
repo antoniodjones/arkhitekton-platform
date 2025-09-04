@@ -15,6 +15,7 @@ import {
   Clock, 
   GripVertical,
   Edit,
+  Edit2,
   ArrowLeft,
   Archive,
   Trash2,
@@ -26,7 +27,10 @@ import {
   Search,
   Filter,
   GitBranch,
-  CheckCircle
+  CheckCircle,
+  ArrowRight,
+  CheckSquare,
+  Plus
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { GovernanceHeader } from '@/components/layout/governance-header';
@@ -188,7 +192,7 @@ function TaskDialog({
       dependencies: dependency ? [dependency] : [],
       subtasks: subtasks.map(st => ({
         ...st,
-        createdAt: typeof st.createdAt === 'object' ? st.createdAt.toISOString() : st.createdAt
+        createdAt: typeof st.createdAt === 'string' ? st.createdAt : new Date().toISOString()
       })),
       completed: status === 'completed' ? 1 : 0, // Convert boolean to integer for schema
       abilities: task?.abilities || [],
@@ -787,6 +791,39 @@ export default function PlanPage() {
     return tasks.filter((task: Task) => task.status === status);
   };
 
+  // Helper functions for styling
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'low': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+    }
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'foundation': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'modeling': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+      case 'knowledge-base': return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200';
+      case 'ai': return 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200';
+      case 'integration': return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
+      case 'ux': return 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+    }
+  };
+
+  // Filter tasks based on search and category
+  const filteredTasks = tasks.filter((task: Task) => {
+    const matchesSearch = searchQuery === '' || 
+      task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    const matchesCategory = categoryFilter === 'All Categories' || task.category === categoryFilter;
+    
+    return matchesSearch && matchesCategory;
+  });
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-96">
@@ -1022,8 +1059,203 @@ export default function PlanPage() {
         </>
       )}
 
-      {/* Other Views - Coming Soon */}
-      {currentView !== 'board' && (
+      {/* List View */}
+      {currentView === 'list' && (
+        <div className="space-y-2">
+          {filteredTasks.map((task: Task) => (
+            <div key={task.id} className="bg-white dark:bg-gray-800 rounded-lg border p-4 hover:shadow-sm transition-shadow">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 flex-1">
+                  <button
+                    onClick={() => handleToggleTaskComplete(task)}
+                    className="flex-shrink-0"
+                    data-testid={`button-toggle-complete-${task.id}`}
+                  >
+                    {task.completed ? (
+                      <CheckCircle2 className="w-5 h-5 text-green-500" />
+                    ) : (
+                      <Circle className="w-5 h-5 text-gray-400" />
+                    )}
+                  </button>
+                  
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className={`font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
+                        {task.title}
+                      </h3>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
+                        {task.priority}
+                      </span>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(task.category)}`}>
+                        {task.category}
+                      </span>
+                    </div>
+                    {task.description && (
+                      <p className="text-sm text-muted-foreground mb-2">{task.description}</p>
+                    )}
+                    
+                    {/* Dependencies and Subtasks indicators */}
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      {task.dependencies && task.dependencies.length > 0 && (
+                        <span className="flex items-center gap-1">
+                          <ArrowRight className="w-3 h-3" />
+                          Depends on {task.dependencies.length} task
+                        </span>
+                      )}
+                      {task.subtasks && task.subtasks.length > 0 && (
+                        <span className="flex items-center gap-1">
+                          <CheckSquare className="w-3 h-3" />
+                          {task.subtasks.filter((st: any) => st.completed).length}/{task.subtasks.length} subtasks
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2 ml-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEditTask(task)}
+                    data-testid={`button-edit-task-${task.id}`}
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteTask(task.id)}
+                    className="text-red-500 hover:text-red-700"
+                    data-testid={`button-delete-task-${task.id}`}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+          
+          {filteredTasks.length === 0 && (
+            <div className="text-center py-12 text-muted-foreground">
+              No tasks found matching your filters.
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Table View */}
+      {currentView === 'table' && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg border overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Task
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Priority
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Category
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Dependencies
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Subtasks
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
+                {filteredTasks.map((task: Task) => (
+                  <tr key={task.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => handleToggleTaskComplete(task)}
+                        data-testid={`button-toggle-complete-${task.id}`}
+                      >
+                        {task.completed ? (
+                          <CheckCircle2 className="w-5 h-5 text-green-500" />
+                        ) : (
+                          <Circle className="w-5 h-5 text-gray-400" />
+                        )}
+                      </button>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="max-w-sm">
+                        <div className={`font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
+                          {task.title}
+                        </div>
+                        {task.description && (
+                          <div className="text-sm text-muted-foreground truncate mt-1">
+                            {task.description}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
+                        {task.priority}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(task.category)}`}>
+                        {task.category}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">
+                      {task.dependencies && task.dependencies.length > 0 ? `${task.dependencies.length} task` : '—'}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">
+                      {task.subtasks && task.subtasks.length > 0 
+                        ? `${task.subtasks.filter((st: any) => st.completed).length}/${task.subtasks.length}` 
+                        : '—'
+                      }
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditTask(task)}
+                          data-testid={`button-edit-task-${task.id}`}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteTask(task.id)}
+                          className="text-red-500 hover:text-red-700"
+                          data-testid={`button-delete-task-${task.id}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          {filteredTasks.length === 0 && (
+            <div className="text-center py-12 text-muted-foreground">
+              No tasks found matching your filters.
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Calendar and Gantt Views - Coming Soon */}
+      {(currentView === 'calendar' || currentView === 'gantt') && (
         <div className="text-center py-12">
           <div className="text-muted-foreground">
             <div className="text-lg font-medium mb-2">
