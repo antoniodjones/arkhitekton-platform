@@ -69,6 +69,8 @@ export class MemStorage implements IStorage {
     this.initializeArchitectureElements();
     // Initialize with sample knowledge base pages
     this.initializeKnowledgeBasePages();
+    // Initialize with sample tasks with realistic dates
+    this.initializeSampleTasks();
   }
 
   private initializeArchitectureElements() {
@@ -230,6 +232,417 @@ export class MemStorage implements IStorage {
         updatedAt: new Date()
       };
       this.knowledgeBasePages.set(id, fullPage);
+    });
+  }
+
+  private initializeSampleTasks() {
+    const now = new Date();
+    const addDays = (date: Date, days: number) => new Date(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    const formatDate = (date: Date) => date.toISOString().split('T')[0];
+
+    const sampleTasks: InsertTask[] = [
+      // Foundation Phase (Month 1-2)
+      {
+        title: 'Database Infrastructure Setup',
+        description: 'Configure PostgreSQL, MongoDB, and Qdrant databases with proper clustering and replication',
+        status: 'completed',
+        priority: 'high',
+        category: 'foundation',
+        assignee: 'System Architect',
+        dueDate: formatDate(addDays(now, -45)),
+        startDate: formatDate(addDays(now, -60)),
+        endDate: formatDate(addDays(now, -45)),
+        dependencies: [],
+        subtasks: [
+          { id: '1', title: 'Set up PostgreSQL cluster', completed: true, createdAt: formatDate(addDays(now, -60)) },
+          { id: '2', title: 'Configure MongoDB replica set', completed: true, createdAt: formatDate(addDays(now, -55)) },
+          { id: '3', title: 'Deploy Qdrant vector database', completed: true, createdAt: formatDate(addDays(now, -50)) }
+        ],
+        tags: ['database', 'infrastructure'],
+        estimatedHours: 120,
+        actualHours: 110,
+        completed: 1
+      },
+      {
+        title: 'Authentication & Authorization System',
+        description: 'Implement OAuth 2.0, RBAC, and session management with enterprise SSO integration',
+        status: 'completed',
+        priority: 'high',
+        category: 'foundation',
+        assignee: 'Security Engineer',
+        dueDate: formatDate(addDays(now, -30)),
+        startDate: formatDate(addDays(now, -50)),
+        endDate: formatDate(addDays(now, -30)),
+        dependencies: [],
+        subtasks: [
+          { id: '1', title: 'OAuth 2.0 implementation', completed: true, createdAt: formatDate(addDays(now, -50)) },
+          { id: '2', title: 'Role-based access control', completed: true, createdAt: formatDate(addDays(now, -40)) },
+          { id: '3', title: 'SSO integration', completed: true, createdAt: formatDate(addDays(now, -35)) }
+        ],
+        tags: ['security', 'authentication'],
+        estimatedHours: 80,
+        actualHours: 75,
+        completed: 1
+      },
+      {
+        title: 'Core API Framework',
+        description: 'Build GraphQL API with REST fallbacks, implementing caching and rate limiting',
+        status: 'in-progress',
+        priority: 'high',
+        category: 'foundation',
+        assignee: 'Backend Lead',
+        dueDate: formatDate(addDays(now, 15)),
+        startDate: formatDate(addDays(now, -20)),
+        endDate: formatDate(addDays(now, 15)),
+        dependencies: [],
+        subtasks: [
+          { id: '1', title: 'GraphQL schema design', completed: true, createdAt: formatDate(addDays(now, -20)) },
+          { id: '2', title: 'REST API endpoints', completed: true, createdAt: formatDate(addDays(now, -15)) },
+          { id: '3', title: 'Rate limiting & caching', completed: false, createdAt: formatDate(addDays(now, -10)) }
+        ],
+        tags: ['api', 'graphql', 'backend'],
+        estimatedHours: 100,
+        actualHours: 60,
+        completed: 0
+      },
+
+      // Knowledge Base Phase (Month 2-3)
+      {
+        title: 'Rich Text Editor Implementation',
+        description: 'Build Confluence-like editor with real-time collaboration, version control, and advanced formatting',
+        status: 'todo',
+        priority: 'high',
+        category: 'knowledge-base',
+        assignee: 'Frontend Lead',
+        dueDate: formatDate(addDays(now, 45)),
+        startDate: formatDate(addDays(now, 10)),
+        endDate: formatDate(addDays(now, 45)),
+        dependencies: [],
+        subtasks: [
+          { id: '1', title: 'TipTap editor integration', completed: false, createdAt: formatDate(now) },
+          { id: '2', title: 'Real-time collaboration', completed: false, createdAt: formatDate(now) },
+          { id: '3', title: 'Version control system', completed: false, createdAt: formatDate(now) }
+        ],
+        tags: ['editor', 'collaboration', 'frontend'],
+        estimatedHours: 150,
+        actualHours: 0,
+        completed: 0
+      },
+      {
+        title: 'Content Organization System',
+        description: 'Implement hierarchical page structure with categories, tags, and advanced search capabilities',
+        status: 'todo',
+        priority: 'medium',
+        category: 'knowledge-base',
+        assignee: 'Full Stack Developer',
+        dueDate: formatDate(addDays(now, 60)),
+        startDate: formatDate(addDays(now, 20)),
+        endDate: formatDate(addDays(now, 60)),
+        dependencies: [],
+        subtasks: [
+          { id: '1', title: 'Hierarchical structure', completed: false, createdAt: formatDate(now) },
+          { id: '2', title: 'Tagging system', completed: false, createdAt: formatDate(now) },
+          { id: '3', title: 'Advanced search', completed: false, createdAt: formatDate(now) }
+        ],
+        tags: ['organization', 'search', 'hierarchy'],
+        estimatedHours: 90,
+        actualHours: 0,
+        completed: 0
+      },
+      {
+        title: 'Template System Development',
+        description: 'Create reusable templates for architecture documentation, decision records, and design patterns',
+        status: 'todo',
+        priority: 'medium',
+        category: 'knowledge-base',
+        assignee: 'Content Architect',
+        dueDate: formatDate(addDays(now, 75)),
+        startDate: formatDate(addDays(now, 40)),
+        endDate: formatDate(addDays(now, 75)),
+        dependencies: [],
+        subtasks: [
+          { id: '1', title: 'ADR templates', completed: false, createdAt: formatDate(now) },
+          { id: '2', title: 'Architecture pattern templates', completed: false, createdAt: formatDate(now) },
+          { id: '3', title: 'Template engine', completed: false, createdAt: formatDate(now) }
+        ],
+        tags: ['templates', 'documentation', 'patterns'],
+        estimatedHours: 60,
+        actualHours: 0,
+        completed: 0
+      },
+
+      // Modeling Phase (Month 3-4)
+      {
+        title: 'Visual Modeling Engine',
+        description: 'Build drag-and-drop modeling interface with ArchiMate, BPMN, and cloud architecture support',
+        status: 'todo',
+        priority: 'high',
+        category: 'modeling',
+        assignee: 'Frontend Architect',
+        dueDate: formatDate(addDays(now, 120)),
+        startDate: formatDate(addDays(now, 60)),
+        endDate: formatDate(addDays(now, 120)),
+        dependencies: [],
+        subtasks: [
+          { id: '1', title: 'Canvas rendering engine', completed: false, createdAt: formatDate(now) },
+          { id: '2', title: 'Drag & drop system', completed: false, createdAt: formatDate(now) },
+          { id: '3', title: 'ArchiMate notation', completed: false, createdAt: formatDate(now) }
+        ],
+        tags: ['modeling', 'archimate', 'canvas'],
+        estimatedHours: 200,
+        actualHours: 0,
+        completed: 0
+      },
+      {
+        title: 'Model Relationship Engine',
+        description: 'Implement intelligent connection system with validation, impact analysis, and relationship mapping',
+        status: 'todo',
+        priority: 'high',
+        category: 'modeling',
+        assignee: 'Systems Engineer',
+        dueDate: formatDate(addDays(now, 135)),
+        startDate: formatDate(addDays(now, 90)),
+        endDate: formatDate(addDays(now, 135)),
+        dependencies: [],
+        subtasks: [
+          { id: '1', title: 'Relationship validation', completed: false, createdAt: formatDate(now) },
+          { id: '2', title: 'Impact analysis engine', completed: false, createdAt: formatDate(now) },
+          { id: '3', title: 'Auto-connection suggestions', completed: false, createdAt: formatDate(now) }
+        ],
+        tags: ['relationships', 'validation', 'analysis'],
+        estimatedHours: 120,
+        actualHours: 0,
+        completed: 0
+      },
+      {
+        title: 'Multi-Framework Support',
+        description: 'Add support for TOGAF, BPMN, UML, and cloud-native architecture patterns',
+        status: 'todo',
+        priority: 'medium',
+        category: 'modeling',
+        assignee: 'Architecture Specialist',
+        dueDate: formatDate(addDays(now, 150)),
+        startDate: formatDate(addDays(now, 110)),
+        endDate: formatDate(addDays(now, 150)),
+        dependencies: [],
+        subtasks: [
+          { id: '1', title: 'TOGAF framework', completed: false, createdAt: formatDate(now) },
+          { id: '2', title: 'BPMN support', completed: false, createdAt: formatDate(now) },
+          { id: '3', title: 'Cloud patterns', completed: false, createdAt: formatDate(now) }
+        ],
+        tags: ['togaf', 'bpmn', 'frameworks'],
+        estimatedHours: 100,
+        actualHours: 0,
+        completed: 0
+      },
+
+      // AI Intelligence Phase (Month 4-5)
+      {
+        title: 'AI-Powered Analysis Engine',
+        description: 'Implement Claude integration for architectural insights, pattern recognition, and recommendations',
+        status: 'todo',
+        priority: 'high',
+        category: 'ai',
+        assignee: 'AI Engineer',
+        dueDate: formatDate(addDays(now, 180)),
+        startDate: formatDate(addDays(now, 130)),
+        endDate: formatDate(addDays(now, 180)),
+        dependencies: [],
+        subtasks: [
+          { id: '1', title: 'Claude API integration', completed: false, createdAt: formatDate(now) },
+          { id: '2', title: 'Pattern recognition', completed: false, createdAt: formatDate(now) },
+          { id: '3', title: 'Recommendation engine', completed: false, createdAt: formatDate(now) }
+        ],
+        tags: ['ai', 'claude', 'analysis'],
+        estimatedHours: 140,
+        actualHours: 0,
+        completed: 0
+      },
+      {
+        title: 'Semantic Search Implementation',
+        description: 'Build vector-based search with Qdrant for intelligent content discovery and model exploration',
+        status: 'todo',
+        priority: 'medium',
+        category: 'ai',
+        assignee: 'ML Engineer',
+        dueDate: formatDate(addDays(now, 195)),
+        startDate: formatDate(addDays(now, 155)),
+        endDate: formatDate(addDays(now, 195)),
+        dependencies: [],
+        subtasks: [
+          { id: '1', title: 'Vector embeddings', completed: false, createdAt: formatDate(now) },
+          { id: '2', title: 'Qdrant integration', completed: false, createdAt: formatDate(now) },
+          { id: '3', title: 'Search interface', completed: false, createdAt: formatDate(now) }
+        ],
+        tags: ['search', 'vectors', 'qdrant'],
+        estimatedHours: 80,
+        actualHours: 0,
+        completed: 0
+      },
+      {
+        title: 'Intelligent Automation Features',
+        description: 'Develop auto-generation of architecture documentation, impact analysis, and change suggestions',
+        status: 'todo',
+        priority: 'medium',
+        category: 'ai',
+        assignee: 'Automation Engineer',
+        dueDate: formatDate(addDays(now, 210)),
+        startDate: formatDate(addDays(now, 170)),
+        endDate: formatDate(addDays(now, 210)),
+        dependencies: [],
+        subtasks: [
+          { id: '1', title: 'Auto-documentation', completed: false, createdAt: formatDate(now) },
+          { id: '2', title: 'Change impact analysis', completed: false, createdAt: formatDate(now) },
+          { id: '3', title: 'Smart suggestions', completed: false, createdAt: formatDate(now) }
+        ],
+        tags: ['automation', 'documentation', 'suggestions'],
+        estimatedHours: 110,
+        actualHours: 0,
+        completed: 0
+      },
+
+      // Integration Phase (Month 5-6)
+      {
+        title: 'Enterprise Tool Integration',
+        description: 'Build connectors for Jira, Confluence, Azure DevOps, and other enterprise platforms',
+        status: 'todo',
+        priority: 'high',
+        category: 'integration',
+        assignee: 'Integration Specialist',
+        dueDate: formatDate(addDays(now, 240)),
+        startDate: formatDate(addDays(now, 190)),
+        endDate: formatDate(addDays(now, 240)),
+        dependencies: [],
+        subtasks: [
+          { id: '1', title: 'Jira integration', completed: false, createdAt: formatDate(now) },
+          { id: '2', title: 'Confluence sync', completed: false, createdAt: formatDate(now) },
+          { id: '3', title: 'Azure DevOps connector', completed: false, createdAt: formatDate(now) }
+        ],
+        tags: ['integration', 'jira', 'confluence'],
+        estimatedHours: 120,
+        actualHours: 0,
+        completed: 0
+      },
+      {
+        title: 'Code-Architecture Synchronization',
+        description: 'Implement bidirectional sync between architectural models and codebase with IDE plugins',
+        status: 'todo',
+        priority: 'high',
+        category: 'integration',
+        assignee: 'DevOps Engineer',
+        dueDate: formatDate(addDays(now, 255)),
+        startDate: formatDate(addDays(now, 215)),
+        endDate: formatDate(addDays(now, 255)),
+        dependencies: [],
+        subtasks: [
+          { id: '1', title: 'Code analysis engine', completed: false, createdAt: formatDate(now) },
+          { id: '2', title: 'VS Code plugin', completed: false, createdAt: formatDate(now) },
+          { id: '3', title: 'Architecture generation', completed: false, createdAt: formatDate(now) }
+        ],
+        tags: ['code-sync', 'ide', 'plugins'],
+        estimatedHours: 160,
+        actualHours: 0,
+        completed: 0
+      },
+      {
+        title: 'API Ecosystem Development',
+        description: 'Create comprehensive API ecosystem with webhooks, SDK, and third-party integrations',
+        status: 'todo',
+        priority: 'medium',
+        category: 'integration',
+        assignee: 'API Developer',
+        dueDate: formatDate(addDays(now, 270)),
+        startDate: formatDate(addDays(now, 230)),
+        endDate: formatDate(addDays(now, 270)),
+        dependencies: [],
+        subtasks: [
+          { id: '1', title: 'Public API design', completed: false, createdAt: formatDate(now) },
+          { id: '2', title: 'SDK development', completed: false, createdAt: formatDate(now) },
+          { id: '3', title: 'Webhook system', completed: false, createdAt: formatDate(now) }
+        ],
+        tags: ['api', 'sdk', 'webhooks'],
+        estimatedHours: 90,
+        actualHours: 0,
+        completed: 0
+      },
+
+      // UX Excellence Phase (Month 6-7)
+      {
+        title: 'Advanced Visualization Engine',
+        description: 'Implement 3D modeling, interactive dashboards, and advanced chart generation capabilities',
+        status: 'todo',
+        priority: 'medium',
+        category: 'ux',
+        assignee: 'UX Engineer',
+        dueDate: formatDate(addDays(now, 300)),
+        startDate: formatDate(addDays(now, 250)),
+        endDate: formatDate(addDays(now, 300)),
+        dependencies: [],
+        subtasks: [
+          { id: '1', title: '3D model rendering', completed: false, createdAt: formatDate(now) },
+          { id: '2', title: 'Interactive dashboards', completed: false, createdAt: formatDate(now) },
+          { id: '3', title: 'Chart generation', completed: false, createdAt: formatDate(now) }
+        ],
+        tags: ['3d', 'visualization', 'dashboards'],
+        estimatedHours: 130,
+        actualHours: 0,
+        completed: 0
+      },
+      {
+        title: 'Collaboration Features',
+        description: 'Build real-time collaboration with live cursors, comments, version control, and team workspaces',
+        status: 'todo',
+        priority: 'high',
+        category: 'ux',
+        assignee: 'Collaboration Lead',
+        dueDate: formatDate(addDays(now, 315)),
+        startDate: formatDate(addDays(now, 275)),
+        endDate: formatDate(addDays(now, 315)),
+        dependencies: [],
+        subtasks: [
+          { id: '1', title: 'Real-time collaboration', completed: false, createdAt: formatDate(now) },
+          { id: '2', title: 'Comment system', completed: false, createdAt: formatDate(now) },
+          { id: '3', title: 'Team workspaces', completed: false, createdAt: formatDate(now) }
+        ],
+        tags: ['collaboration', 'real-time', 'workspaces'],
+        estimatedHours: 100,
+        actualHours: 0,
+        completed: 0
+      },
+      {
+        title: 'Mobile & Responsive Design',
+        description: 'Optimize platform for mobile devices with touch interactions and responsive layouts',
+        status: 'todo',
+        priority: 'low',
+        category: 'ux',
+        assignee: 'Mobile Developer',
+        dueDate: formatDate(addDays(now, 330)),
+        startDate: formatDate(addDays(now, 290)),
+        endDate: formatDate(addDays(now, 330)),
+        dependencies: [],
+        subtasks: [
+          { id: '1', title: 'Responsive layouts', completed: false, createdAt: formatDate(now) },
+          { id: '2', title: 'Touch interactions', completed: false, createdAt: formatDate(now) },
+          { id: '3', title: 'Mobile optimization', completed: false, createdAt: formatDate(now) }
+        ],
+        tags: ['mobile', 'responsive', 'touch'],
+        estimatedHours: 80,
+        actualHours: 0,
+        completed: 0
+      }
+    ];
+
+    sampleTasks.forEach(taskData => {
+      const id = randomUUID();
+      const task: Task = {
+        ...taskData,
+        id,
+        completed: taskData.completed || 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        completedAt: taskData.completed === 1 ? new Date() : null
+      };
+      this.tasks.set(id, task);
     });
   }
 
