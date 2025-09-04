@@ -24,7 +24,8 @@ import {
   Calendar,
   Table,
   Search,
-  Filter
+  Filter,
+  GitBranch
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { 
@@ -558,9 +559,14 @@ export default function PlanPage() {
               Back to Dashboard
             </Button>
           </Link>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">DEVELOPMENT PLAN</h1>
-            <p className="text-muted-foreground">Comprehensive task management and progress tracking</p>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/25">
+              <GitBranch className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">DEVELOPMENT PLAN</h1>
+              <p className="text-muted-foreground">Comprehensive task management and progress tracking</p>
+            </div>
           </div>
         </div>
         <Button onClick={handleCreateTask} data-testid="button-create-task">

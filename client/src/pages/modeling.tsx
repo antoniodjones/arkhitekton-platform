@@ -2,7 +2,7 @@ import React from 'react';
 import { ModelingWorkspace } from '@/components/modeling/modeling-workspace';
 import { ArchitecturalModel } from '@shared/schema';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Box } from 'lucide-react';
+import { ArrowLeft, Shapes } from 'lucide-react';
 import { Link } from 'wouter';
 
 export default function ModelingPage() {
@@ -62,7 +62,7 @@ export default function ModelingPage() {
           </Link>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
-              <Box className="w-5 h-5 text-white" />
+              <Shapes className="w-5 h-5 text-white" />
             </div>
             <div>
               <h1 className="text-2xl font-bold tracking-tight">ARCHITECTURE MODELING</h1>

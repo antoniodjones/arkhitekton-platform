@@ -6,7 +6,7 @@ import { PropertiesPanel } from '@/components/palette/properties-panel';
 import { Separator } from '@/components/ui/separator';
 import { ResizableSplitter } from '@/components/workspace/resizable-splitter';
 import { Button } from '@/components/ui/button';
-import { PanelLeftOpen, PanelLeftClose, Home, Save, Users, Search, Sparkles, Bot, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { PanelLeftOpen, PanelLeftClose, Home, Save, Users, Search, Sparkles, Bot, AlertTriangle, ArrowLeft, Building } from 'lucide-react';
 import { Link } from 'wouter';
 import { archimateElements, ArchimateElement } from '@/data/archimate-elements';
 import type { WorkspaceState } from '@/components/workspace/workspace';
@@ -130,7 +130,7 @@ function WorkspaceContent() {
             </Button>
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/25">
-                <div className="w-5 h-5 bg-white/90 rounded-md transform rotate-45" />
+                <Building className="w-5 h-5 text-white" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold tracking-tight">ARCHITECTURE WORKSPACE</h1>
