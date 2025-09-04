@@ -549,14 +549,24 @@ export default function PlanPage() {
 
   return (
     <div className="space-y-6">
-      {/* Back Button */}
-      <div>
-        <Link href="/">
-          <Button variant="ghost" size="sm" data-testid="button-back">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
-          </Button>
-        </Link>
+      {/* Page Header - At Top */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link href="/">
+            <Button variant="ghost" size="sm" data-testid="button-back">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">DEVELOPMENT PLAN</h1>
+            <p className="text-muted-foreground">Comprehensive task management and progress tracking</p>
+          </div>
+        </div>
+        <Button onClick={handleCreateTask} data-testid="button-create-task">
+          <span className="mr-2">+</span>
+          Create Task
+        </Button>
       </div>
 
       {/* Mission Section */}
@@ -601,17 +611,6 @@ export default function PlanPage() {
         </div>
       </div>
 
-      {/* Header with Create Button */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">DEVELOPMENT PLAN</h1>
-          <p className="text-muted-foreground">Comprehensive task management and progress tracking</p>
-        </div>
-        <Button onClick={handleCreateTask} data-testid="button-create-task">
-          <span className="mr-2">+</span>
-          Create Task
-        </Button>
-      </div>
 
       {/* View Selection and Filters */}
       <div className="space-y-4">
