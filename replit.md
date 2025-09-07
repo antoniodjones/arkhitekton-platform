@@ -57,6 +57,17 @@ The application currently provides a comprehensive design palette interface supp
 
 # Recent Changes
 
+**September 7, 2025**: Task Management UI Enhancement & Critical Date Handling Fix
+- Fixed critical recurring issue: Edit Task dialog date field disappearing (ISO to YYYY-MM-DD conversion)
+- Implemented comprehensive task view enhancements: Board, List, and Table views with proper date displays
+- Added task ID visibility with (first8chars) format across all views for better traceability
+- Fixed dark mode form control visibility issues with custom CSS overrides
+- Added date columns to List and Table views with calendar icons and proper formatting
+- Implemented double-click editing functionality for task titles in List and Table views
+- **CRITICAL STORAGE PATTERN**: System uses MemStorage for development (has sample tasks with dates) vs DatabaseStorage (no sample data initialization)
+- **DATE HANDLING PATTERN**: API returns ISO dates (2025-07-09T22:01:48.124Z), HTML inputs expect YYYY-MM-DD format
+- **FORM VALIDATION PATTERN**: Edit dialogs must convert between ISO strings and input formats to prevent data loss
+
 **August 31, 2025**: Revolutionary Enterprise Architecture Governance System with AI-Powered Ticketing
 - Implemented comprehensive ticket system with JIRA-like functionality but more elegant and integrated
 - Created Architecture Review Request service with sophisticated workflow management
@@ -101,12 +112,16 @@ The application uses a hybrid storage approach with Drizzle ORM configured for P
 **Database Schema:**
 - **users**: User authentication (id, username, password)
 - **architecture_elements**: Core element catalog with metadata, relationships, and visual properties
-- **recent_elements**: User activity tracking for recently accessed elements
+- **recent_elements**: User activity tracking for recently accessed elements  
+- **tasks**: Project management tasks with full metadata (title, description, dates, status, priority, dependencies, subtasks)
+- **sessions**: Session storage for PostgreSQL-backed session management
 
 **Key Design Decisions:**
 - **ORM Choice**: Drizzle ORM for type safety and performance
 - **Schema Design**: JSON fields for flexible relationship and metadata storage
 - **Migration Strategy**: Drizzle Kit for schema migrations
+- **Storage Strategy**: MemStorage (development with sample data) vs DatabaseStorage (production with PostgreSQL)
+- **Date Format Strategy**: API uses ISO strings, forms use YYYY-MM-DD, conversion utilities required
 
 ## Build System
 The project uses Vite for frontend bundling with esbuild for backend compilation, optimized for both development and production environments.
@@ -139,3 +154,63 @@ The project uses Vite for frontend bundling with esbuild for backend compilation
 - **Express**: Backend web framework with middleware support
 - **Wouter**: Lightweight client-side routing
 - **React Hook Form + Zod**: Form handling with runtime validation
+
+# Development Patterns & Anti-Patterns
+
+## Critical Patterns to Follow
+
+### Date Handling Pattern
+**Problem**: Edit Task dialog dates disappear due to format mismatch
+**Root Cause**: API returns ISO strings (2025-07-09T22:01:48.124Z), HTML date inputs expect YYYY-MM-DD
+**Solution Pattern**:
+```typescript
+// Always use utility functions for date conversion
+const formatDateForInput = (isoString: string | null) => {
+  if (!isoString) return '';
+  return new Date(isoString).toISOString().split('T')[0];
+};
+
+const formatDateForAPI = (dateString: string | null) => {
+  if (!dateString) return null;
+  return new Date(dateString).toISOString();
+};
+```
+
+### Storage Configuration Pattern
+**Problem**: Switching between MemStorage and DatabaseStorage causes data inconsistencies
+**Root Cause**: Only MemStorage initializes sample tasks with proper dates in constructor
+**Solution Pattern**:
+- Use MemStorage for development (has initializeSampleTasks() method)
+- Use DatabaseStorage for production (requires manual data seeding)
+- Always check storage type before implementing task-related features
+
+### Form Validation Pattern
+**Problem**: Edit dialogs lose data when validation fails or form initializes incorrectly
+**Root Cause**: React Hook Form default values must match exact format expected by inputs
+**Solution Pattern**:
+```typescript
+// Always set proper default values using format conversion
+const form = useForm({
+  defaultValues: {
+    startDate: formatDateForInput(task?.startDate),
+    endDate: formatDateForInput(task?.endDate),
+    // ... other fields
+  }
+});
+```
+
+## Critical Anti-Patterns to Avoid
+
+1. **Never modify date data without format conversion**
+2. **Never assume storage type - always check which implementation is active**
+3. **Never skip form default value initialization for edit dialogs**
+4. **Never implement task features without testing edit dialog functionality**
+
+## Pre-Implementation Checklist
+
+Before making ANY changes to task management:
+1. ✅ Check current storage implementation (MemStorage vs DatabaseStorage)
+2. ✅ Verify date format conversion utilities exist and are used
+3. ✅ Test Edit Task dialog with real task data
+4. ✅ Ensure form default values are properly formatted
+5. ✅ Update this documentation with any new patterns discovered
