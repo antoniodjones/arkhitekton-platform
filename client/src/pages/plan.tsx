@@ -235,6 +235,19 @@ function TaskDialog({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {task && (
+            <div>
+              <Label htmlFor="taskId">Task ID</Label>
+              <Input
+                id="taskId"
+                value={task.id.substring(0, 8)}
+                readOnly
+                className="bg-muted text-muted-foreground cursor-not-allowed"
+                data-testid="input-task-id"
+              />
+            </div>
+          )}
+          
           <div>
             <Label htmlFor="title">Title</Label>
             <Input
@@ -852,7 +865,8 @@ export default function PlanPage() {
   const filteredTasks = tasks.filter((task: Task) => {
     const matchesSearch = searchQuery === '' || 
       task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()));
+      (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      task.id.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesCategory = categoryFilter === 'All Categories' || task.category === categoryFilter;
     
