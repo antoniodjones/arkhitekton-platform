@@ -1145,8 +1145,12 @@ export default function PlanPage() {
                   
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className={`font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
-                        {task.title}
+                      <h3 
+                        className={`font-medium cursor-pointer hover:text-primary ${task.completed ? 'line-through text-muted-foreground' : ''}`}
+                        onDoubleClick={() => handleEditTask(task)}
+                        data-testid={`list-task-title-${task.id}`}
+                      >
+                        ({task.id.substring(0, 8)}) {task.title}
                       </h3>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
                         {task.priority}
@@ -1157,6 +1161,22 @@ export default function PlanPage() {
                     </div>
                     {task.description && (
                       <p className="text-sm text-muted-foreground mb-2">{task.description}</p>
+                    )}
+                    
+                    {/* Date Range Display */}
+                    {(task.startDate || task.endDate) && (
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+                        <Calendar className="w-3 h-3" />
+                        <span>
+                          {task.startDate && task.endDate ? (
+                            `${new Date(task.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(task.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+                          ) : task.startDate ? (
+                            `Start: ${new Date(task.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+                          ) : (
+                            `End: ${new Date(task.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+                          )}
+                        </span>
+                      </div>
                     )}
                     
                     {/* Dependencies and Subtasks indicators */}
@@ -1228,6 +1248,12 @@ export default function PlanPage() {
                     Category
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Start Date
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    End Date
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Dependencies
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -1255,8 +1281,12 @@ export default function PlanPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="max-w-sm">
-                        <div className={`font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
-                          {task.title}
+                        <div 
+                          className={`font-medium cursor-pointer hover:text-primary ${task.completed ? 'line-through text-muted-foreground' : ''}`}
+                          onDoubleClick={() => handleEditTask(task)}
+                          data-testid={`table-task-title-${task.id}`}
+                        >
+                          ({task.id.substring(0, 8)}) {task.title}
                         </div>
                         {task.description && (
                           <div className="text-sm text-muted-foreground truncate mt-1">
@@ -1274,6 +1304,12 @@ export default function PlanPage() {
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(task.category)}`}>
                         {task.category}
                       </span>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">
+                      {task.startDate ? new Date(task.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' }) : '—'}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">
+                      {task.endDate ? new Date(task.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' }) : '—'}
                     </td>
                     <td className="px-4 py-3 text-sm text-muted-foreground">
                       {task.dependencies && task.dependencies.length > 0 ? `${task.dependencies.length} task` : '—'}
