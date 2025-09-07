@@ -506,7 +506,7 @@ function TaskCard({
             <GripVertical className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
           </div>
           <h4 className={`font-medium text-sm leading-tight ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
-            {task.title}
+            ({task.id.substring(0, 8)}) {task.title}
           </h4>
         </div>
         <div className="flex items-center gap-1">
@@ -1406,9 +1406,9 @@ function CalendarView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task:
                       className={`text-xs p-1 rounded cursor-pointer hover:shadow-sm ${
                         getPriorityColor(task.priority)
                       }`}
-                      title={task.title}
+                      title={`(${task.id.substring(0, 8)}) ${task.title}`}
                     >
-                      {task.title.length > 15 ? `${task.title.substring(0, 15)}...` : task.title}
+                      {`(${task.id.substring(0, 8)}) ${task.title}`.length > 20 ? `(${task.id.substring(0, 8)}) ${task.title.substring(0, 10)}...` : `(${task.id.substring(0, 8)}) ${task.title}`}
                     </div>
                   ))}
                   {dayTasks.length > 3 && (
@@ -1483,7 +1483,7 @@ function SortableTaskRow({ task, timelineDates, oneMonthAgo, twoMonthsLater, onE
           <GripVertical className="h-4 w-4 text-gray-400" />
         </div>
         <div className="flex-1">
-          <div className="font-medium text-sm">{task.title}</div>
+          <div className="font-medium text-sm">({task.id.substring(0, 8)}) {task.title}</div>
           <div className="text-xs text-gray-500">
             {task.startDate && task.endDate && (
               <>
@@ -1505,10 +1505,10 @@ function SortableTaskRow({ task, timelineDates, oneMonthAgo, twoMonthsLater, onE
               top: '2px'
             }}
             onClick={() => onEditTask(task)}
-            title={`${task.title} (${task.priority} priority)`}
+            title={`(${task.id.substring(0, 8)}) ${task.title} (${task.priority} priority)`}
           >
             <div className="px-2 py-1 text-xs font-medium overflow-hidden">
-              {task.title}
+              ({task.id.substring(0, 8)}) {task.title}
             </div>
           </div>
         </div>
