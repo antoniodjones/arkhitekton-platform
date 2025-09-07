@@ -587,6 +587,22 @@ function TaskCard({
         {task.description}
       </p>
 
+      {/* Date Range Display */}
+      {(task.startDate || task.endDate) && (
+        <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+          <CalendarIcon className="w-3 h-3" />
+          <span>
+            {task.startDate && task.endDate ? (
+              `${new Date(task.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(task.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+            ) : task.startDate ? (
+              `Start: ${new Date(task.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+            ) : (
+              `End: ${new Date(task.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+            )}
+          </span>
+        </div>
+      )}
+
       {/* Dependencies and Subtasks Indicators */}
       {(task.dependencies?.length || task.subtasks?.length) && (
         <div className="flex items-center gap-2 mb-3">
