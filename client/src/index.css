@@ -84,6 +84,33 @@
   --ring: hsl(25 95% 60%);
 }
 
+/* Dark Mode Form Control Fixes */
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.2);
+  opacity: 0.8;
+}
+
+.dark select::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dark select::-webkit-scrollbar-track {
+  background: hsl(20 25% 12%);
+}
+
+.dark select::-webkit-scrollbar-thumb {
+  background: hsl(25 15% 65%);
+  border-radius: 4px;
+}
+
+.dark [data-radix-select-trigger] {
+  color: hsl(30 25% 95%) !important;
+}
+
+.dark [data-radix-select-trigger]:after {
+  filter: invert(1) brightness(1.2);
+}
+
 @layer base {
   * {
     @apply border-border;
