@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, parseISO, isWithinInterval, addDays } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
+import { formatDateForInput, formatDateForAPI } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -102,8 +103,8 @@ function TaskDialog({
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [dependencySearch, setDependencySearch] = useState('');
   const [showDependencyResults, setShowDependencyResults] = useState(false);
-  const [startDate, setStartDate] = useState(task?.startDate || '');
-  const [endDate, setEndDate] = useState(task?.endDate || '');
+  const [startDate, setStartDate] = useState(formatDateForInput(task?.startDate));
+  const [endDate, setEndDate] = useState(formatDateForInput(task?.endDate));
 
   // Update form state when task prop changes
   useEffect(() => {
@@ -115,8 +116,8 @@ function TaskDialog({
       setStatus(task.status || 'todo');
       setDependency((task.dependencies && task.dependencies.length > 0) ? task.dependencies[0] : null);
       setSubtasks(task.subtasks || []);
-      setStartDate(task.startDate || '');
-      setEndDate(task.endDate || '');
+      setStartDate(formatDateForInput(task.startDate));
+      setEndDate(formatDateForInput(task.endDate));
     } else {
       // Reset form for new task
       setTitle('');
@@ -207,8 +208,8 @@ function TaskDialog({
       abilities: task?.abilities || [],
       assignee: task?.assignee || null,
       dueDate: task?.dueDate || null,
-      startDate: startDate || null,
-      endDate: endDate || null,
+      startDate: formatDateForAPI(startDate),
+      endDate: formatDateForAPI(endDate),
       comments: task?.comments || null,
     };
 
