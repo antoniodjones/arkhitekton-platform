@@ -1021,24 +1021,39 @@ export class DatabaseStorage implements IStorage {
 
   async updateTask(id: string, updates: Partial<Task>): Promise<Task | undefined> {
     const updateData: any = {
-      ...updates,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date()
     };
     
+    // Handle text fields explicitly (no timestamp conversion)
+    if (updates.title !== undefined) updateData.title = updates.title;
+    if (updates.description !== undefined) updateData.description = updates.description;
+    if (updates.priority !== undefined) updateData.priority = updates.priority;
+    if (updates.category !== undefined) updateData.category = updates.category;
+    if (updates.status !== undefined) updateData.status = updates.status;
+    if (updates.assignee !== undefined) updateData.assignee = updates.assignee;
+    
+    // Handle date text fields as strings (no conversion)
+    if (updates.startDate !== undefined) updateData.startDate = updates.startDate;
+    if (updates.endDate !== undefined) updateData.endDate = updates.endDate;
+    if (updates.dueDate !== undefined) updateData.dueDate = updates.dueDate;
+    
+    // Handle arrays and JSON fields
+    if (updates.dependencies !== undefined) updateData.dependencies = updates.dependencies;
+    if (updates.subtasks !== undefined) updateData.subtasks = updates.subtasks;
+    if (updates.abilities !== undefined) updateData.abilities = updates.abilities;
+    if (updates.comments !== undefined) updateData.comments = updates.comments;
+    
+    // Handle completed status
     if (updates.completed !== undefined) {
       updateData.completed = updates.completed ? 1 : 0;
-      updateData.completedAt = updates.completed ? new Date().toISOString() : null;
+      updateData.completedAt = updates.completed ? new Date() : null;
     }
     
     // Handle completedAt from status changes
     if (updates.completedAt === null) {
       updateData.completedAt = null;
     } else if (updates.completedAt) {
-      updateData.completedAt = typeof updates.completedAt === 'string' ? updates.completedAt : new Date(updates.completedAt).toISOString();
-    }
-    
-    if (updates.abilities !== undefined) {
-      updateData.abilities = JSON.stringify(updates.abilities);
+      updateData.completedAt = typeof updates.completedAt === 'string' ? new Date(updates.completedAt) : new Date(updates.completedAt);
     }
 
     const [updatedTask] = await db
