@@ -241,7 +241,7 @@ export class MemStorage implements IStorage {
     
     const now = new Date();
     const addDays = (date: Date, days: number) => new Date(date.getTime() + (days * 24 * 60 * 60 * 1000));
-    const formatDate = (date: Date) => date.toISOString().split('T')[0];
+    // Removed formatDate function as we now use Date objects directly
 
     const sampleTasks: InsertTask[] = [
       // Foundation Phase (Month 1-2)
@@ -257,9 +257,9 @@ export class MemStorage implements IStorage {
         endDate: addDays(now, -45).toISOString(),
         dependencies: [],
         subtasks: [
-          { id: '1', title: 'Set up PostgreSQL cluster', completed: true, createdAt: formatDate(addDays(now, -60)) },
-          { id: '2', title: 'Configure MongoDB replica set', completed: true, createdAt: formatDate(addDays(now, -55)) },
-          { id: '3', title: 'Deploy Qdrant vector database', completed: true, createdAt: formatDate(addDays(now, -50)) }
+          { id: '1', title: 'Set up PostgreSQL cluster', completed: true, createdAt: addDays(now, -60) },
+          { id: '2', title: 'Configure MongoDB replica set', completed: true, createdAt: addDays(now, -55) },
+          { id: '3', title: 'Deploy Qdrant vector database', completed: true, createdAt: addDays(now, -50) }
         ],
         tags: ['database', 'infrastructure'],
         estimatedHours: 120,
@@ -278,9 +278,9 @@ export class MemStorage implements IStorage {
         endDate: addDays(now, -30).toISOString(),
         dependencies: [],
         subtasks: [
-          { id: '1', title: 'OAuth 2.0 implementation', completed: true, createdAt: formatDate(addDays(now, -50)) },
-          { id: '2', title: 'Role-based access control', completed: true, createdAt: formatDate(addDays(now, -40)) },
-          { id: '3', title: 'SSO integration', completed: true, createdAt: formatDate(addDays(now, -35)) }
+          { id: '1', title: 'OAuth 2.0 implementation', completed: true, createdAt: addDays(now, -50) },
+          { id: '2', title: 'Role-based access control', completed: true, createdAt: addDays(now, -40) },
+          { id: '3', title: 'SSO integration', completed: true, createdAt: addDays(now, -35) }
         ],
         tags: ['security', 'authentication'],
         estimatedHours: 80,
@@ -299,9 +299,9 @@ export class MemStorage implements IStorage {
         endDate: addDays(now, 15).toISOString(),
         dependencies: [],
         subtasks: [
-          { id: '1', title: 'GraphQL schema design', completed: true, createdAt: formatDate(addDays(now, -20)) },
-          { id: '2', title: 'REST API endpoints', completed: true, createdAt: formatDate(addDays(now, -15)) },
-          { id: '3', title: 'Rate limiting & caching', completed: false, createdAt: formatDate(addDays(now, -10)) }
+          { id: '1', title: 'GraphQL schema design', completed: true, createdAt: addDays(now, -20) },
+          { id: '2', title: 'REST API endpoints', completed: true, createdAt: addDays(now, -15) },
+          { id: '3', title: 'Rate limiting & caching', completed: false, createdAt: addDays(now, -10) }
         ],
         tags: ['api', 'graphql', 'backend'],
         estimatedHours: 100,
@@ -322,9 +322,9 @@ export class MemStorage implements IStorage {
         endDate: addDays(now, 45).toISOString(),
         dependencies: [],
         subtasks: [
-          { id: '1', title: 'TipTap editor integration', completed: false, createdAt: formatDate(now) },
-          { id: '2', title: 'Real-time collaboration', completed: false, createdAt: formatDate(now) },
-          { id: '3', title: 'Version control system', completed: false, createdAt: formatDate(now) }
+          { id: '1', title: 'TipTap editor integration', completed: false, createdAt: now },
+          { id: '2', title: 'Real-time collaboration', completed: false, createdAt: now },
+          { id: '3', title: 'Version control system', completed: false, createdAt: now }
         ],
         tags: ['editor', 'collaboration', 'frontend'],
         estimatedHours: 150,
@@ -343,9 +343,9 @@ export class MemStorage implements IStorage {
         endDate: addDays(now, 60).toISOString(),
         dependencies: [],
         subtasks: [
-          { id: '1', title: 'Hierarchical structure', completed: false, createdAt: formatDate(now) },
-          { id: '2', title: 'Tagging system', completed: false, createdAt: formatDate(now) },
-          { id: '3', title: 'Advanced search', completed: false, createdAt: formatDate(now) }
+          { id: '1', title: 'Hierarchical structure', completed: false, createdAt: now },
+          { id: '2', title: 'Tagging system', completed: false, createdAt: now },
+          { id: '3', title: 'Advanced search', completed: false, createdAt: now }
         ],
         tags: ['organization', 'search', 'hierarchy'],
         estimatedHours: 90,
@@ -364,9 +364,9 @@ export class MemStorage implements IStorage {
         endDate: addDays(now, 75).toISOString(),
         dependencies: [],
         subtasks: [
-          { id: '1', title: 'ADR templates', completed: false, createdAt: formatDate(now) },
-          { id: '2', title: 'Architecture pattern templates', completed: false, createdAt: formatDate(now) },
-          { id: '3', title: 'Template engine', completed: false, createdAt: formatDate(now) }
+          { id: '1', title: 'ADR templates', completed: false, createdAt: now },
+          { id: '2', title: 'Architecture pattern templates', completed: false, createdAt: now },
+          { id: '3', title: 'Template engine', completed: false, createdAt: now }
         ],
         tags: ['templates', 'documentation', 'patterns'],
         estimatedHours: 60,
@@ -387,9 +387,9 @@ export class MemStorage implements IStorage {
         endDate: addDays(now, 120).toISOString(),
         dependencies: [],
         subtasks: [
-          { id: '1', title: 'Canvas rendering engine', completed: false, createdAt: formatDate(now) },
-          { id: '2', title: 'Drag & drop system', completed: false, createdAt: formatDate(now) },
-          { id: '3', title: 'ArchiMate notation', completed: false, createdAt: formatDate(now) }
+          { id: '1', title: 'Canvas rendering engine', completed: false, createdAt: now },
+          { id: '2', title: 'Drag & drop system', completed: false, createdAt: now },
+          { id: '3', title: 'ArchiMate notation', completed: false, createdAt: now }
         ],
         tags: ['modeling', 'archimate', 'canvas'],
         estimatedHours: 200,
@@ -408,9 +408,9 @@ export class MemStorage implements IStorage {
         endDate: addDays(now, 135).toISOString(),
         dependencies: [],
         subtasks: [
-          { id: '1', title: 'Relationship validation', completed: false, createdAt: formatDate(now) },
-          { id: '2', title: 'Impact analysis engine', completed: false, createdAt: formatDate(now) },
-          { id: '3', title: 'Auto-connection suggestions', completed: false, createdAt: formatDate(now) }
+          { id: '1', title: 'Relationship validation', completed: false, createdAt: now },
+          { id: '2', title: 'Impact analysis engine', completed: false, createdAt: now },
+          { id: '3', title: 'Auto-connection suggestions', completed: false, createdAt: now }
         ],
         tags: ['relationships', 'validation', 'analysis'],
         estimatedHours: 120,
@@ -429,9 +429,9 @@ export class MemStorage implements IStorage {
         endDate: addDays(now, 150).toISOString(),
         dependencies: [],
         subtasks: [
-          { id: '1', title: 'TOGAF framework', completed: false, createdAt: formatDate(now) },
-          { id: '2', title: 'BPMN support', completed: false, createdAt: formatDate(now) },
-          { id: '3', title: 'Cloud patterns', completed: false, createdAt: formatDate(now) }
+          { id: '1', title: 'TOGAF framework', completed: false, createdAt: now },
+          { id: '2', title: 'BPMN support', completed: false, createdAt: now },
+          { id: '3', title: 'Cloud patterns', completed: false, createdAt: now }
         ],
         tags: ['togaf', 'bpmn', 'frameworks'],
         estimatedHours: 100,
@@ -452,9 +452,9 @@ export class MemStorage implements IStorage {
         endDate: addDays(now, 180).toISOString(),
         dependencies: [],
         subtasks: [
-          { id: '1', title: 'Claude API integration', completed: false, createdAt: formatDate(now) },
-          { id: '2', title: 'Pattern recognition', completed: false, createdAt: formatDate(now) },
-          { id: '3', title: 'Recommendation engine', completed: false, createdAt: formatDate(now) }
+          { id: '1', title: 'Claude API integration', completed: false, createdAt: now },
+          { id: '2', title: 'Pattern recognition', completed: false, createdAt: now },
+          { id: '3', title: 'Recommendation engine', completed: false, createdAt: now }
         ],
         tags: ['ai', 'claude', 'analysis'],
         estimatedHours: 140,
@@ -473,9 +473,9 @@ export class MemStorage implements IStorage {
         endDate: addDays(now, 195).toISOString(),
         dependencies: [],
         subtasks: [
-          { id: '1', title: 'Vector embeddings', completed: false, createdAt: formatDate(now) },
-          { id: '2', title: 'Qdrant integration', completed: false, createdAt: formatDate(now) },
-          { id: '3', title: 'Search interface', completed: false, createdAt: formatDate(now) }
+          { id: '1', title: 'Vector embeddings', completed: false, createdAt: now },
+          { id: '2', title: 'Qdrant integration', completed: false, createdAt: now },
+          { id: '3', title: 'Search interface', completed: false, createdAt: now }
         ],
         tags: ['search', 'vectors', 'qdrant'],
         estimatedHours: 80,
@@ -494,9 +494,9 @@ export class MemStorage implements IStorage {
         endDate: addDays(now, 210).toISOString(),
         dependencies: [],
         subtasks: [
-          { id: '1', title: 'Auto-documentation', completed: false, createdAt: formatDate(now) },
-          { id: '2', title: 'Change impact analysis', completed: false, createdAt: formatDate(now) },
-          { id: '3', title: 'Smart suggestions', completed: false, createdAt: formatDate(now) }
+          { id: '1', title: 'Auto-documentation', completed: false, createdAt: now },
+          { id: '2', title: 'Change impact analysis', completed: false, createdAt: now },
+          { id: '3', title: 'Smart suggestions', completed: false, createdAt: now }
         ],
         tags: ['automation', 'documentation', 'suggestions'],
         estimatedHours: 110,
@@ -517,9 +517,9 @@ export class MemStorage implements IStorage {
         endDate: addDays(now, 240).toISOString(),
         dependencies: [],
         subtasks: [
-          { id: '1', title: 'Jira integration', completed: false, createdAt: formatDate(now) },
-          { id: '2', title: 'Confluence sync', completed: false, createdAt: formatDate(now) },
-          { id: '3', title: 'Azure DevOps connector', completed: false, createdAt: formatDate(now) }
+          { id: '1', title: 'Jira integration', completed: false, createdAt: now },
+          { id: '2', title: 'Confluence sync', completed: false, createdAt: now },
+          { id: '3', title: 'Azure DevOps connector', completed: false, createdAt: now }
         ],
         tags: ['integration', 'jira', 'confluence'],
         estimatedHours: 120,
@@ -538,9 +538,9 @@ export class MemStorage implements IStorage {
         endDate: addDays(now, 255).toISOString(),
         dependencies: [],
         subtasks: [
-          { id: '1', title: 'Code analysis engine', completed: false, createdAt: formatDate(now) },
-          { id: '2', title: 'VS Code plugin', completed: false, createdAt: formatDate(now) },
-          { id: '3', title: 'Architecture generation', completed: false, createdAt: formatDate(now) }
+          { id: '1', title: 'Code analysis engine', completed: false, createdAt: now },
+          { id: '2', title: 'VS Code plugin', completed: false, createdAt: now },
+          { id: '3', title: 'Architecture generation', completed: false, createdAt: now }
         ],
         tags: ['code-sync', 'ide', 'plugins'],
         estimatedHours: 160,
@@ -559,9 +559,9 @@ export class MemStorage implements IStorage {
         endDate: addDays(now, 270).toISOString(),
         dependencies: [],
         subtasks: [
-          { id: '1', title: 'Public API design', completed: false, createdAt: formatDate(now) },
-          { id: '2', title: 'SDK development', completed: false, createdAt: formatDate(now) },
-          { id: '3', title: 'Webhook system', completed: false, createdAt: formatDate(now) }
+          { id: '1', title: 'Public API design', completed: false, createdAt: now },
+          { id: '2', title: 'SDK development', completed: false, createdAt: now },
+          { id: '3', title: 'Webhook system', completed: false, createdAt: now }
         ],
         tags: ['api', 'sdk', 'webhooks'],
         estimatedHours: 90,
@@ -582,9 +582,9 @@ export class MemStorage implements IStorage {
         endDate: addDays(now, 300).toISOString(),
         dependencies: [],
         subtasks: [
-          { id: '1', title: '3D model rendering', completed: false, createdAt: formatDate(now) },
-          { id: '2', title: 'Interactive dashboards', completed: false, createdAt: formatDate(now) },
-          { id: '3', title: 'Chart generation', completed: false, createdAt: formatDate(now) }
+          { id: '1', title: '3D model rendering', completed: false, createdAt: now },
+          { id: '2', title: 'Interactive dashboards', completed: false, createdAt: now },
+          { id: '3', title: 'Chart generation', completed: false, createdAt: now }
         ],
         tags: ['3d', 'visualization', 'dashboards'],
         estimatedHours: 130,
@@ -603,9 +603,9 @@ export class MemStorage implements IStorage {
         endDate: addDays(now, 315).toISOString(),
         dependencies: [],
         subtasks: [
-          { id: '1', title: 'Real-time collaboration', completed: false, createdAt: formatDate(now) },
-          { id: '2', title: 'Comment system', completed: false, createdAt: formatDate(now) },
-          { id: '3', title: 'Team workspaces', completed: false, createdAt: formatDate(now) }
+          { id: '1', title: 'Real-time collaboration', completed: false, createdAt: now },
+          { id: '2', title: 'Comment system', completed: false, createdAt: now },
+          { id: '3', title: 'Team workspaces', completed: false, createdAt: now }
         ],
         tags: ['collaboration', 'real-time', 'workspaces'],
         estimatedHours: 100,
@@ -624,9 +624,9 @@ export class MemStorage implements IStorage {
         endDate: addDays(now, 330).toISOString(),
         dependencies: [],
         subtasks: [
-          { id: '1', title: 'Responsive layouts', completed: false, createdAt: formatDate(now) },
-          { id: '2', title: 'Touch interactions', completed: false, createdAt: formatDate(now) },
-          { id: '3', title: 'Mobile optimization', completed: false, createdAt: formatDate(now) }
+          { id: '1', title: 'Responsive layouts', completed: false, createdAt: now },
+          { id: '2', title: 'Touch interactions', completed: false, createdAt: now },
+          { id: '3', title: 'Mobile optimization', completed: false, createdAt: now }
         ],
         tags: ['mobile', 'responsive', 'touch'],
         estimatedHours: 80,
