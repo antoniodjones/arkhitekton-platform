@@ -223,11 +223,6 @@ export class MemStorage implements IStorage {
         ...page,
         id,
         parentPageId: null,
-        linkedModelIds: [],
-        collaborators: [],
-        reviewers: [],
-        externalSync: null,
-        searchKeywords: null,
         createdAt: new Date(),
         updatedAt: new Date()
       };
@@ -640,6 +635,7 @@ export class MemStorage implements IStorage {
       const task: Task = {
         ...taskData,
         id,
+        description: taskData.description || "",
         completed: taskData.completed || 0,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -1079,4 +1075,4 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

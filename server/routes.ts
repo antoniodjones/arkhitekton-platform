@@ -244,7 +244,7 @@ Keep response concise but comprehensive.`;
       res.status(201).json(page);
     } catch (error) {
       console.error("Failed to create page:", error);
-      res.status(400).json({ message: "Failed to create page", error: error.message });
+      res.status(400).json({ message: "Failed to create page", error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -358,7 +358,7 @@ Keep response concise but comprehensive.`;
       res.status(201).json(task);
     } catch (error) {
       console.error("Failed to create task:", error);
-      res.status(400).json({ message: "Failed to create task", error: error.message });
+      res.status(400).json({ message: "Failed to create task", error: error instanceof Error ? error.message : String(error) });
     }
   });
 
