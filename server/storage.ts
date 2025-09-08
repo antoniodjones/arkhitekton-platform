@@ -167,7 +167,8 @@ export class MemStorage implements IStorage {
     const recentElement: RecentElement = {
       ...insertRecentElement,
       id,
-      usedAt: new Date()
+      usedAt: new Date(),
+      usageCount: insertRecentElement.usageCount ?? 1
     };
     this.recentElements.set(id, recentElement);
     return recentElement;
@@ -178,40 +179,16 @@ export class MemStorage implements IStorage {
       {
         title: 'Getting Started',
         slug: 'getting-started',
-        path: '/getting-started',
-        depth: 0,
-        order: 0,
-        content: {
-          blocks: [
-            { type: 'paragraph', content: 'Welcome to the ARKHITEKTON Knowledge Base! This is your central hub for all architecture documentation, best practices, and implementation guides.' }
-          ],
-          embeddings: [],
-          template: 'documentation'
-        },
-        pageType: 'documentation',
+        content: 'Welcome to the ARKHITEKTON Knowledge Base! This is your central hub for all architecture documentation, best practices, and implementation guides.',
         category: 'architecture',
-        status: 'published',
-        authorId: 'system',
-        visibility: 'team'
+        status: 'published'
       },
       {
         title: 'Architecture Patterns',
         slug: 'architecture-patterns',
-        path: '/architecture-patterns',
-        depth: 0,
-        order: 1,
-        content: {
-          blocks: [
-            { type: 'paragraph', content: 'Comprehensive guide to enterprise architecture patterns used in modern systems.' }
-          ],
-          embeddings: [],
-          template: 'guide'
-        },
-        pageType: 'guide',
+        content: 'Comprehensive guide to enterprise architecture patterns used in modern systems.',
         category: 'architecture',
-        status: 'published',
-        authorId: 'system',
-        visibility: 'team'
+        status: 'published'
       }
     ];
 
@@ -221,6 +198,7 @@ export class MemStorage implements IStorage {
         ...page,
         id,
         parentPageId: null,
+        order: 0,
         createdAt: new Date(),
         updatedAt: new Date()
       };

@@ -48,7 +48,7 @@ export const insertRecentElementSchema = createInsertSchema(recentElements).omit
 });
 
 // Unified Architectural Models - Core of ARKHITEKTON ecosystem
-export const architecturalModels = pgTable("architectural_models", {
+export const architecturalModels: any = pgTable("architectural_models", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   description: text("description"),
@@ -58,7 +58,7 @@ export const architecturalModels = pgTable("architectural_models", {
   
   // Master state vs transition state
   state: text("state").notNull().default("master"), // 'master', 'transition', 'archived'
-  parentModelId: uuid("parent_model_id").references(() => architecturalModels.id), // For transition states
+  parentModelId: uuid("parent_model_id"), // For transition states
   
   // Model ownership and governance
   ownerId: varchar("owner_id").notNull(),
@@ -119,7 +119,12 @@ export const architecturalObjects = pgTable("architectural_objects", {
     responsibilities: string[];
     constraints: any[];
     patterns: string[];
-  }>().default({}),
+  }>().default({
+    purpose: "",
+    responsibilities: [],
+    constraints: [],
+    patterns: []
+  }),
   
   // Lifecycle tracking
   lifecycle: jsonb("lifecycle").$type<{
@@ -127,7 +132,12 @@ export const architecturalObjects = pgTable("architectural_objects", {
     milestones: any[];
     decisions: string[];
     changes: any[];
-  }>().default({}),
+  }>().default({
+    state: "draft",
+    milestones: [],
+    decisions: [],
+    changes: []
+  }),
   
   // Metrics and measurement
   metrics: jsonb("metrics").$type<{
@@ -249,7 +259,7 @@ export const pageVersions = pgTable("page_versions", {
 });
 
 // Legacy documentation pages (keeping for backward compatibility)
-export const documentationPages = pgTable("documentation_pages", {
+export const documentationPages: any = pgTable("documentation_pages", {
   id: uuid("id").primaryKey().defaultRandom(),
   modelId: uuid("model_id").references(() => architecturalModels.id),
   title: text("title").notNull(),
@@ -261,7 +271,7 @@ export const documentationPages = pgTable("documentation_pages", {
   }>().notNull(),
   
   // Page metadata
-  parentPageId: uuid("parent_page_id").references(() => documentationPages.id),
+  parentPageId: uuid("parent_page_id"),
   order: integer("order").default(0),
   
   // Collaboration
@@ -280,7 +290,7 @@ export const documentationPages = pgTable("documentation_pages", {
 });
 
 // Version control for models
-export const modelVersions = pgTable("model_versions", {
+export const modelVersions: any = pgTable("model_versions", {
   id: uuid("id").primaryKey().defaultRandom(),
   modelId: uuid("model_id").references(() => architecturalModels.id).notNull(),
   version: text("version").notNull(),
@@ -288,7 +298,7 @@ export const modelVersions = pgTable("model_versions", {
   // Version metadata
   commitMessage: text("commit_message"),
   authorId: varchar("author_id").notNull(),
-  parentVersionId: uuid("parent_version_id").references(() => modelVersions.id),
+  parentVersionId: uuid("parent_version_id"),
   
   // Snapshot of model state
   modelSnapshot: jsonb("model_snapshot").$type<{
@@ -460,7 +470,16 @@ export const userGameProfiles = pgTable("user_game_profiles", {
     patternDiversityScore: number;
     consistencyScore: number;
     collaborationScore: number;
-  }>().default({}),
+  }>().default({
+    totalModels: 0,
+    totalObjects: 0,
+    totalConnections: 0,
+    averageComplexity: 0,
+    semanticDepthScore: 0,
+    patternDiversityScore: 0,
+    consistencyScore: 0,
+    collaborationScore: 0
+  }),
   
   // Streaks and engagement
   currentStreak: integer("current_streak").default(0), // Days of consecutive modeling
