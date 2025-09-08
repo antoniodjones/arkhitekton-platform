@@ -190,7 +190,6 @@ export class MemStorage implements IStorage {
         },
         pageType: 'documentation',
         category: 'architecture',
-        tags: ['introduction', 'onboarding'],
         status: 'published',
         authorId: 'system',
         visibility: 'team'
@@ -210,7 +209,6 @@ export class MemStorage implements IStorage {
         },
         pageType: 'guide',
         category: 'architecture',
-        tags: ['patterns', 'design'],
         status: 'published',
         authorId: 'system',
         visibility: 'team'
@@ -231,8 +229,8 @@ export class MemStorage implements IStorage {
   }
 
   private initializeSampleTasks() {
-    // Clear any existing tasks first
-    this.tasks.clear();
+    // Skip initialization - using DatabaseStorage instead
+    return;
     
     const now = new Date();
     const addDays = (date: Date, days: number) => new Date(date.getTime() + (days * 24 * 60 * 60 * 1000));
@@ -256,9 +254,6 @@ export class MemStorage implements IStorage {
           { id: '2', title: 'Configure MongoDB replica set', completed: true, createdAt: addDays(now, -55) },
           { id: '3', title: 'Deploy Qdrant vector database', completed: true, createdAt: addDays(now, -50) }
         ],
-        tags: ['database', 'infrastructure'],
-        estimatedHours: 120,
-        actualHours: 110,
         completed: 1
       },
       {
@@ -277,9 +272,6 @@ export class MemStorage implements IStorage {
           { id: '2', title: 'Role-based access control', completed: true, createdAt: addDays(now, -40) },
           { id: '3', title: 'SSO integration', completed: true, createdAt: addDays(now, -35) }
         ],
-        tags: ['security', 'authentication'],
-        estimatedHours: 80,
-        actualHours: 75,
         completed: 1
       },
       {
@@ -298,9 +290,6 @@ export class MemStorage implements IStorage {
           { id: '2', title: 'REST API endpoints', completed: true, createdAt: addDays(now, -15) },
           { id: '3', title: 'Rate limiting & caching', completed: false, createdAt: addDays(now, -10) }
         ],
-        tags: ['api', 'graphql', 'backend'],
-        estimatedHours: 100,
-        actualHours: 60,
         completed: 0
       },
 
@@ -321,9 +310,6 @@ export class MemStorage implements IStorage {
           { id: '2', title: 'Real-time collaboration', completed: false, createdAt: now },
           { id: '3', title: 'Version control system', completed: false, createdAt: now }
         ],
-        tags: ['editor', 'collaboration', 'frontend'],
-        estimatedHours: 150,
-        actualHours: 0,
         completed: 0
       },
       {
@@ -342,9 +328,6 @@ export class MemStorage implements IStorage {
           { id: '2', title: 'Tagging system', completed: false, createdAt: now },
           { id: '3', title: 'Advanced search', completed: false, createdAt: now }
         ],
-        tags: ['organization', 'search', 'hierarchy'],
-        estimatedHours: 90,
-        actualHours: 0,
         completed: 0
       },
       {
@@ -363,9 +346,6 @@ export class MemStorage implements IStorage {
           { id: '2', title: 'Architecture pattern templates', completed: false, createdAt: now },
           { id: '3', title: 'Template engine', completed: false, createdAt: now }
         ],
-        tags: ['templates', 'documentation', 'patterns'],
-        estimatedHours: 60,
-        actualHours: 0,
         completed: 0
       },
 
@@ -386,9 +366,6 @@ export class MemStorage implements IStorage {
           { id: '2', title: 'Drag & drop system', completed: false, createdAt: now },
           { id: '3', title: 'ArchiMate notation', completed: false, createdAt: now }
         ],
-        tags: ['modeling', 'archimate', 'canvas'],
-        estimatedHours: 200,
-        actualHours: 0,
         completed: 0
       },
       {
@@ -407,9 +384,6 @@ export class MemStorage implements IStorage {
           { id: '2', title: 'Impact analysis engine', completed: false, createdAt: now },
           { id: '3', title: 'Auto-connection suggestions', completed: false, createdAt: now }
         ],
-        tags: ['relationships', 'validation', 'analysis'],
-        estimatedHours: 120,
-        actualHours: 0,
         completed: 0
       },
       {
@@ -428,9 +402,6 @@ export class MemStorage implements IStorage {
           { id: '2', title: 'BPMN support', completed: false, createdAt: now },
           { id: '3', title: 'Cloud patterns', completed: false, createdAt: now }
         ],
-        tags: ['togaf', 'bpmn', 'frameworks'],
-        estimatedHours: 100,
-        actualHours: 0,
         completed: 0
       },
 
@@ -451,9 +422,6 @@ export class MemStorage implements IStorage {
           { id: '2', title: 'Pattern recognition', completed: false, createdAt: now },
           { id: '3', title: 'Recommendation engine', completed: false, createdAt: now }
         ],
-        tags: ['ai', 'claude', 'analysis'],
-        estimatedHours: 140,
-        actualHours: 0,
         completed: 0
       },
       {
@@ -472,9 +440,6 @@ export class MemStorage implements IStorage {
           { id: '2', title: 'Qdrant integration', completed: false, createdAt: now },
           { id: '3', title: 'Search interface', completed: false, createdAt: now }
         ],
-        tags: ['search', 'vectors', 'qdrant'],
-        estimatedHours: 80,
-        actualHours: 0,
         completed: 0
       },
       {
@@ -493,9 +458,6 @@ export class MemStorage implements IStorage {
           { id: '2', title: 'Change impact analysis', completed: false, createdAt: now },
           { id: '3', title: 'Smart suggestions', completed: false, createdAt: now }
         ],
-        tags: ['automation', 'documentation', 'suggestions'],
-        estimatedHours: 110,
-        actualHours: 0,
         completed: 0
       },
 
@@ -516,9 +478,6 @@ export class MemStorage implements IStorage {
           { id: '2', title: 'Confluence sync', completed: false, createdAt: now },
           { id: '3', title: 'Azure DevOps connector', completed: false, createdAt: now }
         ],
-        tags: ['integration', 'jira', 'confluence'],
-        estimatedHours: 120,
-        actualHours: 0,
         completed: 0
       },
       {
@@ -537,9 +496,6 @@ export class MemStorage implements IStorage {
           { id: '2', title: 'VS Code plugin', completed: false, createdAt: now },
           { id: '3', title: 'Architecture generation', completed: false, createdAt: now }
         ],
-        tags: ['code-sync', 'ide', 'plugins'],
-        estimatedHours: 160,
-        actualHours: 0,
         completed: 0
       },
       {
@@ -558,9 +514,6 @@ export class MemStorage implements IStorage {
           { id: '2', title: 'SDK development', completed: false, createdAt: now },
           { id: '3', title: 'Webhook system', completed: false, createdAt: now }
         ],
-        tags: ['api', 'sdk', 'webhooks'],
-        estimatedHours: 90,
-        actualHours: 0,
         completed: 0
       },
 
@@ -581,9 +534,6 @@ export class MemStorage implements IStorage {
           { id: '2', title: 'Interactive dashboards', completed: false, createdAt: now },
           { id: '3', title: 'Chart generation', completed: false, createdAt: now }
         ],
-        tags: ['3d', 'visualization', 'dashboards'],
-        estimatedHours: 130,
-        actualHours: 0,
         completed: 0
       },
       {
@@ -602,9 +552,6 @@ export class MemStorage implements IStorage {
           { id: '2', title: 'Comment system', completed: false, createdAt: now },
           { id: '3', title: 'Team workspaces', completed: false, createdAt: now }
         ],
-        tags: ['collaboration', 'real-time', 'workspaces'],
-        estimatedHours: 100,
-        actualHours: 0,
         completed: 0
       },
       {
@@ -623,9 +570,6 @@ export class MemStorage implements IStorage {
           { id: '2', title: 'Touch interactions', completed: false, createdAt: now },
           { id: '3', title: 'Mobile optimization', completed: false, createdAt: now }
         ],
-        tags: ['mobile', 'responsive', 'touch'],
-        estimatedHours: 80,
-        actualHours: 0,
         completed: 0
       }
     ];
