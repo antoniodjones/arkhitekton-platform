@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, parseISO, isWithinInterval, addDays } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { formatDateForInput, formatDateForAPI } from '@/lib/utils';
+import { formatDateForInput, formatDateForAPI, formatDateForDisplay } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -594,11 +594,11 @@ function TaskCard({
           <Calendar className="w-3 h-3" />
           <span>
             {task.startDate && task.endDate ? (
-              `${new Date(task.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(task.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+              `${formatDateForDisplay(task.startDate, 'full')} - ${formatDateForDisplay(task.endDate, 'full')}`
             ) : task.startDate ? (
-              `Start: ${new Date(task.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+              `Start: ${formatDateForDisplay(task.startDate, 'full')}`
             ) : (
-              `End: ${new Date(task.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+              `End: ${formatDateForDisplay(task.endDate, 'full')}`
             )}
           </span>
         </div>
@@ -1170,11 +1170,11 @@ export default function PlanPage() {
                         <Calendar className="w-3 h-3" />
                         <span>
                           {task.startDate && task.endDate ? (
-                            `${new Date(task.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(task.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+                            `${formatDateForDisplay(task.startDate, 'full')} - ${formatDateForDisplay(task.endDate, 'full')}`
                           ) : task.startDate ? (
-                            `Start: ${new Date(task.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+                            `Start: ${formatDateForDisplay(task.startDate, 'full')}`
                           ) : (
-                            `End: ${new Date(task.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+                            `End: ${formatDateForDisplay(task.endDate, 'full')}`
                           )}
                         </span>
                       </div>
