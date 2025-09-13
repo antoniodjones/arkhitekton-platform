@@ -16,20 +16,20 @@ export const architectureElements = pgTable("architecture_elements", {
   category: text("category").notNull(), // 'business', 'application', 'data', 'technology'
   framework: text("framework").notNull().default('archimate'), // 'archimate', 'togaf', 'bpmn'
   description: text("description").notNull(),
-  usageGuidelines: text("usage_guidelines"),
-  iconName: text("icon_name"),
+  usageGuidelines: text("usageGuidelines"),
+  iconName: text("iconName"),
   color: text("color").notNull(),
   shape: text("shape").notNull(), // 'rectangular', 'rounded', 'diamond'
   relationships: jsonb("relationships").$type<string[]>().default([]),
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: timestamp("createdAt").defaultNow(),
 });
 
 export const recentElements = pgTable("recent_elements", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull(),
-  elementId: varchar("element_id").notNull(),
-  usedAt: timestamp("used_at").defaultNow(),
-  usageCount: integer("usage_count").default(1),
+  userId: varchar("userId").notNull(),
+  elementId: varchar("elementId").notNull(),
+  usedAt: timestamp("usedAt").defaultNow(),
+  usageCount: integer("usageCount").default(1),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -58,14 +58,14 @@ export const architecturalModels: any = pgTable("architectural_models", {
   
   // Master state vs transition state
   state: text("state").notNull().default("master"), // 'master', 'transition', 'archived'
-  parentModelId: uuid("parent_model_id"), // For transition states
+  parentModelId: uuid("parentModelId"), // For transition states
   
   // Model ownership and governance
-  ownerId: varchar("owner_id").notNull(),
+  ownerId: varchar("ownerId").notNull(),
   stakeholders: jsonb("stakeholders").$type<string[]>().default([]),
   
   // Visual canvas data
-  canvasData: jsonb("canvas_data").$type<{
+  canvasData: jsonb("canvasData").$type<{
     objects: any[];
     connections: any[];
     viewport: any;
@@ -73,13 +73,13 @@ export const architecturalModels: any = pgTable("architectural_models", {
   }>(),
   
   // Documentation integration
-  documentationPages: jsonb("documentation_pages").$type<string[]>().default([]),
+  documentationPages: jsonb("documentationPages").$type<string[]>().default([]),
   
   // Metrics and outcomes
   metrics: jsonb("metrics").$type<Record<string, any>>().default({}),
   
   // External integrations
-  externalRefs: jsonb("external_refs").$type<{
+  externalRefs: jsonb("externalRefs").$type<{
     confluence?: string[];
     sharepoint?: string[];
     notion?: string[];
@@ -88,18 +88,18 @@ export const architecturalModels: any = pgTable("architectural_models", {
   
   // Lifecycle
   status: text("status").notNull().default("active"), // 'active', 'deprecated', 'retired'
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow()
 });
 
 // Architectural Objects - Universal intelligent objects
 export const architecturalObjects = pgTable("architectural_objects", {
   id: uuid("id").primaryKey().defaultRandom(),
-  modelId: uuid("model_id").references(() => architecturalModels.id).notNull(),
+  modelId: uuid("modelId").references(() => architecturalModels.id).notNull(),
   name: text("name").notNull(),
   
   // Object classification
-  objectType: text("object_type").notNull(), // 'standard', 'custom', 'derived'
+  objectType: text("objectType").notNull(), // 'standard', 'custom', 'derived'
   domain: text("domain").notNull(),
   category: text("category").notNull(),
   
@@ -161,18 +161,18 @@ export const architecturalObjects = pgTable("architectural_objects", {
   // Custom metadata
   metadata: jsonb("metadata").$type<Record<string, any>>().default({}),
   
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow()
 });
 
 // Object connections and relationships
 export const objectConnections = pgTable("object_connections", {
   id: uuid("id").primaryKey().defaultRandom(),
-  sourceObjectId: uuid("source_object_id").references(() => architecturalObjects.id).notNull(),
-  targetObjectId: uuid("target_object_id").references(() => architecturalObjects.id).notNull(),
+  sourceObjectId: uuid("sourceObjectId").references(() => architecturalObjects.id).notNull(),
+  targetObjectId: uuid("targetObjectId").references(() => architecturalObjects.id).notNull(),
   
   // Connection semantics
-  relationshipType: text("relationship_type").notNull(), // 'depends_on', 'implements', 'calls', 'stores_in', 'deployed_on'
+  relationshipType: text("relationshipType").notNull(), // 'depends_on', 'implements', 'calls', 'stores_in', 'deployed_on'
   direction: text("direction").notNull().default("directed"), // 'directed', 'bidirectional', 'undirected'
   
   // Visual representation
@@ -185,8 +185,8 @@ export const objectConnections = pgTable("object_connections", {
   // Connection metadata
   properties: jsonb("properties").$type<Record<string, any>>().default({}),
   
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow()
 });
 
 // Knowledge Base Pages - Simplified documentation system
@@ -204,48 +204,48 @@ export const knowledgeBasePages = pgTable("knowledge_base_pages", {
   tags: jsonb("tags").$type<string[]>().default([]),
   
   // Optional hierarchy
-  parentPageId: uuid("parent_page_id"),
+  parentPageId: uuid("parentPageId"),
   order: integer("order").default(0),
   
   // Timestamps
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow()
 });
 
 // Page comments for collaboration
 export const pageComments = pgTable("page_comments", {
   id: uuid("id").primaryKey().defaultRandom(),
-  pageId: uuid("page_id").references(() => knowledgeBasePages.id).notNull(),
-  parentCommentId: uuid("parent_comment_id"), // For threaded comments
+  pageId: uuid("pageId").references(() => knowledgeBasePages.id).notNull(),
+  parentCommentId: uuid("parentCommentId"), // For threaded comments
   
   // Comment content
   content: text("content").notNull(),
-  authorId: varchar("author_id").notNull(),
+  authorId: varchar("authorId").notNull(),
   
   // Position in document (for inline comments)
-  blockId: text("block_id"), // Which content block this comment is attached to
+  blockId: text("blockId"), // Which content block this comment is attached to
   position: integer("position"), // Character position within block
   
   // Comment status
-  isResolved: integer("is_resolved").default(0), // 0 = open, 1 = resolved
-  resolvedBy: varchar("resolved_by"),
-  resolvedAt: timestamp("resolved_at"),
+  isResolved: integer("isResolved").default(0), // 0 = open, 1 = resolved
+  resolvedBy: varchar("resolvedBy"),
+  resolvedAt: timestamp("resolvedAt"),
   
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow()
 });
 
 // Page version history
 export const pageVersions = pgTable("page_versions", {
   id: uuid("id").primaryKey().defaultRandom(),
-  pageId: uuid("page_id").references(() => knowledgeBasePages.id).notNull(),
-  versionNumber: integer("version_number").notNull(),
+  pageId: uuid("pageId").references(() => knowledgeBasePages.id).notNull(),
+  versionNumber: integer("versionNumber").notNull(),
   
   // Version metadata
   title: text("title").notNull(),
   content: jsonb("content").notNull(),
-  changeLog: text("change_log"), // Summary of changes
-  authorId: varchar("author_id").notNull(),
+  changeLog: text("changeLog"), // Summary of changes
+  authorId: varchar("authorId").notNull(),
   
   // Change tracking
   changes: jsonb("changes").$type<{
@@ -255,13 +255,13 @@ export const pageVersions = pgTable("page_versions", {
     newValue?: any;
   }[]>().default([]),
   
-  createdAt: timestamp("created_at").defaultNow()
+  createdAt: timestamp("createdAt").defaultNow()
 });
 
 // Legacy documentation pages (keeping for backward compatibility)
 export const documentationPages: any = pgTable("documentation_pages", {
   id: uuid("id").primaryKey().defaultRandom(),
-  modelId: uuid("model_id").references(() => architecturalModels.id),
+  modelId: uuid("modelId").references(() => architecturalModels.id),
   title: text("title").notNull(),
   
   // Rich text content with embedded references
@@ -271,37 +271,37 @@ export const documentationPages: any = pgTable("documentation_pages", {
   }>().notNull(),
   
   // Page metadata
-  parentPageId: uuid("parent_page_id"),
+  parentPageId: uuid("parentPageId"),
   order: integer("order").default(0),
   
   // Collaboration
-  authorId: varchar("author_id").notNull(),
+  authorId: varchar("authorId").notNull(),
   collaborators: jsonb("collaborators").$type<string[]>().default([]),
   
   // External sync
-  externalSync: jsonb("external_sync").$type<{
+  externalSync: jsonb("externalSync").$type<{
     confluence?: { spaceId: string; pageId: string; lastSync: string };
     sharepoint?: { siteId: string; listId: string; itemId: string; lastSync: string };
     notion?: { databaseId: string; pageId: string; lastSync: string };
   }>(),
   
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow()
 });
 
 // Version control for models
 export const modelVersions: any = pgTable("model_versions", {
   id: uuid("id").primaryKey().defaultRandom(),
-  modelId: uuid("model_id").references(() => architecturalModels.id).notNull(),
+  modelId: uuid("modelId").references(() => architecturalModels.id).notNull(),
   version: text("version").notNull(),
   
   // Version metadata
-  commitMessage: text("commit_message"),
-  authorId: varchar("author_id").notNull(),
-  parentVersionId: uuid("parent_version_id"),
+  commitMessage: text("commitMessage"),
+  authorId: varchar("authorId").notNull(),
+  parentVersionId: uuid("parentVersionId"),
   
   // Snapshot of model state
-  modelSnapshot: jsonb("model_snapshot").$type<{
+  modelSnapshot: jsonb("modelSnapshot").$type<{
     objects: any[];
     connections: any[];
     documentation: any[];
@@ -316,7 +316,7 @@ export const modelVersions: any = pgTable("model_versions", {
     summary: string;
   }>(),
   
-  createdAt: timestamp("created_at").defaultNow()
+  createdAt: timestamp("createdAt").defaultNow()
 });
 
 // Schema definitions and types
@@ -393,7 +393,7 @@ export const achievements = pgTable("achievements", {
   tier: text("tier").notNull(), // 'bronze', 'silver', 'gold', 'platinum', 'diamond'
   
   // Visual representation
-  iconName: text("icon_name").notNull(),
+  iconName: text("iconName").notNull(),
   color: text("color").notNull(),
   
   // Scoring criteria
@@ -405,63 +405,63 @@ export const achievements = pgTable("achievements", {
   }[]>().notNull(),
   
   // Points awarded
-  basePoints: integer("base_points").notNull(),
-  bonusMultiplier: integer("bonus_multiplier").default(1),
+  basePoints: integer("basePoints").notNull(),
+  bonusMultiplier: integer("bonusMultiplier").default(1),
   
   // Progression requirements  
   prerequisites: jsonb("prerequisites").$type<string[]>().default([]), // Achievement IDs required first
-  isHidden: integer("is_hidden").default(0), // 0 = visible, 1 = hidden until unlocked
+  isHidden: integer("isHidden").default(0), // 0 = visible, 1 = hidden until unlocked
   
-  createdAt: timestamp("created_at").defaultNow()
+  createdAt: timestamp("createdAt").defaultNow()
 });
 
 // User achievement progress and unlocks
 export const userAchievements = pgTable("user_achievements", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: varchar("user_id").notNull(),
-  achievementId: uuid("achievement_id").references(() => achievements.id).notNull(),
+  userId: varchar("userId").notNull(),
+  achievementId: uuid("achievementId").references(() => achievements.id).notNull(),
   
   // Progress tracking
-  currentProgress: integer("current_progress").default(0),
-  maxProgress: integer("max_progress").notNull(),
-  isUnlocked: integer("is_unlocked").default(0), // 0 = in progress, 1 = unlocked
+  currentProgress: integer("currentProgress").default(0),
+  maxProgress: integer("maxProgress").notNull(),
+  isUnlocked: integer("isUnlocked").default(0), // 0 = in progress, 1 = unlocked
   
   // Achievement context
-  modelId: uuid("model_id").references(() => architecturalModels.id), // Model that triggered achievement
-  triggerData: jsonb("trigger_data").$type<Record<string, any>>().default({}),
+  modelId: uuid("modelId").references(() => architecturalModels.id), // Model that triggered achievement
+  triggerData: jsonb("triggerData").$type<Record<string, any>>().default({}),
   
   // Rewards
-  pointsEarned: integer("points_earned").default(0),
-  bonusEarned: integer("bonus_earned").default(0),
+  pointsEarned: integer("pointsEarned").default(0),
+  bonusEarned: integer("bonusEarned").default(0),
   
   // Timestamps
-  firstProgressAt: timestamp("first_progress_at").defaultNow(),
-  unlockedAt: timestamp("unlocked_at"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
+  firstProgressAt: timestamp("firstProgressAt").defaultNow(),
+  unlockedAt: timestamp("unlockedAt"),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow()
 });
 
 // User gamification profile
 export const userGameProfiles = pgTable("user_game_profiles", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: varchar("user_id").notNull().unique(),
+  userId: varchar("userId").notNull().unique(),
   
   // Experience and progression
-  totalPoints: integer("total_points").default(0),
-  currentLevel: integer("current_level").default(1),
-  experiencePoints: integer("experience_points").default(0),
-  nextLevelThreshold: integer("next_level_threshold").default(100),
+  totalPoints: integer("totalPoints").default(0),
+  currentLevel: integer("currentLevel").default(1),
+  experiencePoints: integer("experiencePoints").default(0),
+  nextLevelThreshold: integer("nextLevelThreshold").default(100),
   
   // Achievement statistics
-  achievementsUnlocked: integer("achievements_unlocked").default(0),
-  bronzeCount: integer("bronze_count").default(0),
-  silverCount: integer("silver_count").default(0),
-  goldCount: integer("gold_count").default(0),
-  platinumCount: integer("platinum_count").default(0),
-  diamondCount: integer("diamond_count").default(0),
+  achievementsUnlocked: integer("achievementsUnlocked").default(0),
+  bronzeCount: integer("bronzeCount").default(0),
+  silverCount: integer("silverCount").default(0),
+  goldCount: integer("goldCount").default(0),
+  platinumCount: integer("platinumCount").default(0),
+  diamondCount: integer("diamondCount").default(0),
   
   // Modeling complexity metrics
-  modelingStats: jsonb("modeling_stats").$type<{
+  modelingStats: jsonb("modelingStats").$type<{
     totalModels: number;
     totalObjects: number;
     totalConnections: number;
@@ -482,16 +482,16 @@ export const userGameProfiles = pgTable("user_game_profiles", {
   }),
   
   // Streaks and engagement
-  currentStreak: integer("current_streak").default(0), // Days of consecutive modeling
-  longestStreak: integer("longest_streak").default(0),
-  lastActivityAt: timestamp("last_activity_at").defaultNow(),
+  currentStreak: integer("currentStreak").default(0), // Days of consecutive modeling
+  longestStreak: integer("longestStreak").default(0),
+  lastActivityAt: timestamp("lastActivityAt").defaultNow(),
   
   // Preferences
-  celebrationEnabled: integer("celebration_enabled").default(1), // 0 = disabled, 1 = enabled
-  leaderboardVisible: integer("leaderboard_visible").default(1),
+  celebrationEnabled: integer("celebrationEnabled").default(1), // 0 = disabled, 1 = enabled
+  leaderboardVisible: integer("leaderboardVisible").default(1),
   
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow()
 });
 
 // Team leaderboards and competitions
@@ -505,8 +505,8 @@ export const leaderboards = pgTable("leaderboards", {
   scope: text("scope").notNull(), // 'points', 'achievements', 'complexity', 'collaboration'
   
   // Time period (for time-based leaderboards)
-  startDate: timestamp("start_date"),
-  endDate: timestamp("end_date"),
+  startDate: timestamp("startDate"),
+  endDate: timestamp("endDate"),
   
   // Participants and rankings
   rankings: jsonb("rankings").$type<{
@@ -519,11 +519,11 @@ export const leaderboards = pgTable("leaderboards", {
   }[]>().default([]),
   
   // Configuration
-  maxParticipants: integer("max_participants").default(100),
-  isActive: integer("is_active").default(1),
+  maxParticipants: integer("maxParticipants").default(100),
+  isActive: integer("isActive").default(1),
   
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow()
 });
 
 // Achievement schema exports
@@ -570,9 +570,9 @@ export const tasks = pgTable("tasks", {
   category: text("category").notNull(), // 'foundation', 'knowledge-base', 'ai', 'modeling', 'integration', 'ux'
   status: text("status").notNull().default("todo"), // 'todo', 'in-progress', 'completed'
   assignee: text("assignee"),
-  dueDate: text("due_date"),
-  startDate: text("start_date"), // Task start date for Gantt chart
-  endDate: text("end_date"), // Task end date for Gantt chart  
+  dueDate: text("dueDate"),
+  startDate: text("startDate"), // Task start date for Gantt chart
+  endDate: text("endDate"), // Task end date for Gantt chart  
   dependencies: jsonb("dependencies").$type<string[]>().default([]), // Array of task IDs this task depends on
   subtasks: jsonb("subtasks").$type<{
     id: string;
@@ -587,9 +587,9 @@ export const tasks = pgTable("tasks", {
     timestamp: Date;
     author: string;
   }[]>().default([]),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-  completedAt: timestamp("completed_at")
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
+  completedAt: timestamp("completedAt")
 });
 
 export const insertTaskSchema = createInsertSchema(tasks).omit({
