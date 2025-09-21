@@ -150,14 +150,14 @@ function DashboardContent() {
       </header>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-12 space-y-13">
+      <div className="max-w-7xl mx-auto px-6 py-12 space-y-16">
         {/* Hero Section */}
         <div className="text-center space-y-4">
           <div className="space-y-4">
             <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-orange-800 dark:from-white dark:via-slate-200 dark:to-orange-200 bg-clip-text text-transparent leading-tight welcome-title-preserve">
               Welcome to ARKHITEKTON
             </h2>
-            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed font-light">
+            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed font-light mb-10">
               The master builder's platform for visionary architecture, strategic design, and intelligent modeling
             </p>
           </div>
