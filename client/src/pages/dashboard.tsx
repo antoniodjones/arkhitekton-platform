@@ -150,7 +150,7 @@ function DashboardContent() {
       </header>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-12 space-y-16">
+      <div className="max-w-7xl mx-auto px-6 py-12 space-y-13">
         {/* Hero Section */}
         <div className="text-center space-y-4">
           <div className="space-y-4">
