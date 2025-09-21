@@ -152,13 +152,7 @@ function DashboardContent() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-12 space-y-16">
         {/* Hero Section */}
-        <div className="text-center space-y-8">
-          <div className="relative inline-block">
-            <div className="w-24 h-24 bg-gradient-to-br from-orange-500 via-orange-400 to-amber-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-orange-500/25 transform hover:scale-105 transition-transform duration-300">
-              <div className="w-12 h-12 bg-white/90 rounded-xl transform rotate-45" />
-            </div>
-            <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full animate-pulse" />
-          </div>
+        <div className="text-center space-y-4">
           <div className="space-y-4">
             <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-orange-800 dark:from-white dark:via-slate-200 dark:to-orange-200 bg-clip-text text-transparent leading-tight welcome-title-preserve">
               Welcome to ARKHITEKTON
