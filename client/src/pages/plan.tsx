@@ -765,6 +765,10 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
   const [techLeadSearch, setTechLeadSearch] = useState('');
   const [isTechLeadOpen, setIsTechLeadOpen] = useState(false);
 
+  // Independent stories state (not generated from tasks)
+  const [independentStories, setIndependentStories] = useState<UserStory[]>([]);
+  const [csvUploadOpen, setCsvUploadOpen] = useState(false);
+
   // Mock developer list - in real app this would come from your team management system
   const developers = [
     'Alex Johnson', 'Sarah Chen', 'Mike Rodriguez', 'Emily Davis', 'David Kim',
@@ -1010,12 +1014,151 @@ Scenario: Feature Usage
     alert(`Would create commit: ${commitMessage}\n(GitHub integration coming soon!)`);
   };
 
+  const createNewStory = () => {
+    const newStory: UserStory = {
+      id: `story-${Date.now()}`,
+      parentTaskId: '', // Will be set in dialog
+      title: '',
+      description: '',
+      acceptanceCriteria: `Given [context]
+When [action]
+Then [expected outcome]
+
+Scenario: [scenario name]
+  Given [precondition]
+  When [action]
+  Then [expected result]
+  And [additional verification]`,
+      storyPoints: 3,
+      status: 'backlog',
+      priority: 'medium',
+      assignee: undefined,
+      productManager: undefined,
+      techLead: undefined,
+      labels: [],
+      feature: '',
+      value: '',
+      requirement: '',
+      githubRepo: undefined,
+      githubBranch: undefined,
+      githubIssue: undefined,
+      githubCommits: [],
+      screenshots: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    setEditingStory(newStory);
+    setIsStoryDialogOpen(true);
+  };
+
+  const saveStory = (story: UserStory) => {
+    // Update existing or add new independent story
+    const existingIndex = independentStories.findIndex(s => s.id === story.id);
+    if (existingIndex >= 0) {
+      const updated = [...independentStories];
+      updated[existingIndex] = { ...story, updatedAt: new Date().toISOString() };
+      setIndependentStories(updated);
+    } else {
+      setIndependentStories([...independentStories, story]);
+    }
+    setIsStoryDialogOpen(false);
+  };
+
+  const handleCsvUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const csv = e.target?.result as string;
+      const lines = csv.split('\n');
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+      
+      const newStories: UserStory[] = [];
+      
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',');
+        if (values.length < 2) continue; // Skip empty lines
+        
+        const story: UserStory = {
+          id: `csv-story-${Date.now()}-${i}`,
+          parentTaskId: getValue(values, headers, 'epic_id') || getValue(values, headers, 'task_id') || '',
+          title: getValue(values, headers, 'title') || getValue(values, headers, 'user_story') || '',
+          description: getValue(values, headers, 'description') || '',
+          acceptanceCriteria: getValue(values, headers, 'acceptance_criteria') || getValue(values, headers, 'gherkin') || 
+            `Given [context]
+When [action]
+Then [expected outcome]`,
+          storyPoints: parseInt(getValue(values, headers, 'story_points') || getValue(values, headers, 'points') || '3'),
+          status: (getValue(values, headers, 'status') || 'backlog') as UserStory['status'],
+          priority: (getValue(values, headers, 'priority') || 'medium') as UserStory['priority'],
+          assignee: getValue(values, headers, 'assignee') || getValue(values, headers, 'developer'),
+          productManager: getValue(values, headers, 'product_manager') || getValue(values, headers, 'pm'),
+          techLead: getValue(values, headers, 'tech_lead') || getValue(values, headers, 'architect'),
+          labels: getValue(values, headers, 'labels')?.split(';') || [],
+          feature: getValue(values, headers, 'feature'),
+          value: getValue(values, headers, 'value'),
+          requirement: getValue(values, headers, 'requirement'),
+          githubRepo: getValue(values, headers, 'github_repo'),
+          githubBranch: getValue(values, headers, 'github_branch'),
+          githubIssue: undefined,
+          githubCommits: [],
+          screenshots: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        
+        if (story.title) {
+          newStories.push(story);
+        }
+      }
+      
+      setIndependentStories([...independentStories, ...newStories]);
+      alert(`Successfully imported ${newStories.length} stories from CSV!`);
+    };
+    
+    reader.readAsText(file);
+    event.target.value = ''; // Reset input
+  };
+
+  const getValue = (values: string[], headers: string[], fieldName: string): string | undefined => {
+    const index = headers.indexOf(fieldName);
+    return index >= 0 ? values[index]?.trim() : undefined;
+  };
+
+  // Get all stories (generated + independent)
+  const allGeneratedStories = tasks.reduce((acc, task) => acc + generateUserStories(task).length, 0);
+  const totalStories = allGeneratedStories + independentStories.length;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-foreground">User Stories</h3>
-        <div className="text-sm text-muted-foreground">
-          {tasks.length} Epic{tasks.length !== 1 ? 's' : ''} • {tasks.reduce((acc, task) => acc + generateUserStories(task).length, 0)} Stories
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-muted-foreground">
+            {tasks.length} Epic{tasks.length !== 1 ? 's' : ''} • {totalStories} Stories ({independentStories.length} independent)
+          </div>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setCsvUploadOpen(true)}
+              data-testid="button-upload-csv"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Import CSV
+            </Button>
+            <Button 
+              variant="default" 
+              size="sm"
+              onClick={createNewStory}
+              data-testid="button-create-story"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create Story
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -1140,9 +1283,78 @@ Scenario: Feature Usage
         );
       })}
 
-      {tasks.length === 0 && (
+      {/* Independent Stories Section */}
+      {independentStories.length > 0 && (
+        <div className="space-y-4 mt-8">
+          <div className="flex items-center gap-2 pb-2 border-b">
+            <h4 className="font-medium text-foreground">Independent Stories</h4>
+            <span className="text-sm text-muted-foreground">({independentStories.length})</span>
+          </div>
+          
+          {independentStories.map((story) => (
+            <div key={story.id} className="bg-white dark:bg-gray-800 rounded-lg border p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="font-medium text-sm">{story.title}</div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(story.status)}`}>
+                      {story.status}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {story.storyPoints} point{story.storyPoints !== 1 ? 's' : ''}
+                    </span>
+                    {story.parentTaskId && (
+                      <span className="text-xs text-blue-600 dark:text-blue-400">
+                        → Linked to Epic
+                      </span>
+                    )}
+                  </div>
+                  {story.assignee && (
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Assigned to: {story.assignee}
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-xs h-7 px-2"
+                    onClick={() => createGitHubBranch(story)}
+                    data-testid={`button-create-branch-${story.id}`}
+                  >
+                    <GitBranch className="w-3 h-3 mr-1" />
+                    Create branch
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-xs h-7 px-2"
+                    onClick={() => createGitHubCommit(story)}
+                    data-testid={`button-create-commit-${story.id}`}
+                  >
+                    <Code2 className="w-3 h-3 mr-1" />
+                    Create commit
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-7 px-2"
+                    onClick={() => editStory(story)}
+                    data-testid={`button-edit-story-${story.id}`}
+                  >
+                    <Edit className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {tasks.length === 0 && independentStories.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
-          No tasks found. Create tasks first to generate user stories.
+          No stories found. Create your first story or import from CSV to get started.
         </div>
       )}
 
@@ -1160,15 +1372,16 @@ Scenario: Feature Usage
             <div className="space-y-4 mt-4">
               {/* Epic Connection */}
               <div className="space-y-2">
-                <Label htmlFor="epic-connection">Connected Epic</Label>
+                <Label htmlFor="epic-connection">Connected Epic (Optional)</Label>
                 <Select 
                   value={editingStory.parentTaskId} 
                   onValueChange={(value) => setEditingStory({...editingStory, parentTaskId: value})}
                 >
                   <SelectTrigger data-testid="select-epic-connection">
-                    <SelectValue placeholder="Select an Epic" />
+                    <SelectValue placeholder="Select an Epic (or leave independent)" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="">Independent Story (No Epic)</SelectItem>
                     {tasks.map((task) => (
                       <SelectItem key={task.id} value={task.id}>
                         Epic: {task.title}
@@ -1610,15 +1823,58 @@ Scenario: [scenario name]
                   Cancel
                 </Button>
                 <Button onClick={() => {
-                  // TODO: Save story changes to backend
-                  console.log('Saving story:', editingStory);
-                  setIsStoryDialogOpen(false);
+                  if (editingStory) {
+                    saveStory(editingStory);
+                  }
                 }} data-testid="button-save-story">
                   Save Story
                 </Button>
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* CSV Upload Dialog */}
+      <Dialog open={csvUploadOpen} onOpenChange={setCsvUploadOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Upload className="w-5 h-5" />
+              Import Stories from CSV
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 mt-4">
+            <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+              <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">CSV Format Guidelines</h4>
+              <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                <p><strong>Required columns:</strong> title (or user_story)</p>
+                <p><strong>Optional columns:</strong> description, acceptance_criteria, story_points, status, priority, assignee, product_manager, tech_lead, epic_id, feature, value, requirement</p>
+                <p><strong>Example header:</strong></p>
+                <code className="block mt-1 p-2 bg-white dark:bg-gray-800 rounded text-xs">
+                  title,description,story_points,status,assignee,epic_id
+                </code>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="csv-file">Select CSV File</Label>
+              <Input
+                id="csv-file"
+                type="file"
+                accept=".csv"
+                onChange={handleCsvUpload}
+                data-testid="input-csv-file"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={() => setCsvUploadOpen(false)}>
+                Cancel
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
