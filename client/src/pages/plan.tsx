@@ -11,6 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   CheckCircle2, 
   Circle, 
@@ -38,7 +40,10 @@ import {
   Image,
   Code2,
   FileText,
-  ExternalLink
+  ExternalLink,
+  Check,
+  ChevronsUpDown,
+  User
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { GovernanceHeader } from '@/components/layout/governance-header';
@@ -749,6 +754,34 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
 
   const [editingStory, setEditingStory] = useState<UserStory | null>(null);
   const [isStoryDialogOpen, setIsStoryDialogOpen] = useState(false);
+  
+  // Developer assignee search states
+  const [assigneeSearch, setAssigneeSearch] = useState('');
+  const [isAssigneeOpen, setIsAssigneeOpen] = useState(false);
+
+  // Mock developer list - in real app this would come from your team management system
+  const developers = [
+    'Alex Johnson', 'Sarah Chen', 'Mike Rodriguez', 'Emily Davis', 'David Kim',
+    'Jessica Brown', 'Robert Miller', 'Amanda Wilson', 'Christopher Lee', 'Nicole Taylor',
+    'Daniel Thompson', 'Stephanie Garcia', 'Kevin Martinez', 'Ashley Anderson', 'Brian Clark',
+    'Michelle Lewis', 'Ryan Walker', 'Jennifer Hall', 'Justin Allen', 'Laura Young',
+    'Matthew King', 'Samantha Wright', 'Andrew Lopez', 'Rachel Hill', 'Jonathan Scott',
+    'Megan Green', 'Tyler Adams', 'Kimberly Baker', 'Nathan Gonzalez', 'Brittany Nelson',
+    'Brandon Carter', 'Courtney Mitchell', 'Austin Perez', 'Christina Roberts', 'Gregory Turner',
+    'Morgan Phillips', 'Sean Campbell', 'Danielle Parker', 'Eric Evans', 'Vanessa Edwards',
+    'Marcus Collins', 'Alexis Stewart', 'Jordan Sanchez', 'Hannah Morris', 'Zachary Rogers',
+    'Kayla Reed', 'Trevor Cook', 'Jasmine Bailey', 'Cameron Rivera', 'Natalie Cooper',
+    'Blake Richardson', 'Melanie Cox', 'Connor Ward', 'Brooke Torres', 'Ethan Peterson',
+    'Sydney Gray', 'Mason Ramirez', 'Paige James', 'Caleb Watson', 'Jenna Brooks',
+    'Noah Kelly', 'Mariah Sanders', 'Isaac Price', 'Destiny Bennett', 'Owen Wood',
+    'Gabrielle Barnes', 'Liam Ross', 'Ariana Henderson', 'Cole Coleman', 'Jade Jenkins',
+    'Aiden Perry', 'Autumn Powell', 'Ian Long', 'Sierra Patterson', 'Hunter Hughes',
+    'Diamond Flores', 'Eli Washington', 'Genesis Butler', 'Landon Simmons', 'Journey Foster',
+    'Sebastian Gonzales', 'Amaya Bryant', 'Xavier Alexander', 'Aliyah Russell', 'Roman Griffin',
+    'Serenity Diaz', 'Camden Hayes', 'Harmony Myers', 'Grayson Ford', 'Trinity Hamilton',
+    'Bentley Graham', 'Nevaeh Sullivan', 'Easton Wallace', 'Lydia Woods', 'Colton Crawford',
+    'Faith McNeal', 'Jaxon Stone', 'Hope Fisher', 'Bryson Porter', 'Scarlett Mason'
+  ].sort();
 
   const generateUserStories = (task: Task): Array<UserStory> => {
     // Auto-generate user stories based on task category and description
@@ -1247,13 +1280,68 @@ Scenario: Feature Usage
 
                 <div className="space-y-2">
                   <Label htmlFor="story-assignee">Assignee</Label>
-                  <Input
-                    id="story-assignee"
-                    value={editingStory.assignee || ''}
-                    onChange={(e) => setEditingStory({...editingStory, assignee: e.target.value})}
-                    placeholder="Developer name"
-                    data-testid="input-story-assignee"
-                  />
+                  <Popover open={isAssigneeOpen} onOpenChange={setIsAssigneeOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={isAssigneeOpen}
+                        className="w-full justify-between text-sm"
+                        data-testid="select-story-assignee"
+                      >
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4" />
+                          {editingStory.assignee || "Select developer..."}
+                        </div>
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0">
+                      <Command>
+                        <CommandInput 
+                          placeholder="Search developers..." 
+                          value={assigneeSearch}
+                          onValueChange={setAssigneeSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>No developers found.</CommandEmpty>
+                          <CommandGroup>
+                            <CommandItem
+                              value=""
+                              onSelect={() => {
+                                setEditingStory({...editingStory, assignee: undefined});
+                                setIsAssigneeOpen(false);
+                                setAssigneeSearch('');
+                              }}
+                            >
+                              <Check
+                                className={`mr-2 h-4 w-4 ${!editingStory.assignee ? "opacity-100" : "opacity-0"}`}
+                              />
+                              Unassigned
+                            </CommandItem>
+                            {developers
+                              .filter((dev: string) => dev.toLowerCase().includes(assigneeSearch.toLowerCase()))
+                              .map((developer: string) => (
+                              <CommandItem
+                                key={developer}
+                                value={developer}
+                                onSelect={() => {
+                                  setEditingStory({...editingStory, assignee: developer});
+                                  setIsAssigneeOpen(false);
+                                  setAssigneeSearch('');
+                                }}
+                              >
+                                <Check
+                                  className={`mr-2 h-4 w-4 ${editingStory.assignee === developer ? "opacity-100" : "opacity-0"}`}
+                                />
+                                {developer}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
               </div>
 
@@ -1400,6 +1488,7 @@ export default function PlanPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
   const [currentView, setCurrentView] = useState<'board' | 'list' | 'gantt' | 'calendar' | 'table' | 'stories'>('board');
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All Categories');
 
