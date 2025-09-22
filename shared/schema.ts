@@ -570,9 +570,9 @@ export const tasks = pgTable("tasks", {
   category: text("category").notNull(), // 'foundation', 'knowledge-base', 'ai', 'modeling', 'integration', 'ux'
   status: text("status").notNull().default("todo"), // 'todo', 'in-progress', 'completed'
   assignee: text("assignee"),
-  dueDate: text("dueDate"),
-  startDate: text("startDate"), // Task start date for Gantt chart
-  endDate: text("endDate"), // Task end date for Gantt chart  
+  dueDate: text("due_date"),
+  startDate: text("start_date"), // Task start date for Gantt chart
+  endDate: text("end_date"), // Task end date for Gantt chart  
   dependencies: jsonb("dependencies").$type<string[]>().default([]), // Array of task IDs this task depends on
   subtasks: jsonb("subtasks").$type<{
     id: string;
@@ -587,9 +587,9 @@ export const tasks = pgTable("tasks", {
     timestamp: Date;
     author: string;
   }[]>().default([]),
-  createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").defaultNow(),
-  completedAt: timestamp("completedAt")
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  completedAt: timestamp("completed_at")
 });
 
 export const insertTaskSchema = createInsertSchema(tasks).omit({

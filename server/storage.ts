@@ -207,8 +207,7 @@ export class MemStorage implements IStorage {
   }
 
   private initializeSampleTasks() {
-    // Skip initialization - using DatabaseStorage instead
-    return;
+    // Initialize sample tasks for MemStorage development
     
     const now = new Date();
     const addDays = (date: Date, days: number) => new Date(date.getTime() + (days * 24 * 60 * 60 * 1000));
@@ -997,4 +996,4 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+export const storage = new MemStorage();
