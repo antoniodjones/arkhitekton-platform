@@ -600,3 +600,46 @@ export const insertTaskSchema = createInsertSchema(tasks).omit({
 
 export type Task = typeof tasks.$inferSelect;
 export type InsertTask = z.infer<typeof insertTaskSchema>;
+
+// User Stories - Enterprise story management
+export const userStories = pgTable("user_stories", {
+  id: text("id").primaryKey(), // US-XXXXXXX format
+  parentTaskId: uuid("parent_task_id").references(() => tasks.id), // Optional epic connection
+  title: text("title").notNull(),
+  description: text("description").default(""),
+  acceptanceCriteria: text("acceptance_criteria").notNull(),
+  storyPoints: integer("story_points").notNull().default(3),
+  status: text("status").notNull().default("backlog"), // 'backlog', 'sprint', 'in-progress', 'review', 'done'
+  priority: text("priority").notNull().default("medium"), // 'low', 'medium', 'high'
+  
+  // Team assignments
+  assignee: text("assignee"), // Developer
+  productManager: text("product_manager"), // Product Manager/Owner
+  techLead: text("tech_lead"), // Tech Lead/Architect
+  
+  // Story composition guidance
+  feature: text("feature"),
+  value: text("value"),
+  requirement: text("requirement"),
+  
+  // GitHub integration
+  githubRepo: text("github_repo"),
+  githubBranch: text("github_branch"),
+  githubIssue: integer("github_issue"),
+  githubCommits: jsonb("github_commits").$type<string[]>().default([]),
+  
+  // Labels and metadata
+  labels: jsonb("labels").$type<string[]>().default([]),
+  screenshots: jsonb("screenshots").$type<string[]>().default([]), // URLs to uploaded images
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const insertUserStorySchema = createInsertSchema(userStories).omit({
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type UserStory = typeof userStories.$inferSelect;
+export type InsertUserStory = z.infer<typeof insertUserStorySchema>;

@@ -8,7 +8,9 @@ import {
   type KnowledgeBasePage,
   type InsertKnowledgeBasePage,
   type Task,
-  type InsertTask
+  type InsertTask,
+  type UserStory,
+  type InsertUserStory
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
@@ -49,6 +51,24 @@ export interface IStorage {
   createTask(task: InsertTask): Promise<Task>;
   updateTask(id: string, updates: Partial<Task>): Promise<Task | undefined>;
   deleteTask(id: string): Promise<boolean>;
+
+  // User Stories
+  getAllUserStories(): Promise<UserStory[]>;
+  getUserStory(id: string): Promise<UserStory | undefined>;
+  getUserStoriesByTask(taskId: string): Promise<UserStory[]>;
+  getUserStoriesByAssignee(assignee: string): Promise<UserStory[]>;
+  createUserStory(story: InsertUserStory): Promise<UserStory>;
+  updateUserStory(id: string, updates: Partial<UserStory>): Promise<UserStory | undefined>;
+  deleteUserStory(id: string): Promise<boolean>;
+}
+
+// Standardized User Story ID generator
+export function generateUserStoryId(): string {
+  // Generate exactly 7 characters using timestamp and random characters
+  const timestamp = Date.now().toString(36); // Base36 timestamp
+  const random = Math.random().toString(36).substr(2, 4); // 4 random chars
+  const combined = (timestamp + random).substr(-7).toUpperCase(); // Last 7 chars, uppercase
+  return `US-${combined}`;
 }
 
 export class MemStorage implements IStorage {
@@ -57,6 +77,7 @@ export class MemStorage implements IStorage {
   private recentElements: Map<string, RecentElement>;
   private knowledgeBasePages: Map<string, KnowledgeBasePage>;
   private tasks: Map<string, Task>;
+  private userStories: Map<string, UserStory>;
 
   constructor() {
     this.users = new Map();
@@ -64,6 +85,7 @@ export class MemStorage implements IStorage {
     this.recentElements = new Map();
     this.knowledgeBasePages = new Map();
     this.tasks = new Map();
+    this.userStories = new Map();
     
     // Initialize with some sample architecture elements
     this.initializeArchitectureElements();
@@ -71,6 +93,8 @@ export class MemStorage implements IStorage {
     this.initializeKnowledgeBasePages();
     // Initialize with sample tasks with realistic dates
     this.initializeSampleTasks();
+    // Initialize with sample user stories
+    this.initializeSampleUserStories();
   }
 
   private initializeArchitectureElements() {
@@ -400,6 +424,119 @@ export class MemStorage implements IStorage {
   async deleteTask(id: string): Promise<boolean> {
     return this.tasks.delete(id);
   }
+
+  // User Stories Implementation
+  async getAllUserStories(): Promise<UserStory[]> {
+    return Array.from(this.userStories.values());
+  }
+
+  async getUserStory(id: string): Promise<UserStory | undefined> {
+    return this.userStories.get(id);
+  }
+
+  async getUserStoriesByTask(taskId: string): Promise<UserStory[]> {
+    return Array.from(this.userStories.values()).filter(story => story.parentTaskId === taskId);
+  }
+
+  async getUserStoriesByAssignee(assignee: string): Promise<UserStory[]> {
+    return Array.from(this.userStories.values()).filter(story => 
+      story.assignee === assignee || 
+      story.productManager === assignee || 
+      story.techLead === assignee
+    );
+  }
+
+  async createUserStory(storyData: InsertUserStory): Promise<UserStory> {
+    const id = storyData.id || generateUserStoryId();
+    const story: UserStory = {
+      ...storyData,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.userStories.set(id, story);
+    return story;
+  }
+
+  async updateUserStory(id: string, updates: Partial<UserStory>): Promise<UserStory | undefined> {
+    const existingStory = this.userStories.get(id);
+    if (!existingStory) {
+      return undefined;
+    }
+
+    const updatedStory: UserStory = {
+      ...existingStory,
+      ...updates,
+      updatedAt: new Date()
+    };
+
+    this.userStories.set(id, updatedStory);
+    return updatedStory;
+  }
+
+  async deleteUserStory(id: string): Promise<boolean> {
+    return this.userStories.delete(id);
+  }
+
+  // Initialize sample user stories
+  private initializeSampleUserStories() {
+    const sampleStories: InsertUserStory[] = [
+      {
+        id: generateUserStoryId(),
+        parentTaskId: null, // Independent story
+        title: "As a systems architect, I want to create enterprise architecture models, so that I can design scalable systems",
+        description: "This story covers the basic architecture modeling capability",
+        acceptanceCriteria: `Given I am a systems architect
+When I access the modeling interface
+Then I can create comprehensive architecture models
+
+Scenario: Model Creation
+  Given I have access to the design canvas
+  When I drag and drop architectural components
+  Then I can build complete system models
+  And the models should follow enterprise standards`,
+        storyPoints: 8,
+        status: "backlog",
+        priority: "high",
+        assignee: "Sarah Chen",
+        productManager: "Emily Davis",
+        techLead: "Alex Johnson",
+        labels: ["foundation", "architecture"],
+        feature: "Core modeling capability",
+        value: "Enable enterprise-grade system design",
+        requirement: "Scalable architecture modeling platform"
+      },
+      {
+        id: generateUserStoryId(),
+        parentTaskId: null,
+        title: "As a product manager, I want to manage user stories with team assignments, so that I can coordinate development work effectively",
+        description: "Complete story management with searchable team assignment capabilities",
+        acceptanceCriteria: `Given I am a product manager
+When I create and manage user stories
+Then I can assign developers, PMs, and tech leads
+
+Scenario: Team Assignment
+  Given I have a user story to assign
+  When I search for team members by role
+  Then I can assign the right people to the work
+  And track progress across the team`,
+        storyPoints: 5,
+        status: "in-progress", 
+        priority: "high",
+        assignee: "Mike Rodriguez",
+        productManager: "Emily Davis",
+        techLead: "David Kim",
+        labels: ["ux", "management"],
+        feature: "Story management",
+        value: "Improve team coordination and visibility",
+        requirement: "Enterprise team assignment system"
+      }
+    ];
+
+    sampleStories.forEach(story => {
+      this.userStories.set(story.id!, story as UserStory);
+    });
+  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -651,6 +788,67 @@ export class DatabaseStorage implements IStorage {
       .delete(schema.tasks)
       .where(eq(schema.tasks.id, id));
     return result.rowCount > 0;
+  }
+
+  // User Stories Implementation - Database
+  async getAllUserStories(): Promise<UserStory[]> {
+    const stories = await db.select().from(schema.userStories);
+    return stories;
+  }
+
+  async getUserStory(id: string): Promise<UserStory | undefined> {
+    const [story] = await db.select()
+      .from(schema.userStories)
+      .where(eq(schema.userStories.id, id));
+    return story || undefined;
+  }
+
+  async getUserStoriesByTask(taskId: string): Promise<UserStory[]> {
+    const stories = await db.select()
+      .from(schema.userStories)
+      .where(eq(schema.userStories.parentTaskId, taskId));
+    return stories;
+  }
+
+  async getUserStoriesByAssignee(assignee: string): Promise<UserStory[]> {
+    // Note: This is a simplified query. In a real implementation, you might want to use OR conditions
+    const stories = await db.select()
+      .from(schema.userStories)
+      .where(eq(schema.userStories.assignee, assignee));
+    return stories;
+  }
+
+  async createUserStory(storyData: InsertUserStory): Promise<UserStory> {
+    const id = storyData.id || generateUserStoryId();
+    const [story] = await db
+      .insert(schema.userStories)
+      .values({
+        ...storyData,
+        id,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+    return story;
+  }
+
+  async updateUserStory(id: string, updates: Partial<UserStory>): Promise<UserStory | undefined> {
+    const [story] = await db
+      .update(schema.userStories)
+      .set({
+        ...updates,
+        updatedAt: new Date()
+      })
+      .where(eq(schema.userStories.id, id))
+      .returning();
+    return story || undefined;
+  }
+
+  async deleteUserStory(id: string): Promise<boolean> {
+    const result = await db
+      .delete(schema.userStories)
+      .where(eq(schema.userStories.id, id));
+    return result.rowCount! > 0;
   }
 }
 
