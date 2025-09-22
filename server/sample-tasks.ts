@@ -362,6 +362,183 @@ export function getSampleTasks(): InsertTask[] {
         { id: '3', title: 'Mobile optimization', completed: false, createdAt: now }
       ],
       completed: 0
+    },
+
+    // Application Portfolio Management (APM) Phase (Month 8-12)
+    // Epic 1: Core Application Portfolio Foundation (35 stories, 195 points)
+    {
+      title: 'Application CRUD Operations Foundation',
+      description: 'Create comprehensive application creation, read, update, delete operations with validation and database persistence',
+      status: 'todo',
+      priority: 'high',
+      category: 'apm',
+      assignee: 'APM Lead Developer',
+      dueDate: addDays(now, 360).toISOString(),
+      startDate: addDays(now, 330).toISOString(),
+      endDate: addDays(now, 360).toISOString(),
+      dependencies: [],
+      subtasks: [
+        { id: '1', title: 'Application entry form with validation', completed: false, createdAt: now },
+        { id: '2', title: 'Save application to database', completed: false, createdAt: now },
+        { id: '3', title: 'Application list view with sorting', completed: false, createdAt: now },
+        { id: '4', title: 'Search applications functionality', completed: false, createdAt: now },
+        { id: '5', title: 'Edit application details', completed: false, createdAt: now },
+        { id: '6', title: 'Delete with confirmation', completed: false, createdAt: now }
+      ],
+      completed: 0
+    },
+    {
+      title: 'Application Metadata Management System',
+      description: 'Implement technology type dropdowns, custom fields configuration, business owner assignment, and status tracking',
+      status: 'todo',
+      priority: 'high',
+      category: 'apm',
+      assignee: 'APM Backend Developer',
+      dueDate: addDays(now, 390).toISOString(),
+      startDate: addDays(now, 345).toISOString(),
+      endDate: addDays(now, 390).toISOString(),
+      dependencies: [],
+      subtasks: [
+        { id: '1', title: 'Technology type dropdown (SaaS, On-premise, Hybrid, Mobile, Web, API)', completed: false, createdAt: now },
+        { id: '2', title: 'Custom fields configuration system', completed: false, createdAt: now },
+        { id: '3', title: 'Business owner assignment from user list', completed: false, createdAt: now },
+        { id: '4', title: 'Application lifecycle status tracking', completed: false, createdAt: now }
+      ],
+      completed: 0
+    },
+    {
+      title: 'Application Versioning System',
+      description: 'Build comprehensive version management with history tracking, planned versions, and status transitions',
+      status: 'todo',
+      priority: 'medium',
+      category: 'apm',
+      assignee: 'APM Full Stack Developer',
+      dueDate: addDays(now, 420).toISOString(),
+      startDate: addDays(now, 375).toISOString(),
+      endDate: addDays(now, 420).toISOString(),
+      dependencies: [],
+      subtasks: [
+        { id: '1', title: 'Version number field and tracking', completed: false, createdAt: now },
+        { id: '2', title: 'Version history log with chronological display', completed: false, createdAt: now },
+        { id: '3', title: 'Planned version creation with target dates', completed: false, createdAt: now },
+        { id: '4', title: 'Version status management (Planned → In Development → Live)', completed: false, createdAt: now }
+      ],
+      completed: 0
+    },
+    {
+      title: 'Regional Deployment Tracking',
+      description: 'Implement global deployment tracking with regional configuration, status assignment, and timeline visualization',
+      status: 'todo',
+      priority: 'medium',
+      category: 'apm',
+      assignee: 'Global Architecture Lead',
+      dueDate: addDays(now, 450).toISOString(),
+      startDate: addDays(now, 405).toISOString(),
+      endDate: addDays(now, 450).toISOString(),
+      dependencies: [],
+      subtasks: [
+        { id: '1', title: 'Regional configuration setup (US East, US West, Europe, Asia Pacific)', completed: false, createdAt: now },
+        { id: '2', title: 'Regional status assignment per application', completed: false, createdAt: now },
+        { id: '3', title: 'Regional deployment timeline Gantt visualization', completed: false, createdAt: now }
+      ],
+      completed: 0
+    },
+    {
+      title: 'Data Classification & Security Framework',
+      description: 'Build data type classification, security levels, and compliance requirements mapping for applications',
+      status: 'todo',
+      priority: 'high',
+      category: 'apm',
+      assignee: 'Security Architect',
+      dueDate: addDays(now, 480).toISOString(),
+      startDate: addDays(now, 435).toISOString(),
+      endDate: addDays(now, 480).toISOString(),
+      dependencies: [],
+      subtasks: [
+        { id: '1', title: 'Data type checkboxes (Employee PII, Financial Data, Customer Data)', completed: false, createdAt: now },
+        { id: '2', title: 'Security classification levels (Public, Internal, Confidential, Highly Sensitive)', completed: false, createdAt: now },
+        { id: '3', title: 'Compliance requirements mapping (GDPR, SOX, HIPAA)', completed: false, createdAt: now }
+      ],
+      completed: 0
+    },
+
+    // Epic 2: AI-Driven Intelligence Features (28 stories, 180 points)
+    {
+      title: 'AI Application Discovery Engine',
+      description: 'Implement automated network scanning and HTTP service detection for application discovery',
+      status: 'todo',
+      priority: 'high',
+      category: 'apm',
+      assignee: 'AI Engineer',
+      dueDate: addDays(now, 510).toISOString(),
+      startDate: addDays(now, 465).toISOString(),
+      endDate: addDays(now, 510).toISOString(),
+      dependencies: [],
+      subtasks: [
+        { id: '1', title: 'Network scanner configuration (IP ranges, frequency)', completed: false, createdAt: now },
+        { id: '2', title: 'HTTP service detection and categorization', completed: false, createdAt: now },
+        { id: '3', title: 'Application fingerprinting and technology detection', completed: false, createdAt: now },
+        { id: '4', title: 'Automated application catalog population', completed: false, createdAt: now }
+      ],
+      completed: 0
+    },
+    {
+      title: 'Business Capability Mapping Intelligence',
+      description: 'Build AI-powered mapping between applications and business capabilities using the 313-record maturity model',
+      status: 'todo',
+      priority: 'high',
+      category: 'apm',
+      assignee: 'ML Engineer',
+      dueDate: addDays(now, 540).toISOString(),
+      startDate: addDays(now, 495).toISOString(),
+      endDate: addDays(now, 540).toISOString(),
+      dependencies: [],
+      subtasks: [
+        { id: '1', title: 'Business capability model data ingestion (313 records)', completed: false, createdAt: now },
+        { id: '2', title: 'AI-powered application-to-capability matching', completed: false, createdAt: now },
+        { id: '3', title: 'Maturity assessment automation', completed: false, createdAt: now },
+        { id: '4', title: 'Capability gap analysis and recommendations', completed: false, createdAt: now }
+      ],
+      completed: 0
+    },
+    {
+      title: 'Portfolio Analytics & Intelligence Dashboard',
+      description: 'Create comprehensive analytics dashboard with AI insights, recommendations, and portfolio optimization',
+      status: 'todo',
+      priority: 'medium',
+      category: 'apm',
+      assignee: 'Data Analyst',
+      dueDate: addDays(now, 570).toISOString(),
+      startDate: addDays(now, 525).toISOString(),
+      endDate: addDays(now, 570).toISOString(),
+      dependencies: [],
+      subtasks: [
+        { id: '1', title: 'Portfolio health scoring algorithm', completed: false, createdAt: now },
+        { id: '2', title: 'Technology debt analysis and visualization', completed: false, createdAt: now },
+        { id: '3', title: 'Cost optimization recommendations', completed: false, createdAt: now },
+        { id: '4', title: 'Redundancy detection and consolidation suggestions', completed: false, createdAt: now },
+        { id: '5', title: 'Executive dashboard with key metrics', completed: false, createdAt: now }
+      ],
+      completed: 0
+    },
+    {
+      title: 'APM Integration Framework',
+      description: 'Build integration capabilities with CMDB, service catalogs, and enterprise architecture tools',
+      status: 'todo',
+      priority: 'medium',
+      category: 'apm',
+      assignee: 'Integration Engineer',
+      dueDate: addDays(now, 600).toISOString(),
+      startDate: addDays(now, 555).toISOString(),
+      endDate: addDays(now, 600).toISOString(),
+      dependencies: [],
+      subtasks: [
+        { id: '1', title: 'CMDB integration and synchronization', completed: false, createdAt: now },
+        { id: '2', title: 'ServiceNow integration for application catalog', completed: false, createdAt: now },
+        { id: '3', title: 'Enterprise architecture tool connectivity', completed: false, createdAt: now },
+        { id: '4', title: 'REST API for external system integration', completed: false, createdAt: now }
+      ],
+      completed: 0
     }
   ];
 
