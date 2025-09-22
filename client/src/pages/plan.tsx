@@ -1400,7 +1400,16 @@ Then [expected outcome]`,
             {allStories.map((story: BackendUserStory) => {
               const convertedStory = convertBackendStory(story);
               return (
-                <div key={story.id} className="bg-white dark:bg-gray-800 rounded-lg border p-4">
+                <div 
+                  key={story.id} 
+                  className="bg-white dark:bg-gray-800 rounded-lg border p-4 cursor-pointer hover:shadow-md transition-shadow"
+                  onDoubleClick={() => {
+                    const convertedStory = convertBackendStory(story);
+                    setEditingStory(convertedStory);
+                    setIsStoryDialogOpen(true);
+                  }}
+                  data-testid={`story-card-${story.id.substring(0, 8)}`}
+                >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
