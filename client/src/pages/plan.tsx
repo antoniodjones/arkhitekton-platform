@@ -45,7 +45,11 @@ import {
   Check,
   ChevronsUpDown,
   User,
-  BookOpen
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { GovernanceHeader } from '@/components/layout/governance-header';
@@ -771,6 +775,175 @@ function TaskColumn({
         )}
       </CardContent>
     </Card>
+  );
+}
+
+// Pagination Controls Component
+interface PaginationControlsProps {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+  isLoading?: boolean;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+}
+
+function PaginationControls({ 
+  page, 
+  pageSize, 
+  total, 
+  totalPages, 
+  isLoading = false,
+  onPageChange, 
+  onPageSizeChange 
+}: PaginationControlsProps) {
+  const [customPageSize, setCustomPageSize] = useState('');
+  const [showCustomInput, setShowCustomInput] = useState(false);
+  
+  const startItem = total === 0 ? 0 : (page - 1) * pageSize + 1;
+  const endItem = Math.min(page * pageSize, total);
+  
+  const handlePageSizeChange = (value: string) => {
+    if (value === 'custom') {
+      setShowCustomInput(true);
+      return;
+    }
+    const newPageSize = parseInt(value);
+    if (!isNaN(newPageSize)) {
+      onPageSizeChange(newPageSize);
+      setShowCustomInput(false);
+    }
+  };
+  
+  const handleCustomPageSizeSubmit = () => {
+    const newPageSize = parseInt(customPageSize);
+    if (!isNaN(newPageSize) && newPageSize >= 1 && newPageSize <= 200) {
+      onPageSizeChange(newPageSize);
+      setShowCustomInput(false);
+      setCustomPageSize('');
+    }
+  };
+  
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleCustomPageSizeSubmit();
+    } else if (e.key === 'Escape') {
+      setShowCustomInput(false);
+      setCustomPageSize('');
+    }
+  };
+  
+  return (
+    <div className="flex items-center justify-between gap-4 py-3">
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-muted-foreground">Rows per page:</span>
+        <Select 
+          value={showCustomInput ? 'custom' : pageSize.toString()} 
+          onValueChange={handlePageSizeChange}
+          disabled={isLoading}
+        >
+          <SelectTrigger className="h-8 w-20" data-testid="pagination-page-size-select">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="10">10</SelectItem>
+            <SelectItem value="25">25</SelectItem>
+            <SelectItem value="50">50</SelectItem>
+            <SelectItem value="100">100</SelectItem>
+            <SelectItem value="custom">Custom...</SelectItem>
+          </SelectContent>
+        </Select>
+        
+        {showCustomInput && (
+          <div className="flex items-center gap-2">
+            <Input
+              type="number"
+              min="1"
+              max="200"
+              value={customPageSize}
+              onChange={(e) => setCustomPageSize(e.target.value)}
+              onKeyDown={handleKeyPress}
+              placeholder="1-200"
+              className="h-8 w-20"
+              data-testid="pagination-custom-page-size-input"
+              autoFocus
+            />
+            <Button
+              size="sm"
+              onClick={handleCustomPageSizeSubmit}
+              disabled={!customPageSize || isNaN(parseInt(customPageSize))}
+              data-testid="pagination-custom-page-size-apply"
+            >
+              Apply
+            </Button>
+          </div>
+        )}
+      </div>
+      
+      <div className="flex items-center gap-4">
+        <div className="text-sm text-muted-foreground" data-testid="pagination-info">
+          {total === 0 ? 'No items' : `${startItem}–${endItem} of ${total}`}
+        </div>
+        
+        <div className="flex items-center gap-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(1)}
+            disabled={page <= 1 || isLoading}
+            data-testid="pagination-first-page"
+            className="h-8 w-8 p-0"
+          >
+            <ChevronsLeft className="h-4 w-4" />
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(page - 1)}
+            disabled={page <= 1 || isLoading}
+            data-testid="pagination-previous-page"
+            className="h-8 w-8 p-0"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          
+          <div className="flex items-center gap-1 px-2">
+            <span className="text-sm">Page</span>
+            <span className="text-sm font-medium" data-testid="pagination-current-page">
+              {page}
+            </span>
+            <span className="text-sm">of</span>
+            <span className="text-sm" data-testid="pagination-total-pages">
+              {totalPages || 1}
+            </span>
+          </div>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(page + 1)}
+            disabled={page >= totalPages || isLoading}
+            data-testid="pagination-next-page"
+            className="h-8 w-8 p-0"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(totalPages)}
+            disabled={page >= totalPages || isLoading}
+            data-testid="pagination-last-page"
+            className="h-8 w-8 p-0"
+          >
+            <ChevronsRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }
 
