@@ -76,6 +76,11 @@ interface UserStory {
   assignee?: string;
   labels: string[];
   
+  // Story composition guidance fields
+  feature?: string;
+  value?: string;
+  requirement?: string;
+  
   // GitHub Integration
   githubRepo?: string;
   githubBranch?: string;
@@ -913,6 +918,9 @@ Scenario: Feature Usage
       priority: 'medium' as const,
       assignee: task.assignee || undefined,
       labels: [task.category],
+      feature: undefined,
+      value: undefined,
+      requirement: undefined,
       githubRepo: undefined,
       githubBranch: undefined,
       githubIssue: undefined,
@@ -1109,9 +1117,74 @@ Scenario: Feature Usage
           
           {editingStory && (
             <div className="space-y-4 mt-4">
+              {/* Epic Connection */}
+              <div className="space-y-2">
+                <Label htmlFor="epic-connection">Connected Epic</Label>
+                <Select 
+                  value={editingStory.parentTaskId} 
+                  onValueChange={(value) => setEditingStory({...editingStory, parentTaskId: value})}
+                >
+                  <SelectTrigger data-testid="select-epic-connection">
+                    <SelectValue placeholder="Select an Epic" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {tasks.map((task) => (
+                      <SelectItem key={task.id} value={task.id}>
+                        Epic: {task.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Story Guidance Fields */}
+              <div className="space-y-4 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
+                <h4 className="font-medium text-blue-900 dark:text-blue-100">Story Composition Guidance</h4>
+                <div className="grid grid-cols-1 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="story-feature" className="text-xs text-blue-700 dark:text-blue-300">Feature (What functionality?)</Label>
+                    <Input
+                      id="story-feature"
+                      value={editingStory.feature || ''}
+                      onChange={(e) => setEditingStory({...editingStory, feature: e.target.value})}
+                      placeholder="e.g., drag-and-drop interface, AI suggestions, search functionality"
+                      className="text-sm"
+                      data-testid="input-story-feature"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="story-value" className="text-xs text-blue-700 dark:text-blue-300">Value (What benefit or outcome?)</Label>
+                    <Input
+                      id="story-value"
+                      value={editingStory.value || ''}
+                      onChange={(e) => setEditingStory({...editingStory, value: e.target.value})}
+                      placeholder="e.g., save time, improve accuracy, increase productivity"
+                      className="text-sm"
+                      data-testid="input-story-value"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="story-requirement" className="text-xs text-blue-700 dark:text-blue-300">Requirement (What specific need?)</Label>
+                    <Input
+                      id="story-requirement"
+                      value={editingStory.requirement || ''}
+                      onChange={(e) => setEditingStory({...editingStory, requirement: e.target.value})}
+                      placeholder="e.g., model complex systems, visualize data flows, collaborate with team"
+                      className="text-sm"
+                      data-testid="input-story-requirement"
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Story Title */}
               <div className="space-y-2">
                 <Label htmlFor="story-title">User Story</Label>
+                <div className="text-xs text-muted-foreground mb-2">
+                  Format: As a [persona/role], I want [feature], so that I can [value/requirement]
+                </div>
                 <Input
                   id="story-title"
                   value={editingStory.title}
