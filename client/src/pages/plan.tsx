@@ -32,7 +32,8 @@ import {
   CheckCircle,
   ArrowRight,
   CheckSquare,
-  Plus
+  Plus,
+  Printer
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { GovernanceHeader } from '@/components/layout/governance-header';
@@ -774,6 +775,73 @@ export default function PlanPage() {
     })
   );
 
+  // Print function for List view
+  const handlePrintList = () => {
+    const printWindow = window.open('', '', 'height=600,width=800');
+    if (!printWindow) return;
+    
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>ARKHITEKTON Development Plan - Task List</title>
+          <style>
+            body { font-family: system-ui, sans-serif; margin: 20px; }
+            .task-item { border: 1px solid #e5e7eb; margin-bottom: 8px; padding: 12px; border-radius: 8px; }
+            .task-title { font-weight: 600; margin-bottom: 4px; }
+            .task-id { color: #6b7280; font-size: 14px; }
+            .task-priority, .task-category { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-right: 8px; }
+            .priority-high { background-color: #fef2f2; color: #dc2626; }
+            .priority-medium { background-color: #fffbeb; color: #d97706; }
+            .priority-low { background-color: #f0fdf4; color: #16a34a; }
+            .category { background-color: #f3f4f6; color: #374151; }
+            .task-description { color: #6b7280; margin: 8px 0; }
+            .task-dates { color: #6b7280; font-size: 14px; }
+            .task-meta { margin-top: 8px; color: #6b7280; font-size: 14px; }
+            .completed { text-decoration: line-through; opacity: 0.6; }
+            @media print { body { margin: 0; } }
+          </style>
+        </head>
+        <body>
+          <h1>ARKHITEKTON Development Plan - Task List</h1>
+          <p>Generated on: ${new Date().toLocaleDateString()}</p>
+          <p>Total Tasks: ${filteredTasks.length}</p>
+          <hr>
+          ${filteredTasks.map(task => `
+            <div class="task-item ${task.completed ? 'completed' : ''}">
+              <div class="task-title">
+                <span class="task-id">(${task.id.substring(0, 8)})</span> ${task.title}
+                <span class="task-priority priority-${task.priority}">${task.priority}</span>
+                <span class="task-category category">${task.category}</span>
+              </div>
+              ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+              ${task.startDate || task.endDate ? `
+                <div class="task-dates">
+                  ${task.startDate && task.endDate ? 
+                    `${new Date(task.startDate).toLocaleDateString()} - ${new Date(task.endDate).toLocaleDateString()}` :
+                    task.startDate ? `Start: ${new Date(task.startDate).toLocaleDateString()}` :
+                    `End: ${new Date(task.endDate).toLocaleDateString()}`
+                  }
+                </div>
+              ` : ''}
+              ${task.dependencies?.length || task.subtasks?.length ? `
+                <div class="task-meta">
+                  ${task.dependencies?.length ? `Dependencies: ${task.dependencies.length} task(s)` : ''}
+                  ${task.dependencies?.length && task.subtasks?.length ? ' • ' : ''}
+                  ${task.subtasks?.length ? `Subtasks: ${task.subtasks.filter((st: any) => st.completed).length}/${task.subtasks.length}` : ''}
+                </div>
+              ` : ''}
+            </div>
+          `).join('')}
+        </body>
+      </html>
+    `);
+    
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  };
+
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
   };
@@ -1127,7 +1195,24 @@ export default function PlanPage() {
 
       {/* List View */}
       {currentView === 'list' && (
-        <div className="space-y-2">
+        <div className="space-y-4">
+          {/* List View Header with Print Button */}
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-foreground">Task List</h3>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePrintList}
+              className="flex items-center gap-2"
+              data-testid="button-print-list"
+            >
+              <Printer className="w-4 h-4" />
+              Print
+            </Button>
+          </div>
+          
+          {/* Task List Content */}
+          <div className="space-y-2" id="list-view-content">
           {filteredTasks.map((task: Task) => (
             <div key={task.id} className="bg-white dark:bg-gray-800 rounded-lg border p-4 hover:shadow-sm transition-shadow">
               <div className="flex items-center justify-between">
@@ -1226,6 +1311,7 @@ export default function PlanPage() {
               No tasks found matching your filters.
             </div>
           )}
+          </div>
         </div>
       )}
 
