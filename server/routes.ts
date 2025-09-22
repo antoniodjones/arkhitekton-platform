@@ -6,6 +6,8 @@ import {
   insertKnowledgeBasePageSchema,
   insertPageCommentSchema,
   insertTaskSchema,
+  insertUserStorySchema,
+  updateUserStorySchema,
   type KnowledgeBasePage 
 } from "@shared/schema";
 import Anthropic from '@anthropic-ai/sdk';
@@ -394,6 +396,203 @@ Keep response concise but comprehensive.`;
     } catch (error) {
       console.error("Failed to delete task:", error);
       res.status(500).json({ message: "Failed to delete task" });
+    }
+  });
+
+  // User Stories API - Enterprise Story Management
+  
+  // Get all user stories with enterprise pagination and sorting
+  app.get("/api/user-stories", async (req, res) => {
+    try {
+      const { taskId, assignee, limit = '50', offset = '0', sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+      
+      // Validate pagination parameters
+      const parsedLimit = Math.min(parseInt(limit as string) || 50, 100); // Cap at 100
+      const parsedOffset = Math.max(parseInt(offset as string) || 0, 0);
+      
+      // Validate sort parameters
+      const allowedSortFields = ['createdAt', 'updatedAt', 'title', 'priority', 'status', 'storyPoints'];
+      const finalSortBy = allowedSortFields.includes(sortBy as string) ? sortBy as string : 'createdAt';
+      const finalSortOrder = ['asc', 'desc'].includes(sortOrder as string) ? sortOrder as string : 'desc';
+      
+      let stories;
+      if (taskId && typeof taskId === 'string') {
+        // Validate UUID format for taskId
+        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(taskId)) {
+          return res.status(400).json({ message: "Invalid taskId format" });
+        }
+        stories = await storage.getUserStoriesByTask(taskId);
+      } else if (assignee && typeof assignee === 'string') {
+        // Basic assignee validation (non-empty string)
+        if (assignee.trim().length === 0) {
+          return res.status(400).json({ message: "Invalid assignee" });
+        }
+        stories = await storage.getUserStoriesByAssignee(assignee);
+      } else {
+        stories = await storage.getAllUserStories();
+      }
+      
+      // Apply sorting and pagination
+      const sortedStories = stories.sort((a, b) => {
+        let aVal = a[finalSortBy as keyof typeof a];
+        let bVal = b[finalSortBy as keyof typeof b];
+        
+        // Handle Date objects
+        if (aVal instanceof Date) aVal = aVal.getTime();
+        if (bVal instanceof Date) bVal = bVal.getTime();
+        
+        // Handle null/undefined
+        if (aVal == null) aVal = '';
+        if (bVal == null) bVal = '';
+        
+        if (finalSortOrder === 'desc') {
+          return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
+        } else {
+          return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+        }
+      });
+      
+      const paginatedStories = sortedStories.slice(parsedOffset, parsedOffset + parsedLimit);
+      
+      res.json({
+        data: paginatedStories,
+        pagination: {
+          limit: parsedLimit,
+          offset: parsedOffset,
+          total: stories.length,
+          hasMore: parsedOffset + parsedLimit < stories.length
+        },
+        sort: {
+          sortBy: finalSortBy,
+          sortOrder: finalSortOrder
+        }
+      });
+    } catch (error) {
+      console.error("Failed to fetch user stories:", error);
+      res.status(500).json({ message: "Failed to fetch user stories" });
+    }
+  });
+
+  // Get single user story
+  app.get("/api/user-stories/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const story = await storage.getUserStory(id);
+      
+      if (!story) {
+        return res.status(404).json({ message: "User story not found" });
+      }
+      
+      res.json(story);
+    } catch (error) {
+      console.error("Failed to fetch user story:", error);
+      res.status(500).json({ message: "Failed to fetch user story" });
+    }
+  });
+
+  // Create new user story with referential integrity checks
+  app.post("/api/user-stories", async (req, res) => {
+    try {
+      const validatedData = insertUserStorySchema.parse(req.body);
+      
+      // Validate referential integrity - check if parentTaskId exists
+      if (validatedData.parentTaskId) {
+        const parentTask = await storage.getTask(validatedData.parentTaskId);
+        if (!parentTask) {
+          return res.status(400).json({ 
+            message: "Validation failed",
+            errors: { parentTaskId: "Referenced task does not exist" }
+          });
+        }
+      }
+      
+      const story = await storage.createUserStory(validatedData);
+      res.status(201).json(story);
+    } catch (error) {
+      console.error("Failed to create user story:", error);
+      
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ 
+          message: "Validation failed", 
+          errors: error.message
+        });
+      }
+      
+      res.status(400).json({ 
+        message: "Failed to create user story", 
+        error: error instanceof Error ? error.message : String(error) 
+      });
+    }
+  });
+
+  // Update user story with enterprise validation and integrity checks
+  app.patch("/api/user-stories/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Validate story ID format
+      if (!id || !id.startsWith('US-') || id.length !== 10) {
+        return res.status(400).json({ 
+          message: "Invalid story ID format. Expected US-XXXXXXX"
+        });
+      }
+      
+      // Validate update data with proper schema
+      const validatedUpdates = updateUserStorySchema.parse(req.body);
+      
+      // Check if story exists first
+      const existingStory = await storage.getUserStory(id);
+      if (!existingStory) {
+        return res.status(404).json({ message: "User story not found" });
+      }
+      
+      // Validate referential integrity for parentTaskId if being updated
+      if (validatedUpdates.parentTaskId !== undefined) {
+        if (validatedUpdates.parentTaskId !== null) {
+          const parentTask = await storage.getTask(validatedUpdates.parentTaskId);
+          if (!parentTask) {
+            return res.status(400).json({ 
+              message: "Validation failed",
+              errors: { parentTaskId: "Referenced task does not exist" }
+            });
+          }
+        }
+      }
+      
+      const updatedStory = await storage.updateUserStory(id, validatedUpdates);
+      if (!updatedStory) {
+        return res.status(404).json({ message: "User story not found" });
+      }
+      
+      res.json(updatedStory);
+    } catch (error) {
+      console.error("Failed to update user story:", error);
+      
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ 
+          message: "Validation failed", 
+          errors: error.message
+        });
+      }
+      
+      res.status(500).json({ message: "Failed to update user story" });
+    }
+  });
+
+  // Delete user story
+  app.delete("/api/user-stories/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteUserStory(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "User story not found" });
+      }
+      
+      res.json({ message: "User story deleted successfully" });
+    } catch (error) {
+      console.error("Failed to delete user story:", error);
+      res.status(500).json({ message: "Failed to delete user story" });
     }
   });
 

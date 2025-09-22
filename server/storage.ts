@@ -62,13 +62,30 @@ export interface IStorage {
   deleteUserStory(id: string): Promise<boolean>;
 }
 
-// Standardized User Story ID generator
+// Standardized User Story ID generator with collision detection
 export function generateUserStoryId(): string {
   // Generate exactly 7 characters using timestamp and random characters
   const timestamp = Date.now().toString(36); // Base36 timestamp
   const random = Math.random().toString(36).substr(2, 4); // 4 random chars
   const combined = (timestamp + random).substr(-7).toUpperCase(); // Last 7 chars, uppercase
   return `US-${combined}`;
+}
+
+// Generate unique ID with collision detection for storage
+export async function generateUniqueUserStoryId(storage: IStorage): Promise<string> {
+  let attempts = 0;
+  const maxAttempts = 10; // Prevent infinite loops
+  
+  while (attempts < maxAttempts) {
+    const id = generateUserStoryId();
+    const existing = await storage.getUserStory(id);
+    if (!existing) {
+      return id;
+    }
+    attempts++;
+  }
+  
+  throw new Error("Failed to generate unique user story ID after maximum attempts");
 }
 
 export class MemStorage implements IStorage {
@@ -93,8 +110,8 @@ export class MemStorage implements IStorage {
     this.initializeKnowledgeBasePages();
     // Initialize with sample tasks with realistic dates
     this.initializeSampleTasks();
-    // Initialize with sample user stories
-    this.initializeSampleUserStories();
+    // Initialize with sample user stories (async)
+    this.initializeSampleUserStories().catch(console.error);
   }
 
   private initializeArchitectureElements() {
@@ -447,7 +464,8 @@ export class MemStorage implements IStorage {
   }
 
   async createUserStory(storyData: InsertUserStory): Promise<UserStory> {
-    const id = storyData.id || generateUserStoryId();
+    // Always generate server-side ID with collision detection
+    const id = await generateUniqueUserStoryId(this);
     const story: UserStory = {
       ...storyData,
       id,
@@ -479,10 +497,9 @@ export class MemStorage implements IStorage {
   }
 
   // Initialize sample user stories
-  private initializeSampleUserStories() {
+  private async initializeSampleUserStories() {
     const sampleStories: InsertUserStory[] = [
       {
-        id: generateUserStoryId(),
         parentTaskId: null, // Independent story
         title: "As a systems architect, I want to create enterprise architecture models, so that I can design scalable systems",
         description: "This story covers the basic architecture modeling capability",
@@ -507,7 +524,6 @@ Scenario: Model Creation
         requirement: "Scalable architecture modeling platform"
       },
       {
-        id: generateUserStoryId(),
         parentTaskId: null,
         title: "As a product manager, I want to manage user stories with team assignments, so that I can coordinate development work effectively",
         description: "Complete story management with searchable team assignment capabilities",
@@ -533,9 +549,10 @@ Scenario: Team Assignment
       }
     ];
 
-    sampleStories.forEach(story => {
-      this.userStories.set(story.id!, story as UserStory);
-    });
+    // Create stories with proper ID generation
+    for (const storyData of sampleStories) {
+      await this.createUserStory(storyData);
+    }
   }
 }
 
@@ -819,7 +836,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUserStory(storyData: InsertUserStory): Promise<UserStory> {
-    const id = storyData.id || generateUserStoryId();
+    // Always generate server-side ID with collision detection
+    const id = await generateUniqueUserStoryId(this);
     const [story] = await db
       .insert(schema.userStories)
       .values({

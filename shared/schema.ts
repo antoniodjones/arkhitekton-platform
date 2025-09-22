@@ -636,10 +636,33 @@ export const userStories = pgTable("user_stories", {
   updatedAt: timestamp("updated_at").defaultNow()
 });
 
+// User Story validation schemas with enterprise-grade controls
 export const insertUserStorySchema = createInsertSchema(userStories).omit({
+  id: true, // Server generates standardized US-XXXXXXX IDs
   createdAt: true,
   updatedAt: true,
+}).extend({
+  // Enforce status enum validation
+  status: z.enum(['backlog', 'sprint', 'in-progress', 'review', 'done']).default('backlog'),
+  priority: z.enum(['low', 'medium', 'high']).default('medium'),
+  // Ensure required fields
+  title: z.string().min(1, "Title is required"),
+  acceptanceCriteria: z.string().min(1, "Acceptance criteria is required"),
+  storyPoints: z.number().int().min(1).max(13).default(3), // Fibonacci scale limit
+});
+
+// Update schema that prevents modification of immutable fields and enforces business rules
+export const updateUserStorySchema = insertUserStorySchema.partial().omit({
+  id: true, // Never allow ID changes
+  createdAt: true, // Never allow timestamp manipulation
+  updatedAt: true, // Handled by server
+}).extend({
+  // Optional validation for updates
+  parentTaskId: z.string().uuid().optional().nullable(), // Validate UUID format if provided
+  storyPoints: z.number().int().min(1).max(13).optional(),
+  githubIssue: z.number().int().positive().optional().nullable(),
 });
 
 export type UserStory = typeof userStories.$inferSelect;
 export type InsertUserStory = z.infer<typeof insertUserStorySchema>;
+export type UpdateUserStory = z.infer<typeof updateUserStorySchema>;
