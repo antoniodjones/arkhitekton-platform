@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, parseISO, isWithinInterval, addDays } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
+import type { UserStory as BackendUserStory } from '@shared/schema';
 import { formatDateForInput, formatDateForAPI, formatDateForDisplay } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -100,6 +101,35 @@ interface UserStory {
   
   createdAt: string;
   updatedAt: string;
+}
+
+// User Story Count Component
+function UserStoryCount({ taskId }: { taskId: string }) {
+  const { data: response, isLoading } = useQuery({
+    queryKey: ['/api/user-stories?taskId=' + taskId]
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-1 text-xs text-muted-foreground pt-2 border-t">
+        <BookOpen className="w-3 h-3" />
+        <span>Loading stories...</span>
+      </div>
+    );
+  }
+
+  const storyCount = response?.data?.length || 0;
+  
+  if (storyCount === 0) {
+    return null; // Don't show anything if no stories
+  }
+
+  return (
+    <div className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 pt-2 border-t">
+      <BookOpen className="w-3 h-3" />
+      <span>{storyCount} user stor{storyCount !== 1 ? 'ies' : 'y'}</span>
+    </div>
+  );
 }
 
 // Task type based on the schema
@@ -669,15 +699,8 @@ function TaskCard({
         </div>
       )}
 
-      {/* User Stories Section - Add temporarily here for now */}
-      <div className="space-y-2 pt-2 border-t mt-3">
-        <div className="text-sm font-medium text-muted-foreground">
-          User Stories (0)
-        </div>
-        <div className="text-xs text-muted-foreground">
-          Stories will appear here when viewing in Stories tab
-        </div>
-      </div>
+      {/* User Stories Count Indicator */}
+      <UserStoryCount taskId={task.id} />
       
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -776,9 +799,60 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
   const [techLeadSearch, setTechLeadSearch] = useState('');
   const [isTechLeadOpen, setIsTechLeadOpen] = useState(false);
 
-  // Independent stories state (not generated from tasks)
-  const [independentStories, setIndependentStories] = useState<UserStory[]>([]);
+  // Fetch all user stories from backend using default query fetcher
+  const queryClient = useQueryClient();
+  const { data: allStoriesResponse, isLoading: isLoadingStories } = useQuery({
+    queryKey: ['/api/user-stories']
+  });
+
+  const allStories = allStoriesResponse?.data || [];
   const [csvUploadOpen, setCsvUploadOpen] = useState(false);
+
+  // Mutations for story management using apiRequest
+  const createStoryMutation = useMutation({
+    mutationFn: async (storyData: Partial<BackendUserStory>) => {
+      const response = await apiRequest('POST', '/api/user-stories', storyData);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ 
+        predicate: (query) => 
+          Array.isArray(query.queryKey) && 
+          typeof query.queryKey[0] === 'string' && 
+          query.queryKey[0].startsWith('/api/user-stories')
+      });
+    }
+  });
+
+  const updateStoryMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<BackendUserStory> }) => {
+      const response = await apiRequest('PATCH', `/api/user-stories/${id}`, updates);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ 
+        predicate: (query) => 
+          Array.isArray(query.queryKey) && 
+          typeof query.queryKey[0] === 'string' && 
+          query.queryKey[0].startsWith('/api/user-stories')
+      });
+    }
+  });
+
+  const deleteStoryMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiRequest('DELETE', `/api/user-stories/${id}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ 
+        predicate: (query) => 
+          Array.isArray(query.queryKey) && 
+          typeof query.queryKey[0] === 'string' && 
+          query.queryKey[0].startsWith('/api/user-stories')
+      });
+    }
+  });
 
   // Mock developer list - in real app this would come from your team management system
   const developers = [
@@ -804,187 +878,53 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
     'Faith McNeal', 'Jaxon Stone', 'Hope Fisher', 'Bryson Porter', 'Scarlett Mason'
   ].sort();
 
+  // Helper to convert backend stories to frontend format
+  const convertBackendStory = (story: BackendUserStory): UserStory => ({
+    id: story.id,
+    parentTaskId: story.parentTaskId || '',
+    title: story.title,
+    description: story.description || '',
+    acceptanceCriteria: story.acceptanceCriteria,
+    storyPoints: story.storyPoints,
+    status: story.status as UserStory['status'],
+    priority: story.priority as UserStory['priority'],
+    assignee: story.assignee || undefined,
+    productManager: story.productManager || undefined,
+    techLead: story.techLead || undefined,
+    labels: story.labels || [],
+    feature: story.feature || undefined,
+    value: story.value || undefined,
+    requirement: story.requirement || undefined,
+    githubRepo: story.githubRepo || undefined,
+    githubBranch: story.githubBranch || undefined,
+    githubIssue: story.githubIssue || undefined,
+    githubCommits: story.githubCommits || [],
+    screenshots: story.screenshots || [],
+    createdAt: typeof story.createdAt === 'string' ? story.createdAt : new Date().toISOString(),
+    updatedAt: typeof story.updatedAt === 'string' ? story.updatedAt : new Date().toISOString()
+  });
+
+  // Filter stories by task
+  const getStoriesForTask = (taskId: string): UserStory[] => {
+    return allStories
+      .filter((story: BackendUserStory) => story.parentTaskId === taskId)
+      .map(convertBackendStory);
+  };
+
+  // Get independent stories (no parent task)
+  const independentStories = allStories
+    .filter((story: BackendUserStory) => !story.parentTaskId)
+    .map(convertBackendStory);
+
   const generateUserStories = (task: Task): Array<UserStory> => {
-    // Auto-generate user stories based on task category and description
-    const baseStories = {
-      'foundation': [
-        { 
-          title: `As a developer, I want to set up the foundation for ${task.title.toLowerCase()}, so that I can build features on a solid architectural base`, 
-          storyPoints: 3, 
-          status: 'backlog' as const,
-          acceptanceCriteria: `Given I am setting up the foundation
-When I implement the basic structure
-Then the foundation should be ready for development
+    // First check if we have real stories for this task
+    const realStories = getStoriesForTask(task.id);
+    if (realStories.length > 0) {
+      return realStories;
+    }
 
-Scenario: Foundation Setup
-  Given the development environment is ready
-  When I create the basic project structure
-  Then all dependencies should be properly configured
-  And the foundation should pass initial tests`
-        },
-        { 
-          title: `As a system architect, I want to define the core structure for ${task.title.toLowerCase()}, so that I can ensure scalable and maintainable system design`, 
-          storyPoints: 5, 
-          status: 'backlog' as const,
-          acceptanceCriteria: `Given I need to define the architecture
-When I design the core structure
-Then the structure should be scalable and maintainable
-
-Scenario: Architecture Definition
-  Given the requirements are clear
-  When I create the architectural design
-  Then the design should follow best practices
-  And the structure should support future enhancements`
-        }
-      ],
-      'modeling': [
-        { 
-          title: `As a systems architect, I want to design the visual components for ${task.title.toLowerCase()}, so that I can create reusable and accessible interface elements`, 
-          storyPoints: 5, 
-          status: 'backlog' as const,
-          acceptanceCriteria: `Given I need visual components
-When I design the UI elements
-Then the components should be reusable and accessible
-
-Scenario: Component Design
-  Given the design requirements
-  When I create the visual components
-  Then they should follow the design system
-  And they should be responsive across devices`
-        },
-        { 
-          title: `As an enterprise user, I want to interact with ${task.title.toLowerCase()} intuitively, so that I can accomplish my modeling tasks efficiently`, 
-          storyPoints: 3, 
-          status: 'backlog' as const,
-          acceptanceCriteria: `Given I want to use the feature
-When I interact with the interface
-Then the interaction should be intuitive and efficient
-
-Scenario: User Interaction
-  Given I access the feature
-  When I perform common actions
-  Then the interface should respond appropriately
-  And provide clear feedback for all actions`
-        },
-        { 
-          title: `As a developer, I want to implement the core logic for ${task.title.toLowerCase()}, so that I can deliver robust and tested functionality`, 
-          storyPoints: 8, 
-          status: 'backlog' as const,
-          acceptanceCriteria: `Given I need to implement the logic
-When I write the core functionality
-Then the implementation should be robust and tested
-
-Scenario: Logic Implementation
-  Given the design is finalized
-  When I implement the core features
-  Then all business rules should be enforced
-  And the code should be well-tested and documented`
-        }
-      ],
-      'ux': [
-        { 
-          title: `As an enterprise user, I want an intuitive interface for ${task.title.toLowerCase()}, so that I can navigate and accomplish tasks with minimal learning curve`, 
-          storyPoints: 5, 
-          status: 'backlog' as const,
-          acceptanceCriteria: `Given I need to use the interface
-When I navigate through the features
-Then the interface should be user-friendly
-
-Scenario: Interface Usability
-  Given I access the application
-  When I use the interface
-  Then navigation should be clear and logical
-  And I should accomplish tasks efficiently`
-        },
-        { 
-          title: `As a UX designer, I want to create responsive layouts for ${task.title.toLowerCase()}, so that I can ensure optimal user experience across all devices`, 
-          storyPoints: 3, 
-          status: 'backlog' as const,
-          acceptanceCriteria: `Given I need responsive design
-When I create layouts for different screen sizes
-Then the layout should adapt appropriately
-
-Scenario: Responsive Design
-  Given different device sizes
-  When I view the interface
-  Then the layout should be optimized for each device
-  And content should remain accessible and readable`
-        }
-      ],
-      'ai': [
-        { 
-          title: `As an enterprise architect, I want AI-powered suggestions for ${task.title.toLowerCase()}, so that I can leverage intelligent assistance to improve my modeling decisions`, 
-          storyPoints: 8, 
-          status: 'backlog' as const,
-          acceptanceCriteria: `Given I want AI assistance
-When I use the feature
-Then I should receive relevant AI suggestions
-
-Scenario: AI Suggestions
-  Given I perform an action
-  When the AI analyzes the context
-  Then it should provide helpful suggestions
-  And the suggestions should improve my workflow`
-        },
-        { 
-          title: `As a developer, I want to integrate ML models for ${task.title.toLowerCase()}, so that I can deliver intelligent features with accurate predictions`, 
-          storyPoints: 13, 
-          status: 'backlog' as const,
-          acceptanceCriteria: `Given I need ML integration
-When I implement the ML features
-Then the models should perform accurately
-
-Scenario: ML Integration
-  Given trained models are available
-  When I integrate them into the system
-  Then predictions should be accurate and fast
-  And the system should handle edge cases gracefully`
-        }
-      ]
-    };
-
-    const stories = baseStories[task.category as keyof typeof baseStories] || [
-      { 
-        title: `As an enterprise user, I want to utilize ${task.title.toLowerCase()}, so that I can accomplish my business objectives effectively`, 
-        storyPoints: 5, 
-        status: 'backlog' as const,
-        acceptanceCriteria: `Given I want to use this feature
-When I access the functionality
-Then it should work as expected
-
-Scenario: Feature Usage
-  Given the feature is available
-  When I use it according to the documentation
-  Then it should perform the intended function
-  And provide appropriate feedback`
-      }
-    ];
-
-    // Convert to full UserStory objects
-    return stories.map((story, index) => ({
-      id: `US-${task.id.slice(-7)}${(index + 1).toString().padStart(2, '0')}`,
-      parentTaskId: task.id,
-      title: story.title,
-      description: `Generated story for ${task.title}`,
-      acceptanceCriteria: story.acceptanceCriteria,
-      storyPoints: story.storyPoints,
-      status: story.status,
-      priority: 'medium' as const,
-      assignee: task.assignee || undefined,
-      productManager: undefined,
-      techLead: undefined,
-      labels: [task.category],
-      feature: undefined,
-      value: undefined,
-      requirement: undefined,
-      githubRepo: undefined,
-      githubBranch: undefined,
-      githubIssue: undefined,
-      githubCommits: [],
-      screenshots: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }));
+    // If no real stories exist, return empty array (no more fake generation)
+    return [];
   };
 
   const getStatusColor = (status: string) => {
@@ -1003,12 +943,11 @@ Scenario: Feature Usage
     setIsStoryDialogOpen(true);
   };
 
-  // Get all stories associated with a task (both generated and independent)
-  const getStoriesForTask = (taskId: string): UserStory[] => {
+  // Helper function to get all stories for a task  
+  const getAllStoriesForTask = (taskId: string): UserStory[] => {
     const task = tasks.find(t => t.id === taskId);
-    const generatedStories = task ? generateUserStories(task) : [];
-    const linkedIndependentStories = independentStories.filter(story => story.parentTaskId === taskId);
-    return [...generatedStories, ...linkedIndependentStories];
+    const taskStories = task ? generateUserStories(task) : [];
+    return taskStories;
   };
 
   const createGitHubBranch = (story: UserStory) => {
@@ -1072,14 +1011,24 @@ Scenario: [scenario name]
   };
 
   const saveStory = (story: UserStory) => {
-    // Update existing or add new independent story
-    const existingIndex = independentStories.findIndex(s => s.id === story.id);
-    if (existingIndex >= 0) {
-      const updated = [...independentStories];
-      updated[existingIndex] = { ...story, updatedAt: new Date().toISOString() };
-      setIndependentStories(updated);
+    // Update existing or create new story via backend API
+    const existingStory = independentStories.find(s => s.id === story.id);
+    if (existingStory) {
+      // Update existing story
+      updateStoryMutation.mutate({ 
+        id: story.id, 
+        updates: { 
+          ...story, 
+          updatedAt: new Date().toISOString() 
+        } 
+      });
     } else {
-      setIndependentStories([...independentStories, story]);
+      // Create new story
+      createStoryMutation.mutate({
+        ...story,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
     }
     setIsStoryDialogOpen(false);
   };
@@ -1133,7 +1082,10 @@ Then [expected outcome]`,
         }
       }
       
-      setIndependentStories([...independentStories, ...newStories]);
+      // Import stories via backend API
+      for (const newStory of newStories) {
+        createStoryMutation.mutate(newStory);
+      }
       alert(`Successfully imported ${newStories.length} stories from CSV!`);
     };
     
