@@ -51,7 +51,7 @@ import {
   ChevronsLeft,
   ChevronsRight
 } from 'lucide-react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { GovernanceHeader } from '@/components/layout/governance-header';
 import { 
   DndContext,
@@ -972,13 +972,66 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
   const [techLeadSearch, setTechLeadSearch] = useState('');
   const [isTechLeadOpen, setIsTechLeadOpen] = useState(false);
 
-  // Fetch all user stories from backend using default query fetcher
+  // Pagination state with URL synchronization
+  const [location, setLocation] = useLocation();
+  const searchParams = new URLSearchParams(location.split('?')[1] || '');
+  
+  // Get initial values from URL or defaults
+  const [page, setPage] = useState(() => {
+    const urlPage = parseInt(searchParams.get('page') || '1');
+    return urlPage >= 1 ? urlPage : 1;
+  });
+  
+  const [pageSize, setPageSize] = useState(() => {
+    // Try URL first, then localStorage, then default
+    const urlPageSize = parseInt(searchParams.get('pageSize') || '');
+    if (urlPageSize >= 10 && urlPageSize <= 200) return urlPageSize;
+    
+    const savedPageSize = localStorage.getItem('userStories-pageSize');
+    if (savedPageSize) {
+      const parsed = parseInt(savedPageSize);
+      if (parsed >= 10 && parsed <= 200) return parsed;
+    }
+    
+    return 25; // default
+  });
+  
+  // Update URL when pagination changes
+  useEffect(() => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set('page', page.toString());
+    newSearchParams.set('pageSize', pageSize.toString());
+    
+    const newUrl = location.split('?')[0] + '?' + newSearchParams.toString();
+    setLocation(newUrl, { replace: true });
+    
+    // Save pageSize preference
+    localStorage.setItem('userStories-pageSize', pageSize.toString());
+  }, [page, pageSize]);
+
+  // Fetch user stories with pagination
   const queryClient = useQueryClient();
-  const { data: allStoriesResponse, isLoading: isLoadingStories } = useQuery({
-    queryKey: ['/api/user-stories?limit=500']
+  const { data: storiesResponse, isLoading: isLoadingStories } = useQuery({
+    queryKey: ['/api/user-stories', { page, pageSize }],
+    keepPreviousData: true,
+    staleTime: 30000
   });
 
-  const allStories = allStoriesResponse?.data || [];
+  const allStories = storiesResponse?.items || [];
+  const total = storiesResponse?.total || 0;
+  const totalPages = storiesResponse?.totalPages || 1;
+
+  // Pagination handlers
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    // Scroll to top on page change for better UX
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setPage(1); // Reset to first page when changing page size
+  };
   const [csvUploadOpen, setCsvUploadOpen] = useState(false);
 
   // Mutations for story management using apiRequest
@@ -1281,7 +1334,7 @@ Then [expected outcome]`,
         <h3 className="text-lg font-semibold text-foreground">User Stories</h3>
         <div className="flex items-center gap-4">
           <div className="text-sm text-muted-foreground">
-            {tasks.length} Epic{tasks.length !== 1 ? 's' : ''} • {totalStories} Stories ({independentStories.length} independent)
+            {total > 0 ? `${total} Total Stories` : `${tasks.length} Epic${tasks.length !== 1 ? 's' : ''} • ${totalStories} Stories`}
           </div>
           <div className="flex items-center gap-2">
             <Button 
@@ -1306,7 +1359,107 @@ Then [expected outcome]`,
         </div>
       </div>
 
-      {tasks.map((task: Task) => {
+      {/* Top Pagination Controls */}
+      <PaginationControls
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        totalPages={totalPages}
+        isLoading={isLoadingStories}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+      />
+
+      {/* Stories Content */}
+      <div className="min-h-[400px]">
+        {isLoadingStories ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-sm text-muted-foreground">Loading stories...</div>
+          </div>
+        ) : allStories.length === 0 ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-sm text-muted-foreground">No stories found.</div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {allStories.map((story: BackendUserStory) => {
+              const convertedStory = convertBackendStory(story);
+              return (
+                <div key={story.id} className="bg-white dark:bg-gray-800 rounded-lg border p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="font-medium">{story.title}</span>
+                        <Badge variant="outline" className={getStatusColor(story.status)}>
+                          {story.status}
+                        </Badge>
+                        <Badge variant="outline" className={getPriorityColor(story.priority)}>
+                          {story.priority}
+                        </Badge>
+                        {story.storyPoints && (
+                          <Badge variant="secondary">
+                            {story.storyPoints} pts
+                          </Badge>
+                        )}
+                      </div>
+                      {story.description && (
+                        <p className="text-sm text-muted-foreground mb-2">{story.description}</p>
+                      )}
+                      {story.acceptanceCriteria && (
+                        <div className="text-sm">
+                          <span className="font-medium">Acceptance Criteria:</span>
+                          <p className="text-muted-foreground mt-1">{story.acceptanceCriteria}</p>
+                        </div>
+                      )}
+                      {story.assignee && (
+                        <div className="flex items-center gap-2 mt-2">
+                          <User className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">{story.assignee}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setEditingStory(convertedStory);
+                          setIsStoryDialogOpen(true);
+                        }}
+                        data-testid={`button-edit-story-${story.id.substring(0, 8)}`}
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteStoryMutation.mutate(story.id)}
+                        data-testid={`button-delete-story-${story.id.substring(0, 8)}`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Bottom Pagination Controls */}
+      <PaginationControls
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        totalPages={totalPages}
+        isLoading={isLoadingStories}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+      />
+
+      {/* Legacy Epic-based view - remove the old tasks.map section */}
+      {false && tasks.map((task: Task) => {
         const userStories = generateUserStories(task);
         const isExpanded = expandedTasks.has(task.id);
         const totalPoints = userStories.reduce((sum, story) => sum + story.storyPoints, 0);
