@@ -404,11 +404,17 @@ Keep response concise but comprehensive.`;
   // Get all user stories with enterprise pagination and sorting
   app.get("/api/user-stories", async (req, res) => {
     try {
-      const { taskId, assignee, limit = '200', offset = '0', sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+      const { taskId, assignee, page = '1', pageSize = '25', sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
       
       // Validate pagination parameters
-      const parsedLimit = Math.min(parseInt(limit as string) || 200, 500); // Cap at 500
-      const parsedOffset = Math.max(parseInt(offset as string) || 0, 0);
+      const parsedPage = Math.max(parseInt(page as string) || 1, 1);
+      const allowedPageSizes = [10, 25, 50, 100];
+      let parsedPageSize = parseInt(pageSize as string) || 25;
+      
+      // Allow custom page sizes but cap at 200 for performance
+      if (!allowedPageSizes.includes(parsedPageSize)) {
+        parsedPageSize = Math.min(Math.max(parsedPageSize, 10), 200);
+      }
       
       // Validate sort parameters
       const allowedSortFields = ['createdAt', 'updatedAt', 'title', 'priority', 'status', 'storyPoints'];
@@ -432,7 +438,7 @@ Keep response concise but comprehensive.`;
         stories = await storage.getAllUserStories();
       }
       
-      // Apply sorting and pagination
+      // Apply sorting
       const sortedStories = stories.sort((a, b) => {
         let aVal = a[finalSortBy as keyof typeof a];
         let bVal = b[finalSortBy as keyof typeof b];
@@ -452,16 +458,21 @@ Keep response concise but comprehensive.`;
         }
       });
       
-      const paginatedStories = sortedStories.slice(parsedOffset, parsedOffset + parsedLimit);
+      // Calculate pagination
+      const total = sortedStories.length;
+      const totalPages = Math.ceil(total / parsedPageSize);
+      const currentPage = Math.min(parsedPage, totalPages || 1);
+      const offset = (currentPage - 1) * parsedPageSize;
+      const paginatedStories = sortedStories.slice(offset, offset + parsedPageSize);
       
       res.json({
-        data: paginatedStories,
-        pagination: {
-          limit: parsedLimit,
-          offset: parsedOffset,
-          total: stories.length,
-          hasMore: parsedOffset + parsedLimit < stories.length
-        },
+        items: paginatedStories,
+        total,
+        page: currentPage,
+        pageSize: parsedPageSize,
+        totalPages,
+        hasNextPage: currentPage < totalPages,
+        hasPreviousPage: currentPage > 1,
         sort: {
           sortBy: finalSortBy,
           sortOrder: finalSortOrder
