@@ -1,6 +1,6 @@
 import { db } from './db';
 import { tasks as tasksTable } from '@shared/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { getSampleTasks, normalizeTaskForDb } from './sample-tasks';
 import type { InsertTask } from '@shared/schema';
 
@@ -94,9 +94,8 @@ export async function migrateSampleTasks(options: { dryRun?: boolean } = {}) {
       return insertCount;
     });
     
-    // Verify final count
-    const finalCount = await db.select({ count: tasksTable.id }).from(tasksTable);
-    const totalTasks = finalCount.length;
+    // Verify final count using proper COUNT aggregate
+    const [{ count: totalTasks }] = await db.select({ count: sql<number>`count(*)` }).from(tasksTable);
     
     console.log(`✨ Migration completed successfully!`);
     console.log(`📊 Final database state:`);
@@ -131,10 +130,11 @@ export async function verifyTaskMigration() {
   
   try {
     const sampleTasks = getSampleTasks();
+    const [{ count: dbTaskCount }] = await db.select({ count: sql<number>`count(*)` }).from(tasksTable);
     const dbTasks = await db.select().from(tasksTable);
     
     console.log(`📋 Sample dataset: ${sampleTasks.length} tasks`);
-    console.log(`📊 Database: ${dbTasks.length} tasks`);
+    console.log(`📊 Database: ${dbTaskCount} tasks`);
     
     // Check counts by category
     const sampleByCategory = sampleTasks.reduce((acc, task) => {
@@ -174,13 +174,13 @@ export async function verifyTaskMigration() {
       console.log(`  ${statusIcon} ${status}: ${db}/${sample}`);
     });
     
-    const complete = dbTasks.length >= sampleTasks.length;
+    const complete = dbTaskCount >= sampleTasks.length;
     console.log(`${complete ? '✅' : '⚠️'} Migration verification: ${complete ? 'COMPLETE' : 'INCOMPLETE'}`);
     
     return {
       complete,
       sampleCount: sampleTasks.length,
-      dbCount: dbTasks.length,
+      dbCount: dbTaskCount,
       categoryBreakdown: { sample: sampleByCategory, db: dbByCategory },
       statusBreakdown: { sample: sampleByStatus, db: dbByStatus }
     };
