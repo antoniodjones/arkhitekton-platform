@@ -187,7 +187,7 @@ function TaskDialog({
   };
 
   // Filter tasks for dependency search
-  const filteredTasks = allTasks.filter(t => 
+  const filteredTasks = allTasks.filter((t: Task) => 
     t.id !== task?.id && 
     t.id !== dependency &&
     !wouldCreateCircularDependency(t.id) &&
@@ -981,7 +981,7 @@ Scenario: Feature Usage
       {tasks.map((task: Task) => {
         const userStories = generateUserStories(task);
         const isExpanded = expandedTasks.has(task.id);
-        const totalPoints = userStories.reduce((sum, story) => sum + story.points, 0);
+        const totalPoints = userStories.reduce((sum, story) => sum + story.storyPoints, 0);
 
         return (
           <div key={task.id} className="bg-white dark:bg-gray-800 rounded-lg border">
@@ -1520,7 +1520,7 @@ export default function PlanPage() {
   };
 
   const handleDeleteTask = (taskOrId: Task | string) => {
-    const task = typeof taskOrId === 'string' ? tasks.find(t => t.id === taskOrId) : taskOrId;
+    const task = typeof taskOrId === 'string' ? tasks.find((t: Task) => t.id === taskOrId) : taskOrId;
     const taskId = typeof taskOrId === 'string' ? taskOrId : taskOrId.id;
     const taskTitle = task?.title || 'this task';
     
@@ -1666,7 +1666,7 @@ export default function PlanPage() {
                     📅 ${task.startDate && task.endDate ? 
                       `${new Date(task.startDate).toLocaleDateString()} - ${new Date(task.endDate).toLocaleDateString()}` :
                       task.startDate ? `Start: ${new Date(task.startDate).toLocaleDateString()}` :
-                      `End: ${new Date(task.endDate).toLocaleDateString()}`
+                      task.endDate ? `End: ${new Date(task.endDate).toLocaleDateString()}` : 'No dates set'
                     }
                   </div>
                 ` : ''}
