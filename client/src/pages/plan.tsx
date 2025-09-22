@@ -775,72 +775,7 @@ export default function PlanPage() {
     })
   );
 
-  // Print function for List view
-  const handlePrintList = () => {
-    const printWindow = window.open('', '', 'height=600,width=800');
-    if (!printWindow) return;
-    
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>ARKHITEKTON Development Plan - Task List</title>
-          <style>
-            body { font-family: system-ui, sans-serif; margin: 20px; }
-            .task-item { border: 1px solid #e5e7eb; margin-bottom: 8px; padding: 12px; border-radius: 8px; }
-            .task-title { font-weight: 600; margin-bottom: 4px; }
-            .task-id { color: #6b7280; font-size: 14px; }
-            .task-priority, .task-category { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-right: 8px; }
-            .priority-high { background-color: #fef2f2; color: #dc2626; }
-            .priority-medium { background-color: #fffbeb; color: #d97706; }
-            .priority-low { background-color: #f0fdf4; color: #16a34a; }
-            .category { background-color: #f3f4f6; color: #374151; }
-            .task-description { color: #6b7280; margin: 8px 0; }
-            .task-dates { color: #6b7280; font-size: 14px; }
-            .task-meta { margin-top: 8px; color: #6b7280; font-size: 14px; }
-            .completed { text-decoration: line-through; opacity: 0.6; }
-            @media print { body { margin: 0; } }
-          </style>
-        </head>
-        <body>
-          <h1>ARKHITEKTON Development Plan - Task List</h1>
-          <p>Generated on: ${new Date().toLocaleDateString()}</p>
-          <p>Total Tasks: ${filteredTasks.length}</p>
-          <hr>
-          ${filteredTasks.map(task => `
-            <div class="task-item ${task.completed ? 'completed' : ''}">
-              <div class="task-title">
-                <span class="task-id">(${task.id.substring(0, 8)})</span> ${task.title}
-                <span class="task-priority priority-${task.priority}">${task.priority}</span>
-                <span class="task-category category">${task.category}</span>
-              </div>
-              ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
-              ${task.startDate || task.endDate ? `
-                <div class="task-dates">
-                  ${task.startDate && task.endDate ? 
-                    `${new Date(task.startDate).toLocaleDateString()} - ${new Date(task.endDate).toLocaleDateString()}` :
-                    task.startDate ? `Start: ${new Date(task.startDate).toLocaleDateString()}` :
-                    `End: ${new Date(task.endDate).toLocaleDateString()}`
-                  }
-                </div>
-              ` : ''}
-              ${task.dependencies?.length || task.subtasks?.length ? `
-                <div class="task-meta">
-                  ${task.dependencies?.length ? `Dependencies: ${task.dependencies.length} task(s)` : ''}
-                  ${task.dependencies?.length && task.subtasks?.length ? ' • ' : ''}
-                  ${task.subtasks?.length ? `Subtasks: ${task.subtasks.filter((st: any) => st.completed).length}/${task.subtasks.length}` : ''}
-                </div>
-              ` : ''}
-            </div>
-          `).join('')}
-        </body>
-      </html>
-    `);
-    
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
-  };
+  // Print function for List view - moved to after filteredTasks is defined
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -957,6 +892,114 @@ export default function PlanPage() {
     
     return matchesSearch && matchesCategory;
   });
+
+  // Print function for List view
+  const handlePrintList = () => {
+    try {
+      const printWindow = window.open('', '', 'height=600,width=800');
+      if (!printWindow) {
+        alert('Print function requires popup permission. Please allow popups and try again.');
+        return;
+      }
+      
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>ARKHITEKTON Development Plan - Task List</title>
+            <style>
+              body { font-family: system-ui, sans-serif; margin: 20px; line-height: 1.5; }
+              .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+              .task-item { border: 1px solid #e5e7eb; margin-bottom: 12px; padding: 15px; border-radius: 8px; page-break-inside: avoid; }
+              .task-title { font-weight: 600; margin-bottom: 8px; font-size: 16px; }
+              .task-id { color: #6b7280; font-size: 12px; font-family: monospace; }
+              .task-priority, .task-category { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; margin-right: 8px; font-weight: 500; }
+              .priority-high { background-color: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
+              .priority-medium { background-color: #fffbeb; color: #d97706; border: 1px solid #fcd34d; }
+              .priority-low { background-color: #f0fdf4; color: #16a34a; border: 1px solid #86efac; }
+              .category { background-color: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
+              .task-description { color: #6b7280; margin: 10px 0; font-size: 14px; }
+              .task-dates { color: #6b7280; font-size: 13px; margin: 8px 0; }
+              .task-meta { margin-top: 10px; color: #6b7280; font-size: 12px; }
+              .completed { text-decoration: line-through; opacity: 0.7; }
+              .stats { text-align: center; margin-bottom: 20px; font-size: 14px; }
+              @media print { 
+                body { margin: 0; } 
+                .task-item { page-break-inside: avoid; }
+                @page { margin: 1in; }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h1>ARKHITEKTON Development Plan</h1>
+              <h2>Task List Report</h2>
+            </div>
+            <div class="stats">
+              <p><strong>Generated on:</strong> ${new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}</p>
+              <p><strong>Total Tasks:</strong> ${filteredTasks.length}</p>
+              <p><strong>Completed:</strong> ${filteredTasks.filter(t => t.completed).length} | 
+                 <strong>In Progress:</strong> ${filteredTasks.filter(t => t.status === 'in-progress').length} | 
+                 <strong>Todo:</strong> ${filteredTasks.filter(t => t.status === 'todo').length}</p>
+            </div>
+            <hr>
+            ${filteredTasks.map(task => `
+              <div class="task-item ${task.completed ? 'completed' : ''}">
+                <div class="task-title">
+                  <span class="task-id">(${task.id.substring(0, 8)})</span> ${task.title.replace(/[<>&"']/g, (char) => {
+                    const escapeMap = { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' };
+                    return escapeMap[char];
+                  })}
+                  <span class="task-priority priority-${task.priority}">${task.priority.toUpperCase()}</span>
+                  <span class="task-category category">${task.category.toUpperCase()}</span>
+                </div>
+                ${task.description ? `<div class="task-description">${task.description.replace(/[<>&"']/g, (char) => {
+                  const escapeMap = { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' };
+                  return escapeMap[char];
+                })}</div>` : ''}
+                ${task.startDate || task.endDate ? `
+                  <div class="task-dates">
+                    📅 ${task.startDate && task.endDate ? 
+                      `${new Date(task.startDate).toLocaleDateString()} - ${new Date(task.endDate).toLocaleDateString()}` :
+                      task.startDate ? `Start: ${new Date(task.startDate).toLocaleDateString()}` :
+                      `End: ${new Date(task.endDate).toLocaleDateString()}`
+                    }
+                  </div>
+                ` : ''}
+                ${task.dependencies?.length || task.subtasks?.length ? `
+                  <div class="task-meta">
+                    ${task.dependencies?.length ? `🔗 Dependencies: ${task.dependencies.length} task(s)` : ''}
+                    ${task.dependencies?.length && task.subtasks?.length ? ' • ' : ''}
+                    ${task.subtasks?.length ? `✅ Subtasks: ${task.subtasks.filter((st) => st.completed).length}/${task.subtasks.length}` : ''}
+                  </div>
+                ` : ''}
+              </div>
+            `).join('')}
+            <hr style="margin-top: 40px;">
+            <p style="text-align: center; font-size: 12px; color: #6b7280;">
+              Generated by ARKHITEKTON - Enterprise Architecture Platform
+            </p>
+          </body>
+        </html>
+      `);
+      
+      printWindow.document.close();
+      printWindow.focus();
+      
+      // Give the window time to load before printing
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+      }, 250);
+    } catch (error) {
+      console.error('Print error:', error);
+      alert('Unable to print. Please try again or check browser settings.');
+    }
+  };
 
   if (isLoading) {
     return (
