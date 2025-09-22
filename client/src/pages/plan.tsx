@@ -802,7 +802,7 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
   // Fetch all user stories from backend using default query fetcher
   const queryClient = useQueryClient();
   const { data: allStoriesResponse, isLoading: isLoadingStories } = useQuery({
-    queryKey: ['/api/user-stories']
+    queryKey: ['/api/user-stories?limit=500']
   });
 
   const allStories = allStoriesResponse?.data || [];
