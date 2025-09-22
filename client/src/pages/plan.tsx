@@ -107,11 +107,17 @@ interface UserStory {
   updatedAt: string;
 }
 
-// User Story Count Component
-function UserStoryCount({ taskId }: { taskId: string }) {
+// User Story Count Component - Optimized to avoid unnecessary API calls
+function UserStoryCount({ taskId, disabled = false }: { taskId: string; disabled?: boolean }) {
   const { data: response, isLoading } = useQuery({
-    queryKey: ['/api/user-stories?taskId=' + taskId]
+    queryKey: ['/api/user-stories?taskId=' + taskId],
+    enabled: false, // Temporarily disabled to avoid unnecessary API calls during Stories view optimization
+    staleTime: 60000 // Cache for 1 minute to reduce unnecessary requests
   });
+
+  if (disabled) {
+    return null; // Don't render anything when disabled
+  }
 
   if (isLoading) {
     return (
@@ -1012,7 +1018,7 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
   // Fetch user stories with pagination
   const queryClient = useQueryClient();
   const { data: storiesResponse, isLoading: isLoadingStories } = useQuery({
-    queryKey: ['/api/user-stories', { page, pageSize }],
+    queryKey: [`/api/user-stories?page=${page}&pageSize=${pageSize}`],
     keepPreviousData: true,
     staleTime: 30000
   });
@@ -1160,6 +1166,15 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
       case 'in-progress': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
       case 'review': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
       case 'done': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'low': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
     }
   };
