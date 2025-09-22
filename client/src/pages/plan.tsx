@@ -823,10 +823,14 @@ export default function PlanPage() {
     });
   };
 
-  const handleDeleteTask = (task: Task) => {
+  const handleDeleteTask = (taskOrId: Task | string) => {
+    const task = typeof taskOrId === 'string' ? tasks.find(t => t.id === taskOrId) : taskOrId;
+    const taskId = typeof taskOrId === 'string' ? taskOrId : taskOrId.id;
+    const taskTitle = task?.title || 'this task';
+    
     // Add confirmation before deleting
-    if (window.confirm(`Are you sure you want to delete "${task.title}"? This action cannot be undone.`)) {
-      deleteTaskMutation.mutate(task.id);
+    if (window.confirm(`Are you sure you want to delete "${taskTitle}"? This action cannot be undone.`)) {
+      deleteTaskMutation.mutate(taskId);
     }
   };
 
@@ -942,23 +946,23 @@ export default function PlanPage() {
                 day: 'numeric' 
               })}</p>
               <p><strong>Total Tasks:</strong> ${filteredTasks.length}</p>
-              <p><strong>Completed:</strong> ${filteredTasks.filter(t => t.completed).length} | 
-                 <strong>In Progress:</strong> ${filteredTasks.filter(t => t.status === 'in-progress').length} | 
-                 <strong>Todo:</strong> ${filteredTasks.filter(t => t.status === 'todo').length}</p>
+              <p><strong>Completed:</strong> ${filteredTasks.filter((t: Task) => t.completed).length} | 
+                 <strong>In Progress:</strong> ${filteredTasks.filter((t: Task) => t.status === 'in-progress').length} | 
+                 <strong>Todo:</strong> ${filteredTasks.filter((t: Task) => t.status === 'todo').length}</p>
             </div>
             <hr>
-            ${filteredTasks.map(task => `
+            ${filteredTasks.map((task: Task) => `
               <div class="task-item ${task.completed ? 'completed' : ''}">
                 <div class="task-title">
-                  <span class="task-id">(${task.id.substring(0, 8)})</span> ${task.title.replace(/[<>&"']/g, (char) => {
-                    const escapeMap = { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' };
+                  <span class="task-id">(${task.id.substring(0, 8)})</span> ${task.title.replace(/[<>&"']/g, (char: string) => {
+                    const escapeMap: Record<string, string> = { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' };
                     return escapeMap[char];
                   })}
                   <span class="task-priority priority-${task.priority}">${task.priority.toUpperCase()}</span>
                   <span class="task-category category">${task.category.toUpperCase()}</span>
                 </div>
-                ${task.description ? `<div class="task-description">${task.description.replace(/[<>&"']/g, (char) => {
-                  const escapeMap = { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' };
+                ${task.description ? `<div class="task-description">${task.description.replace(/[<>&"']/g, (char: string) => {
+                  const escapeMap: Record<string, string> = { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' };
                   return escapeMap[char];
                 })}</div>` : ''}
                 ${task.startDate || task.endDate ? `
@@ -974,7 +978,7 @@ export default function PlanPage() {
                   <div class="task-meta">
                     ${task.dependencies?.length ? `🔗 Dependencies: ${task.dependencies.length} task(s)` : ''}
                     ${task.dependencies?.length && task.subtasks?.length ? ' • ' : ''}
-                    ${task.subtasks?.length ? `✅ Subtasks: ${task.subtasks.filter((st) => st.completed).length}/${task.subtasks.length}` : ''}
+                    ${task.subtasks?.length ? `✅ Subtasks: ${task.subtasks.filter((st: any) => st.completed).length}/${task.subtasks.length}` : ''}
                   </div>
                 ` : ''}
               </div>
@@ -1338,7 +1342,7 @@ export default function PlanPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleDeleteTask(task.id)}
+                    onClick={() => handleDeleteTask(task)}
                     className="text-red-500 hover:text-red-700"
                     data-testid={`button-delete-task-${task.id}`}
                   >
@@ -1463,7 +1467,7 @@ export default function PlanPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDeleteTask(task.id)}
+                          onClick={() => handleDeleteTask(task)}
                           className="text-red-500 hover:text-red-700"
                           data-testid={`button-delete-task-${task.id}`}
                         >
