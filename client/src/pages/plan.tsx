@@ -43,7 +43,8 @@ import {
   ExternalLink,
   Check,
   ChevronsUpDown,
-  User
+  User,
+  BookOpen
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { GovernanceHeader } from '@/components/layout/governance-header';
@@ -667,6 +668,16 @@ function TaskCard({
           )}
         </div>
       )}
+
+      {/* User Stories Section - Add temporarily here for now */}
+      <div className="space-y-2 pt-2 border-t mt-3">
+        <div className="text-sm font-medium text-muted-foreground">
+          User Stories (0)
+        </div>
+        <div className="text-xs text-muted-foreground">
+          Stories will appear here when viewing in Stories tab
+        </div>
+      </div>
       
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -951,7 +962,7 @@ Scenario: Feature Usage
 
     // Convert to full UserStory objects
     return stories.map((story, index) => ({
-      id: `${task.id}-story-${index}`,
+      id: `US-${task.id.slice(-7)}${(index + 1).toString().padStart(2, '0')}`,
       parentTaskId: task.id,
       title: story.title,
       description: `Generated story for ${task.title}`,
@@ -992,6 +1003,14 @@ Scenario: Feature Usage
     setIsStoryDialogOpen(true);
   };
 
+  // Get all stories associated with a task (both generated and independent)
+  const getStoriesForTask = (taskId: string): UserStory[] => {
+    const task = tasks.find(t => t.id === taskId);
+    const generatedStories = task ? generateUserStories(task) : [];
+    const linkedIndependentStories = independentStories.filter(story => story.parentTaskId === taskId);
+    return [...generatedStories, ...linkedIndependentStories];
+  };
+
   const createGitHubBranch = (story: UserStory) => {
     // Simple GitHub integration - create branch from story
     const branchName = story.title
@@ -1016,7 +1035,7 @@ Scenario: Feature Usage
 
   const createNewStory = () => {
     const newStory: UserStory = {
-      id: `story-${Date.now()}`,
+      id: `US-${Date.now().toString().slice(-7)}`,
       parentTaskId: '', // Will be set in dialog
       title: '',
       description: '',
@@ -1082,7 +1101,7 @@ Scenario: [scenario name]
         if (values.length < 2) continue; // Skip empty lines
         
         const story: UserStory = {
-          id: `csv-story-${Date.now()}-${i}`,
+          id: `US-${Date.now().toString().slice(-7)}${i.toString().padStart(2, '0')}`,
           parentTaskId: getValue(values, headers, 'epic_id') || getValue(values, headers, 'task_id') || '',
           title: getValue(values, headers, 'title') || getValue(values, headers, 'user_story') || '',
           description: getValue(values, headers, 'description') || '',
@@ -1374,14 +1393,14 @@ Then [expected outcome]`,
               <div className="space-y-2">
                 <Label htmlFor="epic-connection">Connected Epic (Optional)</Label>
                 <Select 
-                  value={editingStory.parentTaskId} 
-                  onValueChange={(value) => setEditingStory({...editingStory, parentTaskId: value})}
+                  value={editingStory.parentTaskId || "independent"} 
+                  onValueChange={(value) => setEditingStory({...editingStory, parentTaskId: value === "independent" ? "" : value})}
                 >
                   <SelectTrigger data-testid="select-epic-connection">
                     <SelectValue placeholder="Select an Epic (or leave independent)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Independent Story (No Epic)</SelectItem>
+                    <SelectItem value="independent">Independent Story (No Epic)</SelectItem>
                     {tasks.map((task) => (
                       <SelectItem key={task.id} value={task.id}>
                         Epic: {task.title}
