@@ -596,6 +596,105 @@ Keep response concise but comprehensive.`;
     }
   });
 
+  // GitHub Integration and Traceability endpoints
+  app.get('/api/user-stories/:id/traceability', async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Get user story with GitHub integration
+      const story = await storage.getUserStoryById(id);
+      if (!story) {
+        return res.status(404).json({ error: 'User story not found' });
+      }
+      
+      // Get code mappings for this story (if storage method exists)
+      let codeMappings = [];
+      if (storage.getStoryCodeMappings) {
+        codeMappings = await storage.getStoryCodeMappings(id);
+      }
+      
+      // Get GitHub integration logs (if storage method exists)
+      let githubLogs = [];
+      if (storage.getGitHubIntegrationLogs) {
+        githubLogs = await storage.getGitHubIntegrationLogs(id);
+      }
+      
+      const traceability = {
+        story,
+        codeMappings,
+        githubLogs,
+        traceabilityPath: {
+          epic: story.parentTaskId,
+          story: story.id,
+          github: {
+            repo: story.githubRepo,
+            branch: story.githubBranch,
+            issue: story.githubIssue,
+            commits: story.githubCommits
+          },
+          codeFiles: codeMappings.map((m: any) => m.filePath || m.file_path),
+          totalLinesOfCode: codeMappings.reduce((sum: number, m: any) => sum + (m.linesOfCode || m.lines_of_code || 0), 0)
+        }
+      };
+      
+      res.json({ data: traceability });
+    } catch (error) {
+      console.error('Error fetching user story traceability:', error);
+      res.status(500).json({ error: 'Failed to fetch traceability data' });
+    }
+  });
+
+  app.get('/api/github/integration-summary', async (req, res) => {
+    try {
+      // Get all user stories with GitHub integration
+      const stories = await storage.getAllUserStories();
+      const storiesWithGitHub = stories.filter(s => s.githubRepo);
+      
+      const summary = {
+        totalStories: stories.length,
+        storiesWithGitHub: storiesWithGitHub.length,
+        repositories: [...new Set(storiesWithGitHub.map(s => s.githubRepo))],
+        branches: [...new Set(storiesWithGitHub.map(s => s.githubBranch).filter(Boolean))],
+        totalCommits: storiesWithGitHub.reduce((sum, s) => sum + (s.githubCommits?.length || 0), 0),
+        traceabilityPercentage: Math.round((storiesWithGitHub.length / stories.length) * 100)
+      };
+      
+      res.json({ data: summary });
+    } catch (error) {
+      console.error('Error fetching GitHub integration summary:', error);
+      res.status(500).json({ error: 'Failed to fetch integration summary' });
+    }
+  });
+
+  app.post('/api/github/link-commit', async (req, res) => {
+    try {
+      const { storyId, commitHash, commitMessage } = req.body;
+      
+      if (!storyId || !commitHash) {
+        return res.status(400).json({ error: 'Story ID and commit hash are required' });
+      }
+      
+      // Get current story
+      const story = await storage.getUserStoryById(storyId);
+      if (!story) {
+        return res.status(404).json({ error: 'User story not found' });
+      }
+      
+      // Add commit to the story's commits array
+      const updatedCommits = [...(story.githubCommits || []), commitHash];
+      await storage.updateUserStory(storyId, { githubCommits: updatedCommits });
+      
+      res.json({ 
+        success: true, 
+        message: 'Commit linked successfully',
+        totalCommits: updatedCommits.length
+      });
+    } catch (error) {
+      console.error('Error linking commit:', error);
+      res.status(500).json({ error: 'Failed to link commit' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
