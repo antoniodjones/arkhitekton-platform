@@ -750,7 +750,7 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
     const baseStories = {
       'foundation': [
         { 
-          title: `As a developer, I want to set up the foundation for ${task.title.toLowerCase()}`, 
+          title: `As a developer, I want to set up the foundation for ${task.title.toLowerCase()}, so that I can build features on a solid architectural base`, 
           storyPoints: 3, 
           status: 'backlog' as const,
           acceptanceCriteria: `Given I am setting up the foundation
@@ -764,7 +764,7 @@ Scenario: Foundation Setup
   And the foundation should pass initial tests`
         },
         { 
-          title: `As an architect, I want to define the core structure for ${task.title.toLowerCase()}`, 
+          title: `As a system architect, I want to define the core structure for ${task.title.toLowerCase()}, so that I can ensure scalable and maintainable system design`, 
           storyPoints: 5, 
           status: 'backlog' as const,
           acceptanceCriteria: `Given I need to define the architecture
@@ -780,7 +780,7 @@ Scenario: Architecture Definition
       ],
       'modeling': [
         { 
-          title: `As an architect, I want to design the visual components for ${task.title.toLowerCase()}`, 
+          title: `As a systems architect, I want to design the visual components for ${task.title.toLowerCase()}, so that I can create reusable and accessible interface elements`, 
           storyPoints: 5, 
           status: 'backlog' as const,
           acceptanceCriteria: `Given I need visual components
@@ -794,7 +794,7 @@ Scenario: Component Design
   And they should be responsive across devices`
         },
         { 
-          title: `As a user, I want to interact with ${task.title.toLowerCase()} intuitively`, 
+          title: `As an enterprise user, I want to interact with ${task.title.toLowerCase()} intuitively, so that I can accomplish my modeling tasks efficiently`, 
           storyPoints: 3, 
           status: 'backlog' as const,
           acceptanceCriteria: `Given I want to use the feature
@@ -808,7 +808,7 @@ Scenario: User Interaction
   And provide clear feedback for all actions`
         },
         { 
-          title: `As a developer, I want to implement the core logic for ${task.title.toLowerCase()}`, 
+          title: `As a developer, I want to implement the core logic for ${task.title.toLowerCase()}, so that I can deliver robust and tested functionality`, 
           storyPoints: 8, 
           status: 'backlog' as const,
           acceptanceCriteria: `Given I need to implement the logic
@@ -824,7 +824,7 @@ Scenario: Logic Implementation
       ],
       'ux': [
         { 
-          title: `As a user, I want an intuitive interface for ${task.title.toLowerCase()}`, 
+          title: `As an enterprise user, I want an intuitive interface for ${task.title.toLowerCase()}, so that I can navigate and accomplish tasks with minimal learning curve`, 
           storyPoints: 5, 
           status: 'backlog' as const,
           acceptanceCriteria: `Given I need to use the interface
@@ -838,7 +838,7 @@ Scenario: Interface Usability
   And I should accomplish tasks efficiently`
         },
         { 
-          title: `As a designer, I want to create responsive layouts for ${task.title.toLowerCase()}`, 
+          title: `As a UX designer, I want to create responsive layouts for ${task.title.toLowerCase()}, so that I can ensure optimal user experience across all devices`, 
           storyPoints: 3, 
           status: 'backlog' as const,
           acceptanceCriteria: `Given I need responsive design
@@ -854,7 +854,7 @@ Scenario: Responsive Design
       ],
       'ai': [
         { 
-          title: `As a user, I want AI-powered suggestions for ${task.title.toLowerCase()}`, 
+          title: `As an enterprise architect, I want AI-powered suggestions for ${task.title.toLowerCase()}, so that I can leverage intelligent assistance to improve my modeling decisions`, 
           storyPoints: 8, 
           status: 'backlog' as const,
           acceptanceCriteria: `Given I want AI assistance
@@ -868,7 +868,7 @@ Scenario: AI Suggestions
   And the suggestions should improve my workflow`
         },
         { 
-          title: `As a developer, I want to integrate ML models for ${task.title.toLowerCase()}`, 
+          title: `As a developer, I want to integrate ML models for ${task.title.toLowerCase()}, so that I can deliver intelligent features with accurate predictions`, 
           storyPoints: 13, 
           status: 'backlog' as const,
           acceptanceCriteria: `Given I need ML integration
@@ -886,7 +886,7 @@ Scenario: ML Integration
 
     const stories = baseStories[task.category as keyof typeof baseStories] || [
       { 
-        title: `As a user, I want to utilize ${task.title.toLowerCase()}`, 
+        title: `As an enterprise user, I want to utilize ${task.title.toLowerCase()}, so that I can accomplish my business objectives effectively`, 
         storyPoints: 5, 
         status: 'backlog' as const,
         acceptanceCriteria: `Given I want to use this feature
@@ -1116,7 +1116,7 @@ Scenario: Feature Usage
                   id="story-title"
                   value={editingStory.title}
                   onChange={(e) => setEditingStory({...editingStory, title: e.target.value})}
-                  placeholder="As a [user role], I want [goal] so that [benefit]"
+                  placeholder="As a [persona/role], I want [description], so that I can [benefit or value statement]"
                   className="text-sm"
                   data-testid="input-story-title"
                 />
