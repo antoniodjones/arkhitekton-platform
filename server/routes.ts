@@ -602,7 +602,7 @@ Keep response concise but comprehensive.`;
       const { id } = req.params;
       
       // Get user story with GitHub integration
-      const story = await storage.getUserStoryById(id);
+      const story = await storage.getUserStory(id);
       if (!story) {
         return res.status(404).json({ error: 'User story not found' });
       }
@@ -675,7 +675,7 @@ Keep response concise but comprehensive.`;
       }
       
       // Get current story
-      const story = await storage.getUserStoryById(storyId);
+      const story = await storage.getUserStory(storyId);
       if (!story) {
         return res.status(404).json({ error: 'User story not found' });
       }
