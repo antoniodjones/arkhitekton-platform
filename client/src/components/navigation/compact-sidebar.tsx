@@ -111,7 +111,7 @@ const navigationItems: NavigationItem[] = [
   },
   {
     id: 'plan',
-    label: 'ARKHITEKTON Plan',
+    label: 'Plan',
     href: '/plan',
     icon: GitBranch,
     description: 'Development roadmap and task tracking'
