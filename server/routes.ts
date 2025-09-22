@@ -404,10 +404,10 @@ Keep response concise but comprehensive.`;
   // Get all user stories with enterprise pagination and sorting
   app.get("/api/user-stories", async (req, res) => {
     try {
-      const { taskId, assignee, limit = '50', offset = '0', sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+      const { taskId, assignee, limit = '200', offset = '0', sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
       
       // Validate pagination parameters
-      const parsedLimit = Math.min(parseInt(limit as string) || 50, 100); // Cap at 100
+      const parsedLimit = Math.min(parseInt(limit as string) || 200, 500); // Cap at 500
       const parsedOffset = Math.max(parseInt(offset as string) || 0, 0);
       
       // Validate sort parameters
