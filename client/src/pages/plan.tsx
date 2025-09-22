@@ -79,6 +79,8 @@ interface UserStory {
   status: 'backlog' | 'sprint' | 'in-progress' | 'review' | 'done';
   priority: 'low' | 'medium' | 'high';
   assignee?: string;
+  productManager?: string;
+  techLead?: string;
   labels: string[];
   
   // Story composition guidance fields
@@ -755,9 +757,13 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
   const [editingStory, setEditingStory] = useState<UserStory | null>(null);
   const [isStoryDialogOpen, setIsStoryDialogOpen] = useState(false);
   
-  // Developer assignee search states
+  // Search states for all role assignments
   const [assigneeSearch, setAssigneeSearch] = useState('');
   const [isAssigneeOpen, setIsAssigneeOpen] = useState(false);
+  const [productManagerSearch, setProductManagerSearch] = useState('');
+  const [isProductManagerOpen, setIsProductManagerOpen] = useState(false);
+  const [techLeadSearch, setTechLeadSearch] = useState('');
+  const [isTechLeadOpen, setIsTechLeadOpen] = useState(false);
 
   // Mock developer list - in real app this would come from your team management system
   const developers = [
@@ -950,6 +956,8 @@ Scenario: Feature Usage
       status: story.status,
       priority: 'medium' as const,
       assignee: task.assignee || undefined,
+      productManager: undefined,
+      techLead: undefined,
       labels: [task.category],
       feature: undefined,
       value: undefined,
@@ -1229,7 +1237,7 @@ Scenario: Feature Usage
               </div>
 
               {/* Story Details Row */}
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="story-status">Status</Label>
                   <Select value={editingStory.status} onValueChange={(value) => setEditingStory({...editingStory, status: value as UserStory['status']})}>
@@ -1263,23 +1271,27 @@ Scenario: Feature Usage
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="story-priority">Priority</Label>
-                  <Select value={editingStory.priority} onValueChange={(value) => setEditingStory({...editingStory, priority: value as UserStory['priority']})}>
-                    <SelectTrigger data-testid="select-story-priority">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              {/* Priority */}
+              <div className="space-y-2">
+                <Label htmlFor="story-priority">Priority</Label>
+                <Select value={editingStory.priority} onValueChange={(value) => setEditingStory({...editingStory, priority: value as UserStory['priority']})}>
+                  <SelectTrigger data-testid="select-story-priority">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
+              {/* Team Assignment Row */}
+              <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="story-assignee">Assignee</Label>
+                  <Label htmlFor="story-assignee">Developer (Assignee)</Label>
                   <Popover open={isAssigneeOpen} onOpenChange={setIsAssigneeOpen}>
                     <PopoverTrigger asChild>
                       <Button
@@ -1333,6 +1345,138 @@ Scenario: Feature Usage
                               >
                                 <Check
                                   className={`mr-2 h-4 w-4 ${editingStory.assignee === developer ? "opacity-100" : "opacity-0"}`}
+                                />
+                                {developer}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="story-product-manager">Product Manager/Owner</Label>
+                  <Popover open={isProductManagerOpen} onOpenChange={setIsProductManagerOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={isProductManagerOpen}
+                        className="w-full justify-between text-sm"
+                        data-testid="select-story-product-manager"
+                      >
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4" />
+                          {editingStory.productManager || "Select PM..."}
+                        </div>
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0">
+                      <Command>
+                        <CommandInput 
+                          placeholder="Search product managers..." 
+                          value={productManagerSearch}
+                          onValueChange={setProductManagerSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>No product managers found.</CommandEmpty>
+                          <CommandGroup>
+                            <CommandItem
+                              value=""
+                              onSelect={() => {
+                                setEditingStory({...editingStory, productManager: undefined});
+                                setIsProductManagerOpen(false);
+                                setProductManagerSearch('');
+                              }}
+                            >
+                              <Check
+                                className={`mr-2 h-4 w-4 ${!editingStory.productManager ? "opacity-100" : "opacity-0"}`}
+                              />
+                              Unassigned
+                            </CommandItem>
+                            {developers
+                              .filter((dev: string) => dev.toLowerCase().includes(productManagerSearch.toLowerCase()))
+                              .map((developer: string) => (
+                              <CommandItem
+                                key={developer}
+                                value={developer}
+                                onSelect={() => {
+                                  setEditingStory({...editingStory, productManager: developer});
+                                  setIsProductManagerOpen(false);
+                                  setProductManagerSearch('');
+                                }}
+                              >
+                                <Check
+                                  className={`mr-2 h-4 w-4 ${editingStory.productManager === developer ? "opacity-100" : "opacity-0"}`}
+                                />
+                                {developer}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="story-tech-lead">Tech Lead/Architect</Label>
+                  <Popover open={isTechLeadOpen} onOpenChange={setIsTechLeadOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={isTechLeadOpen}
+                        className="w-full justify-between text-sm"
+                        data-testid="select-story-tech-lead"
+                      >
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4" />
+                          {editingStory.techLead || "Select tech lead..."}
+                        </div>
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0">
+                      <Command>
+                        <CommandInput 
+                          placeholder="Search tech leads..." 
+                          value={techLeadSearch}
+                          onValueChange={setTechLeadSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>No tech leads found.</CommandEmpty>
+                          <CommandGroup>
+                            <CommandItem
+                              value=""
+                              onSelect={() => {
+                                setEditingStory({...editingStory, techLead: undefined});
+                                setIsTechLeadOpen(false);
+                                setTechLeadSearch('');
+                              }}
+                            >
+                              <Check
+                                className={`mr-2 h-4 w-4 ${!editingStory.techLead ? "opacity-100" : "opacity-0"}`}
+                              />
+                              Unassigned
+                            </CommandItem>
+                            {developers
+                              .filter((dev: string) => dev.toLowerCase().includes(techLeadSearch.toLowerCase()))
+                              .map((developer: string) => (
+                              <CommandItem
+                                key={developer}
+                                value={developer}
+                                onSelect={() => {
+                                  setEditingStory({...editingStory, techLead: developer});
+                                  setIsTechLeadOpen(false);
+                                  setTechLeadSearch('');
+                                }}
+                              >
+                                <Check
+                                  className={`mr-2 h-4 w-4 ${editingStory.techLead === developer ? "opacity-100" : "opacity-0"}`}
                                 />
                                 {developer}
                               </CommandItem>
