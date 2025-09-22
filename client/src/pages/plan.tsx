@@ -33,7 +33,12 @@ import {
   ArrowRight,
   CheckSquare,
   Plus,
-  Printer
+  Printer,
+  Upload,
+  Image,
+  Code2,
+  FileText,
+  ExternalLink
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { GovernanceHeader } from '@/components/layout/governance-header';
@@ -57,6 +62,32 @@ import {
   useSortable
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+
+// User Story interface for enhanced functionality
+interface UserStory {
+  id: string;
+  parentTaskId: string;
+  title: string;
+  description?: string;
+  acceptanceCriteria: string; // Gherkin format
+  storyPoints: number;
+  status: 'backlog' | 'sprint' | 'in-progress' | 'review' | 'done';
+  priority: 'low' | 'medium' | 'high';
+  assignee?: string;
+  labels: string[];
+  
+  // GitHub Integration
+  githubRepo?: string;
+  githubBranch?: string;
+  githubIssue?: number;
+  githubCommits: string[];
+  
+  // Media
+  screenshots: string[]; // URLs to uploaded images
+  
+  createdAt: string;
+  updatedAt: string;
+}
 
 // Task type based on the schema
 interface Task {
@@ -711,31 +742,185 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
     setExpandedTasks(newExpanded);
   };
 
-  const generateUserStories = (task: Task): Array<{title: string; points: number; status: string}> => {
+  const [editingStory, setEditingStory] = useState<UserStory | null>(null);
+  const [isStoryDialogOpen, setIsStoryDialogOpen] = useState(false);
+
+  const generateUserStories = (task: Task): Array<UserStory> => {
     // Auto-generate user stories based on task category and description
     const baseStories = {
       'foundation': [
-        { title: `As a developer, I want to set up the foundation for ${task.title.toLowerCase()}`, points: 3, status: 'backlog' },
-        { title: `As an architect, I want to define the core structure for ${task.title.toLowerCase()}`, points: 5, status: 'backlog' }
+        { 
+          title: `As a developer, I want to set up the foundation for ${task.title.toLowerCase()}`, 
+          storyPoints: 3, 
+          status: 'backlog' as const,
+          acceptanceCriteria: `Given I am setting up the foundation
+When I implement the basic structure
+Then the foundation should be ready for development
+
+Scenario: Foundation Setup
+  Given the development environment is ready
+  When I create the basic project structure
+  Then all dependencies should be properly configured
+  And the foundation should pass initial tests`
+        },
+        { 
+          title: `As an architect, I want to define the core structure for ${task.title.toLowerCase()}`, 
+          storyPoints: 5, 
+          status: 'backlog' as const,
+          acceptanceCriteria: `Given I need to define the architecture
+When I design the core structure
+Then the structure should be scalable and maintainable
+
+Scenario: Architecture Definition
+  Given the requirements are clear
+  When I create the architectural design
+  Then the design should follow best practices
+  And the structure should support future enhancements`
+        }
       ],
       'modeling': [
-        { title: `As an architect, I want to design the visual components for ${task.title.toLowerCase()}`, points: 5, status: 'backlog' },
-        { title: `As a user, I want to interact with ${task.title.toLowerCase()} intuitively`, points: 3, status: 'backlog' },
-        { title: `As a developer, I want to implement the core logic for ${task.title.toLowerCase()}`, points: 8, status: 'backlog' }
+        { 
+          title: `As an architect, I want to design the visual components for ${task.title.toLowerCase()}`, 
+          storyPoints: 5, 
+          status: 'backlog' as const,
+          acceptanceCriteria: `Given I need visual components
+When I design the UI elements
+Then the components should be reusable and accessible
+
+Scenario: Component Design
+  Given the design requirements
+  When I create the visual components
+  Then they should follow the design system
+  And they should be responsive across devices`
+        },
+        { 
+          title: `As a user, I want to interact with ${task.title.toLowerCase()} intuitively`, 
+          storyPoints: 3, 
+          status: 'backlog' as const,
+          acceptanceCriteria: `Given I want to use the feature
+When I interact with the interface
+Then the interaction should be intuitive and efficient
+
+Scenario: User Interaction
+  Given I access the feature
+  When I perform common actions
+  Then the interface should respond appropriately
+  And provide clear feedback for all actions`
+        },
+        { 
+          title: `As a developer, I want to implement the core logic for ${task.title.toLowerCase()}`, 
+          storyPoints: 8, 
+          status: 'backlog' as const,
+          acceptanceCriteria: `Given I need to implement the logic
+When I write the core functionality
+Then the implementation should be robust and tested
+
+Scenario: Logic Implementation
+  Given the design is finalized
+  When I implement the core features
+  Then all business rules should be enforced
+  And the code should be well-tested and documented`
+        }
       ],
       'ux': [
-        { title: `As a user, I want an intuitive interface for ${task.title.toLowerCase()}`, points: 5, status: 'backlog' },
-        { title: `As a designer, I want to create responsive layouts for ${task.title.toLowerCase()}`, points: 3, status: 'backlog' }
+        { 
+          title: `As a user, I want an intuitive interface for ${task.title.toLowerCase()}`, 
+          storyPoints: 5, 
+          status: 'backlog' as const,
+          acceptanceCriteria: `Given I need to use the interface
+When I navigate through the features
+Then the interface should be user-friendly
+
+Scenario: Interface Usability
+  Given I access the application
+  When I use the interface
+  Then navigation should be clear and logical
+  And I should accomplish tasks efficiently`
+        },
+        { 
+          title: `As a designer, I want to create responsive layouts for ${task.title.toLowerCase()}`, 
+          storyPoints: 3, 
+          status: 'backlog' as const,
+          acceptanceCriteria: `Given I need responsive design
+When I create layouts for different screen sizes
+Then the layout should adapt appropriately
+
+Scenario: Responsive Design
+  Given different device sizes
+  When I view the interface
+  Then the layout should be optimized for each device
+  And content should remain accessible and readable`
+        }
       ],
       'ai': [
-        { title: `As a user, I want AI-powered suggestions for ${task.title.toLowerCase()}`, points: 8, status: 'backlog' },
-        { title: `As a developer, I want to integrate ML models for ${task.title.toLowerCase()}`, points: 13, status: 'backlog' }
+        { 
+          title: `As a user, I want AI-powered suggestions for ${task.title.toLowerCase()}`, 
+          storyPoints: 8, 
+          status: 'backlog' as const,
+          acceptanceCriteria: `Given I want AI assistance
+When I use the feature
+Then I should receive relevant AI suggestions
+
+Scenario: AI Suggestions
+  Given I perform an action
+  When the AI analyzes the context
+  Then it should provide helpful suggestions
+  And the suggestions should improve my workflow`
+        },
+        { 
+          title: `As a developer, I want to integrate ML models for ${task.title.toLowerCase()}`, 
+          storyPoints: 13, 
+          status: 'backlog' as const,
+          acceptanceCriteria: `Given I need ML integration
+When I implement the ML features
+Then the models should perform accurately
+
+Scenario: ML Integration
+  Given trained models are available
+  When I integrate them into the system
+  Then predictions should be accurate and fast
+  And the system should handle edge cases gracefully`
+        }
       ]
     };
 
-    return baseStories[task.category as keyof typeof baseStories] || [
-      { title: `As a user, I want to utilize ${task.title.toLowerCase()}`, points: 5, status: 'backlog' }
+    const stories = baseStories[task.category as keyof typeof baseStories] || [
+      { 
+        title: `As a user, I want to utilize ${task.title.toLowerCase()}`, 
+        storyPoints: 5, 
+        status: 'backlog' as const,
+        acceptanceCriteria: `Given I want to use this feature
+When I access the functionality
+Then it should work as expected
+
+Scenario: Feature Usage
+  Given the feature is available
+  When I use it according to the documentation
+  Then it should perform the intended function
+  And provide appropriate feedback`
+      }
     ];
+
+    // Convert to full UserStory objects
+    return stories.map((story, index) => ({
+      id: `${task.id}-story-${index}`,
+      parentTaskId: task.id,
+      title: story.title,
+      description: `Generated story for ${task.title}`,
+      acceptanceCriteria: story.acceptanceCriteria,
+      storyPoints: story.storyPoints,
+      status: story.status,
+      priority: 'medium' as const,
+      assignee: task.assignee || undefined,
+      labels: [task.category],
+      githubRepo: undefined,
+      githubBranch: undefined,
+      githubIssue: undefined,
+      githubCommits: [],
+      screenshots: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }));
   };
 
   const getStatusColor = (status: string) => {
@@ -747,6 +932,33 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
       case 'done': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
     }
+  };
+
+  const editStory = (story: UserStory) => {
+    setEditingStory(story);
+    setIsStoryDialogOpen(true);
+  };
+
+  const createGitHubBranch = (story: UserStory) => {
+    // Simple GitHub integration - create branch from story
+    const branchName = story.title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '')
+      .replace(/\s+/g, '-')
+      .substring(0, 50);
+    
+    console.log(`Creating branch: feature/${branchName}`);
+    // TODO: Integrate with GitHub API
+    alert(`Would create branch: feature/${branchName}\n(GitHub integration coming soon!)`);
+  };
+
+  const createGitHubCommit = (story: UserStory) => {
+    // Simple GitHub integration - create commit for story
+    const commitMessage = `feat: ${story.title}`;
+    
+    console.log(`Creating commit: ${commitMessage}`);
+    // TODO: Integrate with GitHub API
+    alert(`Would create commit: ${commitMessage}\n(GitHub integration coming soon!)`);
   };
 
   return (
@@ -812,15 +1024,51 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
                           {story.status}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          {story.points} point{story.points !== 1 ? 's' : ''}
+                          {story.storyPoints} point{story.storyPoints !== 1 ? 's' : ''}
                         </span>
+                        {story.githubBranch && (
+                          <span className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                            <GitBranch className="w-3 h-3" />
+                            {story.githubBranch}
+                          </span>
+                        )}
                       </div>
+                      {story.screenshots && story.screenshots.length > 0 && (
+                        <div className="flex items-center gap-1 mt-1">
+                          <Image className="w-3 h-3 text-gray-500" />
+                          <span className="text-xs text-gray-500">{story.screenshots.length} screenshot{story.screenshots.length !== 1 ? 's' : ''}</span>
+                        </div>
+                      )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm" className="text-xs">
-                        + GitHub Issue
+                    <div className="flex items-center gap-1">
+                      {/* GitHub Integration Buttons - matching your screenshot style */}
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-xs h-7 px-2"
+                        onClick={() => createGitHubBranch(story)}
+                        data-testid={`button-create-branch-${story.id}`}
+                      >
+                        <GitBranch className="w-3 h-3 mr-1" />
+                        Create branch
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-xs h-7 px-2"
+                        onClick={() => createGitHubCommit(story)}
+                        data-testid={`button-create-commit-${story.id}`}
+                      >
+                        <Code2 className="w-3 h-3 mr-1" />
+                        Create commit
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-7 px-2"
+                        onClick={() => editStory(story)}
+                        data-testid={`button-edit-story-${story.id}`}
+                      >
                         <Edit className="w-3 h-3" />
                       </Button>
                     </div>
@@ -848,6 +1096,226 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
           No tasks found. Create tasks first to generate user stories.
         </div>
       )}
+
+      {/* Story Edit Dialog */}
+      <Dialog open={isStoryDialogOpen} onOpenChange={setIsStoryDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="w-5 h-5" />
+              Edit User Story
+            </DialogTitle>
+          </DialogHeader>
+          
+          {editingStory && (
+            <div className="space-y-4 mt-4">
+              {/* Story Title */}
+              <div className="space-y-2">
+                <Label htmlFor="story-title">User Story</Label>
+                <Input
+                  id="story-title"
+                  value={editingStory.title}
+                  onChange={(e) => setEditingStory({...editingStory, title: e.target.value})}
+                  placeholder="As a [user role], I want [goal] so that [benefit]"
+                  className="text-sm"
+                  data-testid="input-story-title"
+                />
+              </div>
+
+              {/* Story Details Row */}
+              <div className="grid grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="story-status">Status</Label>
+                  <Select value={editingStory.status} onValueChange={(value) => setEditingStory({...editingStory, status: value as UserStory['status']})}>
+                    <SelectTrigger data-testid="select-story-status">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="backlog">Backlog</SelectItem>
+                      <SelectItem value="sprint">Sprint</SelectItem>
+                      <SelectItem value="in-progress">In Progress</SelectItem>
+                      <SelectItem value="review">Review</SelectItem>
+                      <SelectItem value="done">Done</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="story-points">Story Points</Label>
+                  <Select value={editingStory.storyPoints.toString()} onValueChange={(value) => setEditingStory({...editingStory, storyPoints: parseInt(value)})}>
+                    <SelectTrigger data-testid="select-story-points">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1</SelectItem>
+                      <SelectItem value="2">2</SelectItem>
+                      <SelectItem value="3">3</SelectItem>
+                      <SelectItem value="5">5</SelectItem>
+                      <SelectItem value="8">8</SelectItem>
+                      <SelectItem value="13">13</SelectItem>
+                      <SelectItem value="21">21</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="story-priority">Priority</Label>
+                  <Select value={editingStory.priority} onValueChange={(value) => setEditingStory({...editingStory, priority: value as UserStory['priority']})}>
+                    <SelectTrigger data-testid="select-story-priority">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="story-assignee">Assignee</Label>
+                  <Input
+                    id="story-assignee"
+                    value={editingStory.assignee || ''}
+                    onChange={(e) => setEditingStory({...editingStory, assignee: e.target.value})}
+                    placeholder="Developer name"
+                    data-testid="input-story-assignee"
+                  />
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="space-y-2">
+                <Label htmlFor="story-description">Description</Label>
+                <Textarea
+                  id="story-description"
+                  value={editingStory.description || ''}
+                  onChange={(e) => setEditingStory({...editingStory, description: e.target.value})}
+                  placeholder="Detailed description of the user story..."
+                  rows={3}
+                  data-testid="textarea-story-description"
+                />
+              </div>
+
+              {/* Gherkin Acceptance Criteria */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="acceptance-criteria">Acceptance Criteria (Gherkin)</Label>
+                  <Button variant="ghost" size="sm" className="text-xs h-6 px-2">
+                    <ExternalLink className="w-3 h-3 mr-1" />
+                    Gherkin Guide
+                  </Button>
+                </div>
+                <Textarea
+                  id="acceptance-criteria"
+                  value={editingStory.acceptanceCriteria}
+                  onChange={(e) => setEditingStory({...editingStory, acceptanceCriteria: e.target.value})}
+                  placeholder={`Given [context]
+When [action]
+Then [expected outcome]
+
+Scenario: [scenario name]
+  Given [precondition]
+  When [action]
+  Then [expected result]
+  And [additional verification]`}
+                  rows={12}
+                  className="font-mono text-sm"
+                  data-testid="textarea-acceptance-criteria"
+                />
+              </div>
+
+              {/* GitHub Integration */}
+              <div className="space-y-4 p-4 border rounded-lg bg-gray-50 dark:bg-gray-900">
+                <h4 className="font-medium flex items-center gap-2">
+                  <GitBranch className="w-4 h-4" />
+                  GitHub Integration
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="github-repo">Repository</Label>
+                    <Input
+                      id="github-repo"
+                      value={editingStory.githubRepo || ''}
+                      onChange={(e) => setEditingStory({...editingStory, githubRepo: e.target.value})}
+                      placeholder="owner/repository"
+                      data-testid="input-github-repo"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="github-branch">Branch</Label>
+                    <Input
+                      id="github-branch"
+                      value={editingStory.githubBranch || ''}
+                      onChange={(e) => setEditingStory({...editingStory, githubBranch: e.target.value})}
+                      placeholder="feature/story-branch"
+                      data-testid="input-github-branch"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => createGitHubBranch(editingStory)}>
+                    <GitBranch className="w-4 h-4 mr-2" />
+                    Create Branch
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => createGitHubCommit(editingStory)}>
+                    <Code2 className="w-4 h-4 mr-2" />
+                    Create Commit
+                  </Button>
+                </div>
+              </div>
+
+              {/* Screenshots/Images */}
+              <div className="space-y-4 p-4 border rounded-lg bg-gray-50 dark:bg-gray-900">
+                <h4 className="font-medium flex items-center gap-2">
+                  <Image className="w-4 h-4" />
+                  Screenshots & Diagrams
+                </h4>
+                <div className="space-y-2">
+                  <Button variant="outline" size="sm" className="w-full" data-testid="button-upload-screenshot">
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload Figma Mockup / UX Diagram
+                  </Button>
+                  {editingStory.screenshots && editingStory.screenshots.length > 0 && (
+                    <div className="grid grid-cols-3 gap-2 mt-2">
+                      {editingStory.screenshots.map((screenshot, index) => (
+                        <div key={index} className="relative group">
+                          <img src={screenshot} alt={`Screenshot ${index + 1}`} className="w-full h-20 object-cover rounded border" />
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100"
+                            onClick={() => {
+                              const newScreenshots = editingStory.screenshots.filter((_, i) => i !== index);
+                              setEditingStory({...editingStory, screenshots: newScreenshots});
+                            }}
+                          >
+                            ×
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => setIsStoryDialogOpen(false)} data-testid="button-cancel-story">
+                  Cancel
+                </Button>
+                <Button onClick={() => {
+                  // TODO: Save story changes to backend
+                  console.log('Saving story:', editingStory);
+                  setIsStoryDialogOpen(false);
+                }} data-testid="button-save-story">
+                  Save Story
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
