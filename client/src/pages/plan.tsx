@@ -697,13 +697,168 @@ function TaskColumn({
   );
 }
 
+// Stories View Component
+function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: Task) => void }) {
+  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
+
+  const toggleTaskExpansion = (taskId: string) => {
+    const newExpanded = new Set(expandedTasks);
+    if (newExpanded.has(taskId)) {
+      newExpanded.delete(taskId);
+    } else {
+      newExpanded.add(taskId);
+    }
+    setExpandedTasks(newExpanded);
+  };
+
+  const generateUserStories = (task: Task): Array<{title: string; points: number; status: string}> => {
+    // Auto-generate user stories based on task category and description
+    const baseStories = {
+      'foundation': [
+        { title: `As a developer, I want to set up the foundation for ${task.title.toLowerCase()}`, points: 3, status: 'backlog' },
+        { title: `As an architect, I want to define the core structure for ${task.title.toLowerCase()}`, points: 5, status: 'backlog' }
+      ],
+      'modeling': [
+        { title: `As an architect, I want to design the visual components for ${task.title.toLowerCase()}`, points: 5, status: 'backlog' },
+        { title: `As a user, I want to interact with ${task.title.toLowerCase()} intuitively`, points: 3, status: 'backlog' },
+        { title: `As a developer, I want to implement the core logic for ${task.title.toLowerCase()}`, points: 8, status: 'backlog' }
+      ],
+      'ux': [
+        { title: `As a user, I want an intuitive interface for ${task.title.toLowerCase()}`, points: 5, status: 'backlog' },
+        { title: `As a designer, I want to create responsive layouts for ${task.title.toLowerCase()}`, points: 3, status: 'backlog' }
+      ],
+      'ai': [
+        { title: `As a user, I want AI-powered suggestions for ${task.title.toLowerCase()}`, points: 8, status: 'backlog' },
+        { title: `As a developer, I want to integrate ML models for ${task.title.toLowerCase()}`, points: 13, status: 'backlog' }
+      ]
+    };
+
+    return baseStories[task.category as keyof typeof baseStories] || [
+      { title: `As a user, I want to utilize ${task.title.toLowerCase()}`, points: 5, status: 'backlog' }
+    ];
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'backlog': return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+      case 'sprint': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'in-progress': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'review': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+      case 'done': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-foreground">User Stories</h3>
+        <div className="text-sm text-muted-foreground">
+          {tasks.length} Epic{tasks.length !== 1 ? 's' : ''} • {tasks.reduce((acc, task) => acc + generateUserStories(task).length, 0)} Stories
+        </div>
+      </div>
+
+      {tasks.map((task: Task) => {
+        const userStories = generateUserStories(task);
+        const isExpanded = expandedTasks.has(task.id);
+        const totalPoints = userStories.reduce((sum, story) => sum + story.points, 0);
+
+        return (
+          <div key={task.id} className="bg-white dark:bg-gray-800 rounded-lg border">
+            {/* Epic Header */}
+            <div 
+              className="p-4 border-b cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50"
+              onClick={() => toggleTaskExpansion(task.id)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`transition-transform ${isExpanded ? 'rotate-90' : ''}`}>
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">Epic: {task.title}</span>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200`}>
+                        {task.category}
+                      </span>
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      {userStories.length} stories • {totalPoints} points
+                    </div>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEditTask(task);
+                  }}
+                >
+                  <Edit2 className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* User Stories List */}
+            {isExpanded && (
+              <div className="p-4 space-y-3">
+                {userStories.map((story, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                    <div className="flex-1">
+                      <div className="font-medium text-sm">{story.title}</div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(story.status)}`}>
+                          {story.status}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {story.points} point{story.points !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="sm" className="text-xs">
+                        + GitHub Issue
+                      </Button>
+                      <Button variant="ghost" size="sm">
+                        <Edit className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                
+                {/* Add Story Button */}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full mt-3"
+                  data-testid={`button-add-story-${task.id}`}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add User Story
+                </Button>
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {tasks.length === 0 && (
+        <div className="text-center py-12 text-muted-foreground">
+          No tasks found. Create tasks first to generate user stories.
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Main Plan Page Component
 // Cache busting - v2.0 - Force browser reload
 export default function PlanPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
-  const [currentView, setCurrentView] = useState<'board' | 'list' | 'gantt' | 'calendar' | 'table'>('board');
+  const [currentView, setCurrentView] = useState<'board' | 'list' | 'gantt' | 'calendar' | 'table' | 'stories'>('board');
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All Categories');
 
@@ -1129,6 +1284,16 @@ export default function PlanPage() {
             <Table className="w-4 h-4" />
             Table
           </Button>
+          <Button
+            variant={currentView === 'stories' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setCurrentView('stories')}
+            className="flex items-center gap-2"
+            data-testid="button-view-stories"
+          >
+            <GitBranch className="w-4 h-4" />
+            Stories
+          </Button>
         </div>
 
         {/* Filter Controls */}
@@ -1497,6 +1662,11 @@ export default function PlanPage() {
       {/* Gantt Chart View */}
       {currentView === 'gantt' && (
         <GanttView tasks={filteredTasks} onEditTask={handleEditTask} />
+      )}
+
+      {/* Stories View */}
+      {currentView === 'stories' && (
+        <StoriesView tasks={filteredTasks} onEditTask={handleEditTask} />
       )}
 
       {/* Task Dialog */}
