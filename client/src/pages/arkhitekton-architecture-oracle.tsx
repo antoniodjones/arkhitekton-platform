@@ -528,35 +528,290 @@ export default function ArkhitektonArchitectureOracle() {
               </Card>
 
             </TabsContent>
-            
-            <TabsContent value="governance" className="space-y-6">
-              
+
+            {/* AI/ML */}
+            <TabsContent value="ai" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Zap className="h-5 w-5 mr-2 text-red-600" />
+                    Oracle AI & Machine Learning Platform
+                  </CardTitle>
+                  <CardDescription>
+                    Enterprise AI services with autonomous capabilities and Oracle Database machine learning integration
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  
+                  {/* AI Services */}
+                  <div className="border border-red-200 dark:border-red-800 rounded-lg p-6 bg-gradient-to-r from-red-50/50 to-orange-50/50 dark:from-red-950/10 dark:to-orange-950/10">
+                    <h4 className="text-lg font-semibold mb-4 text-red-900 dark:text-red-100 flex items-center">
+                      <Zap className="h-4 w-4 mr-2" />
+                      Oracle AI Services
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded border">
+                          <span className="font-medium">OCI AI Language</span>
+                          <Badge variant="outline">NLP</Badge>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded border">
+                          <span className="font-medium">OCI Vision</span>
+                          <Badge variant="outline">Computer Vision</Badge>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded border">
+                          <span className="font-medium">OCI Speech</span>
+                          <Badge variant="outline">STT/TTS</Badge>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <h5 className="font-medium text-slate-900 dark:text-white">AI Capabilities:</h5>
+                        <ul className="text-sm text-slate-600 dark:text-slate-300 space-y-1">
+                          <li>• Pre-trained models for common use cases</li>
+                          <li>• Custom model training and deployment</li>
+                          <li>• Real-time inference APIs</li>
+                          <li>• Multi-language support</li>
+                          <li>• Enterprise security and compliance</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ML Platform */}
+                  <div className="border border-orange-200 dark:border-orange-800 rounded-lg p-6 bg-gradient-to-r from-orange-50/50 to-amber-50/50 dark:from-orange-950/10 dark:to-amber-950/10">
+                    <h4 className="text-lg font-semibold mb-4 text-orange-900 dark:text-orange-100 flex items-center">
+                      <Cpu className="h-4 w-4 mr-2" />
+                      Oracle Machine Learning Platform
+                    </h4>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                      <div className="p-3 bg-white dark:bg-slate-800 rounded border">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">OML in Database</span>
+                          <Badge variant="secondary">In-DB ML</Badge>
+                        </div>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Machine learning algorithms directly in Autonomous Database</p>
+                      </div>
+                      <div className="p-3 bg-white dark:bg-slate-800 rounded border">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">OCI Data Science</span>
+                          <Badge variant="secondary">Notebooks</Badge>
+                        </div>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Collaborative platform for data scientists</p>
+                      </div>
+                      <div className="p-3 bg-white dark:bg-slate-800 rounded border">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">Model Deployment</span>
+                          <Badge variant="secondary">MLOps</Badge>
+                        </div>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Automated model deployment and monitoring</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ARKHITEKTON AI Integration */}
+                  <div className="border border-green-200 dark:border-green-800 rounded-lg p-6 bg-gradient-to-r from-green-50/50 to-emerald-50/50 dark:from-green-950/10 dark:to-emerald-950/10">
+                    <h4 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100 flex items-center">
+                      <Settings className="h-4 w-4 mr-2" />
+                      ARKHITEKTON AI Architecture Assistant
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/20 rounded">
+                          <div>
+                            <div className="font-medium">Architecture Pattern Recognition</div>
+                            <div className="text-sm text-slate-600 dark:text-slate-300">ML-powered architecture analysis</div>
+                          </div>
+                          <Zap className="h-5 w-5 text-green-600" />
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/20 rounded">
+                          <div>
+                            <div className="font-medium">Intelligent Recommendations</div>
+                            <div className="text-sm text-slate-600 dark:text-slate-300">AI-driven design suggestions</div>
+                          </div>
+                          <Zap className="h-5 w-5 text-green-600" />
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/20 rounded">
+                          <div>
+                            <div className="font-medium">Compliance Validation</div>
+                            <div className="text-sm text-slate-600 dark:text-slate-300">Automated compliance checking</div>
+                          </div>
+                          <CheckCircle2 className="h-5 w-5 text-green-600" />
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/20 rounded">
+                          <div>
+                            <div className="font-medium">Performance Optimization</div>
+                            <div className="text-sm text-slate-600 dark:text-slate-300">AI-powered performance tuning</div>
+                          </div>
+                          <TrendingUp className="h-5 w-5 text-green-600" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* DevOps */}
+            <TabsContent value="devops" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <GitBranch className="h-5 w-5 mr-2 text-red-600" />
+                    Oracle DevOps & CI/CD Platform
+                  </CardTitle>
+                  <CardDescription>
+                    Enterprise-grade DevOps with Oracle Integration Cloud and autonomous deployment capabilities
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  
+                  {/* CI/CD Pipeline */}
+                  <div className="border border-red-200 dark:border-red-800 rounded-lg p-6 bg-gradient-to-r from-red-50/50 to-orange-50/50 dark:from-red-950/10 dark:to-orange-950/10">
+                    <h4 className="text-lg font-semibold mb-4 text-red-900 dark:text-red-100 flex items-center">
+                      <GitBranch className="h-4 w-4 mr-2" />
+                      Oracle DevOps Service
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded border">
+                          <span className="font-medium">Build Automation</span>
+                          <Badge variant="outline">CI</Badge>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded border">
+                          <span className="font-medium">Deployment Pipelines</span>
+                          <Badge variant="outline">CD</Badge>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded border">
+                          <span className="font-medium">Code Repository</span>
+                          <Badge variant="outline">Git</Badge>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <h5 className="font-medium text-slate-900 dark:text-white">DevOps Features:</h5>
+                        <ul className="text-sm text-slate-600 dark:text-slate-300 space-y-1">
+                          <li>• Automated testing and validation</li>
+                          <li>• Blue-green deployments</li>
+                          <li>• Infrastructure as Code</li>
+                          <li>• Automated rollback capabilities</li>
+                          <li>• Enterprise security scanning</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Monitoring & Observability */}
+                  <div className="border border-orange-200 dark:border-orange-800 rounded-lg p-6 bg-gradient-to-r from-orange-50/50 to-amber-50/50 dark:from-orange-950/10 dark:to-amber-950/10">
+                    <h4 className="text-lg font-semibold mb-4 text-orange-900 dark:text-orange-100 flex items-center">
+                      <Monitor className="h-4 w-4 mr-2" />
+                      Monitoring & Observability Stack
+                    </h4>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                      <div className="p-3 bg-white dark:bg-slate-800 rounded border">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">OCI Monitoring</span>
+                          <Badge variant="secondary">Metrics</Badge>
+                        </div>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Real-time metrics and alerting</p>
+                      </div>
+                      <div className="p-3 bg-white dark:bg-slate-800 rounded border">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">Logging Analytics</span>
+                          <Badge variant="secondary">Logs</Badge>
+                        </div>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Centralized log aggregation and analysis</p>
+                      </div>
+                      <div className="p-3 bg-white dark:bg-slate-800 rounded border">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">APM & Tracing</span>
+                          <Badge variant="secondary">Traces</Badge>
+                        </div>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Application performance monitoring</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ARKHITEKTON DevOps Integration */}
+                  <div className="border border-green-200 dark:border-green-800 rounded-lg p-6 bg-gradient-to-r from-green-50/50 to-emerald-50/50 dark:from-green-950/10 dark:to-emerald-950/10">
+                    <h4 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100 flex items-center">
+                      <Code className="h-4 w-4 mr-2" />
+                      ARKHITEKTON DevOps Workflows
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/20 rounded">
+                          <div>
+                            <div className="font-medium">Architecture-as-Code</div>
+                            <div className="text-sm text-slate-600 dark:text-slate-300">Version-controlled architecture definitions</div>
+                          </div>
+                          <GitBranch className="h-5 w-5 text-green-600" />
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/20 rounded">
+                          <div>
+                            <div className="font-medium">Automated Deployment</div>
+                            <div className="text-sm text-slate-600 dark:text-slate-300">Container and function deployment</div>
+                          </div>
+                          <Zap className="h-5 w-5 text-green-600" />
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/20 rounded">
+                          <div>
+                            <div className="font-medium">Quality Gates</div>
+                            <div className="text-sm text-slate-600 dark:text-slate-300">Architecture compliance validation</div>
+                          </div>
+                          <CheckCircle2 className="h-5 w-5 text-green-600" />
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/20 rounded">
+                          <div>
+                            <div className="font-medium">Performance Testing</div>
+                            <div className="text-sm text-slate-600 dark:text-slate-300">Automated performance validation</div>
+                          </div>
+                          <Activity className="h-5 w-5 text-green-600" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Cost Model */}
+            <TabsContent value="costs" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center">
-                      <Lock className="h-5 w-5 mr-2 text-red-600 dark:text-red-400" />
-                      Enterprise Compliance
+                      <DollarSign className="h-5 w-5 mr-2 text-red-600 dark:text-red-400" />
+                      Oracle Cloud Pricing Model
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="text-center p-3 bg-green-50 dark:bg-green-950/20 rounded border border-green-200 dark:border-green-800">
-                        <div className="font-medium text-green-800 dark:text-green-200">SOC 2 Type II</div>
-                        <div className="text-xs text-green-600 dark:text-green-400">Certified</div>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-950/20 rounded">
+                        <div>
+                          <div className="font-medium">Universal Credits</div>
+                          <div className="text-sm text-slate-600 dark:text-slate-300">Pay-as-you-consume with predictable pricing</div>
+                        </div>
+                        <DollarSign className="h-5 w-5 text-red-600" />
                       </div>
-                      <div className="text-center p-3 bg-green-50 dark:bg-green-950/20 rounded border border-green-200 dark:border-green-800">
-                        <div className="font-medium text-green-800 dark:text-green-200">ISO 27001</div>
-                        <div className="text-xs text-green-600 dark:text-green-400">Certified</div>
+                      <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-950/20 rounded">
+                        <div>
+                          <div className="font-medium">Bring Your Own License</div>
+                          <div className="text-sm text-slate-600 dark:text-slate-300">Up to 50% savings on existing Oracle licenses</div>
+                        </div>
+                        <Badge variant="secondary">BYOL</Badge>
                       </div>
-                      <div className="text-center p-3 bg-green-50 dark:bg-green-950/20 rounded border border-green-200 dark:border-green-800">
-                        <div className="font-medium text-green-800 dark:text-green-200">PCI DSS</div>
-                        <div className="text-xs text-green-600 dark:text-green-400">Level 1</div>
-                      </div>
-                      <div className="text-center p-3 bg-green-50 dark:bg-green-950/20 rounded border border-green-200 dark:border-green-800">
-                        <div className="font-medium text-green-800 dark:text-green-200">HIPAA</div>
-                        <div className="text-xs text-green-600 dark:text-green-400">Compliant</div>
+                      <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-950/20 rounded">
+                        <div>
+                          <div className="font-medium">Always Free Tier</div>
+                          <div className="text-sm text-slate-600 dark:text-slate-300">Autonomous Database and compute included</div>
+                        </div>
+                        <Badge variant="secondary">Free</Badge>
                       </div>
                     </div>
                   </CardContent>
@@ -565,24 +820,31 @@ export default function ArkhitektonArchitectureOracle() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center">
-                      <Settings className="h-5 w-5 mr-2 text-red-600 dark:text-red-400" />
-                      Cost Management
+                      <TrendingUp className="h-5 w-5 mr-2 text-red-600 dark:text-red-400" />
+                      ARKHITEKTON Cost Optimization
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-950/20 rounded">
                       <div>
-                        <div className="font-medium">License Optimization</div>
-                        <div className="text-sm text-slate-600 dark:text-slate-300">BYOL savings up to 50%</div>
+                        <div className="font-medium">Autonomous Database Savings</div>
+                        <div className="text-sm text-slate-600 dark:text-slate-300">Self-managing reduces admin costs by 80%</div>
                       </div>
-                      <DollarSign className="h-5 w-5 text-green-500" />
+                      <TrendingUp className="h-5 w-5 text-green-500" />
                     </div>
                     <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-950/20 rounded">
                       <div>
-                        <div className="font-medium">Resource Efficiency</div>
-                        <div className="text-sm text-slate-600 dark:text-slate-300">Autonomous scaling reduces waste</div>
+                        <div className="font-medium">Resource Optimization</div>
+                        <div className="text-sm text-slate-600 dark:text-slate-300">Auto-scaling prevents over-provisioning</div>
                       </div>
                       <TrendingUp className="h-5 w-5 text-green-500" />
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-950/20 rounded">
+                      <div>
+                        <div className="font-medium">Enterprise Integration</div>
+                        <div className="text-sm text-slate-600 dark:text-slate-300">Native Oracle Fusion reduces licensing costs</div>
+                      </div>
+                      <Settings className="h-5 w-5 text-green-500" />
                     </div>
                   </CardContent>
                 </Card>
