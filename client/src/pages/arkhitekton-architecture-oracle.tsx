@@ -106,175 +106,314 @@ export default function ArkhitektonArchitectureOracle() {
           </div>
 
           {/* Architecture Overview */}
-          <Tabs defaultValue="architecture" className="space-y-8">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="architecture">Architecture Layers</TabsTrigger>
-              <TabsTrigger value="operations">Operations</TabsTrigger>
-              <TabsTrigger value="governance">Governance</TabsTrigger>
-              <TabsTrigger value="migration">Migration</TabsTrigger>
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold mb-6 text-slate-900 dark:text-white">Architecture Overview</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <Card className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20 border-red-200 dark:border-red-800">
+                <CardContent className="pt-6 text-center">
+                  <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <Database className="h-6 w-6 text-red-600 dark:text-red-400" />
+                  </div>
+                  <h3 className="font-semibold text-slate-900 dark:text-white mb-2">Autonomous DB</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-300">Self-managing, self-securing database with 99.995% uptime SLA</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 border-orange-200 dark:border-orange-800">
+                <CardContent className="pt-6 text-center">
+                  <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <Shield className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                  </div>
+                  <h3 className="font-semibold text-slate-900 dark:text-white mb-2">Enterprise Security</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-300">Zero-trust security with Database Vault and Cloud Guard protection</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20 border-amber-200 dark:border-amber-800">
+                <CardContent className="pt-6 text-center">
+                  <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <Cpu className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <h3 className="font-semibold text-slate-900 dark:text-white mb-2">High Performance</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-300">Bare metal compute with Exadata optimization for 100x faster analytics</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-green-200 dark:border-green-800">
+                <CardContent className="pt-6 text-center">
+                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <Settings className="h-6 w-6 text-green-600 dark:text-green-400" />
+                  </div>
+                  <h3 className="font-semibold text-slate-900 dark:text-white mb-2">Enterprise Apps</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-300">Native Oracle Fusion Cloud integration for business applications</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Detailed Architecture Tabs */}
+          <Tabs defaultValue="infrastructure" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 h-auto">
+              <TabsTrigger value="infrastructure" className="flex flex-col items-center p-3">
+                <Server className="h-4 w-4 mb-1" />
+                <span className="text-xs">Infrastructure</span>
+              </TabsTrigger>
+              <TabsTrigger value="data" className="flex flex-col items-center p-3">
+                <Database className="h-4 w-4 mb-1" />
+                <span className="text-xs">Data Platform</span>
+              </TabsTrigger>
+              <TabsTrigger value="security" className="flex flex-col items-center p-3">
+                <Shield className="h-4 w-4 mb-1" />
+                <span className="text-xs">Security</span>
+              </TabsTrigger>
+              <TabsTrigger value="ai" className="flex flex-col items-center p-3">
+                <Zap className="h-4 w-4 mb-1" />
+                <span className="text-xs">AI/ML</span>
+              </TabsTrigger>
+              <TabsTrigger value="devops" className="flex flex-col items-center p-3">
+                <GitBranch className="h-4 w-4 mb-1" />
+                <span className="text-xs">DevOps</span>
+              </TabsTrigger>
+              <TabsTrigger value="costs" className="flex flex-col items-center p-3">
+                <DollarSign className="h-4 w-4 mb-1" />
+                <span className="text-xs">Cost Model</span>
+              </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="architecture" className="space-y-8">
-              
-              {/* Architecture Diagram */}
+            {/* Infrastructure Architecture */}
+            <TabsContent value="infrastructure" className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <Layers className="h-5 w-5 mr-2 text-red-600 dark:text-red-400" />
-                    Oracle Cloud Enterprise Architecture
+                    <Server className="h-5 w-5 mr-2 text-red-600" />
+                    Compute & Networking Infrastructure
                   </CardTitle>
                   <CardDescription>
-                    Autonomous database-driven architecture with enterprise application integration
+                    High-performance bare metal and container architecture with autonomous management capabilities
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    
-                    {/* Presentation Layer */}
-                    <div className="p-6 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20 rounded-lg border border-red-200 dark:border-red-800">
-                      <h4 className="font-semibold mb-4 text-red-800 dark:text-red-200 flex items-center">
-                        <Globe className="h-4 w-4 mr-2" />
-                        Presentation Layer
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-white dark:bg-slate-900 p-4 rounded border">
-                          <div className="font-medium text-sm mb-2">Web Application</div>
-                          <div className="text-xs text-slate-600 dark:text-slate-300">React + OCI CDN</div>
+                <CardContent className="space-y-6">
+                  
+                  {/* Frontend Tier */}
+                  <div className="border border-red-200 dark:border-red-800 rounded-lg p-6 bg-gradient-to-r from-red-50/50 to-orange-50/50 dark:from-red-950/10 dark:to-orange-950/10">
+                    <h4 className="text-lg font-semibold mb-4 text-red-900 dark:text-red-100 flex items-center">
+                      <Globe className="h-4 w-4 mr-2" />
+                      Frontend Tier - Oracle Content Delivery
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded border">
+                          <span className="font-medium">OCI CDN</span>
+                          <Badge variant="outline">Global</Badge>
                         </div>
-                        <div className="bg-white dark:bg-slate-900 p-4 rounded border">
-                          <div className="font-medium text-sm mb-2">Mobile Apps</div>
-                          <div className="text-xs text-slate-600 dark:text-slate-300">Native + API Gateway</div>
+                        <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded border">
+                          <span className="font-medium">Oracle APEX + React</span>
+                          <Badge variant="outline">Hybrid</Badge>
                         </div>
-                        <div className="bg-white dark:bg-slate-900 p-4 rounded border">
-                          <div className="font-medium text-sm mb-2">Enterprise Portal</div>
-                          <div className="text-xs text-slate-600 dark:text-slate-300">Oracle APEX</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Application Layer */}
-                    <div className="p-6 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 rounded-lg border border-orange-200 dark:border-orange-800">
-                      <h4 className="font-semibold mb-4 text-orange-800 dark:text-orange-200 flex items-center">
-                        <Code className="h-4 w-4 mr-2" />
-                        Application & Business Logic
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-white dark:bg-slate-900 p-4 rounded border">
-                          <div className="font-medium text-sm mb-2">API Services</div>
-                          <div className="text-xs text-slate-600 dark:text-slate-300">Container Engine + Functions</div>
-                        </div>
-                        <div className="bg-white dark:bg-slate-900 p-4 rounded border">
-                          <div className="font-medium text-sm mb-2">Business Apps</div>
-                          <div className="text-xs text-slate-600 dark:text-slate-300">Oracle Fusion Cloud</div>
-                        </div>
-                        <div className="bg-white dark:bg-slate-900 p-4 rounded border">
-                          <div className="font-medium text-sm mb-2">Integration</div>
-                          <div className="text-xs text-slate-600 dark:text-slate-300">OIC + SOA Suite</div>
+                        <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded border">
+                          <span className="font-medium">DNS & Load Balancer</span>
+                          <Badge variant="outline">99.99% SLA</Badge>
                         </div>
                       </div>
-                    </div>
-
-                    {/* Data Layer */}
-                    <div className="p-6 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                      <h4 className="font-semibold mb-4 text-amber-800 dark:text-amber-200 flex items-center">
-                        <Database className="h-4 w-4 mr-2" />
-                        Autonomous Data Platform
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-white dark:bg-slate-900 p-4 rounded border">
-                          <div className="font-medium text-sm mb-2">Autonomous Database</div>
-                          <div className="text-xs text-slate-600 dark:text-slate-300">Self-managing, Self-securing</div>
-                        </div>
-                        <div className="bg-white dark:bg-slate-900 p-4 rounded border">
-                          <div className="font-medium text-sm mb-2">Analytics</div>
-                          <div className="text-xs text-slate-600 dark:text-slate-300">Oracle Analytics Cloud</div>
-                        </div>
-                        <div className="bg-white dark:bg-slate-900 p-4 rounded border">
-                          <div className="font-medium text-sm mb-2">Data Lake</div>
-                          <div className="text-xs text-slate-600 dark:text-slate-300">Object Storage + Big Data</div>
-                        </div>
+                      <div className="space-y-2">
+                        <h5 className="font-medium text-slate-900 dark:text-white">Key Features:</h5>
+                        <ul className="text-sm text-slate-600 dark:text-slate-300 space-y-1">
+                          <li>• Global edge caching network</li>
+                          <li>• Auto-scaling load balancers</li>
+                          <li>• SSL/TLS termination</li>
+                          <li>• Web Application Firewall</li>
+                          <li>• Real-time monitoring</li>
+                        </ul>
                       </div>
                     </div>
-
-                    {/* Infrastructure Layer */}
-                    <div className="p-6 bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-950/20 dark:to-slate-950/20 rounded-lg border border-gray-200 dark:border-gray-800">
-                      <h4 className="font-semibold mb-4 text-gray-800 dark:text-gray-200 flex items-center">
-                        <Server className="h-4 w-4 mr-2" />
-                        High-Performance Infrastructure
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-white dark:bg-slate-900 p-4 rounded border">
-                          <div className="font-medium text-sm mb-2">Compute</div>
-                          <div className="text-xs text-slate-600 dark:text-slate-300">Bare Metal + VM Instances</div>
-                        </div>
-                        <div className="bg-white dark:bg-slate-900 p-4 rounded border">
-                          <div className="font-medium text-sm mb-2">Networking</div>
-                          <div className="text-xs text-slate-600 dark:text-slate-300">VCN + FastConnect</div>
-                        </div>
-                        <div className="bg-white dark:bg-slate-900 p-4 rounded border">
-                          <div className="font-medium text-sm mb-2">Storage</div>
-                          <div className="text-xs text-slate-600 dark:text-slate-300">Block + Object + Archive</div>
-                        </div>
-                      </div>
-                    </div>
-
                   </div>
+
+                  {/* Application Tier */}
+                  <div className="border border-orange-200 dark:border-orange-800 rounded-lg p-6 bg-gradient-to-r from-orange-50/50 to-amber-50/50 dark:from-orange-950/10 dark:to-amber-950/10">
+                    <h4 className="text-lg font-semibold mb-4 text-orange-900 dark:text-orange-100 flex items-center">
+                      <Layers className="h-4 w-4 mr-2" />
+                      Application Tier - Container Engine Services
+                    </h4>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <h5 className="font-medium text-slate-900 dark:text-white">OCI Container Engine (OKE)</h5>
+                        <div className="space-y-2">
+                          <div className="p-3 bg-white dark:bg-slate-800 rounded border">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-medium">API Gateway</span>
+                              <Badge variant="secondary">Node.js</Badge>
+                            </div>
+                            <p className="text-sm text-slate-600 dark:text-slate-400">RESTful API with Oracle Functions integration</p>
+                          </div>
+                          <div className="p-3 bg-white dark:bg-slate-800 rounded border">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-medium">Business Logic</span>
+                              <Badge variant="secondary">Java/Node.js</Badge>
+                            </div>
+                            <p className="text-sm text-slate-600 dark:text-slate-400">Microservices with Oracle Integration Cloud</p>
+                          </div>
+                          <div className="p-3 bg-white dark:bg-slate-800 rounded border">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-medium">Enterprise Apps</span>
+                              <Badge variant="secondary">Oracle Fusion</Badge>
+                            </div>
+                            <p className="text-sm text-slate-600 dark:text-slate-400">Native Oracle Cloud Applications integration</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <h5 className="font-medium text-slate-900 dark:text-white">Scaling & Performance</h5>
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between p-3 bg-amber-50 dark:bg-amber-950/20 rounded">
+                            <div>
+                              <div className="font-medium">Auto-scaling</div>
+                              <div className="text-sm text-slate-600 dark:text-slate-300">Kubernetes HPA + VPA</div>
+                            </div>
+                            <TrendingUp className="h-5 w-5 text-amber-600" />
+                          </div>
+                          <div className="flex items-center justify-between p-3 bg-amber-50 dark:bg-amber-950/20 rounded">
+                            <div>
+                              <div className="font-medium">Performance</div>
+                              <div className="text-sm text-slate-600 dark:text-slate-300">Bare metal compute optimization</div>
+                            </div>
+                            <Zap className="h-5 w-5 text-amber-600" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Networking */}
+                  <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-6 bg-gradient-to-r from-gray-50/50 to-slate-50/50 dark:from-gray-950/10 dark:to-slate-950/10">
+                    <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100 flex items-center">
+                      <Network className="h-4 w-4 mr-2" />
+                      Virtual Cloud Networks & Connectivity
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="text-center p-4 bg-red-50 dark:bg-red-950/20 rounded-lg">
+                        <Globe className="h-8 w-8 text-red-600 dark:text-red-400 mx-auto mb-3" />
+                        <h4 className="font-medium mb-2">Global Connectivity</h4>
+                        <p className="text-sm text-slate-600 dark:text-slate-300">FastConnect for dedicated network paths</p>
+                      </div>
+                      <div className="text-center p-4 bg-red-50 dark:bg-red-950/20 rounded-lg">
+                        <Shield className="h-8 w-8 text-red-600 dark:text-red-400 mx-auto mb-3" />
+                        <h4 className="font-medium mb-2">Security Groups</h4>
+                        <p className="text-sm text-slate-600 dark:text-slate-300">Micro-segmentation with network security lists</p>
+                      </div>
+                      <div className="text-center p-4 bg-red-50 dark:bg-red-950/20 rounded-lg">
+                        <Monitor className="h-8 w-8 text-red-600 dark:text-red-400 mx-auto mb-3" />
+                        <h4 className="font-medium mb-2">Traffic Management</h4>
+                        <p className="text-sm text-slate-600 dark:text-slate-300">Intelligent load balancing and routing</p>
+                      </div>
+                    </div>
+                  </div>
+
                 </CardContent>
               </Card>
-
-              {/* Data Flow Architecture */}
+            </TabsContent>
+            
+            {/* Data Platform */}
+            <TabsContent value="data" className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <GitBranch className="h-5 w-5 mr-2 text-red-600 dark:text-red-400" />
-                    Enterprise Data Flow Architecture
+                    <Database className="h-5 w-5 mr-2 text-red-600" />
+                    Autonomous Database Platform
                   </CardTitle>
+                  <CardDescription>
+                    Self-managing, self-securing database with machine learning optimization and enterprise integration
+                  </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                      
-                      <div className="text-center">
-                        <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-                          <Users className="h-8 w-8 text-red-600 dark:text-red-400" />
+                <CardContent className="space-y-6">
+                  
+                  {/* Autonomous Database */}
+                  <div className="border border-red-200 dark:border-red-800 rounded-lg p-6 bg-gradient-to-r from-red-50/50 to-orange-50/50 dark:from-red-950/10 dark:to-orange-950/10">
+                    <h4 className="text-lg font-semibold mb-4 text-red-900 dark:text-red-100 flex items-center">
+                      <Database className="h-4 w-4 mr-2" />
+                      Oracle Autonomous Database - Core Data Engine
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded border">
+                          <span className="font-medium">Autonomous Transaction Processing</span>
+                          <Badge variant="outline">OLTP</Badge>
                         </div>
-                        <h4 className="font-medium mb-2">User Interface</h4>
-                        <p className="text-sm text-slate-600 dark:text-slate-300">APEX + React Components</p>
-                      </div>
-                      
-                      <div className="text-center">
-                        <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-                          <Network className="h-8 w-8 text-orange-600 dark:text-orange-400" />
+                        <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded border">
+                          <span className="font-medium">Autonomous Data Warehouse</span>
+                          <Badge variant="outline">OLAP</Badge>
                         </div>
-                        <h4 className="font-medium mb-2">API Gateway</h4>
-                        <p className="text-sm text-slate-600 dark:text-slate-300">Request routing & security</p>
-                      </div>
-                      
-                      <div className="text-center">
-                        <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-                          <Cpu className="h-8 w-8 text-amber-600 dark:text-amber-400" />
+                        <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded border">
+                          <span className="font-medium">JSON Database</span>
+                          <Badge variant="outline">NoSQL</Badge>
                         </div>
-                        <h4 className="font-medium mb-2">Business Logic</h4>
-                        <p className="text-sm text-slate-600 dark:text-slate-300">Container services</p>
                       </div>
-                      
-                      <div className="text-center">
-                        <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-                          <Database className="h-8 w-8 text-green-600 dark:text-green-400" />
-                        </div>
-                        <h4 className="font-medium mb-2">Autonomous DB</h4>
-                        <p className="text-sm text-slate-600 dark:text-slate-300">Self-managing data tier</p>
+                      <div className="space-y-2">
+                        <h5 className="font-medium text-slate-900 dark:text-white">Autonomous Features:</h5>
+                        <ul className="text-sm text-slate-600 dark:text-slate-300 space-y-1">
+                          <li>• Self-provisioning and scaling</li>
+                          <li>• Automatic security patching</li>
+                          <li>• AI-driven performance tuning</li>
+                          <li>• Autonomous backup and recovery</li>
+                          <li>• 99.995% availability SLA</li>
+                        </ul>
                       </div>
-                      
                     </div>
                   </div>
+
+                  {/* Data Integration */}
+                  <div className="border border-orange-200 dark:border-orange-800 rounded-lg p-6 bg-gradient-to-r from-orange-50/50 to-amber-50/50 dark:from-orange-950/10 dark:to-amber-950/10">
+                    <h4 className="text-lg font-semibold mb-4 text-orange-900 dark:text-orange-100 flex items-center">
+                      <GitBranch className="h-4 w-4 mr-2" />
+                      Data Integration & Analytics
+                    </h4>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                      <div className="p-3 bg-white dark:bg-slate-800 rounded border">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">Oracle Integration Cloud</span>
+                          <Badge variant="secondary">ETL</Badge>
+                        </div>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Real-time data integration and transformation</p>
+                      </div>
+                      <div className="p-3 bg-white dark:bg-slate-800 rounded border">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">Oracle Analytics Cloud</span>
+                          <Badge variant="secondary">BI</Badge>
+                        </div>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Enterprise business intelligence and visualization</p>
+                      </div>
+                      <div className="p-3 bg-white dark:bg-slate-800 rounded border">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">Big Data Service</span>
+                          <Badge variant="secondary">Hadoop</Badge>
+                        </div>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Managed Hadoop and Spark for big data processing</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Performance Metrics */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="text-center p-4 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-800">
+                      <div className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">100x</div>
+                      <div className="text-sm text-slate-600 dark:text-slate-300">Faster Analytics with Exadata</div>
+                    </div>
+                    <div className="text-center p-4 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-800">
+                      <div className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">99.995%</div>
+                      <div className="text-sm text-slate-600 dark:text-slate-300">Database Uptime SLA</div>
+                    </div>
+                    <div className="text-center p-4 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-800">
+                      <div className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">80%</div>
+                      <div className="text-sm text-slate-600 dark:text-slate-300">Reduced Database Admin Tasks</div>
+                    </div>
+                  </div>
+
                 </CardContent>
               </Card>
-
             </TabsContent>
-            
-            <TabsContent value="operations" className="space-y-6">
-              
+
+            {/* Security */}
+            <TabsContent value="security" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                 {/* Security & Compliance */}
@@ -282,36 +421,36 @@ export default function ArkhitektonArchitectureOracle() {
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <Shield className="h-5 w-5 mr-2 text-red-600 dark:text-red-400" />
-                      Enterprise Security
+                      Identity & Access Management
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex items-start space-x-3">
                       <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
                       <div>
-                        <div className="font-medium">Identity & Access Management</div>
-                        <div className="text-sm text-slate-600 dark:text-slate-300">Oracle IDCS with federated authentication</div>
+                        <div className="font-medium">Oracle Identity Cloud Service</div>
+                        <div className="text-sm text-slate-600 dark:text-slate-300">Enterprise SSO with multi-factor authentication</div>
                       </div>
                     </div>
                     <div className="flex items-start space-x-3">
                       <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
                       <div>
-                        <div className="font-medium">Data Encryption</div>
-                        <div className="text-sm text-slate-600 dark:text-slate-300">Transparent Data Encryption (TDE) + Cloud Guard</div>
+                        <div className="font-medium">Privileged Access Management</div>
+                        <div className="text-sm text-slate-600 dark:text-slate-300">Role-based access with approval workflows</div>
                       </div>
                     </div>
                     <div className="flex items-start space-x-3">
                       <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
                       <div>
-                        <div className="font-medium">Database Security</div>
-                        <div className="text-sm text-slate-600 dark:text-slate-300">Database Vault + Data Safe monitoring</div>
+                        <div className="font-medium">Federation & Integration</div>
+                        <div className="text-sm text-slate-600 dark:text-slate-300">SAML/OAuth integration with enterprise directories</div>
                       </div>
                     </div>
                     <div className="flex items-start space-x-3">
                       <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
                       <div>
-                        <div className="font-medium">Compliance</div>
-                        <div className="text-sm text-slate-600 dark:text-slate-300">SOC 2, ISO 27001, PCI DSS certified</div>
+                        <div className="font-medium">Risk-based Authentication</div>
+                        <div className="text-sm text-slate-600 dark:text-slate-300">AI-powered adaptive authentication</div>
                       </div>
                     </div>
                   </CardContent>
@@ -321,37 +460,37 @@ export default function ArkhitektonArchitectureOracle() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center">
-                      <Monitor className="h-5 w-5 mr-2 text-red-600 dark:text-red-400" />
-                      Autonomous Operations
+                      <Lock className="h-5 w-5 mr-2 text-red-600 dark:text-red-400" />
+                      Data Protection & Encryption
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex items-start space-x-3">
-                      <Activity className="h-5 w-5 text-green-500 mt-0.5" />
+                      <Lock className="h-5 w-5 text-green-500 mt-0.5" />
                       <div>
-                        <div className="font-medium">Application Performance Monitoring</div>
-                        <div className="text-sm text-slate-600 dark:text-slate-300">OCI Monitoring + Logging Analytics</div>
+                        <div className="font-medium">Transparent Data Encryption</div>
+                        <div className="text-sm text-slate-600 dark:text-slate-300">AES-256 encryption for data at rest and in transit</div>
                       </div>
                     </div>
                     <div className="flex items-start space-x-3">
-                      <Activity className="h-5 w-5 text-green-500 mt-0.5" />
+                      <Lock className="h-5 w-5 text-green-500 mt-0.5" />
                       <div>
-                        <div className="font-medium">Database Self-Management</div>
-                        <div className="text-sm text-slate-600 dark:text-slate-300">Autonomous tuning, patching, and scaling</div>
+                        <div className="font-medium">Database Vault</div>
+                        <div className="text-sm text-slate-600 dark:text-slate-300">Real-time database activity monitoring and protection</div>
                       </div>
                     </div>
                     <div className="flex items-start space-x-3">
-                      <Activity className="h-5 w-5 text-green-500 mt-0.5" />
+                      <Lock className="h-5 w-5 text-green-500 mt-0.5" />
                       <div>
-                        <div className="font-medium">Predictive Analytics</div>
-                        <div className="text-sm text-slate-600 dark:text-slate-300">ML-driven capacity planning</div>
+                        <div className="font-medium">Key Management</div>
+                        <div className="text-sm text-slate-600 dark:text-slate-300">OCI Vault for centralized encryption key management</div>
                       </div>
                     </div>
                     <div className="flex items-start space-x-3">
-                      <Activity className="h-5 w-5 text-green-500 mt-0.5" />
+                      <Lock className="h-5 w-5 text-green-500 mt-0.5" />
                       <div>
-                        <div className="font-medium">Disaster Recovery</div>
-                        <div className="text-sm text-slate-600 dark:text-slate-300">Autonomous Data Guard + automated failover</div>
+                        <div className="font-medium">Data Masking & Subsetting</div>
+                        <div className="text-sm text-slate-600 dark:text-slate-300">Production data protection for non-production environments</div>
                       </div>
                     </div>
                   </CardContent>
