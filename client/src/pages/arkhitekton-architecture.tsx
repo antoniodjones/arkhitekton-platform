@@ -355,9 +355,9 @@ export default function ArkhitektonArchitecture() {
                     
                     <Link href={`/arkhitekton-architecture/${provider.id}`}>
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
-                        className={`${provider.color.accent} hover:bg-slate-100 dark:hover:bg-slate-800`}
+                        className="border-2 border-blue-200 dark:border-blue-700 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 font-medium"
                         data-testid={`view-details-${provider.id}`}
                       >
                         View Option Details
