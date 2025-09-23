@@ -29,11 +29,29 @@ function DashboardContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [designOption, setDesignOption] = useState<1 | 2 | 3>(1);
+  const [designOption, setDesignOption] = useState<1 | 2 | 3 | 4>(1);
 
-  // Dramatically Different Design Palette System
+  // Four Design Options System
   const palette = {
     1: { 
+      // Current - Original ARKHITEKTON Design
+      from: 'from-orange-500', 
+      via: 'via-orange-400', 
+      to: 'to-amber-500', 
+      accent: 'text-orange-600',
+      shadow: 'shadow-orange-500/25',
+      name: 'Current',
+      headerBg: 'backdrop-blur-md bg-white/80 dark:bg-slate-900/80',
+      cardBg: 'bg-white/90 dark:bg-slate-800/90',
+      cardBorder: 'border-slate-200/50 dark:border-slate-700/50',
+      statBg: 'bg-white/70 dark:bg-slate-800/70',
+      textPrimary: 'text-slate-900 dark:text-white',
+      textSecondary: 'text-slate-600 dark:text-slate-300',
+      headerText: 'text-slate-900 dark:text-white',
+      headerSubtext: 'text-slate-500 dark:text-slate-400',
+      headerIcon: 'text-slate-600 dark:text-slate-300'
+    },
+    2: { 
       // Elegant Sophistication - Warm & Rich
       from: 'from-orange-500', 
       via: 'via-orange-400', 
@@ -51,8 +69,8 @@ function DashboardContent() {
       headerSubtext: 'text-slate-700 dark:text-slate-300',
       headerIcon: 'text-slate-600 dark:text-slate-300'
     },
-    2: { 
-      // American Enterprise Strength - Bold Corporate
+    3: { 
+      // American Enterprise Strength - Bold Corporate  
       from: 'from-[#003268]', 
       via: 'via-[#e3132c]', 
       to: 'to-[#9b1631]', 
@@ -69,7 +87,7 @@ function DashboardContent() {
       headerSubtext: 'text-white/90',
       headerIcon: 'text-white'
     },
-    3: { 
+    4: { 
       // Minimalist Professional - Clean with Subtle Color Accents
       from: 'from-slate-300', 
       via: 'via-blue-200', 
@@ -93,19 +111,25 @@ function DashboardContent() {
     logo: `bg-gradient-to-br ${palette.from} ${palette.via} ${palette.to}`,
     logoAccent: `bg-gradient-to-br ${palette.from} ${palette.to}`,
     title: designOption === 1 
+      ? 'bg-gradient-to-r from-slate-900 via-slate-700 to-orange-800 dark:from-white dark:via-slate-200 dark:to-orange-200'
+      : designOption === 2
       ? 'bg-gradient-to-r from-orange-800 via-orange-600 to-amber-600 dark:from-orange-200 dark:via-orange-100 dark:to-amber-200'
-      : designOption === 2 
+      : designOption === 3 
       ? 'bg-gradient-to-r from-[#003268] via-[#003268] to-[#e3132c] dark:from-[#4a90e2] dark:via-[#4a90e2] dark:to-[#ff4757]'
       : 'bg-gradient-to-r from-slate-800 via-slate-600 to-slate-700 dark:from-slate-200 dark:via-slate-300 dark:to-slate-100',
     search: designOption === 1
-      ? 'bg-gradient-to-r from-orange-200/40 via-orange-100/40 to-amber-200/40 dark:from-orange-800/40 dark:via-orange-700/40 dark:to-amber-800/40'
+      ? 'bg-gradient-to-r from-orange-500/20 via-orange-400/20 to-amber-500/20'
       : designOption === 2
+      ? 'bg-gradient-to-r from-orange-200/40 via-orange-100/40 to-amber-200/40 dark:from-orange-800/40 dark:via-orange-700/40 dark:to-amber-800/40'
+      : designOption === 3
       ? 'bg-gradient-to-r from-blue-200/40 via-blue-100/40 to-red-200/40 dark:from-blue-800/40 dark:via-blue-700/40 dark:to-red-800/40'
       : 'bg-gradient-to-r from-slate-100/30 via-blue-100/30 to-red-100/30 dark:from-slate-700/30 dark:via-blue-800/30 dark:to-red-800/30',
     card: palette.cardBg,
     overlay: designOption === 1
-      ? 'bg-gradient-to-r from-orange-200/20 to-amber-200/20 group-hover:from-orange-200/30 group-hover:to-amber-200/30 dark:from-orange-800/20 dark:to-amber-800/20 dark:group-hover:from-orange-800/30 dark:group-hover:to-amber-800/30'
+      ? 'bg-gradient-to-r from-orange-500/5 to-amber-500/5 group-hover:from-orange-500/10 group-hover:to-amber-500/10'
       : designOption === 2
+      ? 'bg-gradient-to-r from-orange-200/20 to-amber-200/20 group-hover:from-orange-200/30 group-hover:to-amber-200/30 dark:from-orange-800/20 dark:to-amber-800/20 dark:group-hover:from-orange-800/30 dark:group-hover:to-amber-800/30'
+      : designOption === 3
       ? 'bg-gradient-to-r from-blue-200/20 to-red-200/20 group-hover:from-blue-200/30 group-hover:to-red-200/30 dark:from-blue-800/20 dark:to-red-800/20 dark:group-hover:from-blue-800/30 dark:group-hover:to-red-800/30'
       : 'bg-gradient-to-r from-blue-100/15 to-red-100/15 group-hover:from-blue-100/25 group-hover:to-red-100/25 dark:from-blue-800/15 dark:to-red-800/15 dark:group-hover:from-blue-800/25 dark:group-hover:to-red-800/25',
     accentBar: `bg-gradient-to-r ${palette.from} ${palette.to}`
@@ -198,7 +222,7 @@ function DashboardContent() {
   ];
 
   return (
-    <div className={`h-full overflow-y-auto ${designOption === 1 ? 'bg-gradient-to-br from-orange-25/50 to-amber-25/50 dark:from-orange-950/5 dark:to-amber-950/5' : designOption === 2 ? 'bg-gradient-to-br from-blue-50 to-red-50 dark:from-blue-950/10 dark:to-red-950/10' : 'bg-slate-25 dark:bg-slate-950'}`}>
+    <div className={`h-full overflow-y-auto ${designOption === 1 ? 'bg-background' : designOption === 2 ? 'bg-gradient-to-br from-orange-25/50 to-amber-25/50 dark:from-orange-950/5 dark:to-amber-950/5' : designOption === 3 ? 'bg-gradient-to-br from-blue-50 to-red-50 dark:from-blue-950/10 dark:to-red-950/10' : 'bg-slate-25 dark:bg-slate-950'}`}>
       {/* Sophisticated Header */}
       <header className={`backdrop-blur-md ${palette.headerBg} ${palette.cardBorder} border-b sticky top-0 z-50`}>
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -228,23 +252,32 @@ function DashboardContent() {
                   size="sm" 
                   onClick={() => setDesignOption(1)}
                   className="text-xs px-2 py-1 h-7"
-                  data-testid="design-option-elegant"
+                  data-testid="design-option-current"
                 >
-                  Elegant
+                  Current
                 </Button>
                 <Button 
                   variant={designOption === 2 ? "secondary" : "ghost"} 
                   size="sm" 
                   onClick={() => setDesignOption(2)}
                   className="text-xs px-2 py-1 h-7"
-                  data-testid="design-option-delta"
+                  data-testid="design-option-elegant"
                 >
-                  Delta
+                  Elegant
                 </Button>
                 <Button 
                   variant={designOption === 3 ? "secondary" : "ghost"} 
                   size="sm" 
                   onClick={() => setDesignOption(3)}
+                  className="text-xs px-2 py-1 h-7"
+                  data-testid="design-option-delta"
+                >
+                  Delta
+                </Button>
+                <Button 
+                  variant={designOption === 4 ? "secondary" : "ghost"} 
+                  size="sm" 
+                  onClick={() => setDesignOption(4)}
                   className="text-xs px-2 py-1 h-7"
                   data-testid="design-option-minimal"
                 >
