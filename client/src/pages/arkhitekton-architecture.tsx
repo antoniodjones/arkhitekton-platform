@@ -177,6 +177,48 @@ const cloudProviders: CloudProvider[] = [
       bg: "bg-green-100 dark:bg-green-900/30",
       text: "text-green-600 dark:text-green-400"
     }
+  },
+  {
+    id: "oracle",
+    name: "Oracle Cloud Infrastructure",
+    tagline: "Enterprise Database & Business Applications Platform",
+    description: "Oracle Cloud excels in enterprise database workloads, business applications, and mission-critical systems with autonomous capabilities, superior performance for Oracle workloads, and enterprise-first architecture.",
+    strengths: [
+      "Autonomous Database technology",
+      "Superior Oracle workload performance",
+      "Enterprise business applications suite",
+      "High-performance computing capabilities",
+      "Comprehensive security & compliance"
+    ],
+    services: {
+      compute: "Compute Instances, Container Engine, Functions",
+      storage: "Object Storage, Block Volumes, File Storage",
+      database: "Autonomous Database, MySQL, NoSQL",
+      ai: "OCI AI Services, Machine Learning",
+      networking: "Virtual Cloud Networks, Load Balancer, CDN",
+      security: "Identity & Access Management, Cloud Guard, Vault"
+    },
+    pricing: {
+      model: "Performance-optimized",
+      benefits: [
+        "Bring Your Own License (BYOL) savings",
+        "Universal Credits flexibility",
+        "Predictable monthly pricing"
+      ]
+    },
+    enterprise: {
+      compliance: ["SOC 1/2/3", "ISO 27001", "PCI DSS", "HIPAA", "FedRAMP Moderate"],
+      support: "Premier Support with Enterprise Architect"
+    },
+    color: {
+      primary: "from-red-500 to-orange-600",
+      secondary: "bg-red-50 dark:bg-red-950/20",
+      accent: "text-red-600 dark:text-red-400"
+    },
+    icon: {
+      bg: "bg-red-100 dark:bg-red-900/30",
+      text: "text-red-600 dark:text-red-400"
+    }
   }
 ];
 
@@ -257,7 +299,7 @@ export default function ArkhitektonArchitecture() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
             {cloudProviders.map((provider) => (
               <Card 
                 key={provider.id}
