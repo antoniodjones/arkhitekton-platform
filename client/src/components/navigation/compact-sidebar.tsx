@@ -69,7 +69,7 @@ const navigationItems: NavigationItem[] = [
   {
     id: 'design-options',
     label: 'ARKHITEKTON Design Options',
-    href: '/decisions',
+    href: '/design-options',
     icon: Wrench,
     description: 'Review ARKHITEKTON design decisions (ARKDD)'
   },

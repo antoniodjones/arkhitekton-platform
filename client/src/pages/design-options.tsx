@@ -372,7 +372,7 @@ export default function DesignOptionsPage() {
 
       {/* Options Grid */}
       <div className="max-w-6xl mx-auto grid gap-8 md:grid-cols-1 lg:grid-cols-3">
-        {options.map((option) => (
+        {designDecisions.map((option) => (
           <Card key={option.id} className="group hover:shadow-lg transition-shadow">
             <CardHeader className="text-center pb-4">
               <div className="flex justify-center mb-4">
