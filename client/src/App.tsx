@@ -22,6 +22,10 @@ import { ViewTicketPage } from "@/pages/view-ticket";
 import DesignOptionsPage from "@/pages/design-options";
 import DesignOptionDetailPage from "@/pages/design-option-detail";
 import PlanPage from "@/pages/plan";
+import ArkhitektonArchitecture from "@/pages/arkhitekton-architecture";
+import ArkhitektonArchitectureAWS from "@/pages/arkhitekton-architecture-aws";
+import ArkhitektonArchitectureAzure from "@/pages/arkhitekton-architecture-azure";
+import ArkhitektonArchitectureGCP from "@/pages/arkhitekton-architecture-gcp";
 
 function Router() {
   return (
@@ -43,6 +47,10 @@ function Router() {
       <Route path="/design-options" component={DesignOptionsPage} />
       <Route path="/design-options/:id" component={DesignOptionDetailPage} />
       <Route path="/plan" component={PlanPage} />
+      <Route path="/arkhitekton-architecture" component={ArkhitektonArchitecture} />
+      <Route path="/arkhitekton-architecture/aws" component={ArkhitektonArchitectureAWS} />
+      <Route path="/arkhitekton-architecture/azure" component={ArkhitektonArchitectureAzure} />
+      <Route path="/arkhitekton-architecture/gcp" component={ArkhitektonArchitectureGCP} />
       <Route component={NotFound} />
     </Switch>
   );
