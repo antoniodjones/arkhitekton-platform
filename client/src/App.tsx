@@ -27,6 +27,7 @@ import ArkhitektonArchitectureAWS from "@/pages/arkhitekton-architecture-aws";
 import ArkhitektonArchitectureAzure from "@/pages/arkhitekton-architecture-azure";
 import ArkhitektonArchitectureGCP from "@/pages/arkhitekton-architecture-gcp";
 import ArkhitektonArchitectureOracle from "@/pages/arkhitekton-architecture-oracle";
+import ArkhitektonSystemsIntegration from "@/pages/arkhitekton-systems-integration";
 
 function Router() {
   return (
@@ -53,6 +54,7 @@ function Router() {
       <Route path="/arkhitekton-architecture/azure" component={ArkhitektonArchitectureAzure} />
       <Route path="/arkhitekton-architecture/gcp" component={ArkhitektonArchitectureGCP} />
       <Route path="/arkhitekton-architecture/oracle" component={ArkhitektonArchitectureOracle} />
+      <Route path="/arkhitekton-systems-integration" component={ArkhitektonSystemsIntegration} />
       <Route component={NotFound} />
     </Switch>
   );

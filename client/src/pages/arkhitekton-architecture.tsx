@@ -287,6 +287,60 @@ export default function ArkhitektonArchitecture() {
           </div>
         </div>
 
+        {/* Architecture Navigation */}
+        <div className="max-w-7xl mx-auto px-6 pb-8">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-lg border border-slate-200 dark:border-slate-700">
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white">Enterprise Architecture Resources</h3>
+              <p className="text-slate-600 dark:text-slate-300">Comprehensive documentation and integration guides for enterprise deployment</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="group hover:shadow-lg transition-all duration-300 border-2 border-violet-200 dark:border-violet-800 hover:border-violet-300 dark:hover:border-violet-600">
+                <CardContent className="p-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="p-3 rounded-xl bg-violet-100 dark:bg-violet-900/30 group-hover:bg-violet-200 dark:group-hover:bg-violet-900/50 transition-colors">
+                      <Server className="h-6 w-6 text-violet-600 dark:text-violet-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-slate-900 dark:text-white mb-2">Systems Integration Architecture</h4>
+                      <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+                        Comprehensive integration patterns for connecting ARKHITEKTON with enterprise tools, development workflows, and business systems.
+                      </p>
+                      <Link href="/arkhitekton-systems-integration">
+                        <Button variant="outline" size="sm" className="group-hover:bg-violet-50 dark:group-hover:bg-violet-950/20" data-testid="button-view-integration">
+                          View Integration Diagram
+                          <ArrowRight className="h-3 w-3 ml-1" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="group hover:shadow-lg transition-all duration-300 border-2 border-blue-200 dark:border-blue-800 hover:border-blue-300 dark:hover:border-blue-600">
+                <CardContent className="p-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="p-3 rounded-xl bg-blue-100 dark:bg-blue-900/30 group-hover:bg-blue-200 dark:group-hover:bg-blue-900/50 transition-colors">
+                      <Cloud className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-slate-900 dark:text-white mb-2">Cloud Platform Architectures</h4>
+                      <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+                        Detailed technical designs for AWS, Azure, GCP, and Oracle Cloud deployment options with enterprise-grade specifications.
+                      </p>
+                      <Button variant="outline" size="sm" className="group-hover:bg-blue-50 dark:group-hover:bg-blue-950/20" disabled>
+                        Explore Below
+                        <ArrowRight className="h-3 w-3 ml-1" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+
         {/* Cloud Provider Options */}
         <div className="max-w-7xl mx-auto px-6 pb-8">
           <div className="text-center mb-6">
