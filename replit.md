@@ -55,6 +55,8 @@ Complete traceability across the entire software development lifecycle:
 ## Current State
 The application currently provides a comprehensive design palette interface supporting cloud architecture elements from AWS, Azure, Google Cloud Platform, and Oracle Cloud, alongside traditional ArchiMate 3.0, TOGAF, and BPMN frameworks. This foundation supports the object-oriented model design with intelligent connections and relationships between architectural elements.
 
+**Strategic Cloud Platform Decision**: GCP selected as primary platform for ARKHITEKTON core infrastructure, leveraging Vertex AI ecosystem for AI-first capabilities, integrated data analytics (BigQuery), and Google's rapid AI innovation cycle. IAM/SSO integration options will be evaluated during user profile module development.
+
 # Recent Changes
 
 **September 7, 2025**: Task Management UI Enhancement & Critical Date Handling Fix
