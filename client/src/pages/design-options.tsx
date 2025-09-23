@@ -264,6 +264,70 @@ function Option7Logo() {
 }
 
 function DesignOptionsContent() {
+  const designCategories = [
+    {
+      id: "logo-concepts",
+      title: "Logo Design Concepts",
+      description: "Architectural logo variations showing complexity to simplicity transformation",
+      category: "Logo Design",
+      priority: "High",
+      dateCreated: "2025-09-02",
+      itemCount: 7,
+      status: "Active"
+    },
+    {
+      id: "color-palettes",
+      title: "Color Palette Options", 
+      description: "Professional color schemes including Delta Airlines inspired American strength",
+      category: "Color Design",
+      priority: "Critical",
+      dateCreated: "2025-09-23",
+      itemCount: 2,
+      status: "New"
+    },
+    {
+      id: "typography",
+      title: "Typography Systems",
+      description: "Font hierarchy and text styling for enterprise architecture tools",
+      category: "Typography",
+      priority: "Medium",
+      dateCreated: "2025-09-02",
+      itemCount: 3,
+      status: "Proposed"
+    }
+  ];
+
+  const getTimeAgo = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 24) {
+      return `${diffInHours} hours ago`;
+    } else {
+      const diffInDays = Math.floor(diffInHours / 24);
+      return `${diffInDays} days ago`;
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'Critical': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'High': return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
+      case 'Medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Active': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'New': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'Proposed': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+    }
+  };
+
   const designDecisions = [
     {
       id: "ARKDD-00001",
@@ -344,7 +408,7 @@ function DesignOptionsContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background p-6">
       {/* Header */}
       <div className="max-w-6xl mx-auto mb-8">
         <div className="flex items-center gap-4 mb-6">
@@ -355,97 +419,77 @@ function DesignOptionsContent() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">ARKHITEKTON Logo Options</h1>
+            <h1 className="text-3xl font-bold text-foreground">Design Options</h1>
             <p className="text-muted-foreground mt-2">
-              Three design concepts showing complexity flowing into elegant simplicity
+              ARKHITEKTON design system categories and variations
             </p>
           </div>
         </div>
-        
-        <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4 mb-8">
-          <p className="text-orange-800 dark:text-orange-200 text-sm">
-            <strong>Design Philosophy:</strong> All options follow your vision of having substantial shapes on the left 
-            flowing into smaller, trailing elements on the right with dots (...) - representing ARKHITEKTON's ability 
-            to transform architectural complexity into understandable models.
-          </p>
-        </div>
       </div>
 
-      {/* Options Grid */}
-      <div className="max-w-6xl mx-auto grid gap-8 md:grid-cols-1 lg:grid-cols-3">
-        {designDecisions.map((option) => (
-          <Card key={option.id} className="group hover:shadow-lg transition-shadow">
-            <CardHeader className="text-center pb-4">
-              <div className="flex justify-center mb-4">
-                <Badge variant="secondary" className="mb-2">
-                  Option {option.id}
-                </Badge>
-              </div>
-              
-              {/* Logo Display */}
-              <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-6 mb-4 border-2 border-dashed border-slate-200 dark:border-slate-700">
-                <div className="flex justify-center">
-                  {option.logo}
-                </div>
-              </div>
-              
-              <CardTitle className="text-xl">{option.title}</CardTitle>
-              <CardDescription className="text-center">
-                {option.description}
-              </CardDescription>
-            </CardHeader>
-            
-            <CardContent className="space-y-4">
-              <div className="bg-primary/5 rounded-lg p-3">
-                <h4 className="font-medium text-primary mb-1">Core Concept</h4>
-                <p className="text-sm text-muted-foreground">{option.concept}</p>
-              </div>
-              
-              <div className="grid gap-3">
-                <div>
-                  <h4 className="font-medium text-green-600 dark:text-green-400 mb-1 text-sm">Strengths</h4>
-                  <ul className="text-xs text-muted-foreground space-y-1">
-                    {option.pros.map((pro, index) => (
-                      <li key={index} className="flex items-start gap-1">
-                        <span className="text-green-500 mt-0.5">•</span>
-                        {pro}
-                      </li>
-                    ))}
-                  </ul>
+      {/* Design Categories Grid */}
+      <div className="max-w-6xl mx-auto space-y-4">
+        {designCategories.map((category) => (
+          <Card 
+            key={category.id} 
+            className="group hover:shadow-md transition-all duration-200 cursor-pointer"
+            onDoubleClick={() => {
+              // Navigate to category details
+              window.location.href = `/design-options/${category.id}`;
+            }}
+            data-testid={`design-category-${category.id}`}
+          >
+            <CardHeader className="pb-4">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <CardTitle className="text-xl">{category.title}</CardTitle>
+                    <Badge variant="outline" className={getStatusColor(category.status)}>
+                      {category.status}
+                    </Badge>
+                    <Badge variant="outline" className={getPriorityColor(category.priority)}>
+                      {category.priority}
+                    </Badge>
+                  </div>
+                  <CardDescription className="mb-3">
+                    {category.description}
+                  </CardDescription>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <span>{getTimeAgo(category.dateCreated)}</span>
+                    <span>•</span>
+                    <span>{category.itemCount} options</span>
+                    <span>•</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {category.id.toUpperCase()}
+                    </Badge>
+                  </div>
                 </div>
                 
-                <div>
-                  <h4 className="font-medium text-orange-600 dark:text-orange-400 mb-1 text-sm">Considerations</h4>
-                  <ul className="text-xs text-muted-foreground space-y-1">
-                    {option.cons.map((con, index) => (
-                      <li key={index} className="flex items-start gap-1">
-                        <span className="text-orange-500 mt-0.5">•</span>
-                        {con}
-                      </li>
-                    ))}
-                  </ul>
+                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.location.href = `/design-options/${category.id}`;
+                    }}
+                    data-testid={`view-${category.id}`}
+                  >
+                    View Options
+                  </Button>
+                  <Button variant="ghost" size="sm">
+                    ⋯
+                  </Button>
                 </div>
               </div>
-              
-              <Button 
-                className="w-full mt-4" 
-                variant="outline"
-                onClick={() => {
-                  // You can click to select - we'll implement the actual selection later
-                  alert(`Selected Option ${option.id}: ${option.title}\n\nLet me know and I'll implement this design!`);
-                }}
-                data-testid={`select-option-${option.id}`}
-              >
-                Select This Option
-              </Button>
-            </CardContent>
+            </CardHeader>
           </Card>
         ))}
       </div>
       
       <div className="max-w-6xl mx-auto mt-12 text-center">
         <p className="text-muted-foreground text-sm">
-          Click on your preferred option, and I'll implement the full logo design throughout ARKHITEKTON!
+          Double-click a category or use the View Options button to see detailed design options
         </p>
       </div>
     </div>
