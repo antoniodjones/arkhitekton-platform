@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'wouter';
+import { AppLayout } from '@/components/layout/app-layout';
 
 // Logo Option Components
 function Option1Logo() {
@@ -262,7 +263,7 @@ function Option7Logo() {
   );
 }
 
-export default function DesignOptionsPage() {
+function DesignOptionsContent() {
   const designDecisions = [
     {
       id: "ARKDD-00001",
@@ -448,5 +449,14 @@ export default function DesignOptionsPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+// Main Design Options Page Component
+export default function DesignOptionsPage() {
+  return (
+    <AppLayout>
+      <DesignOptionsContent />
+    </AppLayout>
   );
 }
