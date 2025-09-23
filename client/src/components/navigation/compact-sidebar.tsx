@@ -25,7 +25,8 @@ import {
   Shapes,
   Wrench,
   GitBranch,
-  GripVertical
+  GripVertical,
+  Cloud
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -72,6 +73,13 @@ const navigationItems: NavigationItem[] = [
     href: '/design-options',
     icon: Wrench,
     description: 'Review ARKHITEKTON design decisions (ARKDD)'
+  },
+  {
+    id: 'architecture-showcase',
+    label: 'Cloud Architecture',
+    href: '/arkhitekton-architecture',
+    icon: Cloud,
+    description: 'Enterprise cloud deployment architectures'
   },
   {
     id: 'governance',
