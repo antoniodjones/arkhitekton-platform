@@ -251,7 +251,7 @@ function DashboardContent() {
                   Minimal
                 </Button>
               </div>
-              <ThemeToggle />
+              <ThemeToggle className={`w-9 h-9 px-0 ${palette.headerIcon} hover:opacity-80`} />
               <Button variant="ghost" size="sm" className={`${palette.headerIcon} hover:opacity-80`}>
                 <Settings className="h-4 w-4" />
               </Button>

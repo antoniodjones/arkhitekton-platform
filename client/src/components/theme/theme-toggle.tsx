@@ -8,7 +8,11 @@ import {
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { useTheme } from './theme-provider';
 
-export function ThemeToggle() {
+interface ThemeToggleProps {
+  className?: string;
+}
+
+export function ThemeToggle({ className }: ThemeToggleProps) {
   const { theme, setTheme } = useTheme();
 
   const getIcon = () => {
@@ -39,7 +43,7 @@ export function ThemeToggle() {
         <Button 
           variant="ghost" 
           size="sm" 
-          className="w-9 h-9 px-0 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
+          className={className || "w-9 h-9 px-0 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"}
           data-testid="theme-toggle"
         >
           {getIcon()}
