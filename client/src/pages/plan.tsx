@@ -53,6 +53,7 @@ import {
 } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { GovernanceHeader } from '@/components/layout/governance-header';
+import { AppLayout } from '@/components/layout/app-layout';
 import { 
   DndContext,
   closestCenter,
@@ -2202,9 +2203,8 @@ Scenario: [scenario name]
   );
 }
 
-// Main Plan Page Component
-// Cache busting - v2.0 - Force browser reload
-export default function PlanPage() {
+// Plan Content Component
+function PlanContent() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
@@ -3339,5 +3339,14 @@ function GanttView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: Ta
         )}
       </div>
     </div>
+  );
+}
+
+// Main Plan Page Component
+export default function PlanPage() {
+  return (
+    <AppLayout>
+      <PlanContent />
+    </AppLayout>
   );
 }
