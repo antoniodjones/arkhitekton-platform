@@ -20,6 +20,7 @@ import { CreateTicketPage } from "@/pages/create-ticket";
 import { EditTicketPage } from "@/pages/edit-ticket";
 import { ViewTicketPage } from "@/pages/view-ticket";
 import DesignOptionsPage from "@/pages/design-options";
+import DesignOptionDetailPage from "@/pages/design-option-detail";
 import PlanPage from "@/pages/plan";
 
 function Router() {
@@ -40,6 +41,7 @@ function Router() {
       <Route path="/tickets/:id/edit" component={EditTicketPage} />
       <Route path="/tickets/:id" component={ViewTicketPage} />
       <Route path="/design-options" component={DesignOptionsPage} />
+      <Route path="/design-options/:id" component={DesignOptionDetailPage} />
       <Route path="/plan" component={PlanPage} />
       <Route component={NotFound} />
     </Switch>

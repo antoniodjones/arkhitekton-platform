@@ -278,11 +278,11 @@ function DesignOptionsContent() {
     {
       id: "color-palettes",
       title: "Color Palette Options", 
-      description: "Professional color schemes including Delta Airlines inspired American strength",
+      description: "Professional color schemes including Delta Airlines inspired American strength branding",
       category: "Color Design",
       priority: "Critical",
       dateCreated: "2025-09-23",
-      itemCount: 2,
+      itemCount: 3,
       status: "New"
     },
     {
