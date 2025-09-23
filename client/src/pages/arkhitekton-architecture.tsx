@@ -187,11 +187,11 @@ export default function ArkhitektonArchitecture() {
     <AppLayout>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 dark:from-slate-950 dark:via-blue-950/20 dark:to-indigo-950/20">
         {/* Hero Section */}
-        <div className="relative overflow-hidden py-16">
+        <div className="relative overflow-hidden py-8">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-indigo-600/10 to-purple-600/10 dark:from-blue-400/5 dark:via-indigo-400/5 dark:to-purple-400/5"></div>
           
           <div className="relative max-w-7xl mx-auto px-6">
-            <div className="text-center mb-16">
+            <div className="text-center mb-8">
               <div className="flex items-center justify-center mb-6">
                 <div className="p-3 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 shadow-lg">
                   <Cloud className="h-8 w-8 text-white" />
@@ -211,7 +211,7 @@ export default function ArkhitektonArchitecture() {
             </div>
 
             {/* Platform Comparison Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <Card className="text-center">
                 <CardContent className="pt-6">
                   <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center mx-auto mb-4">
@@ -246,8 +246,8 @@ export default function ArkhitektonArchitecture() {
         </div>
 
         {/* Cloud Provider Options */}
-        <div className="max-w-7xl mx-auto px-6 pb-16">
-          <div className="text-center mb-12">
+        <div className="max-w-7xl mx-auto px-6 pb-8">
+          <div className="text-center mb-6">
             <h2 className="text-3xl font-bold mb-4 text-slate-900 dark:text-white">
               Choose Your Cloud Architecture
             </h2>
@@ -257,7 +257,7 @@ export default function ArkhitektonArchitecture() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {cloudProviders.map((provider) => (
               <Card 
                 key={provider.id}
