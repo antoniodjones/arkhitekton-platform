@@ -70,17 +70,17 @@ function DashboardContent() {
       headerIcon: 'text-white'
     },
     3: { 
-      // Minimalist Professional - Clean & Monochrome
+      // Minimalist Professional - Clean with Subtle Color Accents
       from: 'from-slate-300', 
-      via: 'via-slate-200', 
-      to: 'to-slate-400', 
-      accent: 'text-slate-700 dark:text-slate-300',
+      via: 'via-blue-200', 
+      to: 'to-red-300', 
+      accent: 'text-blue-600 dark:text-blue-400',
       shadow: 'shadow-slate-500/25',
       name: 'Minimalist Professional',
-      headerBg: 'bg-white dark:bg-slate-950',
-      cardBg: 'bg-white dark:bg-slate-900',
+      headerBg: 'bg-gradient-to-r from-slate-50 via-blue-50/30 to-red-50/30 dark:from-slate-950 dark:via-blue-950/20 dark:to-red-950/20',
+      cardBg: 'bg-gradient-to-br from-white via-blue-25/20 to-red-25/20 dark:bg-gradient-to-br dark:from-slate-900 dark:via-blue-950/10 dark:to-red-950/10',
       cardBorder: 'border-slate-200 dark:border-slate-700',
-      statBg: 'bg-slate-50 dark:bg-slate-800',
+      statBg: 'bg-gradient-to-br from-slate-50 via-blue-50/50 to-red-50/50 dark:from-slate-800 dark:via-blue-900/30 dark:to-red-900/30',
       textPrimary: 'text-slate-900 dark:text-slate-100',
       textSecondary: 'text-slate-600 dark:text-slate-400',
       headerText: 'text-slate-900 dark:text-white',
@@ -101,13 +101,13 @@ function DashboardContent() {
       ? 'bg-gradient-to-r from-orange-200/40 via-orange-100/40 to-amber-200/40 dark:from-orange-800/40 dark:via-orange-700/40 dark:to-amber-800/40'
       : designOption === 2
       ? 'bg-gradient-to-r from-blue-200/40 via-blue-100/40 to-red-200/40 dark:from-blue-800/40 dark:via-blue-700/40 dark:to-red-800/40'
-      : 'bg-gradient-to-r from-slate-200/40 via-slate-100/40 to-slate-300/40 dark:from-slate-700/40 dark:via-slate-600/40 dark:to-slate-800/40',
+      : 'bg-gradient-to-r from-slate-100/30 via-blue-100/30 to-red-100/30 dark:from-slate-700/30 dark:via-blue-800/30 dark:to-red-800/30',
     card: palette.cardBg,
     overlay: designOption === 1
       ? 'bg-gradient-to-r from-orange-200/20 to-amber-200/20 group-hover:from-orange-200/30 group-hover:to-amber-200/30 dark:from-orange-800/20 dark:to-amber-800/20 dark:group-hover:from-orange-800/30 dark:group-hover:to-amber-800/30'
       : designOption === 2
       ? 'bg-gradient-to-r from-blue-200/20 to-red-200/20 group-hover:from-blue-200/30 group-hover:to-red-200/30 dark:from-blue-800/20 dark:to-red-800/20 dark:group-hover:from-blue-800/30 dark:group-hover:to-red-800/30'
-      : 'bg-gradient-to-r from-slate-100/20 to-slate-200/20 group-hover:from-slate-100/30 group-hover:to-slate-200/30 dark:from-slate-700/20 dark:to-slate-800/20 dark:group-hover:from-slate-700/30 dark:group-hover:to-slate-800/30',
+      : 'bg-gradient-to-r from-blue-100/15 to-red-100/15 group-hover:from-blue-100/25 group-hover:to-red-100/25 dark:from-blue-800/15 dark:to-red-800/15 dark:group-hover:from-blue-800/25 dark:group-hover:to-red-800/25',
     accentBar: `bg-gradient-to-r ${palette.from} ${palette.to}`
   };
 
