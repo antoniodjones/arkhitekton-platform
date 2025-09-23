@@ -31,31 +31,52 @@ function DashboardContent() {
   const [isSearching, setIsSearching] = useState(false);
   const [designOption, setDesignOption] = useState<1 | 2 | 3>(1);
 
-  // Centralized Design Palette System
+  // Dramatically Different Design Palette System
   const palette = {
     1: { 
+      // Elegant Sophistication - Warm & Rich
       from: 'from-orange-500', 
       via: 'via-orange-400', 
       to: 'to-amber-500', 
       accent: 'text-orange-600',
       shadow: 'shadow-orange-500/25',
-      name: 'Elegant Sophistication'
+      name: 'Elegant Sophistication',
+      headerBg: 'bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20',
+      cardBg: 'bg-gradient-to-br from-orange-25 to-amber-25 dark:bg-gradient-to-br dark:from-orange-950/10 dark:to-amber-950/10',
+      cardBorder: 'border-orange-200 dark:border-orange-800',
+      statBg: 'bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/20 dark:to-amber-900/20',
+      textPrimary: 'text-orange-900 dark:text-orange-100',
+      textSecondary: 'text-orange-700 dark:text-orange-300'
     },
     2: { 
+      // American Enterprise Strength - Bold Corporate
       from: 'from-[#003268]', 
       via: 'via-[#e3132c]', 
       to: 'to-[#9b1631]', 
       accent: 'text-[#003268] dark:text-[#4a90e2]',
       shadow: 'shadow-[#003268]/25', 
-      name: 'American Enterprise Strength'
+      name: 'American Enterprise Strength',
+      headerBg: 'bg-gradient-to-r from-blue-900 to-red-900 dark:from-blue-800 dark:to-red-800',
+      cardBg: 'bg-gradient-to-br from-blue-50 to-red-50 dark:bg-gradient-to-br dark:from-blue-950/30 dark:to-red-950/30',
+      cardBorder: 'border-blue-300 dark:border-blue-700',
+      statBg: 'bg-gradient-to-br from-blue-100 to-red-100 dark:from-blue-900/30 dark:to-red-900/30',
+      textPrimary: 'text-blue-900 dark:text-blue-100',
+      textSecondary: 'text-blue-800 dark:text-blue-200'
     },
     3: { 
-      from: 'from-slate-500', 
-      via: 'via-slate-400', 
-      to: 'to-slate-600', 
-      accent: 'text-slate-600 dark:text-slate-400',
+      // Minimalist Professional - Clean & Monochrome
+      from: 'from-slate-300', 
+      via: 'via-slate-200', 
+      to: 'to-slate-400', 
+      accent: 'text-slate-700 dark:text-slate-300',
       shadow: 'shadow-slate-500/25',
-      name: 'Minimalist Professional'
+      name: 'Minimalist Professional',
+      headerBg: 'bg-white dark:bg-slate-950',
+      cardBg: 'bg-white dark:bg-slate-900',
+      cardBorder: 'border-slate-200 dark:border-slate-700',
+      statBg: 'bg-slate-50 dark:bg-slate-800',
+      textPrimary: 'text-slate-900 dark:text-slate-100',
+      textSecondary: 'text-slate-600 dark:text-slate-400'
     }
   }[designOption];
 
@@ -63,13 +84,21 @@ function DashboardContent() {
     logo: `bg-gradient-to-br ${palette.from} ${palette.via} ${palette.to}`,
     logoAccent: `bg-gradient-to-br ${palette.from} ${palette.to}`,
     title: designOption === 1 
-      ? 'bg-gradient-to-r from-slate-900 via-slate-700 to-orange-800 dark:from-white dark:via-slate-200 dark:to-orange-200'
+      ? 'bg-gradient-to-r from-orange-800 via-orange-600 to-amber-600 dark:from-orange-200 dark:via-orange-100 dark:to-amber-200'
       : designOption === 2 
       ? 'bg-gradient-to-r from-[#003268] via-[#003268] to-[#e3132c] dark:from-[#4a90e2] dark:via-[#4a90e2] dark:to-[#ff4757]'
       : 'bg-gradient-to-r from-slate-800 via-slate-600 to-slate-700 dark:from-slate-200 dark:via-slate-300 dark:to-slate-100',
-    search: `bg-gradient-to-r ${palette.from}/20 ${palette.via}/20 ${palette.to}/20`,
-    card: `bg-gradient-to-br ${palette.from}/10 ${palette.via}/10 ${palette.to}/10`,
-    overlay: `bg-gradient-to-r ${palette.from}/5 ${palette.to}/5 group-hover:${palette.from}/10 group-hover:${palette.to}/10`,
+    search: designOption === 1
+      ? 'bg-gradient-to-r from-orange-200/40 via-orange-100/40 to-amber-200/40 dark:from-orange-800/40 dark:via-orange-700/40 dark:to-amber-800/40'
+      : designOption === 2
+      ? 'bg-gradient-to-r from-blue-200/40 via-blue-100/40 to-red-200/40 dark:from-blue-800/40 dark:via-blue-700/40 dark:to-red-800/40'
+      : 'bg-gradient-to-r from-slate-200/40 via-slate-100/40 to-slate-300/40 dark:from-slate-700/40 dark:via-slate-600/40 dark:to-slate-800/40',
+    card: palette.cardBg,
+    overlay: designOption === 1
+      ? 'bg-gradient-to-r from-orange-200/20 to-amber-200/20 group-hover:from-orange-200/30 group-hover:to-amber-200/30 dark:from-orange-800/20 dark:to-amber-800/20 dark:group-hover:from-orange-800/30 dark:group-hover:to-amber-800/30'
+      : designOption === 2
+      ? 'bg-gradient-to-r from-blue-200/20 to-red-200/20 group-hover:from-blue-200/30 group-hover:to-red-200/30 dark:from-blue-800/20 dark:to-red-800/20 dark:group-hover:from-blue-800/30 dark:group-hover:to-red-800/30'
+      : 'bg-gradient-to-r from-slate-100/20 to-slate-200/20 group-hover:from-slate-100/30 group-hover:to-slate-200/30 dark:from-slate-700/20 dark:to-slate-800/20 dark:group-hover:from-slate-700/30 dark:group-hover:to-slate-800/30',
     accentBar: `bg-gradient-to-r ${palette.from} ${palette.to}`
   };
 
@@ -160,9 +189,9 @@ function DashboardContent() {
   ];
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div className={`h-full overflow-y-auto ${designOption === 1 ? 'bg-gradient-to-br from-orange-25/50 to-amber-25/50 dark:from-orange-950/5 dark:to-amber-950/5' : designOption === 2 ? 'bg-gradient-to-br from-blue-50 to-red-50 dark:from-blue-950/10 dark:to-red-950/10' : 'bg-slate-25 dark:bg-slate-950'}`}>
       {/* Sophisticated Header */}
-      <header className="backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/50 dark:border-slate-700/50 sticky top-0 z-50">
+      <header className={`backdrop-blur-md ${palette.headerBg} ${palette.cardBorder} border-b sticky top-0 z-50`}>
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-6">
@@ -240,7 +269,7 @@ function DashboardContent() {
         <div className="max-w-3xl mx-auto relative">
           <div className="relative group">
             <div className={`absolute inset-0 ${gradients.search} rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-300`} />
-            <div className="relative bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-3xl shadow-2xl">
+            <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-3xl shadow-2xl`}>
               <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
               <Input
                 placeholder="Discover architecture insights, capabilities, and strategic opportunities..."
@@ -319,8 +348,8 @@ function DashboardContent() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {stats.map((stat, index) => (
             <div key={index} className="group relative">
-              <div className={`absolute inset-0 ${gradients.card} rounded-2xl transform group-hover:scale-105 transition-transform duration-300`} />
-              <div className="relative bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-2xl p-6 shadow-lg">
+              <div className={`absolute inset-0 ${palette.statBg} rounded-2xl transform group-hover:scale-105 transition-transform duration-300`} />
+              <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-2xl p-6 shadow-lg`}>
                 <div className="flex flex-col space-y-3">
                   <div className="flex items-center justify-between">
                     <stat.icon className={`h-6 w-6 ${stat.color} opacity-80`} />
@@ -344,7 +373,7 @@ function DashboardContent() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Strategic Tasks */}
           <div className="space-y-6">
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
+            <h3 className={`text-xl font-bold ${palette.textPrimary} flex items-center`}>
               <Clock className={`h-5 w-5 mr-3 ${palette.accent}`} />
               Strategic Priorities
             </h3>
@@ -352,11 +381,11 @@ function DashboardContent() {
               {recentTasks.map((task, index) => (
                 <div key={index} className="group relative">
                   <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
-                  <div className="relative bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-xl p-5 shadow-lg">
+                  <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg`}>
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h4 className="font-semibold text-slate-900 dark:text-white mb-1">{task.title}</h4>
-                        <p className="text-sm text-slate-600 dark:text-slate-300">{task.description}</p>
+                        <h4 className={`font-semibold ${palette.textPrimary} mb-1`}>{task.title}</h4>
+                        <p className={`text-sm ${palette.textSecondary}`}>{task.description}</p>
                       </div>
                       <span className="text-xs text-slate-500 dark:text-slate-400">{task.timeAgo}</span>
                     </div>
@@ -374,7 +403,7 @@ function DashboardContent() {
 
           {/* Quick Actions */}
           <div className="space-y-6">
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
+            <h3 className={`text-xl font-bold ${palette.textPrimary} flex items-center`}>
               <Zap className={`h-5 w-5 mr-3 ${palette.accent}`} />
               Quick Actions
             </h3>
@@ -383,12 +412,12 @@ function DashboardContent() {
                 <Link key={index} href={link.href}>
                   <div className="group relative cursor-pointer">
                     <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
-                    <div className="relative bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-xl p-5 shadow-lg">
+                    <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg`}>
                       <div className="flex items-center">
                         <link.icon className={`h-6 w-6 mr-4 ${link.color}`} />
                         <div>
-                          <h4 className="font-semibold text-slate-900 dark:text-white">{link.title}</h4>
-                          <p className="text-sm text-slate-600 dark:text-slate-300">{link.description}</p>
+                          <h4 className={`font-semibold ${palette.textPrimary}`}>{link.title}</h4>
+                          <p className={`text-sm ${palette.textSecondary}`}>{link.description}</p>
                         </div>
                       </div>
                     </div>
@@ -400,7 +429,7 @@ function DashboardContent() {
 
           {/* Recent Models */}
           <div className="space-y-6">
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
+            <h3 className={`text-xl font-bold ${palette.textPrimary} flex items-center`}>
               <Building className={`h-5 w-5 mr-3 ${palette.accent}`} />
               Architecture Models
             </h3>
@@ -409,10 +438,10 @@ function DashboardContent() {
                 <Link key={index} href="/workspace">
                   <div className="group relative cursor-pointer" data-testid={`card-recent-model-${index}`}>
                     <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
-                    <div className="relative bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-xl p-5 shadow-lg">
+                    <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg`}>
                       <div>
-                        <h4 className="font-semibold text-slate-900 dark:text-white mb-1">{model.title}</h4>
-                        <p className="text-sm text-slate-600 dark:text-slate-300 mb-3">{model.description}</p>
+                        <h4 className={`font-semibold ${palette.textPrimary} mb-1`}>{model.title}</h4>
+                        <p className={`text-sm ${palette.textSecondary} mb-3`}>{model.description}</p>
                         <div className="flex items-center justify-between">
                           <Badge variant="outline" className="text-xs">{model.type}</Badge>
                           <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
