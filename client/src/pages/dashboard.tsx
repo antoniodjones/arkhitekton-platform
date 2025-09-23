@@ -46,7 +46,10 @@ function DashboardContent() {
       cardBorder: 'border-orange-200 dark:border-orange-800',
       statBg: 'bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/20 dark:to-amber-900/20',
       textPrimary: 'text-orange-900 dark:text-orange-100',
-      textSecondary: 'text-orange-700 dark:text-orange-300'
+      textSecondary: 'text-orange-700 dark:text-orange-300',
+      headerText: 'text-slate-900 dark:text-white',
+      headerSubtext: 'text-slate-700 dark:text-slate-300',
+      headerIcon: 'text-slate-600 dark:text-slate-300'
     },
     2: { 
       // American Enterprise Strength - Bold Corporate
@@ -61,7 +64,10 @@ function DashboardContent() {
       cardBorder: 'border-blue-300 dark:border-blue-700',
       statBg: 'bg-gradient-to-br from-blue-100 to-red-100 dark:from-blue-900/30 dark:to-red-900/30',
       textPrimary: 'text-blue-900 dark:text-blue-100',
-      textSecondary: 'text-blue-800 dark:text-blue-200'
+      textSecondary: 'text-blue-800 dark:text-blue-200',
+      headerText: 'text-white',
+      headerSubtext: 'text-white/90',
+      headerIcon: 'text-white'
     },
     3: { 
       // Minimalist Professional - Clean & Monochrome
@@ -76,7 +82,10 @@ function DashboardContent() {
       cardBorder: 'border-slate-200 dark:border-slate-700',
       statBg: 'bg-slate-50 dark:bg-slate-800',
       textPrimary: 'text-slate-900 dark:text-slate-100',
-      textSecondary: 'text-slate-600 dark:text-slate-400'
+      textSecondary: 'text-slate-600 dark:text-slate-400',
+      headerText: 'text-slate-900 dark:text-white',
+      headerSubtext: 'text-slate-700 dark:text-slate-300',
+      headerIcon: 'text-slate-600 dark:text-slate-300'
     }
   }[designOption];
 
@@ -203,10 +212,10 @@ function DashboardContent() {
                   <div className={`absolute -top-1 -right-1 w-3 h-3 ${gradients.logoAccent} rounded-full`} />
                 </div>
                 <div>
-                  <h1 className={`text-2xl font-bold ${gradients.title} bg-clip-text text-transparent tracking-tight`}>
+                  <h1 className={`text-2xl font-bold ${palette.headerText} tracking-tight`}>
                     ARKHITEKTON
                   </h1>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide">{palette.name.toUpperCase()}</p>
+                  <p className={`text-xs ${palette.headerSubtext} font-medium tracking-wide`}>{palette.name.toUpperCase()}</p>
                 </div>
               </div>
             </div>
@@ -243,7 +252,7 @@ function DashboardContent() {
                 </Button>
               </div>
               <ThemeToggle />
-              <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
+              <Button variant="ghost" size="sm" className={`${palette.headerIcon} hover:opacity-80`}>
                 <Settings className="h-4 w-4" />
               </Button>
             </div>
