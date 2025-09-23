@@ -29,6 +29,49 @@ function DashboardContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [designOption, setDesignOption] = useState<1 | 2 | 3>(1);
+
+  // Centralized Design Palette System
+  const palette = {
+    1: { 
+      from: 'from-orange-500', 
+      via: 'via-orange-400', 
+      to: 'to-amber-500', 
+      accent: 'text-orange-600',
+      shadow: 'shadow-orange-500/25',
+      name: 'Elegant Sophistication'
+    },
+    2: { 
+      from: 'from-[#003268]', 
+      via: 'via-[#e3132c]', 
+      to: 'to-[#9b1631]', 
+      accent: 'text-[#003268] dark:text-[#4a90e2]',
+      shadow: 'shadow-[#003268]/25', 
+      name: 'American Enterprise Strength'
+    },
+    3: { 
+      from: 'from-slate-500', 
+      via: 'via-slate-400', 
+      to: 'to-slate-600', 
+      accent: 'text-slate-600 dark:text-slate-400',
+      shadow: 'shadow-slate-500/25',
+      name: 'Minimalist Professional'
+    }
+  }[designOption];
+
+  const gradients = {
+    logo: `bg-gradient-to-br ${palette.from} ${palette.via} ${palette.to}`,
+    logoAccent: `bg-gradient-to-br ${palette.from} ${palette.to}`,
+    title: designOption === 1 
+      ? 'bg-gradient-to-r from-slate-900 via-slate-700 to-orange-800 dark:from-white dark:via-slate-200 dark:to-orange-200'
+      : designOption === 2 
+      ? 'bg-gradient-to-r from-[#003268] via-[#003268] to-[#e3132c] dark:from-[#4a90e2] dark:via-[#4a90e2] dark:to-[#ff4757]'
+      : 'bg-gradient-to-r from-slate-800 via-slate-600 to-slate-700 dark:from-slate-200 dark:via-slate-300 dark:to-slate-100',
+    search: `bg-gradient-to-r ${palette.from}/20 ${palette.via}/20 ${palette.to}/20`,
+    card: `bg-gradient-to-br ${palette.from}/10 ${palette.via}/10 ${palette.to}/10`,
+    overlay: `bg-gradient-to-r ${palette.from}/5 ${palette.to}/5 group-hover:${palette.from}/10 group-hover:${palette.to}/10`,
+    accentBar: `bg-gradient-to-r ${palette.from} ${palette.to}`
+  };
 
   const recentTasks = [
     {
@@ -59,28 +102,28 @@ function DashboardContent() {
       title: "Create Architecture Model",
       description: "Design your enterprise architecture",
       icon: Sparkles,
-      color: "text-emerald-600",
+      color: palette.accent,
       href: "/workspace"
     },
     {
       title: "Governance Dashboard", 
       description: "Monitor compliance and risk assessment",
       icon: Shield,
-      color: "text-blue-600",
+      color: palette.accent,
       href: "/governance"
     },
     {
       title: "Innovation Portfolio",
       description: "Track transformation initiatives", 
       icon: Zap,
-      color: "text-purple-600",
+      color: palette.accent,
       href: "/innovation"
     },
     {
       title: "Strategic Planning",
       description: "Define architectural roadmaps",
       icon: TrendingUp,
-      color: "text-amber-600", 
+      color: palette.accent, 
       href: "/strategy"
     }
   ];
@@ -110,10 +153,10 @@ function DashboardContent() {
   ];
 
   const stats = [
-    { label: "Active Initiatives", value: "32", icon: Sparkles, color: "text-orange-600" },
-    { label: "Architecture Models", value: "127", icon: Building, color: "text-blue-600" },
-    { label: "Capabilities Mapped", value: "89", icon: Target, color: "text-purple-600" },
-    { label: "Stakeholders", value: "24", icon: Users, color: "text-amber-600" }
+    { label: "Active Initiatives", value: "32", icon: Sparkles, color: palette.accent },
+    { label: "Architecture Models", value: "127", icon: Building, color: palette.accent },
+    { label: "Capabilities Mapped", value: "89", icon: Target, color: palette.accent },
+    { label: "Stakeholders", value: "24", icon: Users, color: palette.accent }
   ];
 
   return (
@@ -125,21 +168,51 @@ function DashboardContent() {
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-3">
                 <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-br from-orange-500 via-orange-400 to-amber-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/25">
+                  <div className={`w-10 h-10 ${gradients.logo} rounded-2xl flex items-center justify-center shadow-lg ${palette.shadow}`}>
                     <div className="w-5 h-5 bg-white/90 rounded-lg transform rotate-45" />
                   </div>
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full" />
+                  <div className={`absolute -top-1 -right-1 w-3 h-3 ${gradients.logoAccent} rounded-full`} />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-slate-800 dark:from-white dark:via-slate-200 dark:to-slate-300 bg-clip-text text-transparent tracking-tight">
+                  <h1 className={`text-2xl font-bold ${gradients.title} bg-clip-text text-transparent tracking-tight`}>
                     ARKHITEKTON
                   </h1>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide">MASTER BUILDER</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide">{palette.name.toUpperCase()}</p>
                 </div>
               </div>
             </div>
             
             <div className="flex items-center space-x-3">
+              {/* Design Option Switcher */}
+              <div className="flex items-center gap-1 bg-white/20 dark:bg-slate-800/20 rounded-lg p-1">
+                <Button 
+                  variant={designOption === 1 ? "secondary" : "ghost"} 
+                  size="sm" 
+                  onClick={() => setDesignOption(1)}
+                  className="text-xs px-2 py-1 h-7"
+                  data-testid="design-option-elegant"
+                >
+                  Elegant
+                </Button>
+                <Button 
+                  variant={designOption === 2 ? "secondary" : "ghost"} 
+                  size="sm" 
+                  onClick={() => setDesignOption(2)}
+                  className="text-xs px-2 py-1 h-7"
+                  data-testid="design-option-delta"
+                >
+                  Delta
+                </Button>
+                <Button 
+                  variant={designOption === 3 ? "secondary" : "ghost"} 
+                  size="sm" 
+                  onClick={() => setDesignOption(3)}
+                  className="text-xs px-2 py-1 h-7"
+                  data-testid="design-option-minimal"
+                >
+                  Minimal
+                </Button>
+              </div>
               <ThemeToggle />
               <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
                 <Settings className="h-4 w-4" />
@@ -154,7 +227,7 @@ function DashboardContent() {
         {/* Hero Section */}
         <div className="text-center space-y-4">
           <div className="space-y-4">
-            <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-orange-800 dark:from-white dark:via-slate-200 dark:to-orange-200 bg-clip-text text-transparent leading-tight welcome-title-preserve">
+            <h2 className={`text-5xl md:text-6xl font-bold ${gradients.title} bg-clip-text text-transparent leading-tight welcome-title-preserve`}>
               Welcome to ARKHITEKTON
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed font-light mb-10">
@@ -166,7 +239,7 @@ function DashboardContent() {
         {/* Elegant Search */}
         <div className="max-w-3xl mx-auto relative">
           <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 via-orange-400/20 to-amber-500/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-300" />
+            <div className={`absolute inset-0 ${gradients.search} rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-300`} />
             <div className="relative bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-3xl shadow-2xl">
               <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
               <Input
@@ -204,7 +277,7 @@ function DashboardContent() {
             <div className="absolute top-full mt-4 w-full bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-2xl shadow-2xl z-50 max-h-96 overflow-hidden">
               {isSearching ? (
                 <div className="p-8 text-center">
-                  <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full mx-auto mb-3 animate-pulse" />
+                  <div className={`w-8 h-8 ${gradients.accentBar} rounded-full mx-auto mb-3 animate-pulse`} />
                   <p className="text-slate-600 dark:text-slate-300">Analyzing architecture...</p>
                 </div>
               ) : searchResults.length > 0 ? (
@@ -217,7 +290,7 @@ function DashboardContent() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <div className="w-2 h-2 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full" />
+                            <div className={`w-2 h-2 ${gradients.accentBar} rounded-full`} />
                             <h4 className="font-semibold text-slate-900 dark:text-white">{result.name}</h4>
                             <Badge variant="outline" className="text-xs font-medium">
                               {result.type}
@@ -246,12 +319,12 @@ function DashboardContent() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {stats.map((stat, index) => (
             <div key={index} className="group relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-orange-400/10 to-amber-500/10 rounded-2xl transform group-hover:scale-105 transition-transform duration-300" />
+              <div className={`absolute inset-0 ${gradients.card} rounded-2xl transform group-hover:scale-105 transition-transform duration-300`} />
               <div className="relative bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-2xl p-6 shadow-lg">
                 <div className="flex flex-col space-y-3">
                   <div className="flex items-center justify-between">
                     <stat.icon className={`h-6 w-6 ${stat.color} opacity-80`} />
-                    <div className="w-8 h-1 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full" />
+                    <div className={`w-8 h-1 ${gradients.accentBar} rounded-full`} />
                   </div>
                   <div>
                     <p className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-200 bg-clip-text text-transparent">
@@ -272,13 +345,13 @@ function DashboardContent() {
           {/* Strategic Tasks */}
           <div className="space-y-6">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
-              <Clock className="h-5 w-5 mr-3 text-orange-600" />
+              <Clock className={`h-5 w-5 mr-3 ${palette.accent}`} />
               Strategic Priorities
             </h3>
             <div className="space-y-4">
               {recentTasks.map((task, index) => (
                 <div key={index} className="group relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-amber-500/5 rounded-xl group-hover:from-orange-500/10 group-hover:to-amber-500/10 transition-all duration-200" />
+                  <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
                   <div className="relative bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-xl p-5 shadow-lg">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
@@ -302,14 +375,14 @@ function DashboardContent() {
           {/* Quick Actions */}
           <div className="space-y-6">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
-              <Zap className="h-5 w-5 mr-3 text-orange-600" />
+              <Zap className={`h-5 w-5 mr-3 ${palette.accent}`} />
               Quick Actions
             </h3>
             <div className="space-y-4">
               {quickLinks.map((link, index) => (
                 <Link key={index} href={link.href}>
                   <div className="group relative cursor-pointer">
-                    <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-amber-500/5 rounded-xl group-hover:from-orange-500/10 group-hover:to-amber-500/10 transition-all duration-200" />
+                    <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
                     <div className="relative bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-xl p-5 shadow-lg">
                       <div className="flex items-center">
                         <link.icon className={`h-6 w-6 mr-4 ${link.color}`} />
@@ -328,14 +401,14 @@ function DashboardContent() {
           {/* Recent Models */}
           <div className="space-y-6">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
-              <Building className="h-5 w-5 mr-3 text-orange-600" />
+              <Building className={`h-5 w-5 mr-3 ${palette.accent}`} />
               Architecture Models
             </h3>
             <div className="space-y-4">
               {recentModels.map((model, index) => (
                 <Link key={index} href="/workspace">
                   <div className="group relative cursor-pointer" data-testid={`card-recent-model-${index}`}>
-                    <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-amber-500/5 rounded-xl group-hover:from-orange-500/10 group-hover:to-amber-500/10 transition-all duration-200" />
+                    <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
                     <div className="relative bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-xl p-5 shadow-lg">
                       <div>
                         <h4 className="font-semibold text-slate-900 dark:text-white mb-1">{model.title}</h4>

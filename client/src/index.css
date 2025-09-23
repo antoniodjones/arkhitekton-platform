@@ -54,6 +54,14 @@
   --passive: hsl(262 80% 60%);
   --motivational: hsl(45 95% 55%);
   
+  /* Delta Airlines Brand Colors - American Enterprise Strength */
+  --delta-blue: #003268;    /* Primary Delta Blue */
+  --delta-red: #e3132c;     /* Primary Delta Red */
+  --delta-burgundy: #9b1631; /* Supporting Burgundy */
+  --delta-blue-hsl: hsl(206 100% 20%);
+  --delta-red-hsl: hsl(352 84% 49%);
+  --delta-burgundy-hsl: hsl(347 76% 34%);
+  
   --font-sans: 'Archivo', 'Inter', system-ui, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: 'JetBrains Mono', Menlo, monospace;
@@ -82,6 +90,14 @@
   --border: hsl(20 25% 18%);
   --input: hsl(20 25% 12%);
   --ring: hsl(25 95% 60%);
+  
+  /* Delta Airlines Dark Mode Colors */
+  --delta-blue: #4a90e2;     /* Lighter Delta Blue for dark mode */
+  --delta-red: #ff4757;      /* Lighter Delta Red for dark mode */
+  --delta-burgundy: #c44569; /* Lighter Burgundy for dark mode */
+  --delta-blue-hsl: hsl(213 73% 59%);
+  --delta-red-hsl: hsl(354 100% 67%);
+  --delta-burgundy-hsl: hsl(343 52% 57%);
 }
 
 /* Dark Mode Form Control Fixes */
