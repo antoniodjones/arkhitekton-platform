@@ -181,76 +181,8 @@ function InternalSystemsIntegrationDiagram() {
     <div className="space-y-4">
       <div className="border rounded-lg bg-white dark:bg-slate-900">
         <Stage width={stageWidth} height={stageHeight}>
+          {/* Background Layer - Application Rectangles */}
           <Layer>
-            {/* Data Flow Lines - Routed Paths */}
-            {dataFlows.map((flow, index) => {
-              const fromNode = getNode(flow.from);
-              const toNode = getNode(flow.to);
-              if (!fromNode || !toNode) return null;
-              
-              const isSelected = selectedFlow === `${flow.from}-${flow.to}`;
-              const flowColor = flow.type === 'aggregation' ? '#3b82f6' :
-                              flow.type === 'shared_data' ? '#8b5cf6' :
-                              flow.type === 'workflow' ? '#f59e0b' :
-                              flow.type === 'reference' ? '#10b981' :
-                              flow.type === 'infrastructure' ? '#374151' : '#6b7280';
-              
-              // Get routed path points
-              const pathPoints = getRoutedPath(fromNode, toNode);
-              const lastSegmentStartX = pathPoints[pathPoints.length - 4];
-              const lastSegmentStartY = pathPoints[pathPoints.length - 3];
-              const arrowTipX = pathPoints[pathPoints.length - 2];
-              const arrowTipY = pathPoints[pathPoints.length - 1];
-              
-              // Calculate arrowhead direction from last segment
-              const dx = arrowTipX - lastSegmentStartX;
-              const dy = arrowTipY - lastSegmentStartY;
-              const length = Math.sqrt(dx * dx + dy * dy);
-              const unitX = length > 0 ? dx / length : 1;
-              const unitY = length > 0 ? dy / length : 0;
-              
-              // Arrowhead size
-              const arrowSize = 8;
-              
-              // Calculate perpendicular vector for arrowhead wings
-              const perpX = -unitY;
-              const perpY = unitX;
-              
-              return (
-                <Group key={index}>
-                  {/* Routed path */}
-                  <Line
-                    points={pathPoints}
-                    stroke={isSelected ? '#ff6b6b' : flowColor}
-                    strokeWidth={isSelected ? 3 : 2}
-                    opacity={isSelected ? 1 : 0.7}
-                    dash={flow.type === 'reference' ? [5, 5] : undefined}
-                    lineCap="round"
-                    lineJoin="round"
-                    onClick={() => setSelectedFlow(isSelected ? null : `${flow.from}-${flow.to}`)}
-                    onTap={() => setSelectedFlow(isSelected ? null : `${flow.from}-${flow.to}`)}
-                  />
-                  
-                  {/* Arrowhead */}
-                  <Line
-                    points={[
-                      arrowTipX, arrowTipY,
-                      arrowTipX - unitX * arrowSize + perpX * (arrowSize / 2), arrowTipY - unitY * arrowSize + perpY * (arrowSize / 2),
-                      arrowTipX - unitX * arrowSize - perpX * (arrowSize / 2), arrowTipY - unitY * arrowSize - perpY * (arrowSize / 2),
-                      arrowTipX, arrowTipY
-                    ]}
-                    stroke={isSelected ? '#ff6b6b' : flowColor}
-                    strokeWidth={1}
-                    closed={true}
-                    fill={isSelected ? '#ff6b6b' : flowColor}
-                    onClick={() => setSelectedFlow(isSelected ? null : `${flow.from}-${flow.to}`)}
-                    onTap={() => setSelectedFlow(isSelected ? null : `${flow.from}-${flow.to}`)}
-                  />
-                </Group>
-              );
-            })}
-            
-            {/* Application Nodes - Rectangles */}
             {applications.map((app) => {
               const isSelected = selectedNode === app.id;
               
@@ -299,6 +231,76 @@ function InternalSystemsIntegrationDiagram() {
                     fill="rgba(255,255,255,0.8)"
                     width={app.width - 35}
                     wrap="none"
+                  />
+                </Group>
+              );
+            })}
+          </Layer>
+          
+          {/* Foreground Layer - Data Flow Arrows (on top) */}
+          <Layer>
+            {dataFlows.map((flow, index) => {
+              const fromNode = getNode(flow.from);
+              const toNode = getNode(flow.to);
+              if (!fromNode || !toNode) return null;
+              
+              const isSelected = selectedFlow === `${flow.from}-${flow.to}`;
+              const flowColor = flow.type === 'aggregation' ? '#3b82f6' :
+                              flow.type === 'shared_data' ? '#8b5cf6' :
+                              flow.type === 'workflow' ? '#f59e0b' :
+                              flow.type === 'reference' ? '#10b981' :
+                              flow.type === 'infrastructure' ? '#374151' : '#6b7280';
+              
+              // Get routed path points
+              const pathPoints = getRoutedPath(fromNode, toNode);
+              const lastSegmentStartX = pathPoints[pathPoints.length - 4];
+              const lastSegmentStartY = pathPoints[pathPoints.length - 3];
+              const arrowTipX = pathPoints[pathPoints.length - 2];
+              const arrowTipY = pathPoints[pathPoints.length - 1];
+              
+              // Calculate arrowhead direction from last segment
+              const dx = arrowTipX - lastSegmentStartX;
+              const dy = arrowTipY - lastSegmentStartY;
+              const length = Math.sqrt(dx * dx + dy * dy);
+              const unitX = length > 0 ? dx / length : 1;
+              const unitY = length > 0 ? dy / length : 0;
+              
+              // Arrowhead size
+              const arrowSize = 10;
+              
+              // Calculate perpendicular vector for arrowhead wings
+              const perpX = -unitY;
+              const perpY = unitX;
+              
+              return (
+                <Group key={index}>
+                  {/* Routed path */}
+                  <Line
+                    points={pathPoints}
+                    stroke={isSelected ? '#ff6b6b' : flowColor}
+                    strokeWidth={isSelected ? 4 : 3}
+                    opacity={isSelected ? 1 : 0.8}
+                    dash={flow.type === 'reference' ? [5, 5] : undefined}
+                    lineCap="round"
+                    lineJoin="round"
+                    onClick={() => setSelectedFlow(isSelected ? null : `${flow.from}-${flow.to}`)}
+                    onTap={() => setSelectedFlow(isSelected ? null : `${flow.from}-${flow.to}`)}
+                  />
+                  
+                  {/* Arrowhead - positioned exactly at rectangle edge */}
+                  <Line
+                    points={[
+                      arrowTipX, arrowTipY,
+                      arrowTipX - unitX * arrowSize + perpX * (arrowSize / 2), arrowTipY - unitY * arrowSize + perpY * (arrowSize / 2),
+                      arrowTipX - unitX * arrowSize - perpX * (arrowSize / 2), arrowTipY - unitY * arrowSize - perpY * (arrowSize / 2),
+                      arrowTipX, arrowTipY
+                    ]}
+                    stroke={isSelected ? '#ff6b6b' : flowColor}
+                    strokeWidth={2}
+                    closed={true}
+                    fill={isSelected ? '#ff6b6b' : flowColor}
+                    onClick={() => setSelectedFlow(isSelected ? null : `${flow.from}-${flow.to}`)}
+                    onTap={() => setSelectedFlow(isSelected ? null : `${flow.from}-${flow.to}`)}
                   />
                 </Group>
               );
