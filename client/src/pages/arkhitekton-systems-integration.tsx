@@ -116,12 +116,8 @@ function DeveloperIntegrationDiagram({ selectedState, syncFlows: propSyncFlows }
     { id: 'merged', name: 'Merged', x: 750, y: 300, color: '#8B5CF6', description: 'GitHub main branch' }
   ];
 
-  // Management nodes for ARKHITEKTON Core
-  const managementNodes = [
-    { id: 'state-engine', name: 'State Engine', x: 900, y: 260, type: 'core' },
-    { id: 'object-store', name: 'Object Store', x: 900, y: 320, type: 'core' },
-    { id: 'sync-engine', name: 'Sync Engine', x: 1000, y: 290, type: 'core' }
-  ];
+  // For MVP: Focus only on VSCode → Lifecycle → GitHub flow
+  // No need to show internal ARKHITEKTON infrastructure components
 
   // Group sync flows by state for visual representation
   const flowsByState = (syncFlows || []).reduce((acc: any, flow: any) => {
@@ -473,34 +469,7 @@ function DeveloperIntegrationDiagram({ selectedState, syncFlows: propSyncFlows }
             );
           })}
 
-          {/* ARKHITEKTON Management Nodes */}
-          {managementNodes.map((node) => (
-            <Group key={node.id}>
-              <Circle
-                x={node.x}
-                y={node.y}
-                radius={nodeRadius}
-                fill={selectedNode === node.id ? '#F59E0B' : '#8B5CF6'}
-                stroke="#7C3AED"
-                strokeWidth={2}
-                shadowBlur={selectedNode === node.id ? 10 : 5}
-                shadowColor="black"
-                shadowOpacity={0.3}
-                onClick={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
-                onTap={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
-              />
-              <Text
-                x={node.x - 25}
-                y={node.y - 5}
-                width={50}
-                text={node.name.replace(' ', '\n')}
-                fontSize={8}
-                fontFamily="Arial"
-                fill="white"
-                align="center"
-              />
-            </Group>
-          ))}
+          {/* MVP: Clean visualization - no internal infrastructure nodes needed */}
 
           {/* VCS Nodes */}
           {vcsNodes.map((node: any) => {
