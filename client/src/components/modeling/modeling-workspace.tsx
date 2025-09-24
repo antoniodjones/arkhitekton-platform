@@ -6,6 +6,8 @@ import { ModelingToolbar } from './modeling-toolbar';
 import { ResizableSplitter } from '../workspace/resizable-splitter';
 import { AchievementTracker } from '../achievements/achievement-tracker';
 import { AchievementCelebration } from '../achievements/achievement-celebration';
+import { AIAssistant } from '../ai/ai-assistant';
+import { ChangeDetectionPanel } from '../workspace/change-detection-panel';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { 
@@ -20,7 +22,9 @@ import {
   ZoomOut,
   Grid,
   Eye,
-  Trophy
+  Trophy,
+  Sparkles,
+  Bot
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ArchitecturalModel, ArchitecturalObject, ObjectConnection } from '@shared/schema';
@@ -52,6 +56,11 @@ export function ModelingWorkspace({
   const [celebrationAchievements, setCelebrationAchievements] = useState<any[]>([]);
   const [levelUpData, setLevelUpData] = useState<any>(null);
   const [showAchievementDashboard, setShowAchievementDashboard] = useState(false);
+  
+  // AI Assistant and Change Detection state
+  const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
+  const [aiAssistantMinimized, setAiAssistantMinimized] = useState(false);
+  const [changeDetectionOpen, setChangeDetectionOpen] = useState(false);
   
   // Mock user achievement data for demo
   const mockUserLevel = 8;
@@ -753,6 +762,12 @@ export function ModelingWorkspace({
     setLevelUpData(null);
   }, []);
 
+  const handleCreateTicket = (change: any) => {
+    // In a real app, this would create a ticket via API
+    console.log('Creating ticket for change:', change);
+    // Navigate to tickets page or open ticket creation modal
+  };
+
   const handleConnectionCreate = useCallback((connectionData: Partial<ObjectConnection>) => {
     const newConnection: ObjectConnection = {
       id: `conn-${Date.now()}`,
@@ -852,6 +867,34 @@ export function ModelingWorkspace({
           </Button>
           <Button variant="ghost" size="sm" title="Redo" data-testid="button-redo">
             <Redo className="h-4 w-4" />
+          </Button>
+          
+          <Separator orientation="vertical" className="h-6" />
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            title="AI Assistant"
+            onClick={() => {
+              setAiAssistantOpen(true);
+              setAiAssistantMinimized(false);
+            }}
+            data-testid="button-ai-assistant"
+          >
+            <Sparkles className="h-4 w-4" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            title="Change Detection"
+            onClick={() => setChangeDetectionOpen(true)}
+            className="relative"
+            data-testid="button-change-detection"
+          >
+            <Bot className="h-4 w-4" />
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
+              <span className="text-xs text-white font-bold">2</span>
+            </div>
           </Button>
           
           <Separator orientation="vertical" className="h-6" />
@@ -1009,6 +1052,30 @@ export function ModelingWorkspace({
         levelUp={levelUpData}
         onDismiss={handleCelebrationDismiss}
         visible={celebrationVisible}
+      />
+
+      {/* AI Assistant */}
+      {aiAssistantOpen && (
+        <AIAssistant
+          context={selectedObjects.length > 0 
+            ? `Analyzing ${selectedObjects.length} selected objects in ${model?.name || 'architecture model'}` 
+            : `Architecture modeling - ${model?.name || 'New Model'}`}
+          elementType={selectedObjects.length === 1 ? objects.find(obj => obj.id === selectedObjects[0])?.category : undefined}
+          framework="ARKHITEKTON"
+          isMinimized={aiAssistantMinimized}
+          onMinimize={() => setAiAssistantMinimized(!aiAssistantMinimized)}
+          onClose={() => {
+            setAiAssistantOpen(false);
+            setAiAssistantMinimized(false);
+          }}
+        />
+      )}
+
+      {/* Change Detection Panel */}
+      <ChangeDetectionPanel
+        isOpen={changeDetectionOpen}
+        onClose={() => setChangeDetectionOpen(false)}
+        onCreateTicket={handleCreateTicket}
       />
     </div>
   );
