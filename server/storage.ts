@@ -1134,6 +1134,83 @@ export class DatabaseStorage implements IStorage {
       .where(eq(schema.userStories.id, id));
     return result.rowCount! > 0;
   }
+
+  // Developer Integration Channels (stub implementations - using memory for demo)
+  async getAllIntegrationChannels(): Promise<IntegrationChannel[]> {
+    const memStorage = new MemStorage();
+    return memStorage.getAllIntegrationChannels();
+  }
+
+  async getIntegrationChannel(id: string): Promise<IntegrationChannel | undefined> {
+    const memStorage = new MemStorage();
+    return memStorage.getIntegrationChannel(id);
+  }
+
+  async getIntegrationChannelByTool(toolId: string): Promise<IntegrationChannel | undefined> {
+    const memStorage = new MemStorage();
+    return memStorage.getIntegrationChannelByTool(toolId);
+  }
+
+  async getIntegrationChannelsByType(type: string): Promise<IntegrationChannel[]> {
+    const memStorage = new MemStorage();
+    return memStorage.getIntegrationChannelsByType(type);
+  }
+
+  async createIntegrationChannel(channel: InsertIntegrationChannel): Promise<IntegrationChannel> {
+    const memStorage = new MemStorage();
+    return memStorage.createIntegrationChannel(channel);
+  }
+
+  async updateIntegrationChannel(id: string, updates: Partial<IntegrationChannel>): Promise<IntegrationChannel | undefined> {
+    const memStorage = new MemStorage();
+    return memStorage.updateIntegrationChannel(id, updates);
+  }
+
+  async deleteIntegrationChannel(id: string): Promise<boolean> {
+    const memStorage = new MemStorage();
+    return memStorage.deleteIntegrationChannel(id);
+  }
+
+  // Object Sync Flows (stub implementations - using memory for demo)
+  async getAllObjectSyncFlows(): Promise<ObjectSyncFlow[]> {
+    const memStorage = new MemStorage();
+    return memStorage.getAllObjectSyncFlows();
+  }
+
+  async getObjectSyncFlow(id: string): Promise<ObjectSyncFlow | undefined> {
+    const memStorage = new MemStorage();
+    return memStorage.getObjectSyncFlow(id);
+  }
+
+  async getObjectSyncFlowsByChannel(channelId: string): Promise<ObjectSyncFlow[]> {
+    const memStorage = new MemStorage();
+    return memStorage.getObjectSyncFlowsByChannel(channelId);
+  }
+
+  async getObjectSyncFlowsByState(state: string): Promise<ObjectSyncFlow[]> {
+    const memStorage = new MemStorage();
+    return memStorage.getObjectSyncFlowsByState(state);
+  }
+
+  async createObjectSyncFlow(flow: InsertObjectSyncFlow): Promise<ObjectSyncFlow> {
+    const memStorage = new MemStorage();
+    return memStorage.createObjectSyncFlow(flow);
+  }
+
+  async updateObjectSyncFlow(id: string, updates: Partial<ObjectSyncFlow>): Promise<ObjectSyncFlow | undefined> {
+    const memStorage = new MemStorage();
+    return memStorage.updateObjectSyncFlow(id, updates);
+  }
+
+  async updateSyncFlowState(id: string, state: string, stateVersion: number): Promise<ObjectSyncFlow | undefined> {
+    const memStorage = new MemStorage();
+    return memStorage.updateSyncFlowState(id, state, stateVersion);
+  }
+
+  async deleteObjectSyncFlow(id: string): Promise<boolean> {
+    const memStorage = new MemStorage();
+    return memStorage.deleteObjectSyncFlow(id);
+  }
 }
 
 export const storage = new DatabaseStorage();

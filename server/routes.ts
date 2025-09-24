@@ -8,7 +8,11 @@ import {
   insertTaskSchema,
   insertUserStorySchema,
   updateUserStorySchema,
-  type KnowledgeBasePage 
+  insertIntegrationChannelSchema,
+  insertObjectSyncFlowSchema,
+  type KnowledgeBasePage,
+  type IntegrationChannel,
+  type ObjectSyncFlow
 } from "@shared/schema";
 import Anthropic from '@anthropic-ai/sdk';
 
@@ -703,6 +707,243 @@ Keep response concise but comprehensive.`;
     } catch (error) {
       console.error('Error linking commit:', error);
       res.status(500).json({ error: 'Failed to link commit' });
+    }
+  });
+
+  // Developer Integration Channels API
+  app.get("/api/integrations/developer/channels", async (req, res) => {
+    try {
+      const { type, tool_id } = req.query;
+      
+      let channels;
+      if (type && typeof type === 'string') {
+        channels = await storage.getIntegrationChannelsByType(type);
+      } else if (tool_id && typeof tool_id === 'string') {
+        const channel = await storage.getIntegrationChannelByTool(tool_id);
+        channels = channel ? [channel] : [];
+      } else {
+        channels = await storage.getAllIntegrationChannels();
+      }
+      
+      res.json(channels);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch integration channels" });
+    }
+  });
+
+  app.get("/api/integrations/developer/channels/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const channel = await storage.getIntegrationChannel(id);
+      
+      if (!channel) {
+        return res.status(404).json({ message: "Integration channel not found" });
+      }
+      
+      res.json(channel);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch integration channel" });
+    }
+  });
+
+  app.post("/api/integrations/developer/channels", async (req, res) => {
+    try {
+      const validatedData = insertIntegrationChannelSchema.parse(req.body);
+      const channel = await storage.createIntegrationChannel(validatedData);
+      res.status(201).json(channel);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid channel data" });
+    }
+  });
+
+  app.patch("/api/integrations/developer/channels/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      
+      const updatedChannel = await storage.updateIntegrationChannel(id, updates);
+      
+      if (!updatedChannel) {
+        return res.status(404).json({ message: "Integration channel not found" });
+      }
+      
+      res.json(updatedChannel);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update integration channel" });
+    }
+  });
+
+  app.delete("/api/integrations/developer/channels/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deleteIntegrationChannel(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ message: "Integration channel not found" });
+      }
+      
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete integration channel" });
+    }
+  });
+
+  // Object Sync Flows API
+  app.get("/api/integrations/developer/sync-flows", async (req, res) => {
+    try {
+      const { channel_id, state } = req.query;
+      
+      let flows;
+      if (channel_id && typeof channel_id === 'string') {
+        flows = await storage.getObjectSyncFlowsByChannel(channel_id);
+      } else if (state && typeof state === 'string') {
+        flows = await storage.getObjectSyncFlowsByState(state);
+      } else {
+        flows = await storage.getAllObjectSyncFlows();
+      }
+      
+      res.json(flows);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch sync flows" });
+    }
+  });
+
+  app.get("/api/integrations/developer/sync-flows/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const flow = await storage.getObjectSyncFlow(id);
+      
+      if (!flow) {
+        return res.status(404).json({ message: "Sync flow not found" });
+      }
+      
+      res.json(flow);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch sync flow" });
+    }
+  });
+
+  app.post("/api/integrations/developer/sync-flows", async (req, res) => {
+    try {
+      const validatedData = insertObjectSyncFlowSchema.parse(req.body);
+      const flow = await storage.createObjectSyncFlow(validatedData);
+      res.status(201).json(flow);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid sync flow data" });
+    }
+  });
+
+  app.patch("/api/integrations/developer/sync-flows/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      
+      const updatedFlow = await storage.updateObjectSyncFlow(id, updates);
+      
+      if (!updatedFlow) {
+        return res.status(404).json({ message: "Sync flow not found" });
+      }
+      
+      res.json(updatedFlow);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update sync flow" });
+    }
+  });
+
+  app.patch("/api/integrations/developer/sync-flows/:id/state", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { state, stateVersion } = req.body;
+      
+      if (!state || stateVersion === undefined) {
+        return res.status(400).json({ message: "State and stateVersion are required" });
+      }
+      
+      const updatedFlow = await storage.updateSyncFlowState(id, state, stateVersion);
+      
+      if (!updatedFlow) {
+        return res.status(409).json({ message: "Sync flow not found or state version conflict" });
+      }
+      
+      res.json(updatedFlow);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update sync flow state" });
+    }
+  });
+
+  app.delete("/api/integrations/developer/sync-flows/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deleteObjectSyncFlow(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ message: "Sync flow not found" });
+      }
+      
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete sync flow" });
+    }
+  });
+
+  // Git-like object history API for developer integrations
+  app.get("/api/integrations/developer/object-history/:objectId", async (req, res) => {
+    try {
+      const { objectId } = req.params;
+      const { page = 1, limit = 20 } = req.query;
+      
+      // Mock object history data based on Git-like state transitions
+      const mockHistory = [
+        {
+          id: "hist-1",
+          objectId,
+          state: "committed",
+          stateVersion: 3,
+          commitMessage: "Updated component interface",
+          author: "developer@example.com",
+          timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
+          changes: ["interface", "documentation"],
+          parentVersion: 2
+        },
+        {
+          id: "hist-2", 
+          objectId,
+          state: "staged",
+          stateVersion: 2,
+          commitMessage: "Added new methods to component",
+          author: "developer@example.com", 
+          timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
+          changes: ["methods", "validation"],
+          parentVersion: 1
+        },
+        {
+          id: "hist-3",
+          objectId,
+          state: "draft",
+          stateVersion: 1,
+          commitMessage: "Initial component creation",
+          author: "architect@example.com",
+          timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
+          changes: ["initial"],
+          parentVersion: null
+        }
+      ];
+      
+      const startIndex = (Number(page) - 1) * Number(limit);
+      const endIndex = startIndex + Number(limit);
+      const paginatedHistory = mockHistory.slice(startIndex, endIndex);
+      
+      res.json({
+        data: paginatedHistory,
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total: mockHistory.length,
+          totalPages: Math.ceil(mockHistory.length / Number(limit))
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch object history" });
     }
   });
 
