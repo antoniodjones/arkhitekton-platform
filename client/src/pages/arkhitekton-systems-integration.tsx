@@ -346,23 +346,51 @@ function InternalSystemsIntegrationDiagram() {
       }
     }
     
-    // Ultimate fallback: use maximum clearance path around the entire diagram
-    // This should provide enough space to avoid all obstacles
-    const maxClearance = 200;
-    const finalBounds = {
-      top: Math.min(...obstacles.map(o => o.y)) - maxClearance,
-      bottom: Math.max(...obstacles.map(o => o.y + o.height)) + maxClearance,
-      left: Math.min(...obstacles.map(o => o.x)) - maxClearance,
-      right: Math.max(...obstacles.map(o => o.x + o.width)) + maxClearance
-    };
+    // Ultimate fallback: try various extreme detours, validating each one
+    const extremeClearances = [200, 300, 400];
     
-    // Route around the top edge (most likely to be clear)
-    return [
-      fromPoint.x, fromPoint.y,
-      fromPoint.x, finalBounds.top,
-      toPoint.x, finalBounds.top,
-      toPoint.x, toPoint.y
-    ];
+    for (const clearance of extremeClearances) {
+      const bounds = {
+        top: Math.min(...obstacles.map(o => o.y)) - clearance,
+        bottom: Math.max(...obstacles.map(o => o.y + o.height)) + clearance,
+        left: Math.min(...obstacles.map(o => o.x)) - clearance,
+        right: Math.max(...obstacles.map(o => o.x + o.width)) + clearance
+      };
+      
+      // Try various offset positions to avoid vertical alignment with obstacles
+      const xOffsets = [0, -clearance/2, clearance/2];
+      
+      for (const xOffset of xOffsets) {
+        // Route around the top with X offset
+        const topPath = [
+          fromPoint.x, fromPoint.y,
+          fromPoint.x + xOffset, fromPoint.y,
+          fromPoint.x + xOffset, bounds.top,
+          toPoint.x + xOffset, bounds.top,
+          toPoint.x + xOffset, toPoint.y,
+          toPoint.x, toPoint.y
+        ];
+        if (!pathIntersectsObstacles(topPath, obstacles)) {
+          return topPath;
+        }
+        
+        // Route around the bottom with X offset  
+        const bottomPath = [
+          fromPoint.x, fromPoint.y,
+          fromPoint.x + xOffset, fromPoint.y,
+          fromPoint.x + xOffset, bounds.bottom,
+          toPoint.x + xOffset, bounds.bottom,
+          toPoint.x + xOffset, toPoint.y,
+          toPoint.x, toPoint.y
+        ];
+        if (!pathIntersectsObstacles(bottomPath, obstacles)) {
+          return bottomPath;
+        }
+      }
+    }
+    
+    // If all else fails, return a minimal path (this should never happen)
+    return [fromPoint.x, fromPoint.y, fromPoint.x, fromPoint.y - 500, toPoint.x, toPoint.y - 500, toPoint.x, toPoint.y];
   };
   
   return (
