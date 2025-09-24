@@ -6,7 +6,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import NotFound from "@/pages/not-found";
 import DesignPalette from "@/pages/design-palette";
-import { WorkspacePage } from "@/pages/workspace";
 import ModelingPage from "@/pages/modeling";
 import Dashboard from "@/pages/dashboard";
 import { GovernancePage } from "@/pages/governance";
@@ -35,7 +34,6 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/design-palette" component={DesignPalette} />
       <Route path="/modeling" component={ModelingPage} />
-      <Route path="/workspace" component={WorkspacePage} />
       <Route path="/governance" component={GovernancePage} />
       <Route path="/decisions" component={DecisionsPage} />
       <Route path="/capabilities" component={CapabilitiesPage} />
