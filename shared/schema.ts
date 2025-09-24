@@ -666,3 +666,113 @@ export const updateUserStorySchema = insertUserStorySchema.partial().omit({
 export type UserStory = typeof userStories.$inferSelect;
 export type InsertUserStory = z.infer<typeof insertUserStorySchema>;
 export type UpdateUserStory = z.infer<typeof updateUserStorySchema>;
+
+// Developer Integration Channels - IDE, Code Editor, and Version Control Integrations
+export const integrationChannels = pgTable("integration_channels", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  
+  // Tool identification
+  toolId: text("toolId").notNull().unique(), // 'vscode', 'intellij', 'github', 'gitlab', 'bitbucket'
+  name: text("name").notNull(),
+  type: text("type").notNull(), // 'ide', 'editor', 'vcs', 'ci_cd', 'collaboration'
+  
+  // Integration capabilities
+  directionality: text("directionality").notNull(), // 'bidirectional', 'push_only', 'pull_only'
+  capabilities: jsonb("capabilities").$type<string[]>().default([]), // ['model_sync', 'code_gen', 'reverse_eng', 'real_time']
+  
+  // Connection configuration
+  connectionConfig: jsonb("connectionConfig").$type<{
+    apiEndpoint?: string;
+    authMethod: 'oauth' | 'token' | 'ssh' | 'webhook';
+    webhookUrl?: string;
+    requiredScopes?: string[];
+    syncFrequency?: 'real_time' | 'on_demand' | 'scheduled';
+  }>().notNull(),
+  
+  // Integration metadata
+  version: text("version").notNull(),
+  status: text("status").notNull().default("active"), // 'active', 'deprecated', 'beta'
+  documentation: text("documentation"),
+  
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow()
+});
+
+// Object Sync Flows - Git-like state management for architectural objects
+export const objectSyncFlows = pgTable("object_sync_flows", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  
+  // Flow identification
+  name: text("name").notNull(),
+  description: text("description"),
+  integrationChannelId: uuid("integrationChannelId").references(() => integrationChannels.id).notNull(),
+  
+  // Sync scope
+  objectTypes: jsonb("objectTypes").$type<string[]>().default([]), // ['component', 'service', 'interface', 'data_model']
+  sourceScope: text("sourceScope").notNull(), // 'workspace', 'model', 'object', 'repository'
+  targetScope: text("targetScope").notNull(),
+  
+  // Git-like state transitions
+  stateTransitions: jsonb("stateTransitions").$type<{
+    from: 'draft' | 'staged' | 'committed' | 'branched' | 'merged' | 'tagged';
+    to: 'draft' | 'staged' | 'committed' | 'branched' | 'merged' | 'tagged';
+    trigger: 'manual' | 'auto_save' | 'commit' | 'push' | 'merge' | 'review';
+    actions: string[]; // ['validate', 'generate_code', 'update_docs', 'notify_team']
+  }[]>().default([]),
+  
+  // Conflict resolution
+  conflictResolution: jsonb("conflictResolution").$type<{
+    strategy: 'manual' | 'auto_merge' | 'source_wins' | 'target_wins' | 'crdt';
+    mergePatterns: string[];
+    reviewRequired: boolean;
+  }>().default({
+    strategy: 'manual',
+    mergePatterns: [],
+    reviewRequired: true
+  }),
+  
+  // State tracking
+  currentState: text("currentState").notNull().default("draft"), // Git-like state
+  stateVersion: integer("stateVersion").default(1), // Optimistic concurrency control
+  lastSyncAt: timestamp("lastSyncAt"),
+  
+  // Sync metadata
+  syncMetrics: jsonb("syncMetrics").$type<{
+    successCount: number;
+    errorCount: number;
+    lastError?: string;
+    avgSyncTime: number;
+    objectsProcessed: number;
+  }>().default({
+    successCount: 0,
+    errorCount: 0,
+    avgSyncTime: 0,
+    objectsProcessed: 0
+  }),
+  
+  // Configuration
+  isActive: integer("isActive").default(1), // 0 = inactive, 1 = active
+  syncTriggers: jsonb("syncTriggers").$type<string[]>().default([]), // ['on_save', 'on_commit', 'scheduled', 'webhook']
+  
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow()
+});
+
+// Developer Integration schema exports
+export const insertIntegrationChannelSchema = createInsertSchema(integrationChannels).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertObjectSyncFlowSchema = createInsertSchema(objectSyncFlows).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Developer Integration types
+export type IntegrationChannel = typeof integrationChannels.$inferSelect;
+export type InsertIntegrationChannel = z.infer<typeof insertIntegrationChannelSchema>;
+export type ObjectSyncFlow = typeof objectSyncFlows.$inferSelect;
+export type InsertObjectSyncFlow = z.infer<typeof insertObjectSyncFlowSchema>;
