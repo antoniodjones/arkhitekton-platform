@@ -652,11 +652,7 @@ export const insertUserStorySchema = createInsertSchema(userStories).omit({
 });
 
 // Update schema that prevents modification of immutable fields and enforces business rules
-export const updateUserStorySchema = insertUserStorySchema.partial().omit({
-  id: true, // Never allow ID changes
-  createdAt: true, // Never allow timestamp manipulation
-  updatedAt: true, // Handled by server
-}).extend({
+export const updateUserStorySchema = insertUserStorySchema.partial().extend({
   // Optional validation for updates
   parentTaskId: z.string().uuid().optional().nullable(), // Validate UUID format if provided
   storyPoints: z.number().int().min(1).max(13).optional(),

@@ -10,7 +10,11 @@ import {
   type Task,
   type InsertTask,
   type UserStory,
-  type InsertUserStory
+  type InsertUserStory,
+  type IntegrationChannel,
+  type InsertIntegrationChannel,
+  type ObjectSyncFlow,
+  type InsertObjectSyncFlow
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
@@ -60,6 +64,25 @@ export interface IStorage {
   createUserStory(story: InsertUserStory): Promise<UserStory>;
   updateUserStory(id: string, updates: Partial<UserStory>): Promise<UserStory | undefined>;
   deleteUserStory(id: string): Promise<boolean>;
+
+  // Developer Integration Channels
+  getAllIntegrationChannels(): Promise<IntegrationChannel[]>;
+  getIntegrationChannel(id: string): Promise<IntegrationChannel | undefined>;
+  getIntegrationChannelByTool(toolId: string): Promise<IntegrationChannel | undefined>;
+  getIntegrationChannelsByType(type: string): Promise<IntegrationChannel[]>;
+  createIntegrationChannel(channel: InsertIntegrationChannel): Promise<IntegrationChannel>;
+  updateIntegrationChannel(id: string, updates: Partial<IntegrationChannel>): Promise<IntegrationChannel | undefined>;
+  deleteIntegrationChannel(id: string): Promise<boolean>;
+
+  // Object Sync Flows
+  getAllObjectSyncFlows(): Promise<ObjectSyncFlow[]>;
+  getObjectSyncFlow(id: string): Promise<ObjectSyncFlow | undefined>;
+  getObjectSyncFlowsByChannel(channelId: string): Promise<ObjectSyncFlow[]>;
+  getObjectSyncFlowsByState(state: string): Promise<ObjectSyncFlow[]>;
+  createObjectSyncFlow(flow: InsertObjectSyncFlow): Promise<ObjectSyncFlow>;
+  updateObjectSyncFlow(id: string, updates: Partial<ObjectSyncFlow>): Promise<ObjectSyncFlow | undefined>;
+  updateSyncFlowState(id: string, state: string, stateVersion: number): Promise<ObjectSyncFlow | undefined>;
+  deleteObjectSyncFlow(id: string): Promise<boolean>;
 }
 
 // Standardized User Story ID generator with collision detection
@@ -95,6 +118,8 @@ export class MemStorage implements IStorage {
   private knowledgeBasePages: Map<string, KnowledgeBasePage>;
   private tasks: Map<string, Task>;
   private userStories: Map<string, UserStory>;
+  private integrationChannels: Map<string, IntegrationChannel>;
+  private objectSyncFlows: Map<string, ObjectSyncFlow>;
 
   constructor() {
     this.users = new Map();
@@ -103,6 +128,8 @@ export class MemStorage implements IStorage {
     this.knowledgeBasePages = new Map();
     this.tasks = new Map();
     this.userStories = new Map();
+    this.integrationChannels = new Map();
+    this.objectSyncFlows = new Map();
     
     // Initialize with some sample architecture elements
     this.initializeArchitectureElements();
@@ -112,6 +139,8 @@ export class MemStorage implements IStorage {
     this.initializeSampleTasks();
     // Initialize with sample user stories (async)
     this.initializeSampleUserStories().catch(console.error);
+    // Initialize with sample developer integration data
+    this.initializeDeveloperIntegrations();
   }
 
   private initializeArchitectureElements() {
@@ -553,6 +582,243 @@ Scenario: Team Assignment
     for (const storyData of sampleStories) {
       await this.createUserStory(storyData);
     }
+  }
+
+  private initializeDeveloperIntegrations() {
+    const sampleIntegrationChannels: InsertIntegrationChannel[] = [
+      {
+        toolId: 'vscode',
+        name: 'Visual Studio Code',
+        type: 'ide',
+        directionality: 'bidirectional',
+        capabilities: ['model_sync', 'code_gen', 'reverse_eng', 'real_time'],
+        connectionConfig: {
+          authMethod: 'oauth',
+          syncFrequency: 'real_time',
+          requiredScopes: ['workspace', 'extensions']
+        },
+        version: '1.0.0',
+        status: 'active',
+        documentation: 'ARKHITEKTON VS Code extension for real-time model synchronization'
+      },
+      {
+        toolId: 'intellij',
+        name: 'IntelliJ IDEA',
+        type: 'ide',
+        directionality: 'bidirectional',
+        capabilities: ['model_sync', 'code_gen', 'reverse_eng'],
+        connectionConfig: {
+          authMethod: 'token',
+          syncFrequency: 'on_demand',
+          apiEndpoint: 'https://api.jetbrains.com'
+        },
+        version: '1.0.0',
+        status: 'active',
+        documentation: 'ARKHITEKTON IntelliJ plugin for architecture modeling'
+      },
+      {
+        toolId: 'github',
+        name: 'GitHub',
+        type: 'vcs',
+        directionality: 'bidirectional',
+        capabilities: ['model_sync', 'webhook', 'ci_cd'],
+        connectionConfig: {
+          authMethod: 'oauth',
+          syncFrequency: 'real_time',
+          webhookUrl: 'https://api.github.com/webhooks',
+          requiredScopes: ['repo', 'admin:repo_hook']
+        },
+        version: '1.0.0',
+        status: 'active',
+        documentation: 'GitHub integration for version control and CI/CD'
+      },
+      {
+        toolId: 'gitlab',
+        name: 'GitLab',
+        type: 'vcs',
+        directionality: 'bidirectional',
+        capabilities: ['model_sync', 'webhook', 'ci_cd'],
+        connectionConfig: {
+          authMethod: 'token',
+          syncFrequency: 'real_time',
+          apiEndpoint: 'https://gitlab.com/api/v4'
+        },
+        version: '1.0.0',
+        status: 'active',
+        documentation: 'GitLab integration for enterprise version control'
+      }
+    ];
+
+    sampleIntegrationChannels.forEach(channel => {
+      const id = randomUUID();
+      const fullChannel: IntegrationChannel = {
+        ...channel,
+        id,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      this.integrationChannels.set(id, fullChannel);
+
+      // Create sample sync flows for each channel
+      const sampleSyncFlow: InsertObjectSyncFlow = {
+        name: `${channel.name} Object Sync`,
+        description: `Git-like object synchronization for ${channel.name}`,
+        integrationChannelId: id,
+        objectTypes: ['component', 'service', 'interface', 'data_model'],
+        sourceScope: 'workspace',
+        targetScope: 'repository',
+        stateTransitions: [
+          {
+            from: 'draft',
+            to: 'staged',
+            trigger: 'auto_save',
+            actions: ['validate', 'generate_code']
+          },
+          {
+            from: 'staged',
+            to: 'committed',
+            trigger: 'commit',
+            actions: ['update_docs', 'notify_team']
+          },
+          {
+            from: 'committed',
+            to: 'merged',
+            trigger: 'merge',
+            actions: ['deploy', 'update_tracking']
+          }
+        ],
+        conflictResolution: {
+          strategy: 'manual',
+          mergePatterns: ['semantic_merge', 'three_way_merge'],
+          reviewRequired: true
+        },
+        currentState: 'draft',
+        stateVersion: 1,
+        syncMetrics: {
+          successCount: 0,
+          errorCount: 0,
+          avgSyncTime: 0,
+          objectsProcessed: 0
+        },
+        isActive: 1,
+        syncTriggers: ['on_save', 'on_commit']
+      };
+
+      const syncFlowId = randomUUID();
+      const fullSyncFlow: ObjectSyncFlow = {
+        ...sampleSyncFlow,
+        id: syncFlowId,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      this.objectSyncFlows.set(syncFlowId, fullSyncFlow);
+    });
+  }
+
+  // Developer Integration Channels Implementation
+  async getAllIntegrationChannels(): Promise<IntegrationChannel[]> {
+    return Array.from(this.integrationChannels.values());
+  }
+
+  async getIntegrationChannel(id: string): Promise<IntegrationChannel | undefined> {
+    return this.integrationChannels.get(id);
+  }
+
+  async getIntegrationChannelByTool(toolId: string): Promise<IntegrationChannel | undefined> {
+    return Array.from(this.integrationChannels.values()).find(channel => channel.toolId === toolId);
+  }
+
+  async getIntegrationChannelsByType(type: string): Promise<IntegrationChannel[]> {
+    return Array.from(this.integrationChannels.values()).filter(channel => channel.type === type);
+  }
+
+  async createIntegrationChannel(channelData: InsertIntegrationChannel): Promise<IntegrationChannel> {
+    const id = randomUUID();
+    const channel: IntegrationChannel = {
+      ...channelData,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.integrationChannels.set(id, channel);
+    return channel;
+  }
+
+  async updateIntegrationChannel(id: string, updates: Partial<IntegrationChannel>): Promise<IntegrationChannel | undefined> {
+    const channel = this.integrationChannels.get(id);
+    if (!channel) return undefined;
+    
+    const updatedChannel: IntegrationChannel = {
+      ...channel,
+      ...updates,
+      updatedAt: new Date()
+    };
+    this.integrationChannels.set(id, updatedChannel);
+    return updatedChannel;
+  }
+
+  async deleteIntegrationChannel(id: string): Promise<boolean> {
+    return this.integrationChannels.delete(id);
+  }
+
+  // Object Sync Flows Implementation
+  async getAllObjectSyncFlows(): Promise<ObjectSyncFlow[]> {
+    return Array.from(this.objectSyncFlows.values());
+  }
+
+  async getObjectSyncFlow(id: string): Promise<ObjectSyncFlow | undefined> {
+    return this.objectSyncFlows.get(id);
+  }
+
+  async getObjectSyncFlowsByChannel(channelId: string): Promise<ObjectSyncFlow[]> {
+    return Array.from(this.objectSyncFlows.values()).filter(flow => flow.integrationChannelId === channelId);
+  }
+
+  async getObjectSyncFlowsByState(state: string): Promise<ObjectSyncFlow[]> {
+    return Array.from(this.objectSyncFlows.values()).filter(flow => flow.currentState === state);
+  }
+
+  async createObjectSyncFlow(flowData: InsertObjectSyncFlow): Promise<ObjectSyncFlow> {
+    const id = randomUUID();
+    const flow: ObjectSyncFlow = {
+      ...flowData,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.objectSyncFlows.set(id, flow);
+    return flow;
+  }
+
+  async updateObjectSyncFlow(id: string, updates: Partial<ObjectSyncFlow>): Promise<ObjectSyncFlow | undefined> {
+    const flow = this.objectSyncFlows.get(id);
+    if (!flow) return undefined;
+    
+    const updatedFlow: ObjectSyncFlow = {
+      ...flow,
+      ...updates,
+      updatedAt: new Date()
+    };
+    this.objectSyncFlows.set(id, updatedFlow);
+    return updatedFlow;
+  }
+
+  async updateSyncFlowState(id: string, state: string, stateVersion: number): Promise<ObjectSyncFlow | undefined> {
+    const flow = this.objectSyncFlows.get(id);
+    if (!flow || flow.stateVersion !== stateVersion) return undefined;
+    
+    const updatedFlow: ObjectSyncFlow = {
+      ...flow,
+      currentState: state,
+      stateVersion: stateVersion + 1,
+      updatedAt: new Date()
+    };
+    this.objectSyncFlows.set(id, updatedFlow);
+    return updatedFlow;
+  }
+
+  async deleteObjectSyncFlow(id: string): Promise<boolean> {
+    return this.objectSyncFlows.delete(id);
   }
 }
 
