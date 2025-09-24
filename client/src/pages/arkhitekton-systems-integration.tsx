@@ -76,11 +76,11 @@ function DeveloperIntegrationDiagram({ selectedState, syncFlows: propSyncFlows }
   const swimlaneHeight = 180;
   const nodeRadius = 18;
 
-  // Define swimlane positions with Git-like state management
+  // Define swimlane positions for MVP: VSCode + GitHub workflow
   const swimlanes = [
-    { name: 'Developer Tools', y: 20, color: '#3B82F6' },
-    { name: 'Git-like Object Lifecycle States', y: 220, color: '#8B5CF6' },
-    { name: 'Version Control Systems', y: 440, color: '#10B981' }
+    { name: 'VSCode IDE (includes Cursor support)', y: 20, color: '#3B82F6' },
+    { name: 'ARKHITEKTON Git-like Object Lifecycle', y: 220, color: '#8B5CF6' },
+    { name: 'GitHub Version Control', y: 440, color: '#10B981' }
   ];
 
   // Generate source nodes (IDE/Developer Tools)
@@ -107,13 +107,13 @@ function DeveloperIntegrationDiagram({ selectedState, syncFlows: propSyncFlows }
       type: 'vcs'
     }));
 
-  // Git-like Lifecycle State Nodes (Core of ARKHITEKTON)
+  // ARKHITEKTON Git-like Lifecycle States (MVP: VSCode → GitHub workflow)
   const lifecycleStates = [
-    { id: 'draft', name: 'Draft', x: 150, y: 300, color: '#6B7280', description: 'Working tree' },
-    { id: 'staged', name: 'Staged', x: 300, y: 300, color: '#F59E0B', description: 'Ready for commit' },
-    { id: 'committed', name: 'Committed', x: 450, y: 300, color: '#10B981', description: 'Main architecture' },
-    { id: 'branched', name: 'Branched', x: 600, y: 300, color: '#3B82F6', description: 'Feature branch' },
-    { id: 'merged', name: 'Merged', x: 750, y: 300, color: '#8B5CF6', description: 'Integrated' }
+    { id: 'draft', name: 'Draft', x: 150, y: 300, color: '#6B7280', description: 'Local VSCode work' },
+    { id: 'staged', name: 'Staged', x: 300, y: 300, color: '#F59E0B', description: 'Ready to commit' },
+    { id: 'committed', name: 'Committed', x: 450, y: 300, color: '#10B981', description: 'In repository' },
+    { id: 'branched', name: 'Branched', x: 600, y: 300, color: '#3B82F6', description: 'GitHub feature branch' },
+    { id: 'merged', name: 'Merged', x: 750, y: 300, color: '#8B5CF6', description: 'GitHub main branch' }
   ];
 
   // Management nodes for ARKHITEKTON Core
@@ -225,10 +225,13 @@ function DeveloperIntegrationDiagram({ selectedState, syncFlows: propSyncFlows }
             </Badge>
           )}
           <Badge variant="outline" className="text-xs">
-            {lifecycleFlows.length} Active Flows
+            {lifecycleFlows.length} VSCode↔GitHub Flows
           </Badge>
           <Badge variant="outline" className="text-xs">
-            {stateAggregates.reduce((sum, state) => sum + state.count, 0)} Total Objects
+            {stateAggregates.reduce((sum, state) => sum + state.count, 0)} Architecture Objects
+          </Badge>
+          <Badge variant="secondary" className="text-xs">
+            MVP: VSCode + GitHub
           </Badge>
         </div>
       </div>

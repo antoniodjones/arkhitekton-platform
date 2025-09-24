@@ -729,7 +729,7 @@ Keep response concise but comprehensive.`;
     } catch (error) {
       console.error('Integration channels API error:', error);
       
-      // Provide mock data for demonstration
+      // MVP: Focus on VSCode + GitHub only
       const mockChannels = [
         {
           id: "vscode-channel",
@@ -738,20 +738,9 @@ Keep response concise but comprehensive.`;
           type: "ide",
           status: "active",
           directionality: "bidirectional",
-          capabilities: ["model_sync", "code_gen", "real_time"],
+          capabilities: ["model_sync", "code_gen", "real_time", "cursor_support"],
           version: "1.0.0",
-          createdAt: new Date(),
-          updatedAt: new Date()
-        },
-        {
-          id: "intellij-channel", 
-          toolId: "intellij",
-          name: "IntelliJ IDEA",
-          type: "ide",
-          status: "active",
-          directionality: "bidirectional",
-          capabilities: ["model_sync", "code_gen"],
-          version: "1.0.0",
+          description: "ARKHITEKTON extension for VSCode (supports Cursor IDE)",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -762,20 +751,9 @@ Keep response concise but comprehensive.`;
           type: "vcs",
           status: "active",
           directionality: "bidirectional",
-          capabilities: ["model_sync", "webhook", "ci_cd"],
+          capabilities: ["model_sync", "webhook", "ci_cd", "branch_merge"],
           version: "1.0.0",
-          createdAt: new Date(),
-          updatedAt: new Date()
-        },
-        {
-          id: "gitlab-channel",
-          toolId: "gitlab",
-          name: "GitLab", 
-          type: "vcs",
-          status: "active",
-          directionality: "bidirectional", 
-          capabilities: ["model_sync", "webhook"],
-          version: "1.0.0",
+          description: "GitHub integration for version control and collaboration",
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -859,27 +837,55 @@ Keep response concise but comprehensive.`;
     } catch (error) {
       console.error('Sync flows API error:', error);
       
-      // Provide mock data for demonstration
+      // MVP: VSCode + GitHub flows only
       const mockFlows = [
         {
-          id: "mock-1",
-          name: "VS Code Model Sync",
-          description: "Git-like object synchronization for VS Code",
+          id: "vscode-flow-1",
+          name: "Architecture Component Sync",
+          description: "AWS component created in VSCode, synced to ARKHITEKTON",
           integrationChannelId: "vscode-channel",
           currentState: "committed",
           stateHistory: ["draft", "staged", "committed"],
-          objectTypes: ["component", "service"],
+          objectTypes: ["aws_component", "service"],
+          syncMetrics: { successCount: 12, errorCount: 0 },
           createdAt: new Date(),
           updatedAt: new Date()
         },
         {
-          id: "mock-2", 
-          name: "GitHub Integration Flow",
-          description: "Version control synchronization",
+          id: "vscode-flow-2",
+          name: "Interface Definition Sync", 
+          description: "API interface from VSCode to GitHub",
+          integrationChannelId: "vscode-channel",
+          currentState: "staged",
+          stateHistory: ["draft", "staged"],
+          objectTypes: ["interface", "api_spec"],
+          syncMetrics: { successCount: 8, errorCount: 1 },
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: "github-flow-1", 
+          name: "Main Branch Architecture",
+          description: "Production architecture in GitHub main branch",
           integrationChannelId: "github-channel",
           currentState: "merged",
           stateHistory: ["draft", "staged", "committed", "branched", "merged"],
-          objectTypes: ["interface", "data_model"],
+          objectTypes: ["architecture_model", "deployment"],
+          syncMetrics: { successCount: 25, errorCount: 2 },
+          branchInfo: { branch: "main", lastCommit: "a1b2c3d" },
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: "github-flow-2",
+          name: "Feature Branch Development",
+          description: "New microservice architecture branch",
+          integrationChannelId: "github-channel", 
+          currentState: "branched",
+          stateHistory: ["draft", "staged", "committed", "branched"],
+          objectTypes: ["microservice", "container"],
+          syncMetrics: { successCount: 7, errorCount: 0 },
+          branchInfo: { branch: "feature/payment-service", pullRequest: "#42" },
           createdAt: new Date(),
           updatedAt: new Date()
         }
