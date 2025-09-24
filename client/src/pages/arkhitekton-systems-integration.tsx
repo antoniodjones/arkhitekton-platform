@@ -50,29 +50,31 @@ function InternalSystemsIntegrationDiagram() {
   const [selectedFlow, setSelectedFlow] = useState<string | null>(null);
   
   const stageWidth = 1200;
-  const stageHeight = 800;
+  const stageHeight = 700;
   
   // 13 ARKHITEKTON Applications + Core Infrastructure Services
   const applications = [
-    { id: 'dashboard', name: 'Dashboard', x: 600, y: 80, type: 'aggregator', icon: '📊', color: '#3b82f6' },
-    { id: 'portfolio', name: 'Portfolio Management', x: 200, y: 160, type: 'consumer', icon: '📈', color: '#10b981' },
-    { id: 'modeling', name: 'Architecture Modeling', x: 400, y: 160, type: 'producer', icon: '🔷', color: '#8b5cf6' },
-    { id: 'workspace', name: 'Architecture Workspace', x: 600, y: 160, type: 'producer', icon: '🏗️', color: '#8b5cf6' },
-    { id: 'governance', name: 'Governance', x: 800, y: 160, type: 'consumer', icon: '🛡️', color: '#f59e0b' },
-    { id: 'capabilities', name: 'Capability Assessment', x: 1000, y: 160, type: 'producer', icon: '🎯', color: '#ef4444' },
-    { id: 'decisions', name: 'Decision Records', x: 200, y: 280, type: 'producer', icon: '📋', color: '#06b6d4' },
-    { id: 'workflows', name: 'Review Workflows', x: 400, y: 280, type: 'orchestrator', icon: '⚡', color: '#84cc16' },
-    { id: 'tickets', name: 'Architecture Tickets', x: 600, y: 280, type: 'hub', icon: '🎫', color: '#f97316' },
-    { id: 'plan', name: 'Plan', x: 800, y: 280, type: 'consumer', icon: '📅', color: '#14b8a6' },
-    { id: 'wiki', name: 'Knowledge Base', x: 1000, y: 280, type: 'producer', icon: '📚', color: '#8b5cf6' },
-    { id: 'team', name: 'Team', x: 400, y: 400, type: 'service', icon: '👥', color: '#6b7280' },
-    { id: 'settings', name: 'Settings', x: 600, y: 400, type: 'service', icon: '⚙️', color: '#6b7280' },
+    { id: 'dashboard', name: 'Dashboard', x: 600, y: 80, width: 140, height: 60, type: 'aggregator', icon: '📊', color: '#3b82f6' },
+    { id: 'portfolio', name: 'Portfolio Management', x: 100, y: 180, width: 150, height: 60, type: 'consumer', icon: '📈', color: '#10b981' },
+    { id: 'modeling', name: 'Architecture Modeling', x: 300, y: 180, width: 160, height: 60, type: 'producer', icon: '🔷', color: '#8b5cf6' },
+    { id: 'workspace', name: 'Architecture Workspace', x: 520, y: 180, width: 160, height: 60, type: 'producer', icon: '🏗️', color: '#8b5cf6' },
+    { id: 'governance', name: 'Governance', x: 740, y: 180, width: 120, height: 60, type: 'consumer', icon: '🛡️', color: '#f59e0b' },
+    { id: 'capabilities', name: 'Capability Assessment', x: 920, y: 180, width: 160, height: 60, type: 'producer', icon: '🎯', color: '#ef4444' },
     
-    // Core Infrastructure Services
-    { id: 'database', name: 'PostgreSQL Database', x: 200, y: 500, type: 'infrastructure', icon: '🗄️', color: '#374151' },
-    { id: 'auth', name: 'Authentication Service', x: 400, y: 500, type: 'infrastructure', icon: '🔐', color: '#374151' },
-    { id: 'api', name: 'REST API Gateway', x: 600, y: 500, type: 'infrastructure', icon: '🌐', color: '#374151' },
-    { id: 'storage', name: 'File Storage', x: 800, y: 500, type: 'infrastructure', icon: '📁', color: '#374151' }
+    { id: 'decisions', name: 'Decision Records', x: 100, y: 300, width: 140, height: 60, type: 'producer', icon: '📋', color: '#06b6d4' },
+    { id: 'workflows', name: 'Review Workflows', x: 300, y: 300, width: 140, height: 60, type: 'orchestrator', icon: '⚡', color: '#84cc16' },
+    { id: 'tickets', name: 'Architecture Tickets', x: 520, y: 300, width: 150, height: 60, type: 'hub', icon: '🎫', color: '#f97316' },
+    { id: 'plan', name: 'Plan', x: 740, y: 300, width: 100, height: 60, type: 'consumer', icon: '📅', color: '#14b8a6' },
+    { id: 'wiki', name: 'Knowledge Base', x: 920, y: 300, width: 140, height: 60, type: 'producer', icon: '📚', color: '#8b5cf6' },
+    
+    { id: 'team', name: 'Team', x: 300, y: 420, width: 100, height: 60, type: 'service', icon: '👥', color: '#6b7280' },
+    { id: 'settings', name: 'Settings', x: 520, y: 420, width: 100, height: 60, type: 'service', icon: '⚙️', color: '#6b7280' },
+    
+    // Core Infrastructure Services (bottom row)
+    { id: 'database', name: 'PostgreSQL Database', x: 100, y: 540, width: 150, height: 60, type: 'infrastructure', icon: '🗄️', color: '#374151' },
+    { id: 'auth', name: 'Authentication Service', x: 300, y: 540, width: 160, height: 60, type: 'infrastructure', icon: '🔐', color: '#374151' },
+    { id: 'api', name: 'REST API Gateway', x: 520, y: 540, width: 150, height: 60, type: 'infrastructure', icon: '🌐', color: '#374151' },
+    { id: 'storage', name: 'File Storage', x: 740, y: 540, width: 120, height: 60, type: 'infrastructure', icon: '📁', color: '#374151' }
   ];
   
   // Data flows between applications
@@ -135,12 +137,52 @@ function InternalSystemsIntegrationDiagram() {
   // Get node position by ID
   const getNode = (id: string) => applications.find(app => app.id === id);
   
+  // Helper function to get connection points on rectangle edges
+  const getConnectionPoint = (node: any, otherNode: any, isSource: boolean = true) => {
+    const centerX = node.x + node.width / 2;
+    const centerY = node.y + node.height / 2;
+    const otherCenterX = otherNode.x + otherNode.width / 2;
+    const otherCenterY = otherNode.y + otherNode.height / 2;
+    
+    const dx = otherCenterX - centerX; // Direction TO other node
+    const dy = otherCenterY - centerY;
+    
+    // Determine which edge to connect from/to based on direction
+    if (Math.abs(dx) > Math.abs(dy)) {
+      // Horizontal connection - use left or right edge
+      const x = dx > 0 ? node.x + node.width : node.x; // If other is to right, exit from right edge
+      const y = centerY;
+      return { x, y };
+    } else {
+      // Vertical connection - use top or bottom edge
+      const x = centerX;
+      const y = dy > 0 ? node.y + node.height : node.y; // If other is below, exit from bottom edge
+      return { x, y };
+    }
+  };
+  
+  // Simple path routing that avoids overlapping other nodes
+  const getRoutedPath = (fromNode: any, toNode: any) => {
+    const fromPoint = getConnectionPoint(fromNode, toNode, true);
+    const toPoint = getConnectionPoint(toNode, fromNode, false);
+    
+    // Use simple L-shaped routing with proper edge connections
+    const midX = (fromPoint.x + toPoint.x) / 2;
+    
+    return [
+      fromPoint.x, fromPoint.y,
+      midX, fromPoint.y,
+      midX, toPoint.y,
+      toPoint.x, toPoint.y
+    ];
+  };
+  
   return (
     <div className="space-y-4">
       <div className="border rounded-lg bg-white dark:bg-slate-900">
         <Stage width={stageWidth} height={stageHeight}>
           <Layer>
-            {/* Data Flow Lines */}
+            {/* Data Flow Lines - Routed Paths */}
             {dataFlows.map((flow, index) => {
               const fromNode = getNode(flow.from);
               const toNode = getNode(flow.to);
@@ -153,21 +195,22 @@ function InternalSystemsIntegrationDiagram() {
                               flow.type === 'reference' ? '#10b981' :
                               flow.type === 'infrastructure' ? '#374151' : '#6b7280';
               
-              // Calculate proper arrowhead direction
-              const dx = toNode.x - fromNode.x;
-              const dy = toNode.y - fromNode.y;
+              // Get routed path points
+              const pathPoints = getRoutedPath(fromNode, toNode);
+              const lastSegmentStartX = pathPoints[pathPoints.length - 4];
+              const lastSegmentStartY = pathPoints[pathPoints.length - 3];
+              const arrowTipX = pathPoints[pathPoints.length - 2];
+              const arrowTipY = pathPoints[pathPoints.length - 1];
+              
+              // Calculate arrowhead direction from last segment
+              const dx = arrowTipX - lastSegmentStartX;
+              const dy = arrowTipY - lastSegmentStartY;
               const length = Math.sqrt(dx * dx + dy * dy);
-              const unitX = dx / length;
-              const unitY = dy / length;
+              const unitX = length > 0 ? dx / length : 1;
+              const unitY = length > 0 ? dy / length : 0;
               
-              // Arrowhead size and offset from node
-              const arrowSize = 12;
-              const nodeRadius = 40;
-              const arrowOffset = nodeRadius + 5;
-              
-              // Calculate arrowhead position (offset from node edge)
-              const arrowTipX = toNode.x - unitX * arrowOffset;
-              const arrowTipY = toNode.y - unitY * arrowOffset;
+              // Arrowhead size
+              const arrowSize = 8;
               
               // Calculate perpendicular vector for arrowhead wings
               const perpX = -unitY;
@@ -175,17 +218,20 @@ function InternalSystemsIntegrationDiagram() {
               
               return (
                 <Group key={index}>
+                  {/* Routed path */}
                   <Line
-                    points={[fromNode.x, fromNode.y, toNode.x - unitX * nodeRadius, toNode.y - unitY * nodeRadius]}
+                    points={pathPoints}
                     stroke={isSelected ? '#ff6b6b' : flowColor}
                     strokeWidth={isSelected ? 3 : 2}
                     opacity={isSelected ? 1 : 0.7}
                     dash={flow.type === 'reference' ? [5, 5] : undefined}
+                    lineCap="round"
+                    lineJoin="round"
                     onClick={() => setSelectedFlow(isSelected ? null : `${flow.from}-${flow.to}`)}
                     onTap={() => setSelectedFlow(isSelected ? null : `${flow.from}-${flow.to}`)}
                   />
                   
-                  {/* Properly directed arrowhead */}
+                  {/* Arrowhead */}
                   <Line
                     points={[
                       arrowTipX, arrowTipY,
@@ -194,7 +240,7 @@ function InternalSystemsIntegrationDiagram() {
                       arrowTipX, arrowTipY
                     ]}
                     stroke={isSelected ? '#ff6b6b' : flowColor}
-                    strokeWidth={isSelected ? 3 : 2}
+                    strokeWidth={1}
                     closed={true}
                     fill={isSelected ? '#ff6b6b' : flowColor}
                     onClick={() => setSelectedFlow(isSelected ? null : `${flow.from}-${flow.to}`)}
@@ -204,48 +250,55 @@ function InternalSystemsIntegrationDiagram() {
               );
             })}
             
-            {/* Application Nodes */}
+            {/* Application Nodes - Rectangles */}
             {applications.map((app) => {
               const isSelected = selectedNode === app.id;
-              const nodeRadius = 40;
               
               return (
-                <Group key={app.id} x={app.x} y={app.y}>
-                  <Circle
-                    radius={nodeRadius}
+                <Group key={app.id}>
+                  <Rect
+                    x={app.x}
+                    y={app.y}
+                    width={app.width}
+                    height={app.height}
                     fill={isSelected ? '#ff6b6b' : app.color}
                     stroke={isSelected ? '#ff4757' : '#ffffff'}
-                    strokeWidth={3}
-                    shadowBlur={isSelected ? 15 : 8}
+                    strokeWidth={2}
+                    shadowBlur={isSelected ? 10 : 5}
                     shadowColor={isSelected ? '#ff6b6b' : app.color}
-                    shadowOpacity={0.3}
+                    shadowOpacity={0.2}
+                    cornerRadius={8}
                     onClick={() => setSelectedNode(isSelected ? null : app.id)}
                     onTap={() => setSelectedNode(isSelected ? null : app.id)}
                   />
                   
                   <Text
                     text={app.icon}
-                    fontSize={20}
-                    x={-10}
-                    y={-10}
+                    fontSize={16}
+                    x={app.x + 8}
+                    y={app.y + 8}
                     fill="white"
                   />
                   
                   <Text
                     text={app.name}
-                    fontSize={11}
-                    x={-app.name.length * 3}
-                    y={nodeRadius + 10}
-                    fill={isSelected ? '#ff6b6b' : '#374151'}
+                    fontSize={12}
+                    x={app.x + 30}
+                    y={app.y + 12}
+                    fill="white"
                     fontStyle="bold"
+                    width={app.width - 35}
+                    wrap="none"
                   />
                   
                   <Text
                     text={app.type.toUpperCase()}
-                    fontSize={8}
-                    x={-app.type.length * 2.5}
-                    y={nodeRadius + 25}
-                    fill="#6b7280"
+                    fontSize={9}
+                    x={app.x + 30}
+                    y={app.y + 30}
+                    fill="rgba(255,255,255,0.8)"
+                    width={app.width - 35}
+                    wrap="none"
                   />
                 </Group>
               );
