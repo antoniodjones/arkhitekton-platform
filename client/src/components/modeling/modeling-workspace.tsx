@@ -61,6 +61,14 @@ export function ModelingWorkspace({
   const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
   const [aiAssistantMinimized, setAiAssistantMinimized] = useState(false);
   const [changeDetectionOpen, setChangeDetectionOpen] = useState(false);
+  const [changeLog, setChangeLog] = useState<Array<{
+    id: string;
+    type: 'created' | 'updated' | 'deleted' | 'connected' | 'disconnected';
+    objectId?: string;
+    objectName?: string;
+    timestamp: Date;
+    details: string;
+  }>>([]);
   
   // Mock user achievement data for demo
   const mockUserLevel = 8;
@@ -106,6 +114,19 @@ export function ModelingWorkspace({
       isClose: true
     }
   ];
+
+  // Change logging function
+  const logChange = useCallback((type: 'created' | 'updated' | 'deleted' | 'connected' | 'disconnected', objectId?: string, objectName?: string, details?: string) => {
+    const newChange = {
+      id: `change-${Date.now()}`,
+      type,
+      objectId,
+      objectName,
+      timestamp: new Date(),
+      details: details || `Object ${objectId ? `${objectName || objectId}` : ''} was ${type}`
+    };
+    setChangeLog(prev => [newChange, ...prev.slice(0, 49)]); // Keep last 50 changes
+  }, []);
   
   // E-commerce architecture demo - ARKITEKTON universal objects vs AWS-specific shapes
   const [objects, setObjects] = useState<ArchitecturalObject[]>([
@@ -717,25 +738,34 @@ export function ModelingWorkspace({
     };
     
     setObjects(prev => [...prev, newObject]);
-  }, [model?.id]);
+    logChange('created', newObject.id, newObject.name, `Created ${newObject.category} object: ${newObject.name}`);
+  }, [model?.id, logChange]);
 
   const handleObjectUpdate = useCallback((objectId: string, updates: Partial<ArchitecturalObject>) => {
-    setObjects(prev => prev.map(obj => 
-      obj.id === objectId 
-        ? { ...obj, ...updates, updatedAt: new Date() }
-        : obj
-    ));
+    setObjects(prev => prev.map(obj => {
+      if (obj.id === objectId) {
+        const updatedObj = { ...obj, ...updates, updatedAt: new Date() };
+        logChange('updated', objectId, obj.name, `Updated ${obj.category} object: ${obj.name}`);
+        return updatedObj;
+      }
+      return obj;
+    }));
     
     // Trigger achievement evaluation for model complexity (demo simulation)
     if (Math.random() > 0.7) { // 30% chance to trigger celebration for demo
       triggerAchievementCelebration();
     }
-  }, []);
+  }, [logChange]);
 
   const handleObjectDelete = useCallback((objectId: string) => {
+    const objectToDelete = objects.find(obj => obj.id === objectId);
     setObjects(prev => prev.filter(obj => obj.id !== objectId));
     setSelectedObjects(prev => prev.filter(id => id !== objectId));
-  }, []);
+    
+    if (objectToDelete) {
+      logChange('deleted', objectId, objectToDelete.name, `Deleted ${objectToDelete.category} object: ${objectToDelete.name}`);
+    }
+  }, [objects, logChange]);
 
   // Achievement celebration handler
   const triggerAchievementCelebration = useCallback(() => {
@@ -767,6 +797,7 @@ export function ModelingWorkspace({
     console.log('Creating ticket for change:', change);
     // Navigate to tickets page or open ticket creation modal
   };
+
 
   const handleConnectionCreate = useCallback((connectionData: Partial<ObjectConnection>) => {
     const newConnection: ObjectConnection = {
