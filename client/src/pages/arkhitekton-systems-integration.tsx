@@ -574,7 +574,7 @@ function DeveloperIntegrationDiagram({ selectedState, syncFlows: propSyncFlows }
           </h5>
           
           {selectedFlow && (() => {
-            const flow = flowPaths.find((fp: any) => fp.id === selectedFlow)?.flow;
+            const flow = lifecycleFlows.find((lf: any) => lf.id === selectedFlow)?.flow;
             if (!flow) return null;
             
             return (
@@ -609,7 +609,7 @@ function DeveloperIntegrationDiagram({ selectedState, syncFlows: propSyncFlows }
           
           {selectedNode && !selectedFlow && (() => {
             const selectedChannel = [...(channels || [])].find((ch: any) => ch.id === selectedNode);
-            const channelFlows = flowPaths.filter((fp: any) => fp.sourceNode.id === selectedNode);
+            const channelFlows = lifecycleFlows.filter((lf: any) => lf.sourceNode.id === selectedNode);
             
             if (selectedChannel) {
               return (
@@ -639,7 +639,7 @@ function DeveloperIntegrationDiagram({ selectedState, syncFlows: propSyncFlows }
           
           {/* Flow Statistics for selected channel */}
           {selectedNode && !selectedFlow && (() => {
-            const channelFlows = flowPaths.filter((fp: any) => fp.sourceNode.id === selectedNode);
+            const channelFlows = lifecycleFlows.filter((lf: any) => lf.sourceNode.id === selectedNode);
             if (channelFlows.length === 0) return null;
             
             const stateBreakdown = channelFlows.reduce((acc: any, fp: any) => {

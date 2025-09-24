@@ -593,12 +593,11 @@ Scenario: Team Assignment
         directionality: 'bidirectional',
         capabilities: ['model_sync', 'code_gen', 'reverse_eng', 'real_time'],
         connectionConfig: {
-          authMethod: 'oauth',
-          syncFrequency: 'real_time',
+          authMethod: 'oauth' as const,
+          syncFrequency: 'real_time' as const,
           requiredScopes: ['workspace', 'extensions']
         },
         version: '1.0.0',
-        status: 'active',
         documentation: 'ARKHITEKTON VS Code extension for real-time model synchronization'
       },
       {
@@ -608,12 +607,11 @@ Scenario: Team Assignment
         directionality: 'bidirectional',
         capabilities: ['model_sync', 'code_gen', 'reverse_eng'],
         connectionConfig: {
-          authMethod: 'token',
-          syncFrequency: 'on_demand',
+          authMethod: 'token' as const,
+          syncFrequency: 'on_demand' as const,
           apiEndpoint: 'https://api.jetbrains.com'
         },
         version: '1.0.0',
-        status: 'active',
         documentation: 'ARKHITEKTON IntelliJ plugin for architecture modeling'
       },
       {
@@ -623,13 +621,12 @@ Scenario: Team Assignment
         directionality: 'bidirectional',
         capabilities: ['model_sync', 'webhook', 'ci_cd'],
         connectionConfig: {
-          authMethod: 'oauth',
-          syncFrequency: 'real_time',
+          authMethod: 'oauth' as const,
+          syncFrequency: 'real_time' as const,
           webhookUrl: 'https://api.github.com/webhooks',
           requiredScopes: ['repo', 'admin:repo_hook']
         },
         version: '1.0.0',
-        status: 'active',
         documentation: 'GitHub integration for version control and CI/CD'
       },
       {
@@ -639,12 +636,11 @@ Scenario: Team Assignment
         directionality: 'bidirectional',
         capabilities: ['model_sync', 'webhook', 'ci_cd'],
         connectionConfig: {
-          authMethod: 'token',
-          syncFrequency: 'real_time',
+          authMethod: 'token' as const,
+          syncFrequency: 'real_time' as const,
           apiEndpoint: 'https://gitlab.com/api/v4'
         },
         version: '1.0.0',
-        status: 'active',
         documentation: 'GitLab integration for enterprise version control'
       }
     ];
