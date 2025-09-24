@@ -161,18 +161,206 @@ function InternalSystemsIntegrationDiagram() {
     }
   };
   
-  // Simple path routing that avoids overlapping other nodes
+  // Check if a line segment intersects with a rectangle
+  const lineIntersectsRect = (x1: number, y1: number, x2: number, y2: number, rect: any) => {
+    const padding = 15; // Add padding around rectangles
+    const left = rect.x - padding;
+    const right = rect.x + rect.width + padding;
+    const top = rect.y - padding;
+    const bottom = rect.y + rect.height + padding;
+    
+    // Check if line segment intersects with padded rectangle
+    // Use proper line-rectangle intersection test
+    if (x1 === x2) { // Vertical line
+      return x1 >= left && x1 <= right && !(Math.max(y1, y2) < top || Math.min(y1, y2) > bottom);
+    }
+    if (y1 === y2) { // Horizontal line
+      return y1 >= top && y1 <= bottom && !(Math.max(x1, x2) < left || Math.min(x1, x2) > right);
+    }
+    
+    // For diagonal lines, use comprehensive line-rectangle intersection
+    // Check if line segment bounding box intersects rectangle
+    const lineLeft = Math.min(x1, x2);
+    const lineRight = Math.max(x1, x2);
+    const lineTop = Math.min(y1, y2);
+    const lineBottom = Math.max(y1, y2);
+    
+    // First check if bounding boxes don't overlap
+    if (lineRight < left || lineLeft > right || lineBottom < top || lineTop > bottom) {
+      return false;
+    }
+    
+    // For simplicity with diagonal lines, if bounding boxes overlap, consider it a collision
+    // This is conservative but ensures no arrows pass through shapes
+    return true;
+  };
+
+  // Check if a path (array of points) intersects with any obstacles
+  const pathIntersectsObstacles = (pathPoints: number[], obstacles: any[]) => {
+    for (let i = 0; i < pathPoints.length - 2; i += 2) {
+      const x1 = pathPoints[i];
+      const y1 = pathPoints[i + 1];
+      const x2 = pathPoints[i + 2];
+      const y2 = pathPoints[i + 3];
+      
+      for (const obstacle of obstacles) {
+        if (lineIntersectsRect(x1, y1, x2, y2, obstacle)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  // Smart path routing that avoids overlapping other nodes
   const getRoutedPath = (fromNode: any, toNode: any) => {
     const fromPoint = getConnectionPoint(fromNode, toNode, true);
     const toPoint = getConnectionPoint(toNode, fromNode, false);
     
-    // Use simple L-shaped routing with proper edge connections
-    const midX = (fromPoint.x + toPoint.x) / 2;
+    // Get all other nodes that could be obstacles
+    const obstacles = [...applications].filter(app => app.id !== fromNode.id && app.id !== toNode.id);
     
-    return [
+    // Try simple L-shaped routing first
+    const midX = (fromPoint.x + toPoint.x) / 2;
+    const simplePath = [
       fromPoint.x, fromPoint.y,
       midX, fromPoint.y,
       midX, toPoint.y,
+      toPoint.x, toPoint.y
+    ];
+    
+    // Check if simple path intersects with any obstacles
+    if (!pathIntersectsObstacles(simplePath, obstacles)) {
+      return simplePath;
+    }
+    
+    // Try different routing strategies
+    const strategies = [
+      // Strategy 1: Route above obstacles
+      () => {
+        const clearY = Math.min(...obstacles.map(o => o.y)) - 30;
+        return [
+          fromPoint.x, fromPoint.y,
+          fromPoint.x, clearY,
+          toPoint.x, clearY,
+          toPoint.x, toPoint.y
+        ];
+      },
+      // Strategy 2: Route below obstacles
+      () => {
+        const clearY = Math.max(...obstacles.map(o => o.y + o.height)) + 30;
+        return [
+          fromPoint.x, fromPoint.y,
+          fromPoint.x, clearY,
+          toPoint.x, clearY,
+          toPoint.x, toPoint.y
+        ];
+      },
+      // Strategy 3: Route to the left
+      () => {
+        const clearX = Math.min(...obstacles.map(o => o.x)) - 30;
+        return [
+          fromPoint.x, fromPoint.y,
+          clearX, fromPoint.y,
+          clearX, toPoint.y,
+          toPoint.x, toPoint.y
+        ];
+      },
+      // Strategy 4: Route to the right
+      () => {
+        const clearX = Math.max(...obstacles.map(o => o.x + o.width)) + 30;
+        return [
+          fromPoint.x, fromPoint.y,
+          clearX, fromPoint.y,
+          clearX, toPoint.y,
+          toPoint.x, toPoint.y
+        ];
+      }
+    ];
+    
+    // Try each strategy until we find a clear path
+    for (const strategy of strategies) {
+      try {
+        const candidatePath = strategy();
+        if (!pathIntersectsObstacles(candidatePath, obstacles)) {
+          return candidatePath;
+        }
+      } catch (e) {
+        // Strategy failed, try next one
+        continue;
+      }
+    }
+    
+    // Fallback: iteratively expand clearance until we find a collision-free path
+    // Try expanding clearance in increments until we find a clear corridor
+    for (let clearance = 30; clearance <= 120; clearance += 30) {
+      const allBounds = {
+        left: Math.min(...obstacles.map(o => o.x)) - clearance,
+        right: Math.max(...obstacles.map(o => o.x + o.width)) + clearance,
+        top: Math.min(...obstacles.map(o => o.y)) - clearance,
+        bottom: Math.max(...obstacles.map(o => o.y + o.height)) + clearance
+      };
+      
+      // Try routing above obstacles
+      const topPath = [
+        fromPoint.x, fromPoint.y,
+        fromPoint.x, allBounds.top,
+        toPoint.x, allBounds.top,
+        toPoint.x, toPoint.y
+      ];
+      if (!pathIntersectsObstacles(topPath, obstacles)) {
+        return topPath;
+      }
+      
+      // Try routing below obstacles
+      const bottomPath = [
+        fromPoint.x, fromPoint.y,
+        fromPoint.x, allBounds.bottom,
+        toPoint.x, allBounds.bottom,
+        toPoint.x, toPoint.y
+      ];
+      if (!pathIntersectsObstacles(bottomPath, obstacles)) {
+        return bottomPath;
+      }
+      
+      // Try routing to the left
+      const leftPath = [
+        fromPoint.x, fromPoint.y,
+        allBounds.left, fromPoint.y,
+        allBounds.left, toPoint.y,
+        toPoint.x, toPoint.y
+      ];
+      if (!pathIntersectsObstacles(leftPath, obstacles)) {
+        return leftPath;
+      }
+      
+      // Try routing to the right
+      const rightPath = [
+        fromPoint.x, fromPoint.y,
+        allBounds.right, fromPoint.y,
+        allBounds.right, toPoint.y,
+        toPoint.x, toPoint.y
+      ];
+      if (!pathIntersectsObstacles(rightPath, obstacles)) {
+        return rightPath;
+      }
+    }
+    
+    // Ultimate fallback: use maximum clearance path around the entire diagram
+    // This should provide enough space to avoid all obstacles
+    const maxClearance = 200;
+    const finalBounds = {
+      top: Math.min(...obstacles.map(o => o.y)) - maxClearance,
+      bottom: Math.max(...obstacles.map(o => o.y + o.height)) + maxClearance,
+      left: Math.min(...obstacles.map(o => o.x)) - maxClearance,
+      right: Math.max(...obstacles.map(o => o.x + o.width)) + maxClearance
+    };
+    
+    // Route around the top edge (most likely to be clear)
+    return [
+      fromPoint.x, fromPoint.y,
+      fromPoint.x, finalBounds.top,
+      toPoint.x, finalBounds.top,
       toPoint.x, toPoint.y
     ];
   };
@@ -265,8 +453,8 @@ function InternalSystemsIntegrationDiagram() {
               const unitX = length > 0 ? dx / length : 1;
               const unitY = length > 0 ? dy / length : 0;
               
-              // Arrowhead size
-              const arrowSize = 10;
+              // Arrowhead size - smaller as requested
+              const arrowSize = 6;
               
               // Calculate perpendicular vector for arrowhead wings
               const perpX = -unitY;
@@ -278,8 +466,8 @@ function InternalSystemsIntegrationDiagram() {
                   <Line
                     points={pathPoints}
                     stroke={isSelected ? '#ff6b6b' : flowColor}
-                    strokeWidth={isSelected ? 4 : 3}
-                    opacity={isSelected ? 1 : 0.8}
+                    strokeWidth={isSelected ? 3 : 2}
+                    opacity={isSelected ? 1 : 0.9}
                     dash={flow.type === 'reference' ? [5, 5] : undefined}
                     lineCap="round"
                     lineJoin="round"
@@ -296,7 +484,7 @@ function InternalSystemsIntegrationDiagram() {
                       arrowTipX, arrowTipY
                     ]}
                     stroke={isSelected ? '#ff6b6b' : flowColor}
-                    strokeWidth={2}
+                    strokeWidth={1}
                     closed={true}
                     fill={isSelected ? '#ff6b6b' : flowColor}
                     onClick={() => setSelectedFlow(isSelected ? null : `${flow.from}-${flow.to}`)}
