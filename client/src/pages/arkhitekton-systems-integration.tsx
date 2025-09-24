@@ -4,6 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { Stage, Layer, Group, Rect, Text, Circle, Line } from "react-konva";
+import { useState } from "react";
 import { 
   ArrowLeft,
   ArrowRight,
@@ -41,7 +44,756 @@ import {
   Key
 } from "lucide-react";
 
+// Interactive Swimlane Diagram Component with Flow Visualization
+function DeveloperIntegrationDiagram({ selectedState, syncFlows: propSyncFlows }: { selectedState?: string, syncFlows?: any[] }) {
+  const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const [selectedFlow, setSelectedFlow] = useState<string | null>(null);
+  
+  // Fetch integration channels and sync flows
+  const { data: channels, isLoading: channelsLoading } = useQuery({
+    queryKey: ['/api/integrations/developer/channels'],
+  });
+  
+  const { data: fetchedSyncFlows, isLoading: flowsLoading } = useQuery({
+    queryKey: ['/api/integrations/developer/sync-flows'],
+  });
+
+  const syncFlows = propSyncFlows || fetchedSyncFlows;
+
+  if (channelsLoading || flowsLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600 mx-auto mb-2"></div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Loading integration diagram...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const stageWidth = 1200;
+  const stageHeight = 600;
+  const swimlaneHeight = 180;
+  const nodeRadius = 18;
+
+  // Define swimlane positions with Git-like state management
+  const swimlanes = [
+    { name: 'Developer Tools', y: 20, color: '#3B82F6' },
+    { name: 'Git-like Object Lifecycle States', y: 220, color: '#8B5CF6' },
+    { name: 'Version Control Systems', y: 440, color: '#10B981' }
+  ];
+
+  // Generate source nodes (IDE/Developer Tools)
+  const ideNodes = (channels || [])
+    .filter((ch: any) => ch.type === 'ide')
+    .map((ch: any, index: number) => ({
+      id: ch.id,
+      name: ch.name,
+      x: 80 + (index * 160),
+      y: 80,
+      status: ch.status,
+      type: 'ide'
+    }));
+
+  // Generate target nodes (Version Control)
+  const vcsNodes = (channels || [])
+    .filter((ch: any) => ch.type === 'vcs')
+    .map((ch: any, index: number) => ({
+      id: ch.id,
+      name: ch.name,
+      x: 80 + (index * 160),
+      y: 500,
+      status: ch.status,
+      type: 'vcs'
+    }));
+
+  // Git-like Lifecycle State Nodes (Core of ARKHITEKTON)
+  const lifecycleStates = [
+    { id: 'draft', name: 'Draft', x: 150, y: 300, color: '#6B7280', description: 'Working tree' },
+    { id: 'staged', name: 'Staged', x: 300, y: 300, color: '#F59E0B', description: 'Ready for commit' },
+    { id: 'committed', name: 'Committed', x: 450, y: 300, color: '#10B981', description: 'Main architecture' },
+    { id: 'branched', name: 'Branched', x: 600, y: 300, color: '#3B82F6', description: 'Feature branch' },
+    { id: 'merged', name: 'Merged', x: 750, y: 300, color: '#8B5CF6', description: 'Integrated' }
+  ];
+
+  // Management nodes for ARKHITEKTON Core
+  const managementNodes = [
+    { id: 'state-engine', name: 'State Engine', x: 900, y: 260, type: 'core' },
+    { id: 'object-store', name: 'Object Store', x: 900, y: 320, type: 'core' },
+    { id: 'sync-engine', name: 'Sync Engine', x: 1000, y: 290, type: 'core' }
+  ];
+
+  // Group sync flows by state for visual representation
+  const flowsByState = (syncFlows || []).reduce((acc: any, flow: any) => {
+    const state = flow.currentState || 'draft';
+    if (!acc[state]) acc[state] = [];
+    acc[state].push(flow);
+    return acc;
+  }, {});
+
+  // Calculate aggregated state data for visualization
+  const stateAggregates = lifecycleStates.map(state => ({
+    ...state,
+    count: flowsByState[state.id]?.length || 0,
+    flows: flowsByState[state.id] || []
+  }));
+
+  // Filter flows based on selected state
+  const filteredSyncFlows = (syncFlows || []).filter((flow: any) => {
+    if (selectedState) {
+      return flow.currentState === selectedState;
+    }
+    return true;
+  });
+
+  // State color mapping
+  const stateColors: Record<string, string> = {
+    draft: '#6B7280',
+    staged: '#F59E0B', 
+    committed: '#10B981',
+    branched: '#3B82F6',
+    merged: '#8B5CF6'
+  };
+
+  // Generate Git-like lifecycle flow paths
+  const generateLifecycleFlows = () => {
+    return filteredSyncFlows.map((flow: any, index: number) => {
+      const sourceChannel = [...(channels || [])].find((ch: any) => ch.id === flow.integrationChannelId);
+      if (!sourceChannel) return null;
+
+      const sourceNode = sourceChannel.type === 'ide' 
+        ? ideNodes.find(n => n.id === sourceChannel.id)
+        : vcsNodes.find(n => n.id === sourceChannel.id);
+      
+      if (!sourceNode) return null;
+
+      // Find the current state node
+      const currentStateNode = lifecycleStates.find(s => s.id === flow.currentState);
+      if (!currentStateNode) return null;
+
+      const stateColor = stateColors[flow.currentState] || stateColors.draft;
+      
+      return {
+        id: flow.id,
+        sourceNode,
+        currentStateNode,
+        flow,
+        stateColor,
+        offset: (index % 3) * 6 // Offset multiple flows from same source
+      };
+    }).filter(Boolean);
+  };
+
+  // Generate state transition paths (showing Git-like progression)
+  const generateStateTransitions = () => {
+    const transitions = [];
+    for (let i = 0; i < lifecycleStates.length - 1; i++) {
+      const fromState = lifecycleStates[i];
+      const toState = lifecycleStates[i + 1];
+      
+      // Count flows that could transition between these states
+      const transitionCount = (syncFlows || []).filter((flow: any) => 
+        flow.stateHistory && 
+        flow.stateHistory.includes(fromState.id) && 
+        flow.stateHistory.includes(toState.id)
+      ).length;
+
+      transitions.push({
+        from: fromState,
+        to: toState,
+        count: transitionCount,
+        active: transitionCount > 0
+      });
+    }
+    return transitions;
+  };
+
+  const lifecycleFlows = generateLifecycleFlows();
+  const stateTransitions = generateStateTransitions();
+
+  return (
+    <div className="border border-violet-200 dark:border-violet-800 rounded-lg p-4 bg-white dark:bg-slate-900">
+      <div className="flex items-center justify-between mb-4">
+        <h4 className="text-lg font-semibold text-violet-900 dark:text-violet-100 flex items-center">
+          <Network className="h-4 w-4 mr-2" />
+          Live Developer Integration Flow
+        </h4>
+        <div className="flex items-center space-x-2">
+          {selectedState && (
+            <Badge variant="outline" className="text-xs">
+              Showing {selectedState} flows ({filteredSyncFlows.length})
+            </Badge>
+          )}
+          <Badge variant="outline" className="text-xs">
+            {lifecycleFlows.length} Active Flows
+          </Badge>
+          <Badge variant="outline" className="text-xs">
+            {stateAggregates.reduce((sum, state) => sum + state.count, 0)} Total Objects
+          </Badge>
+        </div>
+      </div>
+      
+      <Stage width={stageWidth} height={stageHeight}>
+        <Layer>
+          {/* Swimlane backgrounds */}
+          {swimlanes.map((lane) => (
+            <Group key={lane.name}>
+              <Rect
+                x={0}
+                y={lane.y}
+                width={stageWidth}
+                height={swimlaneHeight}
+                fill={lane.color}
+                opacity={0.1}
+                stroke={lane.color}
+                strokeWidth={2}
+              />
+              <Text
+                x={15}
+                y={lane.y + 15}
+                text={lane.name}
+                fontSize={16}
+                fontFamily="Arial"
+                fill={lane.color}
+                fontStyle="bold"
+              />
+            </Group>
+          ))}
+
+          {/* Git-like State Transition Lines (Draft → Staged → Committed → Branched → Merged) */}
+          {stateTransitions.map((transition: any, index: number) => (
+            <Group key={`transition-${index}`}>
+              <Line
+                points={[
+                  transition.from.x + nodeRadius, 
+                  transition.from.y,
+                  transition.to.x - nodeRadius, 
+                  transition.to.y
+                ]}
+                stroke={transition.active ? '#8B5CF6' : '#D1D5DB'}
+                strokeWidth={transition.active ? 3 : 1}
+                opacity={transition.active ? 0.8 : 0.3}
+                dash={transition.active ? [] : [5, 5]}
+              />
+              {/* Transition arrow */}
+              <Line
+                points={[
+                  transition.to.x - nodeRadius - 10,
+                  transition.to.y - 5,
+                  transition.to.x - nodeRadius,
+                  transition.to.y,
+                  transition.to.x - nodeRadius - 10,
+                  transition.to.y + 5
+                ]}
+                stroke={transition.active ? '#8B5CF6' : '#D1D5DB'}
+                strokeWidth={transition.active ? 2 : 1}
+                opacity={transition.active ? 0.8 : 0.3}
+                closed={false}
+              />
+              {/* Transition count badge */}
+              {transition.count > 0 && (
+                <Group>
+                  <Circle
+                    x={(transition.from.x + transition.to.x) / 2}
+                    y={transition.from.y - 15}
+                    radius={8}
+                    fill="#EF4444"
+                    stroke="white"
+                    strokeWidth={1}
+                  />
+                  <Text
+                    x={(transition.from.x + transition.to.x) / 2 - 4}
+                    y={transition.from.y - 15 - 3}
+                    text={transition.count.toString()}
+                    fontSize={8}
+                    fontFamily="Arial"
+                    fill="white"
+                    align="center"
+                  />
+                </Group>
+              )}
+            </Group>
+          ))}
+
+          {/* Object Flow Lines from Sources to Current State */}
+          {lifecycleFlows.map((lifecycleFlow: any) => {
+            const offsetX = lifecycleFlow.offset;
+            
+            return (
+              <Group key={`lifecycle-flow-${lifecycleFlow.id}`}>
+                <Line
+                  points={[
+                    lifecycleFlow.sourceNode.x + offsetX, 
+                    lifecycleFlow.sourceNode.y + (lifecycleFlow.sourceNode.type === 'ide' ? nodeRadius : -nodeRadius),
+                    lifecycleFlow.currentStateNode.x + offsetX, 
+                    lifecycleFlow.currentStateNode.y - nodeRadius
+                  ]}
+                  stroke={lifecycleFlow.stateColor}
+                  strokeWidth={selectedFlow === lifecycleFlow.id ? 4 : 2}
+                  opacity={selectedState && lifecycleFlow.flow.currentState !== selectedState ? 0.3 : 0.8}
+                  dash={lifecycleFlow.flow.currentState === 'draft' ? [5, 5] : []}
+                  onClick={() => setSelectedFlow(selectedFlow === lifecycleFlow.id ? null : lifecycleFlow.id)}
+                  onTap={() => setSelectedFlow(selectedFlow === lifecycleFlow.id ? null : lifecycleFlow.id)}
+                />
+                
+                {/* Flow State Indicator */}
+                <Circle
+                  x={lifecycleFlow.sourceNode.x + offsetX}
+                  y={lifecycleFlow.sourceNode.y + (lifecycleFlow.sourceNode.type === 'ide' ? nodeRadius + 8 : -nodeRadius - 8)}
+                  radius={3}
+                  fill={lifecycleFlow.stateColor}
+                  onClick={() => setSelectedFlow(selectedFlow === lifecycleFlow.id ? null : lifecycleFlow.id)}
+                  onTap={() => setSelectedFlow(selectedFlow === lifecycleFlow.id ? null : lifecycleFlow.id)}
+                />
+              </Group>
+            );
+          })}
+
+          {/* Git-like Lifecycle State Nodes (Core ARKHITEKTON Feature) */}
+          {stateAggregates.map((state) => (
+            <Group 
+              key={state.id}
+              onClick={() => setSelectedNode(selectedNode === state.id ? null : state.id)}
+              onTap={() => setSelectedNode(selectedNode === state.id ? null : state.id)}
+            >
+              <Circle
+                x={state.x}
+                y={state.y}
+                radius={nodeRadius + (state.count > 0 ? 5 : 0)}
+                fill={selectedNode === state.id ? '#F59E0B' : state.color}
+                stroke={selectedState === state.id ? '#000000' : state.color}
+                strokeWidth={selectedState === state.id ? 4 : 2}
+                shadowBlur={selectedNode === state.id ? 15 : 8}
+                shadowColor="black"
+                shadowOpacity={0.4}
+              />
+              <Text
+                x={state.x - 20}
+                y={state.y - 5}
+                width={40}
+                text={state.name}
+                fontSize={11}
+                fontFamily="Arial"
+                fill="white"
+                align="center"
+                fontStyle="bold"
+              />
+              {/* Object count badge for each state */}
+              {state.count > 0 && (
+                <Group>
+                  <Circle
+                    x={state.x + 18}
+                    y={state.y - 18}
+                    radius={10}
+                    fill="#DC2626"
+                    stroke="white"
+                    strokeWidth={2}
+                  />
+                  <Text
+                    x={state.x + 18 - 6}
+                    y={state.y - 18 - 4}
+                    text={state.count.toString()}
+                    fontSize={10}
+                    fontFamily="Arial"
+                    fill="white"
+                    align="center"
+                    fontStyle="bold"
+                  />
+                </Group>
+              )}
+              {/* State description */}
+              <Text
+                x={state.x - 30}
+                y={state.y + 25}
+                width={60}
+                text={state.description}
+                fontSize={8}
+                fontFamily="Arial"
+                fill={state.color}
+                align="center"
+              />
+            </Group>
+          ))}
+
+          {/* IDE/Developer Tool Nodes */}
+          {ideNodes.map((node: any) => {
+            const nodeFlows = lifecycleFlows.filter((lf: any) => lf.sourceNode.id === node.id);
+            
+            return (
+              <Group key={node.id}>
+                <Circle
+                  x={node.x}
+                  y={node.y}
+                  radius={nodeRadius + (nodeFlows.length > 0 ? 3 : 0)}
+                  fill={selectedNode === node.id ? '#F59E0B' : '#3B82F6'}
+                  stroke={node.status === 'active' ? '#10B981' : '#EF4444'}
+                  strokeWidth={3}
+                  shadowBlur={selectedNode === node.id ? 10 : 5}
+                  shadowColor="black"
+                  shadowOpacity={0.3}
+                  onClick={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
+                  onTap={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
+                />
+                <Text
+                  x={node.x - 25}
+                  y={node.y - 5}
+                  width={50}
+                  text={node.name.split(' ')[0]}
+                  fontSize={10}
+                  fontFamily="Arial"
+                  fill="white"
+                  align="center"
+                />
+                {/* Flow count badge */}
+                {nodeFlows.length > 0 && (
+                  <Group>
+                    <Circle
+                      x={node.x + 15}
+                      y={node.y - 15}
+                      radius={8}
+                      fill="#DC2626"
+                      stroke="white"
+                      strokeWidth={1}
+                    />
+                    <Text
+                      x={node.x + 15 - 4}
+                      y={node.y - 15 - 3}
+                      text={nodeFlows.length.toString()}
+                      fontSize={8}
+                      fontFamily="Arial"
+                      fill="white"
+                      align="center"
+                    />
+                  </Group>
+                )}
+              </Group>
+            );
+          })}
+
+          {/* ARKHITEKTON Management Nodes */}
+          {managementNodes.map((node) => (
+            <Group key={node.id}>
+              <Circle
+                x={node.x}
+                y={node.y}
+                radius={nodeRadius}
+                fill={selectedNode === node.id ? '#F59E0B' : '#8B5CF6'}
+                stroke="#7C3AED"
+                strokeWidth={2}
+                shadowBlur={selectedNode === node.id ? 10 : 5}
+                shadowColor="black"
+                shadowOpacity={0.3}
+                onClick={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
+                onTap={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
+              />
+              <Text
+                x={node.x - 25}
+                y={node.y - 5}
+                width={50}
+                text={node.name.replace(' ', '\n')}
+                fontSize={8}
+                fontFamily="Arial"
+                fill="white"
+                align="center"
+              />
+            </Group>
+          ))}
+
+          {/* VCS Nodes */}
+          {vcsNodes.map((node: any) => {
+            const nodeFlows = lifecycleFlows.filter((lf: any) => lf.sourceNode.id === node.id);
+            
+            return (
+              <Group key={node.id}>
+                <Circle
+                  x={node.x}
+                  y={node.y}
+                  radius={nodeRadius + (nodeFlows.length > 0 ? 3 : 0)}
+                  fill={selectedNode === node.id ? '#F59E0B' : '#10B981'}
+                  stroke={node.status === 'active' ? '#059669' : '#EF4444'}
+                  strokeWidth={3}
+                  shadowBlur={selectedNode === node.id ? 10 : 5}
+                  shadowColor="black"
+                  shadowOpacity={0.3}
+                  onClick={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
+                  onTap={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
+                />
+                <Text
+                  x={node.x - 25}
+                  y={node.y - 5}
+                  width={50}
+                  text={node.name.split(' ')[0]}
+                  fontSize={10}
+                  fontFamily="Arial"
+                  fill="white"
+                  align="center"
+                />
+                {/* Flow count badge */}
+                {nodeFlows.length > 0 && (
+                  <Group>
+                    <Circle
+                      x={node.x + 15}
+                      y={node.y - 15}
+                      radius={8}
+                      fill="#DC2626"
+                      stroke="white"
+                      strokeWidth={1}
+                    />
+                    <Text
+                      x={node.x + 15 - 4}
+                      y={node.y - 15 - 3}
+                      text={nodeFlows.length.toString()}
+                      fontSize={8}
+                      fontFamily="Arial"
+                      fill="white"
+                      align="center"
+                    />
+                  </Group>
+                )}
+              </Group>
+            );
+          })}
+        </Layer>
+      </Stage>
+
+      {/* Enhanced Details Panel */}
+      {(selectedNode || selectedFlow) && (
+        <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <h5 className="font-medium mb-3 flex items-center">
+            {selectedFlow ? (
+              <>
+                <Activity className="h-4 w-4 mr-2" />
+                Sync Flow Details
+              </>
+            ) : (
+              <>
+                <Network className="h-4 w-4 mr-2" />
+                Integration Channel Details
+              </>
+            )}
+          </h5>
+          
+          {selectedFlow && (() => {
+            const flow = flowPaths.find((fp: any) => fp.id === selectedFlow)?.flow;
+            if (!flow) return null;
+            
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div className="space-y-2">
+                  <div><span className="font-medium">Object ID:</span> {flow.objectId}</div>
+                  <div><span className="font-medium">Current State:</span> 
+                    <Badge 
+                      variant="outline" 
+                      className="ml-2"
+                      style={{ borderColor: stateColors[flow.currentState], color: stateColors[flow.currentState] }}
+                    >
+                      {flow.currentState}
+                    </Badge>
+                  </div>
+                  <div><span className="font-medium">Object Type:</span> {flow.objectType}</div>
+                  <div><span className="font-medium">Version:</span> {flow.version || 'N/A'}</div>
+                </div>
+                <div className="space-y-2">
+                  <div><span className="font-medium">Last Sync:</span> {flow.lastSyncAt ? new Date(flow.lastSyncAt).toLocaleString() : 'Never'}</div>
+                  <div><span className="font-medium">Conflict Status:</span> 
+                    <Badge variant={flow.conflictResolution === 'resolved' ? 'default' : 'destructive'} className="ml-2 text-xs">
+                      {flow.conflictResolution || 'none'}
+                    </Badge>
+                  </div>
+                  <div><span className="font-medium">Sync Direction:</span> {flow.syncDirection}</div>
+                  <div><span className="font-medium">State History:</span> {flow.stateHistory?.length || 0} transitions</div>
+                </div>
+              </div>
+            );
+          })()}
+          
+          {selectedNode && !selectedFlow && (() => {
+            const selectedChannel = [...(channels || [])].find((ch: any) => ch.id === selectedNode);
+            const channelFlows = flowPaths.filter((fp: any) => fp.sourceNode.id === selectedNode);
+            
+            if (selectedChannel) {
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="space-y-2">
+                    <div><span className="font-medium">Tool:</span> {selectedChannel.name}</div>
+                    <div><span className="font-medium">Type:</span> {selectedChannel.type}</div>
+                    <div><span className="font-medium">Direction:</span> {selectedChannel.directionality}</div>
+                    <div><span className="font-medium">Status:</span> 
+                      <Badge variant="outline" className="ml-2">
+                        {selectedChannel.status}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div><span className="font-medium">Active Flows:</span> {channelFlows.length}</div>
+                    <div><span className="font-medium">Capabilities:</span> {selectedChannel.capabilities?.join(', ')}</div>
+                    <div><span className="font-medium">Auth Method:</span> {selectedChannel.authMethod || 'OAuth 2.0'}</div>
+                    <div><span className="font-medium">Last Connected:</span> {selectedChannel.lastConnected ? new Date(selectedChannel.lastConnected).toLocaleString() : 'Never'}</div>
+                  </div>
+                </div>
+              );
+            }
+            
+            return <p className="text-sm text-gray-600 dark:text-gray-400">Select a node or flow to view details</p>;
+          })()}
+          
+          {/* Flow Statistics for selected channel */}
+          {selectedNode && !selectedFlow && (() => {
+            const channelFlows = flowPaths.filter((fp: any) => fp.sourceNode.id === selectedNode);
+            if (channelFlows.length === 0) return null;
+            
+            const stateBreakdown = channelFlows.reduce((acc: any, fp: any) => {
+              const state = fp.flow.currentState;
+              acc[state] = (acc[state] || 0) + 1;
+              return acc;
+            }, {});
+            
+            return (
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                <h6 className="font-medium mb-2 text-sm">Flow State Breakdown</h6>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(stateBreakdown).map(([state, count]: any) => (
+                    <Badge 
+                      key={state}
+                      variant="outline" 
+                      className="text-xs"
+                      style={{ borderColor: stateColors[state], color: stateColors[state] }}
+                    >
+                      {state}: {count}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Git-like State Lifecycle Component with Enhanced Flow Visualization
+function ObjectStateLifecycle({ syncFlows, onStateSelect }: { syncFlows?: any[], onStateSelect?: (state: string) => void }) {
+  if (!syncFlows) {
+    return <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-32 rounded-lg"></div>;
+  }
+
+  // Group sync flows by state with detailed analytics
+  const stateStats = syncFlows.reduce((acc: any, flow: any) => {
+    const state = flow.currentState || 'draft';
+    if (!acc[state]) {
+      acc[state] = { count: 0, flows: [], lastUpdated: null };
+    }
+    acc[state].count++;
+    acc[state].flows.push(flow);
+    if (!acc[state].lastUpdated || flow.lastSyncAt > acc[state].lastUpdated) {
+      acc[state].lastUpdated = flow.lastSyncAt;
+    }
+    return acc;
+  }, {});
+
+  const states = [
+    { name: 'Draft', key: 'draft', color: 'gray', icon: PenTool, description: 'Working tree changes' },
+    { name: 'Staged', key: 'staged', color: 'yellow', icon: Clock, description: 'Ready for commit' },
+    { name: 'Committed', key: 'committed', color: 'green', icon: CheckCircle2, description: 'Mainline architecture' },
+    { name: 'Branched', key: 'branched', color: 'blue', icon: GitBranch, description: 'Feature development' },
+    { name: 'Merged', key: 'merged', color: 'purple', icon: Layers, description: 'Integrated changes' }
+  ];
+
+  const totalFlows = syncFlows.length;
+
+  return (
+    <div className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-950/20 dark:to-purple-950/20 rounded-lg p-6 border border-violet-200 dark:border-violet-800">
+      <div className="flex items-center justify-between mb-4">
+        <h4 className="text-lg font-semibold text-violet-900 dark:text-violet-100 flex items-center">
+          <Activity className="h-4 w-4 mr-2" />
+          Live Object State Management
+        </h4>
+        <Badge variant="outline" className="text-xs">
+          {totalFlows} Total Objects
+        </Badge>
+      </div>
+      
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {states.map((state) => {
+          const stateData = stateStats[state.key] || { count: 0, flows: [] };
+          const count = stateData.count;
+          const Icon = state.icon;
+          const percentage = totalFlows > 0 ? Math.round((count / totalFlows) * 100) : 0;
+          
+          return (
+            <div 
+              key={state.key} 
+              className="text-center cursor-pointer transition-all hover:scale-105"
+              onClick={() => onStateSelect?.(state.key)}
+              data-testid={`state-${state.key}`}
+            >
+              <div className={`w-16 h-16 mx-auto bg-${state.color}-100 dark:bg-${state.color}-800/30 rounded-full flex items-center justify-center mb-2 relative border-2 ${count > 0 ? `border-${state.color}-500` : 'border-gray-300 dark:border-gray-600'}`}>
+                <Icon className={`h-6 w-6 text-${state.color}-600 dark:text-${state.color}-400`} />
+                {count > 0 && (
+                  <Badge className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 text-xs font-bold">
+                    {count}
+                  </Badge>
+                )}
+                {count > 0 && (
+                  <div className={`absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-${state.color}-500 rounded-full opacity-70`}
+                       style={{ width: `${Math.max(percentage * 0.8, 20)}%` }}></div>
+                )}
+              </div>
+              <h5 className="font-medium text-sm">{state.name}</h5>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                {count} object{count !== 1 ? 's' : ''} ({percentage}%)
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                {state.description}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* State Transition Flow */}
+      {totalFlows > 0 && (
+        <div className="mt-6 p-4 bg-white/50 dark:bg-black/20 rounded-lg">
+          <h5 className="font-medium mb-2 text-sm">State Transition Activity</h5>
+          <div className="space-y-2">
+            {Object.entries(stateStats)
+              .filter(([, data]: any) => data.count > 0)
+              .sort(([, a]: any, [, b]: any) => b.count - a.count)
+              .slice(0, 3)
+              .map(([state, data]: any) => {
+                const stateInfo = states.find(s => s.key === state);
+                return (
+                  <div key={state} className="flex items-center justify-between text-xs">
+                    <span className="flex items-center">
+                      <div className={`w-2 h-2 rounded-full bg-${stateInfo?.color}-500 mr-2`}></div>
+                      {stateInfo?.name}: {data.count} objects
+                    </span>
+                    <span className="text-gray-500">
+                      {data.lastUpdated ? new Date(data.lastUpdated).toLocaleTimeString() : 'N/A'}
+                    </span>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ArkhitektonSystemsIntegration() {
+  const [selectedState, setSelectedState] = useState<string | null>(null);
+  
+  // Fetch sync flows for the state management components
+  const { data: syncFlows } = useQuery({
+    queryKey: ['/api/integrations/developer/sync-flows'],
+  });
+
+  const handleStateSelect = (state: string) => {
+    setSelectedState(selectedState === state ? null : state);
+  };
+
   return (
     <AppLayout>
       <div className="min-h-screen bg-gradient-to-br from-violet-50/30 via-purple-50/20 to-indigo-50/30 dark:from-violet-950/10 dark:via-purple-950/5 dark:to-indigo-950/10">
@@ -132,7 +884,7 @@ export default function ArkhitektonSystemsIntegration() {
 
           {/* Detailed Integration Tabs */}
           <Tabs defaultValue="enterprise" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 h-auto">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 h-auto">
               <TabsTrigger value="enterprise" className="flex flex-col items-center p-3" data-testid="tab-enterprise-tools">
                 <Users className="h-4 w-4 mb-1" />
                 <span className="text-xs">Enterprise Tools</span>
@@ -140,6 +892,10 @@ export default function ArkhitektonSystemsIntegration() {
               <TabsTrigger value="development" className="flex flex-col items-center p-3" data-testid="tab-development">
                 <Code className="h-4 w-4 mb-1" />
                 <span className="text-xs">Development</span>
+              </TabsTrigger>
+              <TabsTrigger value="developer" className="flex flex-col items-center p-3" data-testid="tab-developer-integration">
+                <GitBranch className="h-4 w-4 mb-1" />
+                <span className="text-xs">Developer Integration</span>
               </TabsTrigger>
               <TabsTrigger value="dataflow" className="flex flex-col items-center p-3" data-testid="tab-data-flows">
                 <Database className="h-4 w-4 mb-1" />
@@ -444,6 +1200,89 @@ export default function ArkhitektonSystemsIntegration() {
                             <div className="text-sm text-slate-600 dark:text-slate-300">Python, JavaScript, .NET, Java SDKs</div>
                           </div>
                           <Code className="h-5 w-5 text-green-600" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Developer Integration with Git-like State Management */}
+            <TabsContent value="developer" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <GitBranch className="h-5 w-5 mr-2 text-violet-600" />
+                    Developer Integration Architecture
+                  </CardTitle>
+                  <CardDescription>
+                    Git-like object state management for architectural models with real-time synchronization across development tools
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  
+                  {/* Live Object State Management */}
+                  <ObjectStateLifecycle 
+                    syncFlows={syncFlows} 
+                    onStateSelect={handleStateSelect}
+                  />
+
+                  {/* Interactive Swimlane Diagram */}
+                  <DeveloperIntegrationDiagram 
+                    selectedState={selectedState}
+                    syncFlows={syncFlows}
+                  />
+
+                  {/* Integration Specifications */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="border border-violet-200 dark:border-violet-800 rounded-lg p-4">
+                      <h5 className="font-semibold mb-3 text-violet-900 dark:text-violet-100 flex items-center">
+                        <Settings className="h-4 w-4 mr-2" />
+                        Sync Configuration
+                      </h5>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Sync Frequency</span>
+                          <Badge variant="outline">Real-time</Badge>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Conflict Resolution</span>
+                          <Badge variant="outline">CRDT + Manual</Badge>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">State Versioning</span>
+                          <Badge variant="outline">Optimistic</Badge>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Object Types</span>
+                          <Badge variant="outline">All Architectural</Badge>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border border-violet-200 dark:border-violet-800 rounded-lg p-4">
+                      <h5 className="font-semibold mb-3 text-violet-900 dark:text-violet-100 flex items-center">
+                        <Key className="h-4 w-4 mr-2" />
+                        Authentication & Security
+                      </h5>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">OAuth 2.0</span>
+                          <CheckCircle2 className="h-4 w-4 text-green-500" />
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">API Tokens</span>
+                          <CheckCircle2 className="h-4 w-4 text-green-500" />
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">SSH Keys</span>
+                          <CheckCircle2 className="h-4 w-4 text-green-500" />
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Webhook Security</span>
+                          <CheckCircle2 className="h-4 w-4 text-green-500" />
                         </div>
                       </div>
                     </div>
