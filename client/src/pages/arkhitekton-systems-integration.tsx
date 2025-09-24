@@ -44,6 +44,296 @@ import {
   Key
 } from "lucide-react";
 
+// Internal Systems Integration Diagram - Shows data flows between 13 ARKHITEKTON applications
+function InternalSystemsIntegrationDiagram() {
+  const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const [selectedFlow, setSelectedFlow] = useState<string | null>(null);
+  
+  const stageWidth = 1200;
+  const stageHeight = 800;
+  
+  // 13 ARKHITEKTON Applications + Core Infrastructure Services
+  const applications = [
+    { id: 'dashboard', name: 'Dashboard', x: 600, y: 80, type: 'aggregator', icon: '📊', color: '#3b82f6' },
+    { id: 'portfolio', name: 'Portfolio Management', x: 200, y: 160, type: 'consumer', icon: '📈', color: '#10b981' },
+    { id: 'modeling', name: 'Architecture Modeling', x: 400, y: 160, type: 'producer', icon: '🔷', color: '#8b5cf6' },
+    { id: 'workspace', name: 'Architecture Workspace', x: 600, y: 160, type: 'producer', icon: '🏗️', color: '#8b5cf6' },
+    { id: 'governance', name: 'Governance', x: 800, y: 160, type: 'consumer', icon: '🛡️', color: '#f59e0b' },
+    { id: 'capabilities', name: 'Capability Assessment', x: 1000, y: 160, type: 'producer', icon: '🎯', color: '#ef4444' },
+    { id: 'decisions', name: 'Decision Records', x: 200, y: 280, type: 'producer', icon: '📋', color: '#06b6d4' },
+    { id: 'workflows', name: 'Review Workflows', x: 400, y: 280, type: 'orchestrator', icon: '⚡', color: '#84cc16' },
+    { id: 'tickets', name: 'Architecture Tickets', x: 600, y: 280, type: 'hub', icon: '🎫', color: '#f97316' },
+    { id: 'plan', name: 'Plan', x: 800, y: 280, type: 'consumer', icon: '📅', color: '#14b8a6' },
+    { id: 'wiki', name: 'Knowledge Base', x: 1000, y: 280, type: 'producer', icon: '📚', color: '#8b5cf6' },
+    { id: 'team', name: 'Team', x: 400, y: 400, type: 'service', icon: '👥', color: '#6b7280' },
+    { id: 'settings', name: 'Settings', x: 600, y: 400, type: 'service', icon: '⚙️', color: '#6b7280' },
+    
+    // Core Infrastructure Services
+    { id: 'database', name: 'PostgreSQL Database', x: 200, y: 500, type: 'infrastructure', icon: '🗄️', color: '#374151' },
+    { id: 'auth', name: 'Authentication Service', x: 400, y: 500, type: 'infrastructure', icon: '🔐', color: '#374151' },
+    { id: 'api', name: 'REST API Gateway', x: 600, y: 500, type: 'infrastructure', icon: '🌐', color: '#374151' },
+    { id: 'storage', name: 'File Storage', x: 800, y: 500, type: 'infrastructure', icon: '📁', color: '#374151' }
+  ];
+  
+  // Data flows between applications
+  const dataFlows = [
+    // Dashboard aggregates from all major applications
+    { from: 'portfolio', to: 'dashboard', data: 'Portfolio Metrics', type: 'aggregation' },
+    { from: 'modeling', to: 'dashboard', data: 'Model Analytics', type: 'aggregation' },
+    { from: 'governance', to: 'dashboard', data: 'Compliance Status', type: 'aggregation' },
+    { from: 'tickets', to: 'dashboard', data: 'Review Status', type: 'aggregation' },
+    
+    // Architecture data flows - core domain objects
+    { from: 'modeling', to: 'workspace', data: 'Architecture Elements', type: 'shared_data' },
+    { from: 'workspace', to: 'modeling', data: 'Model Updates', type: 'shared_data' },
+    { from: 'modeling', to: 'portfolio', data: 'Architecture Models', type: 'reference' },
+    { from: 'workspace', to: 'governance', data: 'Architecture Models', type: 'reference' },
+    
+    // Ticket system as central hub
+    { from: 'tickets', to: 'modeling', data: 'Architecture Requests', type: 'workflow' },
+    { from: 'tickets', to: 'decisions', data: 'ADR Links', type: 'reference' },
+    { from: 'tickets', to: 'capabilities', data: 'Capability Links', type: 'reference' },
+    { from: 'workflows', to: 'tickets', data: 'Review Requests', type: 'workflow' },
+    { from: 'governance', to: 'tickets', data: 'Compliance Issues', type: 'workflow' },
+    
+    // Portfolio associations
+    { from: 'portfolio', to: 'tickets', data: 'Portfolio Associations', type: 'reference' },
+    { from: 'portfolio', to: 'plan', data: 'Initiative Data', type: 'shared_data' },
+    
+    // Knowledge integration
+    { from: 'wiki', to: 'modeling', data: 'Documentation Links', type: 'reference' },
+    { from: 'decisions', to: 'wiki', data: 'ADR Documentation', type: 'reference' },
+    
+    // Task management
+    { from: 'plan', to: 'tickets', data: 'Task References', type: 'reference' },
+    
+    // Shared services
+    { from: 'team', to: 'dashboard', data: 'User Data', type: 'service' },
+    { from: 'team', to: 'governance', data: 'Access Control', type: 'service' },
+    { from: 'settings', to: 'dashboard', data: 'Configuration', type: 'service' },
+    
+    // Infrastructure services - all applications use these
+    { from: 'database', to: 'dashboard', data: 'Aggregated Data', type: 'infrastructure' },
+    { from: 'database', to: 'portfolio', data: 'Portfolio Data', type: 'infrastructure' },
+    { from: 'database', to: 'modeling', data: 'Architecture Models', type: 'infrastructure' },
+    { from: 'database', to: 'workspace', data: 'Model Objects', type: 'infrastructure' },
+    { from: 'database', to: 'tickets', data: 'Ticket Data', type: 'infrastructure' },
+    { from: 'database', to: 'plan', data: 'Task Data', type: 'infrastructure' },
+    
+    { from: 'auth', to: 'dashboard', data: 'User Authentication', type: 'infrastructure' },
+    { from: 'auth', to: 'team', data: 'User Management', type: 'infrastructure' },
+    { from: 'auth', to: 'governance', data: 'Access Control', type: 'infrastructure' },
+    
+    { from: 'api', to: 'modeling', data: 'API Endpoints', type: 'infrastructure' },
+    { from: 'api', to: 'tickets', data: 'REST APIs', type: 'infrastructure' },
+    { from: 'api', to: 'portfolio', data: 'Integration APIs', type: 'infrastructure' },
+    
+    { from: 'storage', to: 'wiki', data: 'Document Files', type: 'infrastructure' },
+    { from: 'storage', to: 'workspace', data: 'Model Assets', type: 'infrastructure' }
+  ];
+  
+  // Get node position by ID
+  const getNode = (id: string) => applications.find(app => app.id === id);
+  
+  return (
+    <div className="space-y-4">
+      <div className="border rounded-lg bg-white dark:bg-slate-900">
+        <Stage width={stageWidth} height={stageHeight}>
+          <Layer>
+            {/* Data Flow Lines */}
+            {dataFlows.map((flow, index) => {
+              const fromNode = getNode(flow.from);
+              const toNode = getNode(flow.to);
+              if (!fromNode || !toNode) return null;
+              
+              const isSelected = selectedFlow === `${flow.from}-${flow.to}`;
+              const flowColor = flow.type === 'aggregation' ? '#3b82f6' :
+                              flow.type === 'shared_data' ? '#8b5cf6' :
+                              flow.type === 'workflow' ? '#f59e0b' :
+                              flow.type === 'reference' ? '#10b981' :
+                              flow.type === 'infrastructure' ? '#374151' : '#6b7280';
+              
+              // Calculate proper arrowhead direction
+              const dx = toNode.x - fromNode.x;
+              const dy = toNode.y - fromNode.y;
+              const length = Math.sqrt(dx * dx + dy * dy);
+              const unitX = dx / length;
+              const unitY = dy / length;
+              
+              // Arrowhead size and offset from node
+              const arrowSize = 12;
+              const nodeRadius = 40;
+              const arrowOffset = nodeRadius + 5;
+              
+              // Calculate arrowhead position (offset from node edge)
+              const arrowTipX = toNode.x - unitX * arrowOffset;
+              const arrowTipY = toNode.y - unitY * arrowOffset;
+              
+              // Calculate perpendicular vector for arrowhead wings
+              const perpX = -unitY;
+              const perpY = unitX;
+              
+              return (
+                <Group key={index}>
+                  <Line
+                    points={[fromNode.x, fromNode.y, toNode.x - unitX * nodeRadius, toNode.y - unitY * nodeRadius]}
+                    stroke={isSelected ? '#ff6b6b' : flowColor}
+                    strokeWidth={isSelected ? 3 : 2}
+                    opacity={isSelected ? 1 : 0.7}
+                    dash={flow.type === 'reference' ? [5, 5] : undefined}
+                    onClick={() => setSelectedFlow(isSelected ? null : `${flow.from}-${flow.to}`)}
+                    onTap={() => setSelectedFlow(isSelected ? null : `${flow.from}-${flow.to}`)}
+                  />
+                  
+                  {/* Properly directed arrowhead */}
+                  <Line
+                    points={[
+                      arrowTipX, arrowTipY,
+                      arrowTipX - unitX * arrowSize + perpX * (arrowSize / 2), arrowTipY - unitY * arrowSize + perpY * (arrowSize / 2),
+                      arrowTipX - unitX * arrowSize - perpX * (arrowSize / 2), arrowTipY - unitY * arrowSize - perpY * (arrowSize / 2),
+                      arrowTipX, arrowTipY
+                    ]}
+                    stroke={isSelected ? '#ff6b6b' : flowColor}
+                    strokeWidth={isSelected ? 3 : 2}
+                    closed={true}
+                    fill={isSelected ? '#ff6b6b' : flowColor}
+                    onClick={() => setSelectedFlow(isSelected ? null : `${flow.from}-${flow.to}`)}
+                    onTap={() => setSelectedFlow(isSelected ? null : `${flow.from}-${flow.to}`)}
+                  />
+                </Group>
+              );
+            })}
+            
+            {/* Application Nodes */}
+            {applications.map((app) => {
+              const isSelected = selectedNode === app.id;
+              const nodeRadius = 40;
+              
+              return (
+                <Group key={app.id} x={app.x} y={app.y}>
+                  <Circle
+                    radius={nodeRadius}
+                    fill={isSelected ? '#ff6b6b' : app.color}
+                    stroke={isSelected ? '#ff4757' : '#ffffff'}
+                    strokeWidth={3}
+                    shadowBlur={isSelected ? 15 : 8}
+                    shadowColor={isSelected ? '#ff6b6b' : app.color}
+                    shadowOpacity={0.3}
+                    onClick={() => setSelectedNode(isSelected ? null : app.id)}
+                    onTap={() => setSelectedNode(isSelected ? null : app.id)}
+                  />
+                  
+                  <Text
+                    text={app.icon}
+                    fontSize={20}
+                    x={-10}
+                    y={-10}
+                    fill="white"
+                  />
+                  
+                  <Text
+                    text={app.name}
+                    fontSize={11}
+                    x={-app.name.length * 3}
+                    y={nodeRadius + 10}
+                    fill={isSelected ? '#ff6b6b' : '#374151'}
+                    fontStyle="bold"
+                  />
+                  
+                  <Text
+                    text={app.type.toUpperCase()}
+                    fontSize={8}
+                    x={-app.type.length * 2.5}
+                    y={nodeRadius + 25}
+                    fill="#6b7280"
+                  />
+                </Group>
+              );
+            })}
+          </Layer>
+        </Stage>
+      </div>
+      
+      {/* Legend and Info Panel */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Flow Types Legend */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm">Data Flow Types</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-xs">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-0.5 bg-blue-500"></div>
+              <span>Aggregation (to Dashboard)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-0.5 bg-purple-500"></div>
+              <span>Shared Data (Core Models)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-0.5 bg-amber-500"></div>
+              <span>Workflow (Process Flow)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-0.5 bg-green-500 border-dashed border-t-2 border-green-500 bg-transparent"></div>
+              <span>Reference (Linked Data)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-0.5 bg-gray-500"></div>
+              <span>Service (Application Support)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-0.5 bg-gray-700"></div>
+              <span>Infrastructure (Core Platform)</span>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* Application Types Legend */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm">Application Types</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-xs">
+            <div><span className="font-semibold">Producer:</span> Creates core data</div>
+            <div><span className="font-semibold">Consumer:</span> Uses data from others</div>
+            <div><span className="font-semibold">Hub:</span> Central connection point</div>
+            <div><span className="font-semibold">Aggregator:</span> Combines multiple data sources</div>
+            <div><span className="font-semibold">Orchestrator:</span> Manages workflows</div>
+            <div><span className="font-semibold">Service:</span> Application support services</div>
+            <div><span className="font-semibold">Infrastructure:</span> Core platform services</div>
+          </CardContent>
+        </Card>
+        
+        {/* Selected Item Info */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm">Selection Details</CardTitle>
+          </CardHeader>
+          <CardContent className="text-xs">
+            {selectedNode && (
+              <div>
+                <p className="font-semibold">{applications.find(app => app.id === selectedNode)?.name}</p>
+                <p className="text-gray-600">Type: {applications.find(app => app.id === selectedNode)?.type}</p>
+              </div>
+            )}
+            {selectedFlow && (
+              <div>
+                <p className="font-semibold">Data Flow</p>
+                <p className="text-gray-600">{dataFlows.find(flow => `${flow.from}-${flow.to}` === selectedFlow)?.data}</p>
+                <p className="text-gray-600">Type: {dataFlows.find(flow => `${flow.from}-${flow.to}` === selectedFlow)?.type}</p>
+              </div>
+            )}
+            {!selectedNode && !selectedFlow && (
+              <p className="text-gray-500">Click on nodes or flows to see details</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 // Interactive Swimlane Diagram Component with Flow Visualization
 function DeveloperIntegrationDiagram({ selectedState, syncFlows: propSyncFlows }: { selectedState?: string, syncFlows?: any[] }) {
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
@@ -855,8 +1145,12 @@ export default function ArkhitektonSystemsIntegration() {
           </div>
 
           {/* Detailed Integration Tabs */}
-          <Tabs defaultValue="enterprise" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 h-auto">
+          <Tabs defaultValue="internal" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7 h-auto">
+              <TabsTrigger value="internal" className="flex flex-col items-center p-3" data-testid="tab-internal-systems">
+                <Network className="h-4 w-4 mb-1" />
+                <span className="text-xs">Internal Systems</span>
+              </TabsTrigger>
               <TabsTrigger value="enterprise" className="flex flex-col items-center p-3" data-testid="tab-enterprise-tools">
                 <Users className="h-4 w-4 mb-1" />
                 <span className="text-xs">Enterprise Tools</span>
@@ -882,6 +1176,105 @@ export default function ArkhitektonSystemsIntegration() {
                 <span className="text-xs">Automation</span>
               </TabsTrigger>
             </TabsList>
+
+            {/* Internal Systems Integration - 13 ARKHITEKTON Applications */}
+            <TabsContent value="internal" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Network className="h-5 w-5 mr-2 text-violet-600" />
+                    ARKHITEKTON Internal Systems Integration
+                  </CardTitle>
+                  <CardDescription>
+                    Data flow relationships between the 13 core ARKHITEKTON applications showing how architecture models, tickets, portfolio associations, and tasks interconnect across the platform
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <InternalSystemsIntegrationDiagram />
+                  
+                  {/* Key Integration Points */}
+                  <div className="mt-8 space-y-6">
+                    <h4 className="text-lg font-semibold text-slate-900 dark:text-white">Key Integration Points</h4>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <Card className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20 border-purple-200 dark:border-purple-800">
+                        <CardContent className="p-4">
+                          <div className="flex items-center mb-2">
+                            <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mr-3">
+                              <span className="text-sm font-bold text-purple-600 dark:text-purple-400">🔷</span>
+                            </div>
+                            <h5 className="font-semibold text-slate-900 dark:text-white">Architecture Core</h5>
+                          </div>
+                          <p className="text-xs text-slate-600 dark:text-slate-400">Architecture Modeling & Workspace create the core models consumed by Portfolio, Governance, and Tickets</p>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20 border-orange-200 dark:border-orange-800">
+                        <CardContent className="p-4">
+                          <div className="flex items-center mb-2">
+                            <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mr-3">
+                              <span className="text-sm font-bold text-orange-600 dark:text-orange-400">🎫</span>
+                            </div>
+                            <h5 className="font-semibold text-slate-900 dark:text-white">Tickets Hub</h5>
+                          </div>
+                          <p className="text-xs text-slate-600 dark:text-slate-400">Architecture Tickets serve as the central integration hub linking to models, ADRs, capabilities, and workflows</p>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border-blue-200 dark:border-blue-800">
+                        <CardContent className="p-4">
+                          <div className="flex items-center mb-2">
+                            <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mr-3">
+                              <span className="text-sm font-bold text-blue-600 dark:text-blue-400">📊</span>
+                            </div>
+                            <h5 className="font-semibold text-slate-900 dark:text-white">Dashboard Aggregation</h5>
+                          </div>
+                          <p className="text-xs text-slate-600 dark:text-slate-400">Dashboard aggregates metrics from Portfolio, Governance, Tickets, and Modeling for strategic oversight</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                    
+                    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
+                      <h5 className="font-semibold text-slate-900 dark:text-white mb-3">Shared Data Entities</h5>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                        <div className="flex items-center">
+                          <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                          <span>Architecture Models</span>
+                        </div>
+                        <div className="flex items-center">
+                          <div className="w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
+                          <span>Ticket Links</span>
+                        </div>
+                        <div className="flex items-center">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                          <span>Portfolio Associations</span>
+                        </div>
+                        <div className="flex items-center">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                          <span>User & Team Data</span>
+                        </div>
+                        <div className="flex items-center">
+                          <div className="w-2 h-2 bg-cyan-500 rounded-full mr-2"></div>
+                          <span>Tasks & Dependencies</span>
+                        </div>
+                        <div className="flex items-center">
+                          <div className="w-2 h-2 bg-indigo-500 rounded-full mr-2"></div>
+                          <span>Documentation Pages</span>
+                        </div>
+                        <div className="flex items-center">
+                          <div className="w-2 h-2 bg-amber-500 rounded-full mr-2"></div>
+                          <span>Decision Records</span>
+                        </div>
+                        <div className="flex items-center">
+                          <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
+                          <span>Capabilities</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
             {/* Enterprise Tools Integration */}
             <TabsContent value="enterprise" className="space-y-6">
