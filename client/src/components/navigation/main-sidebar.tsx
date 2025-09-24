@@ -59,6 +59,13 @@ export function MainSidebar({ className }: MainSidebarProps) {
       description: 'Track transformation initiatives'
     },
     {
+      id: 'workspace',
+      label: 'Architecture Workspace',
+      href: '/workspace',
+      icon: Building,
+      description: 'Comprehensive design & modeling workspace'
+    },
+    {
       id: 'modeling',
       label: 'Architecture Modeling',
       href: '/modeling',

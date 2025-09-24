@@ -27,12 +27,14 @@ import ArkhitektonArchitectureAzure from "@/pages/arkhitekton-architecture-azure
 import ArkhitektonArchitectureGCP from "@/pages/arkhitekton-architecture-gcp";
 import ArkhitektonArchitectureOracle from "@/pages/arkhitekton-architecture-oracle";
 import ArkhitektonSystemsIntegration from "@/pages/arkhitekton-systems-integration";
+import { WorkspacePage } from "@/pages/workspace";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/design-palette" component={DesignPalette} />
+      <Route path="/workspace" component={WorkspacePage} />
       <Route path="/modeling" component={ModelingPage} />
       <Route path="/governance" component={GovernancePage} />
       <Route path="/decisions" component={DecisionsPage} />
