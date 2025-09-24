@@ -212,185 +212,80 @@ function InternalSystemsIntegrationDiagram() {
     return false;
   };
 
-  // Smart path routing that avoids overlapping other nodes
+  // Simple but reliable path routing that avoids overlapping nodes
   const getRoutedPath = (fromNode: any, toNode: any) => {
     const fromPoint = getConnectionPoint(fromNode, toNode, true);
     const toPoint = getConnectionPoint(toNode, fromNode, false);
     
-    // Get all other nodes that could be obstacles
-    const obstacles = [...applications].filter(app => app.id !== fromNode.id && app.id !== toNode.id);
+    // Define safe corridors around the entire diagram
+    const SAFE_TOP = 20;    // Above everything
+    const SAFE_BOTTOM = 650; // Below everything  
+    const SAFE_LEFT = 20;   // Left of everything
+    const SAFE_RIGHT = 1150; // Right of everything
     
-    // Try simple L-shaped routing first
+    // Determine routing based on source and destination positions
+    const sourceRow = fromPoint.y < 150 ? 'top' : fromPoint.y < 400 ? 'middle' : 'bottom';
+    const destRow = toPoint.y < 150 ? 'top' : toPoint.y < 400 ? 'middle' : 'bottom';
+    
+    // If source and destination are in the same row, route above or below
+    if (sourceRow === destRow) {
+      if (sourceRow === 'top') {
+        // Route above the top row
+        return [
+          fromPoint.x, fromPoint.y,
+          fromPoint.x, SAFE_TOP,
+          toPoint.x, SAFE_TOP,
+          toPoint.x, toPoint.y
+        ];
+      } else if (sourceRow === 'bottom') {
+        // Route below the bottom row
+        return [
+          fromPoint.x, fromPoint.y,
+          fromPoint.x, SAFE_BOTTOM,
+          toPoint.x, SAFE_BOTTOM,
+          toPoint.x, toPoint.y
+        ];
+      } else {
+        // Middle row - route above
+        return [
+          fromPoint.x, fromPoint.y,
+          fromPoint.x, SAFE_TOP,
+          toPoint.x, SAFE_TOP,
+          toPoint.x, toPoint.y
+        ];
+      }
+    }
+    
+    // Different rows - route around the side if they're close horizontally
+    if (Math.abs(fromPoint.x - toPoint.x) < 200) {
+      // Close horizontally - route to the side
+      if (fromPoint.x < 600) {
+        // Route to the left
+        return [
+          fromPoint.x, fromPoint.y,
+          SAFE_LEFT, fromPoint.y,
+          SAFE_LEFT, toPoint.y,
+          toPoint.x, toPoint.y
+        ];
+      } else {
+        // Route to the right
+        return [
+          fromPoint.x, fromPoint.y,
+          SAFE_RIGHT, fromPoint.y,
+          SAFE_RIGHT, toPoint.y,
+          toPoint.x, toPoint.y
+        ];
+      }
+    }
+    
+    // Default: simple L-shaped routing for well-separated points
     const midX = (fromPoint.x + toPoint.x) / 2;
-    const simplePath = [
+    return [
       fromPoint.x, fromPoint.y,
       midX, fromPoint.y,
       midX, toPoint.y,
       toPoint.x, toPoint.y
     ];
-    
-    // Check if simple path intersects with any obstacles
-    if (!pathIntersectsObstacles(simplePath, obstacles)) {
-      return simplePath;
-    }
-    
-    // Try different routing strategies
-    const strategies = [
-      // Strategy 1: Route above obstacles
-      () => {
-        const clearY = Math.min(...obstacles.map(o => o.y)) - 30;
-        return [
-          fromPoint.x, fromPoint.y,
-          fromPoint.x, clearY,
-          toPoint.x, clearY,
-          toPoint.x, toPoint.y
-        ];
-      },
-      // Strategy 2: Route below obstacles
-      () => {
-        const clearY = Math.max(...obstacles.map(o => o.y + o.height)) + 30;
-        return [
-          fromPoint.x, fromPoint.y,
-          fromPoint.x, clearY,
-          toPoint.x, clearY,
-          toPoint.x, toPoint.y
-        ];
-      },
-      // Strategy 3: Route to the left
-      () => {
-        const clearX = Math.min(...obstacles.map(o => o.x)) - 30;
-        return [
-          fromPoint.x, fromPoint.y,
-          clearX, fromPoint.y,
-          clearX, toPoint.y,
-          toPoint.x, toPoint.y
-        ];
-      },
-      // Strategy 4: Route to the right
-      () => {
-        const clearX = Math.max(...obstacles.map(o => o.x + o.width)) + 30;
-        return [
-          fromPoint.x, fromPoint.y,
-          clearX, fromPoint.y,
-          clearX, toPoint.y,
-          toPoint.x, toPoint.y
-        ];
-      }
-    ];
-    
-    // Try each strategy until we find a clear path
-    for (const strategy of strategies) {
-      try {
-        const candidatePath = strategy();
-        if (!pathIntersectsObstacles(candidatePath, obstacles)) {
-          return candidatePath;
-        }
-      } catch (e) {
-        // Strategy failed, try next one
-        continue;
-      }
-    }
-    
-    // Fallback: iteratively expand clearance until we find a collision-free path
-    // Try expanding clearance in increments until we find a clear corridor
-    for (let clearance = 30; clearance <= 120; clearance += 30) {
-      const allBounds = {
-        left: Math.min(...obstacles.map(o => o.x)) - clearance,
-        right: Math.max(...obstacles.map(o => o.x + o.width)) + clearance,
-        top: Math.min(...obstacles.map(o => o.y)) - clearance,
-        bottom: Math.max(...obstacles.map(o => o.y + o.height)) + clearance
-      };
-      
-      // Try routing above obstacles
-      const topPath = [
-        fromPoint.x, fromPoint.y,
-        fromPoint.x, allBounds.top,
-        toPoint.x, allBounds.top,
-        toPoint.x, toPoint.y
-      ];
-      if (!pathIntersectsObstacles(topPath, obstacles)) {
-        return topPath;
-      }
-      
-      // Try routing below obstacles
-      const bottomPath = [
-        fromPoint.x, fromPoint.y,
-        fromPoint.x, allBounds.bottom,
-        toPoint.x, allBounds.bottom,
-        toPoint.x, toPoint.y
-      ];
-      if (!pathIntersectsObstacles(bottomPath, obstacles)) {
-        return bottomPath;
-      }
-      
-      // Try routing to the left
-      const leftPath = [
-        fromPoint.x, fromPoint.y,
-        allBounds.left, fromPoint.y,
-        allBounds.left, toPoint.y,
-        toPoint.x, toPoint.y
-      ];
-      if (!pathIntersectsObstacles(leftPath, obstacles)) {
-        return leftPath;
-      }
-      
-      // Try routing to the right
-      const rightPath = [
-        fromPoint.x, fromPoint.y,
-        allBounds.right, fromPoint.y,
-        allBounds.right, toPoint.y,
-        toPoint.x, toPoint.y
-      ];
-      if (!pathIntersectsObstacles(rightPath, obstacles)) {
-        return rightPath;
-      }
-    }
-    
-    // Ultimate fallback: try various extreme detours, validating each one
-    const extremeClearances = [200, 300, 400];
-    
-    for (const clearance of extremeClearances) {
-      const bounds = {
-        top: Math.min(...obstacles.map(o => o.y)) - clearance,
-        bottom: Math.max(...obstacles.map(o => o.y + o.height)) + clearance,
-        left: Math.min(...obstacles.map(o => o.x)) - clearance,
-        right: Math.max(...obstacles.map(o => o.x + o.width)) + clearance
-      };
-      
-      // Try various offset positions to avoid vertical alignment with obstacles
-      const xOffsets = [0, -clearance/2, clearance/2];
-      
-      for (const xOffset of xOffsets) {
-        // Route around the top with X offset
-        const topPath = [
-          fromPoint.x, fromPoint.y,
-          fromPoint.x + xOffset, fromPoint.y,
-          fromPoint.x + xOffset, bounds.top,
-          toPoint.x + xOffset, bounds.top,
-          toPoint.x + xOffset, toPoint.y,
-          toPoint.x, toPoint.y
-        ];
-        if (!pathIntersectsObstacles(topPath, obstacles)) {
-          return topPath;
-        }
-        
-        // Route around the bottom with X offset  
-        const bottomPath = [
-          fromPoint.x, fromPoint.y,
-          fromPoint.x + xOffset, fromPoint.y,
-          fromPoint.x + xOffset, bounds.bottom,
-          toPoint.x + xOffset, bounds.bottom,
-          toPoint.x + xOffset, toPoint.y,
-          toPoint.x, toPoint.y
-        ];
-        if (!pathIntersectsObstacles(bottomPath, obstacles)) {
-          return bottomPath;
-        }
-      }
-    }
-    
-    // If all else fails, return a minimal path (this should never happen)
-    return [fromPoint.x, fromPoint.y, fromPoint.x, fromPoint.y - 500, toPoint.x, toPoint.y - 500, toPoint.x, toPoint.y];
   };
   
   return (
