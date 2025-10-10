@@ -27,6 +27,7 @@ import {
   Shield
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/app-layout';
+import { GovernanceHeader } from '@/components/layout/governance-header';
 
 interface ReviewWorkflow {
   id: string;
@@ -319,23 +320,14 @@ function WorkflowsContent() {
   };
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-emerald-800 dark:from-white dark:via-slate-200 dark:to-emerald-200 bg-clip-text text-transparent">
-              Review Workflows
-            </h1>
-            <p className="text-slate-600 dark:text-slate-300 mt-2">
-              Architecture Review Board processes and governance workflows
-            </p>
-          </div>
-          <Button className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white">
-            <Plus className="h-4 w-4 mr-2" />
-            New Review
-          </Button>
-        </div>
+    <div className="h-full overflow-hidden flex flex-col">
+      <GovernanceHeader 
+        moduleTitle="Business Workflows" 
+        moduleIcon={GitBranch} 
+      />
+      
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-7xl mx-auto px-6 py-8">
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
@@ -645,6 +637,7 @@ function WorkflowsContent() {
             </CardContent>
           </Card>
         )}
+        </div>
       </div>
     </div>
   );
