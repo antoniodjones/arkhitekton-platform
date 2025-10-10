@@ -1020,7 +1020,7 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
   // Fetch user stories with pagination
   const queryClient = useQueryClient();
   const { data: storiesResponse, isLoading: isLoadingStories } = useQuery<{ items: UserStory[]; total: number; totalPages: number }>({
-    queryKey: [`/api/user-stories?page=${page}&pageSize=${pageSize}`],
+    queryKey: [`/api/user-stories?page=${page}&pageSize=${pageSize}${epicFilter !== 'all' ? `&epicId=${epicFilter}` : ''}`],
     placeholderData: (previousData) => previousData,
     staleTime: 30000
   });
@@ -1480,6 +1480,14 @@ Then [expected outcome]`,
                             {story.storyPoints} pts
                           </Badge>
                         )}
+                        {story.epicId && (() => {
+                          const epic = epics.find(e => e.id === story.epicId);
+                          return epic ? (
+                            <Badge variant="outline" className="bg-orange-50 dark:bg-orange-950/20 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800">
+                              {epic.name}
+                            </Badge>
+                          ) : null;
+                        })()}
                       </div>
                       {story.description && (
                         <p className="text-sm text-muted-foreground mb-2">{story.description}</p>
@@ -1750,17 +1758,17 @@ Then [expected outcome]`,
               <div className="space-y-2">
                 <Label htmlFor="epic-connection">Connected Epic (Optional)</Label>
                 <Select 
-                  value={editingStory.parentTaskId || "independent"} 
-                  onValueChange={(value) => setEditingStory({...editingStory, parentTaskId: value === "independent" ? "" : value})}
+                  value={editingStory.epicId || "independent"} 
+                  onValueChange={(value) => setEditingStory({...editingStory, epicId: value === "independent" ? null : value})}
                 >
                   <SelectTrigger data-testid="select-epic-connection">
                     <SelectValue placeholder="Select an Epic (or leave independent)" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="independent">Independent Story (No Epic)</SelectItem>
-                    {tasks.map((task) => (
-                      <SelectItem key={task.id} value={task.id}>
-                        Epic: {task.title}
+                    {epics.map((epic) => (
+                      <SelectItem key={epic.id} value={epic.id}>
+                        {epic.name} ({epic.valueStream})
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -411,7 +411,7 @@ Keep response concise but comprehensive.`;
   // Get all user stories with enterprise pagination and sorting
   app.get("/api/user-stories", async (req, res) => {
     try {
-      const { taskId, assignee, page = '1', pageSize = '25', sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+      const { taskId, assignee, epicId, page = '1', pageSize = '25', sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
       
       // Validate pagination parameters
       const parsedPage = Math.max(parseInt(page as string) || 1, 1);
@@ -429,7 +429,13 @@ Keep response concise but comprehensive.`;
       const finalSortOrder = ['asc', 'desc'].includes(sortOrder as string) ? sortOrder as string : 'desc';
       
       let stories;
-      if (taskId && typeof taskId === 'string') {
+      if (epicId && typeof epicId === 'string') {
+        // Epic ID can be text format (EPIC-1, EPIC-2, etc.)
+        if (epicId.trim().length === 0) {
+          return res.status(400).json({ message: "Invalid epicId" });
+        }
+        stories = await storage.getUserStoriesByEpic(epicId);
+      } else if (taskId && typeof taskId === 'string') {
         // Validate UUID format for taskId
         if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(taskId)) {
           return res.status(400).json({ message: "Invalid taskId format" });
