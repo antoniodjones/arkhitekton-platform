@@ -28,6 +28,7 @@ import ArkhitektonArchitectureGCP from "@/pages/arkhitekton-architecture-gcp";
 import ArkhitektonArchitectureOracle from "@/pages/arkhitekton-architecture-oracle";
 import ArkhitektonSystemsIntegration from "@/pages/arkhitekton-systems-integration";
 import { WorkspacePage } from "@/pages/workspace";
+import PitchDeck from "@/pages/pitch-deck";
 
 function Router() {
   return (
@@ -55,6 +56,7 @@ function Router() {
       <Route path="/arkhitekton-architecture/gcp" component={ArkhitektonArchitectureGCP} />
       <Route path="/arkhitekton-architecture/oracle" component={ArkhitektonArchitectureOracle} />
       <Route path="/arkhitekton-systems-integration" component={ArkhitektonSystemsIntegration} />
+      <Route path="/pitch-deck" component={PitchDeck} />
       <Route component={NotFound} />
     </Switch>
   );
