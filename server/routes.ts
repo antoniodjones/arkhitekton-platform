@@ -6,7 +6,6 @@ import {
   insertArchitectureElementSchema,
   insertKnowledgeBasePageSchema,
   insertPageCommentSchema,
-  insertTaskSchema,
   insertUserStorySchema,
   updateUserStorySchema,
   insertDefectSchema,
@@ -330,83 +329,6 @@ Keep response concise but comprehensive.`;
     } catch (error) {
       console.error("Failed to move page:", error);
       res.status(500).json({ message: "Failed to move page" });
-    }
-  });
-
-  // Tasks API - Project Management
-  
-  // Get all tasks
-  app.get("/api/tasks", async (req, res) => {
-    try {
-      const tasks = await storage.getAllTasks();
-      res.json(tasks);
-    } catch (error) {
-      console.error("Failed to fetch tasks:", error);
-      res.status(500).json({ message: "Failed to fetch tasks" });
-    }
-  });
-
-  // Get single task
-  app.get("/api/tasks/:id", async (req, res) => {
-    try {
-      const { id } = req.params;
-      const task = await storage.getTask(id);
-      
-      if (!task) {
-        return res.status(404).json({ message: "Task not found" });
-      }
-      
-      res.json(task);
-    } catch (error) {
-      console.error("Failed to fetch task:", error);
-      res.status(500).json({ message: "Failed to fetch task" });
-    }
-  });
-
-  // Create new task
-  app.post("/api/tasks", async (req, res) => {
-    try {
-      const validatedData = insertTaskSchema.parse(req.body);
-      const task = await storage.createTask(validatedData);
-      res.status(201).json(task);
-    } catch (error) {
-      console.error("Failed to create task:", error);
-      res.status(400).json({ message: "Failed to create task", error: error instanceof Error ? error.message : String(error) });
-    }
-  });
-
-  // Update task
-  app.patch("/api/tasks/:id", async (req, res) => {
-    try {
-      const { id } = req.params;
-      const updates = req.body;
-      
-      const updatedTask = await storage.updateTask(id, updates);
-      if (!updatedTask) {
-        return res.status(404).json({ message: "Task not found" });
-      }
-      
-      res.json(updatedTask);
-    } catch (error) {
-      console.error("Failed to update task:", error);
-      res.status(500).json({ message: "Failed to update task" });
-    }
-  });
-
-  // Delete task
-  app.delete("/api/tasks/:id", async (req, res) => {
-    try {
-      const { id } = req.params;
-      const success = await storage.deleteTask(id);
-      
-      if (!success) {
-        return res.status(404).json({ message: "Task not found" });
-      }
-      
-      res.json({ message: "Task deleted successfully" });
-    } catch (error) {
-      console.error("Failed to delete task:", error);
-      res.status(500).json({ message: "Failed to delete task" });
     }
   });
 

@@ -7,8 +7,6 @@ import {
   type InsertRecentElement,
   type KnowledgeBasePage,
   type InsertKnowledgeBasePage,
-  type Task,
-  type InsertTask,
   type UserStory,
   type InsertUserStory,
   type Defect,
@@ -54,13 +52,6 @@ export interface IStorage {
   deleteKnowledgeBasePage(id: string): Promise<boolean>;
   getPageBreadcrumbs(id: string): Promise<{ id: string; title: string; path: string }[]>;
   moveKnowledgeBasePage(id: string, newParentId: string | null, newOrder?: number): Promise<boolean>;
-
-  // Tasks
-  getAllTasks(): Promise<Task[]>;
-  getTask(id: string): Promise<Task | undefined>;
-  createTask(task: InsertTask): Promise<Task>;
-  updateTask(id: string, updates: Partial<Task>): Promise<Task | undefined>;
-  deleteTask(id: string): Promise<boolean>;
 
   // User Stories
   getAllUserStories(): Promise<UserStory[]>;
@@ -151,7 +142,6 @@ export class MemStorage implements IStorage {
   private architectureElements: Map<string, ArchitectureElement>;
   private recentElements: Map<string, RecentElement>;
   private knowledgeBasePages: Map<string, KnowledgeBasePage>;
-  private tasks: Map<string, Task>;
   private userStories: Map<string, UserStory>;
   private defects: Map<string, Defect>;
   private epics: Map<string, Epic>;
@@ -164,7 +154,6 @@ export class MemStorage implements IStorage {
     this.architectureElements = new Map();
     this.recentElements = new Map();
     this.knowledgeBasePages = new Map();
-    this.tasks = new Map();
     this.applicationSettings = new Map();
     this.userStories = new Map();
     this.defects = new Map();
@@ -176,8 +165,6 @@ export class MemStorage implements IStorage {
     this.initializeArchitectureElements();
     // Initialize with sample knowledge base pages
     this.initializeKnowledgeBasePages();
-    // Initialize with sample tasks with realistic dates
-    this.initializeSampleTasks();
     // Initialize with sample user stories (async)
     this.initializeSampleUserStories().catch(console.error);
     // Initialize with sample developer integration data
@@ -317,24 +304,6 @@ export class MemStorage implements IStorage {
     });
   }
 
-  private initializeSampleTasks() {
-    // Use shared sample tasks module for consistency  
-    const { getSampleTasks } = require('./sample-tasks');
-    const sampleTasks = getSampleTasks();
-
-    sampleTasks.forEach(taskData => {
-      const id = randomUUID();
-      const task: Task = {
-        ...taskData,
-        id,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        completedAt: taskData.completed === 1 ? new Date() : null
-      };
-      this.tasks.set(id, task);
-    });
-  }
-
   // Knowledge Base Pages Implementation
   async getAllKnowledgeBasePages(): Promise<KnowledgeBasePage[]> {
     return Array.from(this.knowledgeBasePages.values());
@@ -464,52 +433,6 @@ export class MemStorage implements IStorage {
 
     const updatedPage = await this.updateKnowledgeBasePage(id, updates);
     return updatedPage !== undefined;
-  }
-
-  // Task implementation
-  async getAllTasks(): Promise<Task[]> {
-    return Array.from(this.tasks.values());
-  }
-
-  async getTask(id: string): Promise<Task | undefined> {
-    return this.tasks.get(id);
-  }
-
-  async createTask(taskData: InsertTask): Promise<Task> {
-    const id = randomUUID();
-    const task: Task = {
-      ...taskData,
-      id,
-      completed: taskData.completed || 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      completedAt: taskData.completed === 1 ? new Date() : null
-    };
-    this.tasks.set(id, task);
-    return task;
-  }
-
-  async updateTask(id: string, updates: Partial<Task>): Promise<Task | undefined> {
-    const existingTask = this.tasks.get(id);
-    if (!existingTask) {
-      return undefined;
-    }
-
-    const updatedTask: Task = {
-      ...existingTask,
-      ...updates,
-      updatedAt: new Date(),
-      completedAt: updates.completed === 1 || updates.status === 'completed' ? new Date() : 
-                   updates.completed === 0 || updates.status !== 'completed' ? null :
-                   existingTask.completedAt
-    };
-
-    this.tasks.set(id, updatedTask);
-    return updatedTask;
-  }
-
-  async deleteTask(id: string): Promise<boolean> {
-    return this.tasks.delete(id);
   }
 
   // User Stories Implementation
@@ -1181,108 +1104,6 @@ export class DatabaseStorage implements IStorage {
       .returning();
     
     return !!updatedPage;
-  }
-
-  // Tasks - Using Database
-  async getAllTasks(): Promise<Task[]> {
-    const tasks = await db.select().from(schema.tasks);
-    return tasks.map(task => ({
-      ...task,
-      completed: Boolean(task.completed),
-      abilities: Array.isArray(task.abilities) ? task.abilities : []
-    }));
-  }
-
-  async getTask(id: string): Promise<Task | undefined> {
-    const [task] = await db.select()
-      .from(schema.tasks)
-      .where(eq(schema.tasks.id, id));
-    
-    if (!task) return undefined;
-    
-    return {
-      ...task,
-      completed: Boolean(task.completed),
-      abilities: Array.isArray(task.abilities) ? task.abilities : []
-    };
-  }
-
-  async createTask(taskData: InsertTask): Promise<Task> {
-    const [task] = await db
-      .insert(schema.tasks)
-      .values({
-        ...taskData,
-        completed: taskData.completed ? 1 : 0,
-        abilities: JSON.stringify(taskData.abilities || []),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
-      .returning();
-    
-    return {
-      ...task,
-      completed: Boolean(task.completed),
-      abilities: Array.isArray(task.abilities) ? task.abilities : []
-    };
-  }
-
-  async updateTask(id: string, updates: Partial<Task>): Promise<Task | undefined> {
-    const updateData: any = {
-      updatedAt: new Date()
-    };
-    
-    // Handle text fields explicitly (no timestamp conversion)
-    if (updates.title !== undefined) updateData.title = updates.title;
-    if (updates.description !== undefined) updateData.description = updates.description;
-    if (updates.priority !== undefined) updateData.priority = updates.priority;
-    if (updates.category !== undefined) updateData.category = updates.category;
-    if (updates.status !== undefined) updateData.status = updates.status;
-    if (updates.assignee !== undefined) updateData.assignee = updates.assignee;
-    
-    // Handle date text fields as strings (no conversion)
-    if (updates.startDate !== undefined) updateData.startDate = updates.startDate;
-    if (updates.endDate !== undefined) updateData.endDate = updates.endDate;
-    if (updates.dueDate !== undefined) updateData.dueDate = updates.dueDate;
-    
-    // Handle arrays and JSON fields
-    if (updates.dependencies !== undefined) updateData.dependencies = updates.dependencies;
-    if (updates.subtasks !== undefined) updateData.subtasks = updates.subtasks;
-    if (updates.abilities !== undefined) updateData.abilities = updates.abilities;
-    if (updates.comments !== undefined) updateData.comments = updates.comments;
-    
-    // Handle completed status
-    if (updates.completed !== undefined) {
-      updateData.completed = updates.completed ? 1 : 0;
-      updateData.completedAt = updates.completed ? new Date() : null;
-    }
-    
-    // Handle completedAt from status changes
-    if (updates.completedAt === null) {
-      updateData.completedAt = null;
-    } else if (updates.completedAt) {
-      updateData.completedAt = typeof updates.completedAt === 'string' ? new Date(updates.completedAt) : new Date(updates.completedAt);
-    }
-
-    const [updatedTask] = await db
-      .update(schema.tasks)
-      .set(updateData)
-      .where(eq(schema.tasks.id, id))
-      .returning();
-    
-    if (!updatedTask) return undefined;
-    
-    return {
-      ...updatedTask,
-      completed: Boolean(updatedTask.completed),
-      abilities: Array.isArray(updatedTask.abilities) ? updatedTask.abilities : []
-    };
-  }
-
-  async deleteTask(id: string): Promise<boolean> {
-    const result = await db
-      .delete(schema.tasks)
-      .where(eq(schema.tasks.id, id));
-    return result.rowCount > 0;
   }
 
   // User Stories Implementation - Database

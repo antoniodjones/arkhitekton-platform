@@ -561,47 +561,6 @@ export type InsertUserGameProfile = z.infer<typeof insertUserGameProfileSchema>;
 export type Leaderboard = typeof leaderboards.$inferSelect;
 export type InsertLeaderboard = z.infer<typeof insertLeaderboardSchema>;
 
-// Development Plan Tasks - Project management system
-export const tasks = pgTable("tasks", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  title: text("title").notNull(),
-  description: text("description").notNull().default(""),
-  completed: integer("completed").notNull().default(0), // 0 = false, 1 = true
-  priority: text("priority").notNull().default("medium"), // 'high', 'medium', 'low'
-  category: text("category").notNull(), // 'foundation', 'knowledge-base', 'ai', 'modeling', 'integration', 'ux'
-  status: text("status").notNull().default("todo"), // 'todo', 'in-progress', 'completed'
-  assignee: text("assignee"),
-  dueDate: text("due_date"),
-  startDate: text("start_date"), // Task start date for Gantt chart
-  endDate: text("end_date"), // Task end date for Gantt chart  
-  dependencies: jsonb("dependencies").$type<string[]>().default([]), // Array of task IDs this task depends on
-  subtasks: jsonb("subtasks").$type<{
-    id: string;
-    title: string;
-    completed: boolean;
-    createdAt: Date;
-  }[]>().default([]), // Array of subtasks
-  abilities: jsonb("abilities").$type<string[]>().default([]),
-  comments: jsonb("comments").$type<{
-    id: string;
-    text: string;
-    timestamp: Date;
-    author: string;
-  }[]>().default([]),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-  completedAt: timestamp("completed_at")
-});
-
-export const insertTaskSchema = createInsertSchema(tasks).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export type Task = typeof tasks.$inferSelect;
-export type InsertTask = z.infer<typeof insertTaskSchema>;
-
 // User Stories - Enterprise story management
 export const userStories = pgTable("user_stories", {
   id: text("id").primaryKey(), // US-XXXXXXX format
