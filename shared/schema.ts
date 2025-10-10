@@ -676,6 +676,67 @@ export type UserStory = typeof userStories.$inferSelect;
 export type InsertUserStory = z.infer<typeof insertUserStorySchema>;
 export type UpdateUserStory = z.infer<typeof updateUserStorySchema>;
 
+// Defects - Quality assurance and bug tracking linked to user stories
+export const defects = pgTable("defects", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`), // DEF-XXXXXXX format
+  userStoryId: text("user_story_id").references(() => userStories.id).notNull(), // Parent story
+  
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  
+  // Classification
+  severity: text("severity").notNull().default("medium"), // 'critical', 'high', 'medium', 'low'
+  type: text("type").notNull().default("bug"), // 'bug', 'regression', 'performance', 'security', 'usability'
+  status: text("status").notNull().default("open"), // 'open', 'in-progress', 'resolved', 'closed', 'rejected'
+  
+  // Assignment
+  discoveredBy: text("discovered_by"), // Who found the defect
+  assignedTo: text("assigned_to"), // Who should fix it
+  
+  // GitHub integration
+  githubIssue: integer("github_issue"),
+  githubCommits: jsonb("github_commits").$type<Array<{
+    sha: string;
+    message: string;
+    author: string;
+    timestamp: string;
+  }>>().default([]),
+  
+  // Resolution tracking
+  rootCause: text("root_cause"), // Analysis of what caused the defect
+  resolution: text("resolution"), // How it was fixed
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  resolvedAt: timestamp("resolved_at"),
+});
+
+// Defect validation schemas
+export const insertDefectSchema = createInsertSchema(defects).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  resolvedAt: true,
+}).extend({
+  // Enforce enums
+  severity: z.enum(['critical', 'high', 'medium', 'low']).default('medium'),
+  type: z.enum(['bug', 'regression', 'performance', 'security', 'usability']).default('bug'),
+  status: z.enum(['open', 'in-progress', 'resolved', 'closed', 'rejected']).default('open'),
+  // Required fields
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  userStoryId: z.string().min(1, "User story ID is required"),
+});
+
+export const updateDefectSchema = insertDefectSchema.partial().extend({
+  githubIssue: z.number().int().positive().optional().nullable(),
+});
+
+export type Defect = typeof defects.$inferSelect;
+export type InsertDefect = z.infer<typeof insertDefectSchema>;
+export type UpdateDefect = z.infer<typeof updateDefectSchema>;
+
 // Epics - Enterprise Architecture Value Stream Epics
 export const epics = pgTable("epics", {
   id: text("id").primaryKey(), // EPIC-XX format (1-6 for EA Value Streams)
