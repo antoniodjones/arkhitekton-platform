@@ -130,7 +130,8 @@ export function MainSidebar({ className }: MainSidebarProps) {
       label: 'VC Pitch Deck',
       href: '/pitch-deck',
       icon: Presentation,
-      description: 'Investor presentation & platform overview'
+      description: 'Investor presentation & platform overview',
+      badge: 'New'
     },
     {
       id: 'wiki',
