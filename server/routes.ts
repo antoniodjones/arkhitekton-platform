@@ -578,6 +578,26 @@ Keep response concise but comprehensive.`;
         }
       }
       
+      // Enforce defect blocking - prevent "done" status when open defects exist
+      if (validatedUpdates.status === 'done' || validatedUpdates.status === 'review') {
+        const openDefects = await storage.getOpenDefectsByStory(id);
+        
+        if (openDefects.length > 0) {
+          const criticalDefects = openDefects.filter(d => d.severity === 'critical').length;
+          const highDefects = openDefects.filter(d => d.severity === 'high').length;
+          
+          return res.status(400).json({ 
+            message: `Cannot move story to ${validatedUpdates.status}: ${openDefects.length} open defect(s) must be resolved first`,
+            defects: {
+              total: openDefects.length,
+              critical: criticalDefects,
+              high: highDefects,
+              ids: openDefects.map(d => d.id)
+            }
+          });
+        }
+      }
+      
       const updatedStory = await storage.updateUserStory(id, validatedUpdates);
       if (!updatedStory) {
         return res.status(404).json({ message: "User story not found" });

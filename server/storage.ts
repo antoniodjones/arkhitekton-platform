@@ -583,7 +583,8 @@ export class MemStorage implements IStorage {
     return Array.from(this.defects.values()).filter(
       defect => defect.userStoryId === userStoryId && 
       defect.status !== 'resolved' && 
-      defect.status !== 'closed'
+      defect.status !== 'closed' &&
+      defect.status !== 'rejected'
     );
   }
 
@@ -1344,6 +1345,99 @@ export class DatabaseStorage implements IStorage {
       .from(schema.userStories)
       .where(eq(schema.userStories.epicId, epicId));
     return stories;
+  }
+
+  // Defect CRUD Operations - Database
+  async getAllDefects(): Promise<Defect[]> {
+    const defects = await db.select().from(schema.defects);
+    return defects;
+  }
+
+  async getDefect(id: string): Promise<Defect | undefined> {
+    const [defect] = await db.select()
+      .from(schema.defects)
+      .where(eq(schema.defects.id, id));
+    return defect || undefined;
+  }
+
+  async getDefectsByStory(userStoryId: string): Promise<Defect[]> {
+    const defects = await db.select()
+      .from(schema.defects)
+      .where(eq(schema.defects.userStoryId, userStoryId));
+    return defects;
+  }
+
+  async getOpenDefectsByStory(userStoryId: string): Promise<Defect[]> {
+    const defects = await db.select()
+      .from(schema.defects)
+      .where(eq(schema.defects.userStoryId, userStoryId));
+    
+    return defects.filter(d => 
+      d.status !== 'resolved' && 
+      d.status !== 'closed' && 
+      d.status !== 'rejected'
+    );
+  }
+
+  async getDefectsBySeverity(severity: string): Promise<Defect[]> {
+    const defects = await db.select()
+      .from(schema.defects)
+      .where(eq(schema.defects.severity, severity));
+    return defects;
+  }
+
+  async getDefectsByAssignee(assignee: string): Promise<Defect[]> {
+    const defects = await db.select()
+      .from(schema.defects)
+      .where(eq(schema.defects.assignedTo, assignee));
+    return defects;
+  }
+
+  async createDefect(defectData: InsertDefect): Promise<Defect> {
+    const [defect] = await db
+      .insert(schema.defects)
+      .values({
+        ...defectData,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        resolvedAt: null
+      })
+      .returning();
+    return defect;
+  }
+
+  async updateDefect(id: string, updates: Partial<Defect>): Promise<Defect | undefined> {
+    const [defect] = await db
+      .update(schema.defects)
+      .set({
+        ...updates,
+        updatedAt: new Date()
+      })
+      .where(eq(schema.defects.id, id))
+      .returning();
+    return defect || undefined;
+  }
+
+  async resolveDefect(id: string, resolution: string, rootCause?: string): Promise<Defect | undefined> {
+    const [defect] = await db
+      .update(schema.defects)
+      .set({
+        status: 'resolved',
+        resolution,
+        rootCause: rootCause || undefined,
+        resolvedAt: new Date(),
+        updatedAt: new Date()
+      })
+      .where(eq(schema.defects.id, id))
+      .returning();
+    return defect || undefined;
+  }
+
+  async deleteDefect(id: string): Promise<boolean> {
+    const result = await db
+      .delete(schema.defects)
+      .where(eq(schema.defects.id, id));
+    return result.rowCount! > 0;
   }
 
   // Epic CRUD Operations
