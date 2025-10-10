@@ -11,6 +11,18 @@ import { archimateElements, ArchimateElement } from '@/data/archimate-elements';
 import { AppLayout } from '@/components/layout/app-layout';
 import { GovernanceHeader } from '@/components/layout/governance-header';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import * as Icons from 'lucide-react';
 import { 
   Palette, 
   PanelLeftOpen, 
@@ -19,10 +31,14 @@ import {
   Users, 
   Search, 
   Sparkles, 
-  Bot 
+  Bot,
+  ClipboardList,
+  Pencil
 } from 'lucide-react';
 
 function StudioContent() {
+  // View state
+  const [activeView, setActiveView] = useState<'canvas' | 'audit'>('canvas');
   // Panel state
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [propertiesOpen, setPropertiesOpen] = useState(true);
@@ -34,6 +50,9 @@ function StudioContent() {
   const [selectedFramework, setSelectedFramework] = useState<string>('archimate');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedElement, setSelectedElement] = useState<ArchimateElement>();
+  
+  // Audit view state
+  const [auditSearchQuery, setAuditSearchQuery] = useState('');
   
   // AI and change detection state
   const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
@@ -92,6 +111,33 @@ function StudioContent() {
     return archimateElements.slice(0, 4);
   }, []);
 
+  // Filter elements for audit view
+  const auditFilteredElements = useMemo(() => {
+    return archimateElements.filter(element => {
+      const matchesSearch = auditSearchQuery === '' || 
+        element.name.toLowerCase().includes(auditSearchQuery.toLowerCase()) ||
+        element.description.toLowerCase().includes(auditSearchQuery.toLowerCase()) ||
+        element.usageGuidelines.toLowerCase().includes(auditSearchQuery.toLowerCase()) ||
+        element.category.toLowerCase().includes(auditSearchQuery.toLowerCase()) ||
+        element.framework.toLowerCase().includes(auditSearchQuery.toLowerCase()) ||
+        element.type.toLowerCase().includes(auditSearchQuery.toLowerCase());
+      
+      return matchesSearch;
+    });
+  }, [auditSearchQuery]);
+
+  // Helper to render shape icon
+  const renderShapeIcon = (element: ArchimateElement) => {
+    const iconProps = {
+      className: "h-6 w-6",
+      style: { color: element.color }
+    };
+    
+    const IconComponent = (Icons as any)[element.iconName] || Palette;
+    
+    return <IconComponent {...iconProps} />;
+  };
+
   const handleElementSelect = (element: ArchimateElement) => {
     setSelectedElement(element);
   };
@@ -119,45 +165,72 @@ function StudioContent() {
         moduleIcon={Palette} 
       />
 
-      <div className="flex-1 overflow-auto flex">
-        {/* Palette Sidebar with Resizable Splitter */}
-        {sidebarOpen && (
-          <>
-            <div 
-              className="border-r flex flex-col overflow-hidden"
-              style={{ width: paletteWidth }}
+      {/* Sub-navigation Tabs */}
+      <div className="border-b bg-background px-6">
+        <Tabs value={activeView} onValueChange={(v) => setActiveView(v as 'canvas' | 'audit')} className="w-full">
+          <TabsList className="bg-transparent border-b-0 h-12">
+            <TabsTrigger 
+              value="canvas" 
+              className="data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-none"
+              data-testid="tab-canvas"
             >
-              <PaletteSidebar
-                selectedCategory={selectedCategory}
-                onCategoryChange={setSelectedCategory}
-                selectedFramework={selectedFramework}
-                onFrameworkChange={setSelectedFramework}
-                recentElements={recentElements}
-                onElementSelect={handleElementSelect}
-              />
-              <div className="flex-1 overflow-auto">
-                <PaletteContent
-                  selectedCategory={selectedCategory}
-                  selectedFramework={selectedFramework}
-                  filteredElements={filteredElements}
-                  searchQuery={searchQuery}
-                  onSearchChange={setSearchQuery}
-                  onElementSelect={handleElementSelect}
-                  selectedElement={selectedElement}
-                />
-              </div>
-            </div>
-            <ResizableSplitter
-              width={paletteWidth}
-              onResize={setPaletteWidth}
-              minWidth={250}
-              maxWidth={600}
-            />
-          </>
-        )}
+              <Pencil className="h-4 w-4 mr-2" />
+              Design Canvas
+            </TabsTrigger>
+            <TabsTrigger 
+              value="audit" 
+              className="data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-none"
+              data-testid="tab-audit"
+            >
+              <ClipboardList className="h-4 w-4 mr-2" />
+              Object Audit
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
 
-        {/* Main Workspace Area */}
-        <div className="flex-1 flex flex-col">
+      <div className="flex-1 overflow-auto flex">
+        {/* Canvas View */}
+        {activeView === 'canvas' && (
+          <>
+            {/* Palette Sidebar with Resizable Splitter */}
+            {sidebarOpen && (
+              <>
+                <div 
+                  className="border-r flex flex-col overflow-hidden"
+                  style={{ width: paletteWidth }}
+                >
+                  <PaletteSidebar
+                    selectedCategory={selectedCategory}
+                    onCategoryChange={setSelectedCategory}
+                    selectedFramework={selectedFramework}
+                    onFrameworkChange={setSelectedFramework}
+                    recentElements={recentElements}
+                    onElementSelect={handleElementSelect}
+                  />
+                  <div className="flex-1 overflow-auto">
+                    <PaletteContent
+                      selectedCategory={selectedCategory}
+                      selectedFramework={selectedFramework}
+                      filteredElements={filteredElements}
+                      searchQuery={searchQuery}
+                      onSearchChange={setSearchQuery}
+                      onElementSelect={handleElementSelect}
+                      selectedElement={selectedElement}
+                    />
+                  </div>
+                </div>
+                <ResizableSplitter
+                  width={paletteWidth}
+                  onResize={setPaletteWidth}
+                  minWidth={250}
+                  maxWidth={600}
+                />
+              </>
+            )}
+
+            {/* Main Workspace Area */}
+            <div className="flex-1 flex flex-col">
           {/* Workspace Actions Bar */}
           <div className="h-12 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/50 dark:border-slate-700/50 flex items-center justify-between px-6">
             <div className="flex items-center gap-3">
@@ -271,6 +344,78 @@ function StudioContent() {
             )}
           </div>
         </div>
+          </>
+        )}
+
+        {/* Object Audit View */}
+        {activeView === 'audit' && (
+          <div className="flex-1 flex flex-col p-6 overflow-auto">
+            {/* Search and Filter Bar */}
+            <div className="mb-6 flex items-center gap-4">
+              <div className="flex-1">
+                <Input
+                  placeholder="Search shapes and objects by name, category, framework, purpose..."
+                  value={auditSearchQuery}
+                  onChange={(e) => setAuditSearchQuery(e.target.value)}
+                  className="max-w-2xl"
+                  data-testid="input-audit-search"
+                />
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {auditFilteredElements.length} of {archimateElements.length} objects
+              </div>
+            </div>
+
+            {/* Audit Table */}
+            <div className="border rounded-lg overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-20">Visual</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead className="w-80">Purpose & Usage</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Framework</TableHead>
+                    <TableHead>Pattern</TableHead>
+                    <TableHead>Shape</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {auditFilteredElements.map((element) => (
+                    <TableRow key={element.id} data-testid={`row-object-${element.id}`}>
+                      <TableCell>
+                        <div className="flex items-center justify-center p-2 rounded" style={{ backgroundColor: `${element.color}20` }}>
+                          {renderShapeIcon(element)}
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-medium">{element.name}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        <div className="line-clamp-2">{element.usageGuidelines}</div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{element.category}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{element.type}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge>{element.framework}</Badge>
+                      </TableCell>
+                      <TableCell className="text-xs">
+                        <div className="max-w-32 truncate" title={element.relationships.join(', ')}>
+                          {element.relationships.slice(0, 2).join(', ')}
+                          {element.relationships.length > 2 && '...'}
+                        </div>
+                      </TableCell>
+                      <TableCell className="capitalize text-sm">{element.shape}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* AI Assistant */}
