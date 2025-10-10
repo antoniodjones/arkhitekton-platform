@@ -772,3 +772,32 @@ export type IntegrationChannel = typeof integrationChannels.$inferSelect;
 export type InsertIntegrationChannel = z.infer<typeof insertIntegrationChannelSchema>;
 export type ObjectSyncFlow = typeof objectSyncFlows.$inferSelect;
 export type InsertObjectSyncFlow = z.infer<typeof insertObjectSyncFlowSchema>;
+
+// Application Settings - Encrypted configuration storage
+export const applicationSettings = pgTable("application_settings", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  
+  // Setting identification
+  key: text("key").notNull().unique(), // e.g., "github.token", "jira.api_key"
+  value: text("value").notNull(), // Encrypted for sensitive fields
+  category: text("category").notNull(), // 'github', 'jira', 'automation', 'preferences'
+  
+  // Security and metadata
+  isSensitive: integer("is_sensitive").notNull().default(1), // 1 = encrypt, 0 = plain text
+  description: text("description"),
+  
+  // Additional configuration
+  metadata: jsonb("metadata").$type<Record<string, any>>().default({}),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const insertApplicationSettingSchema = createInsertSchema(applicationSettings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type ApplicationSetting = typeof applicationSettings.$inferSelect;
+export type InsertApplicationSetting = z.infer<typeof insertApplicationSettingSchema>;

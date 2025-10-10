@@ -14,7 +14,9 @@ import {
   type IntegrationChannel,
   type InsertIntegrationChannel,
   type ObjectSyncFlow,
-  type InsertObjectSyncFlow
+  type InsertObjectSyncFlow,
+  type ApplicationSetting,
+  type InsertApplicationSetting
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
@@ -83,6 +85,14 @@ export interface IStorage {
   updateObjectSyncFlow(id: string, updates: Partial<ObjectSyncFlow>): Promise<ObjectSyncFlow | undefined>;
   updateSyncFlowState(id: string, state: string, stateVersion: number): Promise<ObjectSyncFlow | undefined>;
   deleteObjectSyncFlow(id: string): Promise<boolean>;
+
+  // Application Settings
+  getAllSettings(): Promise<ApplicationSetting[]>;
+  getSetting(key: string): Promise<ApplicationSetting | undefined>;
+  getSettingsByCategory(category: string): Promise<ApplicationSetting[]>;
+  createSetting(setting: InsertApplicationSetting): Promise<ApplicationSetting>;
+  updateSetting(key: string, updates: Partial<ApplicationSetting>): Promise<ApplicationSetting | undefined>;
+  deleteSetting(key: string): Promise<boolean>;
 }
 
 // Standardized User Story ID generator with collision detection
@@ -120,6 +130,7 @@ export class MemStorage implements IStorage {
   private userStories: Map<string, UserStory>;
   private integrationChannels: Map<string, IntegrationChannel>;
   private objectSyncFlows: Map<string, ObjectSyncFlow>;
+  private applicationSettings: Map<string, ApplicationSetting>;
 
   constructor() {
     this.users = new Map();
@@ -127,6 +138,7 @@ export class MemStorage implements IStorage {
     this.recentElements = new Map();
     this.knowledgeBasePages = new Map();
     this.tasks = new Map();
+    this.applicationSettings = new Map();
     this.userStories = new Map();
     this.integrationChannels = new Map();
     this.objectSyncFlows = new Map();
@@ -816,6 +828,55 @@ Scenario: Team Assignment
   async deleteObjectSyncFlow(id: string): Promise<boolean> {
     return this.objectSyncFlows.delete(id);
   }
+
+  // Application Settings
+  async getAllSettings(): Promise<ApplicationSetting[]> {
+    return Array.from(this.applicationSettings.values());
+  }
+
+  async getSetting(key: string): Promise<ApplicationSetting | undefined> {
+    return this.applicationSettings.get(key);
+  }
+
+  async getSettingsByCategory(category: string): Promise<ApplicationSetting[]> {
+    return Array.from(this.applicationSettings.values()).filter(
+      (setting) => setting.category === category
+    );
+  }
+
+  async createSetting(setting: InsertApplicationSetting): Promise<ApplicationSetting> {
+    const newSetting: ApplicationSetting = {
+      id: randomUUID(),
+      key: setting.key,
+      value: setting.value,
+      category: setting.category,
+      isSensitive: setting.isSensitive ?? 1,
+      description: setting.description ?? null,
+      metadata: setting.metadata ?? null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.applicationSettings.set(newSetting.key, newSetting);
+    return newSetting;
+  }
+
+  async updateSetting(key: string, updates: Partial<ApplicationSetting>): Promise<ApplicationSetting | undefined> {
+    const setting = this.applicationSettings.get(key);
+    if (!setting) return undefined;
+    
+    const updated: ApplicationSetting = {
+      ...setting,
+      ...updates,
+      key: setting.key, // Ensure key doesn't change
+      updatedAt: new Date()
+    };
+    this.applicationSettings.set(key, updated);
+    return updated;
+  }
+
+  async deleteSetting(key: string): Promise<boolean> {
+    return this.applicationSettings.delete(key);
+  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1206,6 +1267,59 @@ export class DatabaseStorage implements IStorage {
   async deleteObjectSyncFlow(id: string): Promise<boolean> {
     const memStorage = new MemStorage();
     return memStorage.deleteObjectSyncFlow(id);
+  }
+
+  // Application Settings (Database implementations)
+  async getAllSettings(): Promise<ApplicationSetting[]> {
+    const settings = await db.select().from(schema.applicationSettings);
+    return settings;
+  }
+
+  async getSetting(key: string): Promise<ApplicationSetting | undefined> {
+    const [setting] = await db
+      .select()
+      .from(schema.applicationSettings)
+      .where(eq(schema.applicationSettings.key, key));
+    return setting || undefined;
+  }
+
+  async getSettingsByCategory(category: string): Promise<ApplicationSetting[]> {
+    const settings = await db
+      .select()
+      .from(schema.applicationSettings)
+      .where(eq(schema.applicationSettings.category, category));
+    return settings;
+  }
+
+  async createSetting(setting: InsertApplicationSetting): Promise<ApplicationSetting> {
+    const [newSetting] = await db
+      .insert(schema.applicationSettings)
+      .values({
+        ...setting,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+    return newSetting;
+  }
+
+  async updateSetting(key: string, updates: Partial<ApplicationSetting>): Promise<ApplicationSetting | undefined> {
+    const [updated] = await db
+      .update(schema.applicationSettings)
+      .set({
+        ...updates,
+        updatedAt: new Date()
+      })
+      .where(eq(schema.applicationSettings.key, key))
+      .returning();
+    return updated || undefined;
+  }
+
+  async deleteSetting(key: string): Promise<boolean> {
+    const result = await db
+      .delete(schema.applicationSettings)
+      .where(eq(schema.applicationSettings.key, key));
+    return result.rowCount! > 0;
   }
 }
 

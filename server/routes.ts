@@ -10,11 +10,13 @@ import {
   updateUserStorySchema,
   insertIntegrationChannelSchema,
   insertObjectSyncFlowSchema,
+  insertApplicationSettingSchema,
   type KnowledgeBasePage,
   type IntegrationChannel,
   type ObjectSyncFlow
 } from "@shared/schema";
 import Anthropic from '@anthropic-ai/sdk';
+import { encrypt, decrypt, isEncrypted } from './encryption';
 
 // Initialize Anthropic AI client
 const anthropic = new Anthropic({
@@ -1030,6 +1032,132 @@ Keep response concise but comprehensive.`;
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch object history" });
+    }
+  });
+
+  // Application Settings API
+  app.get("/api/settings", async (req, res) => {
+    try {
+      const { category } = req.query;
+      
+      let settings;
+      if (category && typeof category === 'string') {
+        settings = await storage.getSettingsByCategory(category);
+      } else {
+        settings = await storage.getAllSettings();
+      }
+      
+      // Never return sensitive values in plain text - mask them
+      const maskedSettings = settings.map(setting => ({
+        ...setting,
+        value: setting.isSensitive ? '••••••••' : setting.value
+      }));
+      
+      res.json(maskedSettings);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch settings" });
+    }
+  });
+
+  app.get("/api/settings/:key", async (req, res) => {
+    try {
+      const { key } = req.params;
+      const setting = await storage.getSetting(key);
+      
+      if (!setting) {
+        return res.status(404).json({ message: "Setting not found" });
+      }
+      
+      // Mask sensitive values
+      const maskedSetting = {
+        ...setting,
+        value: setting.isSensitive ? '••••••••' : setting.value
+      };
+      
+      res.json(maskedSetting);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch setting" });
+    }
+  });
+
+  app.post("/api/settings", async (req, res) => {
+    try {
+      const validatedData = insertApplicationSettingSchema.parse(req.body);
+      
+      // Encrypt sensitive values before storing
+      const valueToStore = validatedData.isSensitive 
+        ? encrypt(validatedData.value) 
+        : validatedData.value;
+      
+      const setting = await storage.createSetting({
+        ...validatedData,
+        value: valueToStore
+      });
+      
+      // Return masked value
+      const maskedSetting = {
+        ...setting,
+        value: setting.isSensitive ? '••••••••' : setting.value
+      };
+      
+      res.status(201).json(maskedSetting);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid setting data" });
+    }
+  });
+
+  app.patch("/api/settings/:key", async (req, res) => {
+    try {
+      const { key } = req.params;
+      
+      // Get existing setting to check if it's sensitive
+      const existingSetting = await storage.getSetting(key);
+      if (!existingSetting) {
+        return res.status(404).json({ message: "Setting not found" });
+      }
+      
+      // Don't allow changing the key itself
+      const { key: _, ...updates } = req.body;
+      
+      // Encrypt sensitive values before storing
+      let valueToStore = updates.value;
+      if (updates.value && existingSetting.isSensitive) {
+        valueToStore = encrypt(updates.value);
+      }
+      
+      const setting = await storage.updateSetting(key, {
+        ...updates,
+        value: valueToStore
+      });
+      
+      if (!setting) {
+        return res.status(404).json({ message: "Setting not found" });
+      }
+      
+      // Return masked value
+      const maskedSetting = {
+        ...setting,
+        value: setting.isSensitive ? '••••••••' : setting.value
+      };
+      
+      res.json(maskedSetting);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to update setting" });
+    }
+  });
+
+  app.delete("/api/settings/:key", async (req, res) => {
+    try {
+      const { key } = req.params;
+      const success = await storage.deleteSetting(key);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Setting not found" });
+      }
+      
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete setting" });
     }
   });
 

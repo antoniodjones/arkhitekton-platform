@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,9 +21,12 @@ import {
   Loader2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 
 export default function SettingsPage() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('integrations');
   const [isTesting, setIsTesting] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'success' | 'error' | null>(null);
@@ -34,6 +37,94 @@ export default function SettingsPage() {
     personalAccessToken: '',
     defaultBranch: 'main',
     webhookUrl: ''
+  });
+
+  // Load existing GitHub settings
+  const { data: githubSettings } = useQuery({
+    queryKey: ['/api/settings', 'github'],
+    queryFn: async () => {
+      const response = await fetch('/api/settings?category=github');
+      if (!response.ok) throw new Error('Failed to load settings');
+      return response.json();
+    }
+  });
+
+  // Populate form with existing settings
+  useEffect(() => {
+    if (githubSettings && githubSettings.length > 0) {
+      const repoSetting = githubSettings.find((s: any) => s.key === 'github.repo_url');
+      const tokenSetting = githubSettings.find((s: any) => s.key === 'github.token');
+      const branchSetting = githubSettings.find((s: any) => s.key === 'github.default_branch');
+      
+      if (repoSetting || tokenSetting || branchSetting) {
+        setGithubConfig(prev => ({
+          ...prev,
+          repoUrl: repoSetting?.value || prev.repoUrl,
+          // Don't populate masked values - keep empty until user enters new value
+          personalAccessToken: tokenSetting?.value === '••••••••' ? '' : (tokenSetting?.value || ''),
+          defaultBranch: branchSetting?.value || prev.defaultBranch
+        }));
+        // Show connected status if token exists (even if masked)
+        if (tokenSetting?.value) {
+          setConnectionStatus('success');
+        }
+      }
+    }
+  }, [githubSettings]);
+
+  // Save GitHub configuration mutation
+  const saveGitHubMutation = useMutation({
+    mutationFn: async () => {
+      // Only save settings that have values
+      const settings = [
+        { key: 'github.repo_url', value: githubConfig.repoUrl, category: 'github', isSensitive: 0 },
+        { key: 'github.default_branch', value: githubConfig.defaultBranch, category: 'github', isSensitive: 0 }
+      ];
+
+      // Only include token if user entered a new value
+      if (githubConfig.personalAccessToken && githubConfig.personalAccessToken !== '••••••••') {
+        settings.push({ 
+          key: 'github.token', 
+          value: githubConfig.personalAccessToken, 
+          category: 'github', 
+          isSensitive: 1 
+        });
+      }
+
+      for (const setting of settings) {
+        if (!setting.value) continue; // Skip empty values
+        
+        // Check if setting exists
+        const existing = await fetch(`/api/settings/${setting.key}`);
+        if (existing.ok) {
+          // Update existing
+          await apiRequest(`/api/settings/${setting.key}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ value: setting.value })
+          });
+        } else {
+          // Create new
+          await apiRequest('/api/settings', {
+            method: 'POST',
+            body: JSON.stringify(setting)
+          });
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/settings'] });
+      toast({
+        title: 'Settings Saved',
+        description: 'GitHub integration settings have been updated successfully'
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Error',
+        description: 'Failed to save GitHub settings',
+        variant: 'destructive'
+      });
+    }
   });
 
   const handleTestConnection = async () => {
@@ -57,10 +148,7 @@ export default function SettingsPage() {
   };
 
   const handleSaveGitHubConfig = () => {
-    toast({
-      title: 'Settings Saved',
-      description: 'GitHub integration settings have been updated successfully'
-    });
+    saveGitHubMutation.mutate();
   };
 
   return (
@@ -221,11 +309,21 @@ export default function SettingsPage() {
                     </Button>
                     <Button
                       onClick={handleSaveGitHubConfig}
+                      disabled={saveGitHubMutation.isPending}
                       className="gap-2"
                       data-testid="button-save-github"
                     >
-                      <Save className="w-4 h-4" />
-                      Save Configuration
+                      {saveGitHubMutation.isPending ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4" />
+                          Save Configuration
+                        </>
+                      )}
                     </Button>
                   </div>
                 </CardContent>
