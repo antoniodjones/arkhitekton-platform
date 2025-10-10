@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { pgTable, text, varchar, jsonb, timestamp, integer, uuid } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { isValidGherkin } from "./gherkin-validator";
 
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -654,7 +655,12 @@ export const insertUserStorySchema = createInsertSchema(userStories).omit({
   priority: z.enum(['low', 'medium', 'high']).default('medium'),
   // Ensure required fields
   title: z.string().min(1, "Title is required"),
-  acceptanceCriteria: z.string().min(1, "Acceptance criteria is required"),
+  // Gherkin format validation (US-XIGJUQ7)
+  acceptanceCriteria: z.string()
+    .min(1, "Acceptance criteria is required")
+    .refine(isValidGherkin, {
+      message: "Acceptance criteria must follow Gherkin format (Given/When/Then)"
+    }),
   storyPoints: z.number().int().min(1).max(13).default(3), // Fibonacci scale limit
 });
 

@@ -3,6 +3,7 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSam
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import type { UserStory as BackendUserStory, Epic } from '@shared/schema';
+import { validateGherkinFormat } from '@shared/gherkin-validator';
 import { formatDateForInput, formatDateForAPI, formatDateForDisplay } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -970,6 +971,17 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
 
   const [editingStory, setEditingStory] = useState<UserStory | null>(null);
   const [isStoryDialogOpen, setIsStoryDialogOpen] = useState(false);
+  const [gherkinValidation, setGherkinValidation] = useState<{isValid: boolean; errors: string[]; warnings: string[]}>({ isValid: true, errors: [], warnings: [] });
+  
+  // Validate Gherkin format when story is opened for editing (US-XIGJUQ7)
+  useEffect(() => {
+    if (editingStory && editingStory.acceptanceCriteria) {
+      const validation = validateGherkinFormat(editingStory.acceptanceCriteria);
+      setGherkinValidation(validation);
+    } else {
+      setGherkinValidation({ isValid: true, errors: [], warnings: [] });
+    }
+  }, [editingStory?.id]); // Only re-validate when the story ID changes (story opened)
   
   // Search states for all role assignments
   const [assigneeSearch, setAssigneeSearch] = useState('');
@@ -2017,7 +2029,13 @@ Then [expected outcome]`,
                 <Textarea
                   id="acceptance-criteria"
                   value={editingStory.acceptanceCriteria}
-                  onChange={(e) => setEditingStory({...editingStory, acceptanceCriteria: e.target.value})}
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    setEditingStory({...editingStory, acceptanceCriteria: newValue});
+                    // Real-time Gherkin validation (US-XIGJUQ7)
+                    const validation = validateGherkinFormat(newValue);
+                    setGherkinValidation(validation);
+                  }}
                   placeholder={`Given [context]
 When [action]
 Then [expected outcome]
@@ -2031,6 +2049,26 @@ Scenario: [scenario name]
                   className="font-mono text-sm"
                   data-testid="textarea-acceptance-criteria"
                 />
+                {/* Gherkin Validation Feedback (US-XIGJUQ7) */}
+                {gherkinValidation.errors.length > 0 && (
+                  <div className="text-sm text-red-600 dark:text-red-400 mt-1" data-testid="gherkin-errors">
+                    {gherkinValidation.errors.map((error, idx) => (
+                      <div key={idx}>• {error}</div>
+                    ))}
+                  </div>
+                )}
+                {gherkinValidation.warnings.length > 0 && gherkinValidation.errors.length === 0 && (
+                  <div className="text-sm text-amber-600 dark:text-amber-400 mt-1" data-testid="gherkin-warnings">
+                    {gherkinValidation.warnings.map((warning, idx) => (
+                      <div key={idx}>⚠ {warning}</div>
+                    ))}
+                  </div>
+                )}
+                {gherkinValidation.isValid && gherkinValidation.warnings.length === 0 && editingStory.acceptanceCriteria.trim().length > 0 && (
+                  <div className="text-sm text-green-600 dark:text-green-400 mt-1" data-testid="gherkin-valid">
+                    ✓ Valid Gherkin format
+                  </div>
+                )}
               </div>
 
               {/* GitHub Integration */}
