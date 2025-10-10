@@ -119,12 +119,12 @@ function StudioContent() {
         moduleIcon={Palette} 
       />
 
-      <div className="flex-1 overflow-hidden flex">
+      <div className="flex-1 overflow-auto flex">
         {/* Palette Sidebar with Resizable Splitter */}
         {sidebarOpen && (
           <>
             <div 
-              className="border-r flex flex-col"
+              className="border-r flex flex-col overflow-hidden"
               style={{ width: paletteWidth }}
             >
               <PaletteSidebar
@@ -135,7 +135,7 @@ function StudioContent() {
                 recentElements={recentElements}
                 onElementSelect={handleElementSelect}
               />
-              <div className="flex-1">
+              <div className="flex-1 overflow-auto">
                 <PaletteContent
                   selectedCategory={selectedCategory}
                   selectedFramework={selectedFramework}
@@ -241,9 +241,9 @@ function StudioContent() {
           </div>
 
           {/* Main Content Area */}
-          <div className="flex-1 flex overflow-hidden">
+          <div className="flex-1 flex overflow-auto">
             {/* Modeling Canvas */}
-            <div className="flex-1">
+            <div className="flex-1 overflow-auto">
               <ModelingWorkspace
                 model={mockModel}
                 onModelSave={handleModelSave}
@@ -262,7 +262,7 @@ function StudioContent() {
                   maxWidth={500}
                 />
                 <div 
-                  className="border-l flex flex-col bg-card"
+                  className="border-l flex flex-col bg-card overflow-auto"
                   style={{ width: rightPanelWidth }}
                 >
                   <PropertiesPanel selectedElement={selectedElement} />
