@@ -604,7 +604,8 @@ export type InsertTask = z.infer<typeof insertTaskSchema>;
 // User Stories - Enterprise story management
 export const userStories = pgTable("user_stories", {
   id: text("id").primaryKey(), // US-XXXXXXX format
-  parentTaskId: uuid("parent_task_id").references(() => tasks.id), // Optional epic connection
+  parentTaskId: uuid("parent_task_id").references(() => tasks.id), // Optional task connection (legacy)
+  epicId: text("epic_id").references(() => epics.id), // Epic assignment (EA Value Stream)
   title: text("title").notNull(),
   description: text("description").default(""),
   acceptanceCriteria: text("acceptance_criteria").notNull(),
@@ -662,6 +663,7 @@ export const insertUserStorySchema = createInsertSchema(userStories).omit({
 export const updateUserStorySchema = insertUserStorySchema.partial().extend({
   // Optional validation for updates
   parentTaskId: z.string().uuid().optional().nullable(), // Validate UUID format if provided
+  epicId: z.string().optional().nullable(), // Validate Epic ID format if provided (EPIC-XX)
   storyPoints: z.number().int().min(1).max(13).optional(),
   githubIssue: z.number().int().positive().optional().nullable(),
 });
@@ -669,6 +671,65 @@ export const updateUserStorySchema = insertUserStorySchema.partial().extend({
 export type UserStory = typeof userStories.$inferSelect;
 export type InsertUserStory = z.infer<typeof insertUserStorySchema>;
 export type UpdateUserStory = z.infer<typeof updateUserStorySchema>;
+
+// Epics - Enterprise Architecture Value Stream Epics
+export const epics = pgTable("epics", {
+  id: text("id").primaryKey(), // EPIC-XX format (1-6 for EA Value Streams)
+  name: text("name").notNull(),
+  description: text("description").default(""),
+  
+  // EA Value Stream alignment
+  valueStream: text("value_stream").notNull(), // 'strategy', 'design', 'governance', 'development', 'operations', 'knowledge'
+  targetPersonas: jsonb("target_personas").$type<string[]>().default([]),
+  coreCapabilities: jsonb("core_capabilities").$type<string[]>().default([]),
+  keyFeatures: jsonb("key_features").$type<string[]>().default([]),
+  
+  // Epic metadata
+  status: text("status").notNull().default("planned"), // 'planned', 'in-progress', 'completed'
+  priority: text("priority").notNull().default("medium"), // 'low', 'medium', 'high', 'critical'
+  
+  // Ownership
+  owner: text("owner"),
+  stakeholders: jsonb("stakeholders").$type<string[]>().default([]),
+  
+  // Planning
+  startDate: text("start_date"),
+  endDate: text("end_date"),
+  targetQuarter: text("target_quarter"), // Q1 2025, Q2 2025, etc.
+  
+  // Progress tracking (auto-calculated from stories)
+  completionPercentage: integer("completion_percentage").default(0),
+  totalStoryPoints: integer("total_story_points").default(0),
+  completedStoryPoints: integer("completed_story_points").default(0),
+  
+  // Goals and outcomes
+  businessGoals: jsonb("business_goals").$type<string[]>().default([]),
+  successMetrics: jsonb("success_metrics").$type<{
+    metric: string;
+    target: string;
+    current: string;
+  }[]>().default([]),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const insertEpicSchema = createInsertSchema(epics).omit({
+  id: true, // Server generates EPIC-XX format
+  createdAt: true,
+  updatedAt: true,
+  completionPercentage: true, // Auto-calculated
+  totalStoryPoints: true, // Auto-calculated
+  completedStoryPoints: true, // Auto-calculated
+}).extend({
+  name: z.string().min(1, "Name is required"),
+  valueStream: z.enum(['strategy', 'design', 'governance', 'development', 'operations', 'knowledge']),
+  status: z.enum(['planned', 'in-progress', 'completed']).default('planned'),
+  priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
+});
+
+export type Epic = typeof epics.$inferSelect;
+export type InsertEpic = z.infer<typeof insertEpicSchema>;
 
 // Developer Integration Channels - IDE, Code Editor, and Version Control Integrations
 export const integrationChannels = pgTable("integration_channels", {

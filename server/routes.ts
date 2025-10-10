@@ -8,6 +8,7 @@ import {
   insertTaskSchema,
   insertUserStorySchema,
   updateUserStorySchema,
+  insertEpicSchema,
   insertIntegrationChannelSchema,
   insertObjectSyncFlowSchema,
   insertApplicationSettingSchema,
@@ -610,6 +611,214 @@ Keep response concise but comprehensive.`;
     } catch (error) {
       console.error("Failed to delete user story:", error);
       res.status(500).json({ message: "Failed to delete user story" });
+    }
+  });
+
+  // ============================================================
+  // EPIC API ENDPOINTS - Enterprise Architecture Value Streams
+  // ============================================================
+
+  // Get all epics
+  app.get("/api/epics", async (req, res) => {
+    try {
+      const { valueStream, status } = req.query;
+      
+      let epics;
+      if (valueStream && typeof valueStream === 'string') {
+        epics = await storage.getEpicsByValueStream(valueStream);
+      } else if (status && typeof status === 'string') {
+        epics = await storage.getEpicsByStatus(status);
+      } else {
+        epics = await storage.getAllEpics();
+      }
+      
+      // Calculate progress for each epic
+      const epicsWithProgress = await Promise.all(epics.map(async (epic) => {
+        const stories = await storage.getUserStoriesByEpic(epic.id);
+        const totalStoryPoints = stories.reduce((sum, s) => sum + (s.storyPoints || 0), 0);
+        const completedStoryPoints = stories
+          .filter(s => s.status === 'done')
+          .reduce((sum, s) => sum + (s.storyPoints || 0), 0);
+        const completionPercentage = totalStoryPoints > 0 
+          ? Math.round((completedStoryPoints / totalStoryPoints) * 100) 
+          : 0;
+        
+        return {
+          ...epic,
+          totalStoryPoints,
+          completedStoryPoints,
+          completionPercentage,
+          storyCount: stories.length
+        };
+      }));
+      
+      res.json({ data: epicsWithProgress });
+    } catch (error) {
+      console.error("Failed to fetch epics:", error);
+      res.status(500).json({ message: "Failed to fetch epics" });
+    }
+  });
+
+  // Get single epic
+  app.get("/api/epics/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const epic = await storage.getEpic(id);
+      
+      if (!epic) {
+        return res.status(404).json({ message: "Epic not found" });
+      }
+      
+      // Get stories for this epic
+      const stories = await storage.getUserStoriesByEpic(id);
+      const totalStoryPoints = stories.reduce((sum, s) => sum + (s.storyPoints || 0), 0);
+      const completedStoryPoints = stories
+        .filter(s => s.status === 'done')
+        .reduce((sum, s) => sum + (s.storyPoints || 0), 0);
+      const completionPercentage = totalStoryPoints > 0 
+        ? Math.round((completedStoryPoints / totalStoryPoints) * 100) 
+        : 0;
+      
+      res.json({ 
+        data: {
+          ...epic,
+          totalStoryPoints,
+          completedStoryPoints,
+          completionPercentage,
+          stories
+        }
+      });
+    } catch (error) {
+      console.error("Failed to fetch epic:", error);
+      res.status(500).json({ message: "Failed to fetch epic" });
+    }
+  });
+
+  // Create epic
+  app.post("/api/epics", async (req, res) => {
+    try {
+      // Validate using Zod schema
+      const validated = insertEpicSchema.parse(req.body);
+      
+      // Generate unique Epic ID with retry logic for concurrent requests
+      let epic;
+      let attempts = 0;
+      const maxAttempts = 10;
+      
+      while (attempts < maxAttempts) {
+        try {
+          // Get all existing epics to determine next ID
+          const allEpics = await storage.getAllEpics();
+          
+          // Extract numeric IDs and find max
+          const numericIds = allEpics
+            .map(e => {
+              const match = e.id.match(/^EPIC-(\d+)$/);
+              return match ? parseInt(match[1], 10) : 0;
+            })
+            .filter(n => n > 0);
+          
+          const nextId = numericIds.length > 0 ? Math.max(...numericIds) + 1 : 1;
+          const epicId = `EPIC-${nextId}`;
+          
+          // Attempt to create with this ID
+          epic = await storage.createEpic({
+            ...validated,
+            id: epicId
+          });
+          
+          // Success! Break out of retry loop
+          break;
+        } catch (createError: any) {
+          // Check if it's a duplicate key error
+          if (createError.code === '23505' || createError.message?.includes('duplicate')) {
+            attempts++;
+            if (attempts >= maxAttempts) {
+              return res.status(409).json({ 
+                message: "Failed to generate unique Epic ID after multiple attempts",
+                error: "Conflict"
+              });
+            }
+            // Add small random delay to reduce collision probability
+            await new Promise(resolve => setTimeout(resolve, Math.random() * 50));
+            continue;
+          }
+          // Not a duplicate error, rethrow
+          throw createError;
+        }
+      }
+      
+      res.status(201).json({ data: epic });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Validation failed", 
+          errors: error.errors 
+        });
+      }
+      
+      console.error("Failed to create epic:", error);
+      res.status(500).json({ message: "Failed to create epic" });
+    }
+  });
+
+  // Update epic
+  app.patch("/api/epics/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Validate Epic ID format
+      if (!id.startsWith('EPIC-')) {
+        return res.status(400).json({ message: "Invalid epic ID format" });
+      }
+      
+      // Partial validation for updates
+      const updateData = insertEpicSchema.partial().parse(req.body);
+      
+      const epic = await storage.updateEpic(id, updateData);
+      
+      if (!epic) {
+        return res.status(404).json({ message: "Epic not found" });
+      }
+      
+      res.json({ data: epic });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Validation failed", 
+          errors: error.errors 
+        });
+      }
+      
+      console.error("Failed to update epic:", error);
+      res.status(500).json({ message: "Failed to update epic" });
+    }
+  });
+
+  // Delete epic
+  app.delete("/api/epics/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Check if epic has stories
+      const stories = await storage.getUserStoriesByEpic(id);
+      if (stories.length > 0) {
+        return res.status(400).json({ 
+          message: "Cannot delete epic with associated stories",
+          storyCount: stories.length
+        });
+      }
+      
+      const success = await storage.deleteEpic(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Epic not found" });
+      }
+      
+      res.json({ message: "Epic deleted successfully" });
+    } catch (error) {
+      console.error("Failed to delete epic:", error);
+      res.status(500).json({ message: "Failed to delete epic" });
     }
   });
 

@@ -11,6 +11,8 @@ import {
   type InsertTask,
   type UserStory,
   type InsertUserStory,
+  type Epic,
+  type InsertEpic,
   type IntegrationChannel,
   type InsertIntegrationChannel,
   type ObjectSyncFlow,
@@ -63,9 +65,19 @@ export interface IStorage {
   getUserStory(id: string): Promise<UserStory | undefined>;
   getUserStoriesByTask(taskId: string): Promise<UserStory[]>;
   getUserStoriesByAssignee(assignee: string): Promise<UserStory[]>;
+  getUserStoriesByEpic(epicId: string): Promise<UserStory[]>;
   createUserStory(story: InsertUserStory): Promise<UserStory>;
   updateUserStory(id: string, updates: Partial<UserStory>): Promise<UserStory | undefined>;
   deleteUserStory(id: string): Promise<boolean>;
+
+  // Epics - Enterprise Architecture Value Streams
+  getAllEpics(): Promise<Epic[]>;
+  getEpic(id: string): Promise<Epic | undefined>;
+  getEpicsByValueStream(valueStream: string): Promise<Epic[]>;
+  getEpicsByStatus(status: string): Promise<Epic[]>;
+  createEpic(epic: InsertEpic): Promise<Epic>;
+  updateEpic(id: string, updates: Partial<Epic>): Promise<Epic | undefined>;
+  deleteEpic(id: string): Promise<boolean>;
 
   // Developer Integration Channels
   getAllIntegrationChannels(): Promise<IntegrationChannel[]>;
@@ -128,6 +140,7 @@ export class MemStorage implements IStorage {
   private knowledgeBasePages: Map<string, KnowledgeBasePage>;
   private tasks: Map<string, Task>;
   private userStories: Map<string, UserStory>;
+  private epics: Map<string, Epic>;
   private integrationChannels: Map<string, IntegrationChannel>;
   private objectSyncFlows: Map<string, ObjectSyncFlow>;
   private applicationSettings: Map<string, ApplicationSetting>;
@@ -140,6 +153,7 @@ export class MemStorage implements IStorage {
     this.tasks = new Map();
     this.applicationSettings = new Map();
     this.userStories = new Map();
+    this.epics = new Map();
     this.integrationChannels = new Map();
     this.objectSyncFlows = new Map();
     
@@ -535,6 +549,62 @@ export class MemStorage implements IStorage {
 
   async deleteUserStory(id: string): Promise<boolean> {
     return this.userStories.delete(id);
+  }
+
+  async getUserStoriesByEpic(epicId: string): Promise<UserStory[]> {
+    return Array.from(this.userStories.values()).filter(story => story.epicId === epicId);
+  }
+
+  // Epic CRUD Operations
+  async getAllEpics(): Promise<Epic[]> {
+    return Array.from(this.epics.values());
+  }
+
+  async getEpic(id: string): Promise<Epic | undefined> {
+    return this.epics.get(id);
+  }
+
+  async getEpicsByValueStream(valueStream: string): Promise<Epic[]> {
+    return Array.from(this.epics.values()).filter(epic => epic.valueStream === valueStream);
+  }
+
+  async getEpicsByStatus(status: string): Promise<Epic[]> {
+    return Array.from(this.epics.values()).filter(epic => epic.status === status);
+  }
+
+  async createEpic(epic: InsertEpic): Promise<Epic> {
+    // Check for duplicate ID to ensure consistency with DatabaseStorage
+    if (this.epics.has(epic.id)) {
+      const error: any = new Error(`Epic with id ${epic.id} already exists`);
+      error.code = '23505'; // PostgreSQL duplicate key error code
+      throw error;
+    }
+    
+    const newEpic: Epic = {
+      ...epic,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.epics.set(newEpic.id, newEpic);
+    return newEpic;
+  }
+
+  async updateEpic(id: string, updates: Partial<Epic>): Promise<Epic | undefined> {
+    const epic = this.epics.get(id);
+    if (!epic) return undefined;
+
+    const updatedEpic: Epic = {
+      ...epic,
+      ...updates,
+      id,
+      updatedAt: new Date()
+    };
+    this.epics.set(id, updatedEpic);
+    return updatedEpic;
+  }
+
+  async deleteEpic(id: string): Promise<boolean> {
+    return this.epics.delete(id);
   }
 
   // Initialize sample user stories
@@ -1189,6 +1259,71 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(schema.userStories)
       .where(eq(schema.userStories.id, id));
+    return result.rowCount! > 0;
+  }
+
+  async getUserStoriesByEpic(epicId: string): Promise<UserStory[]> {
+    const stories = await db.select()
+      .from(schema.userStories)
+      .where(eq(schema.userStories.epicId, epicId));
+    return stories;
+  }
+
+  // Epic CRUD Operations
+  async getAllEpics(): Promise<Epic[]> {
+    const epics = await db.select().from(schema.epics);
+    return epics;
+  }
+
+  async getEpic(id: string): Promise<Epic | undefined> {
+    const [epic] = await db.select()
+      .from(schema.epics)
+      .where(eq(schema.epics.id, id));
+    return epic || undefined;
+  }
+
+  async getEpicsByValueStream(valueStream: string): Promise<Epic[]> {
+    const epics = await db.select()
+      .from(schema.epics)
+      .where(eq(schema.epics.valueStream, valueStream));
+    return epics;
+  }
+
+  async getEpicsByStatus(status: string): Promise<Epic[]> {
+    const epics = await db.select()
+      .from(schema.epics)
+      .where(eq(schema.epics.status, status));
+    return epics;
+  }
+
+  async createEpic(epicData: InsertEpic): Promise<Epic> {
+    const [epic] = await db
+      .insert(schema.epics)
+      .values({
+        ...epicData,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+    return epic;
+  }
+
+  async updateEpic(id: string, updates: Partial<Epic>): Promise<Epic | undefined> {
+    const [epic] = await db
+      .update(schema.epics)
+      .set({
+        ...updates,
+        updatedAt: new Date()
+      })
+      .where(eq(schema.epics.id, id))
+      .returning();
+    return epic || undefined;
+  }
+
+  async deleteEpic(id: string): Promise<boolean> {
+    const result = await db
+      .delete(schema.epics)
+      .where(eq(schema.epics.id, id));
     return result.rowCount! > 0;
   }
 
