@@ -1,12 +1,12 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
+import { useEffect } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import NotFound from "@/pages/not-found";
-import DesignPalette from "@/pages/design-palette";
-import ModelingPage from "@/pages/modeling";
+import StudioPage from "@/pages/studio";
 import Dashboard from "@/pages/dashboard";
 import { GovernancePage } from "@/pages/governance";
 import { DecisionsPage } from "@/pages/decisions";
@@ -27,18 +27,29 @@ import ArkhitektonArchitectureAzure from "@/pages/arkhitekton-architecture-azure
 import ArkhitektonArchitectureGCP from "@/pages/arkhitekton-architecture-gcp";
 import ArkhitektonArchitectureOracle from "@/pages/arkhitekton-architecture-oracle";
 import ArkhitektonSystemsIntegration from "@/pages/arkhitekton-systems-integration";
-import { WorkspacePage } from "@/pages/workspace";
 import PitchDeck from "@/pages/pitch-deck";
 import SettingsPage from "@/pages/settings";
 import APMPage from "@/pages/apm";
+
+// Redirect component for deprecated routes
+function Redirect({ to }: { to: string }) {
+  const [, setLocation] = useLocation();
+  
+  useEffect(() => {
+    setLocation(to);
+  }, [to, setLocation]);
+  
+  return null;
+}
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
-      <Route path="/design-palette" component={DesignPalette} />
-      <Route path="/workspace" component={WorkspacePage} />
-      <Route path="/modeling" component={ModelingPage} />
+      <Route path="/studio" component={StudioPage} />
+      <Route path="/design-palette">{() => <Redirect to="/studio" />}</Route>
+      <Route path="/workspace">{() => <Redirect to="/studio" />}</Route>
+      <Route path="/modeling">{() => <Redirect to="/studio" />}</Route>
       <Route path="/governance" component={GovernancePage} />
       <Route path="/decisions" component={DecisionsPage} />
       <Route path="/capabilities" component={CapabilitiesPage} />

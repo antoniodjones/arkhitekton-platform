@@ -65,25 +65,11 @@ const navigationItems: NavigationItem[] = [
     description: 'Manage applications, tools, and technologies'
   },
   {
-    id: 'design-palette',
-    label: 'Design Palette',
-    href: '/design-palette',
+    id: 'studio',
+    label: 'Design Studio',
+    href: '/studio',
     icon: Palette,
-    description: 'Cloud architecture design patterns'
-  },
-  {
-    id: 'modeling',
-    label: 'Architecture Modeling',
-    href: '/modeling',
-    icon: Shapes,
-    description: 'Universal modeling engine for architects'
-  },
-  {
-    id: 'workspace',
-    label: 'Architecture Workspace',
-    href: '/workspace',
-    icon: Building,
-    description: 'Design and model architectures'
+    description: 'Unified modeling and design workspace'
   },
   {
     id: 'design-options',
