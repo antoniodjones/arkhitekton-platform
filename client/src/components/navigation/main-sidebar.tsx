@@ -126,20 +126,18 @@ export function MainSidebar({ className }: MainSidebarProps) {
       description: 'Development roadmap and task tracking'
     },
     {
+      id: 'pitch-deck',
+      label: 'VC Pitch Deck',
+      href: '/pitch-deck',
+      icon: Presentation,
+      description: 'Investor presentation & platform overview'
+    },
+    {
       id: 'wiki',
       label: 'Knowledge Base',
       href: '/wiki',
       icon: BookOpen,
-      description: 'Implementation documentation & guides',
-      children: [
-        {
-          id: 'pitch-deck',
-          label: 'VC Pitch Deck',
-          href: '/pitch-deck',
-          icon: Presentation,
-          description: 'Investor presentation & platform overview'
-        }
-      ]
+      description: 'Implementation documentation & guides'
     }
   ];
 
