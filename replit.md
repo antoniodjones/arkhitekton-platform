@@ -136,6 +136,14 @@ All 131 user stories have been successfully migrated to the 6 Epic structure usi
 - UI features: Epic filter dropdown, Create Epic dialog, Epic badges on story cards
 - Bug fixes: Relaxed story ID validation to support varied formats (US-WS001, US-AI-F002, etc.)
 
+**Schema Evolution - parentTaskId Deprecation** (October 10, 2025):
+- **Deprecated Field**: `parentTaskId` (legacy task-based hierarchy) → Replaced with `epicId` (EA Value Stream alignment)
+- **Migration**: 0001_drop_parent_task_id.sql removes parent_task_id column from user_stories table
+- **Migration History**: Historical migrations (0000) retain parent_task_id references as immutable audit trail
+- **Organization Model**: Stories now organized by Epic only (no parent/child task relationships)
+- **Full Stack Update**: Schema, storage interface, API routes, and frontend all updated to use epicId
+- **Rationale**: Epic-based organization provides cleaner EA Value Stream alignment and eliminates redundant hierarchy
+
 # System Architecture
 
 ## Core Architectural Principles
