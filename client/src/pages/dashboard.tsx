@@ -21,7 +21,8 @@ import {
   Shield,
   Workflow,
   Sparkles,
-  Zap
+  Zap,
+  Package
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/app-layout';
 
