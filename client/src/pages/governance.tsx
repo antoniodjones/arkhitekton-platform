@@ -23,6 +23,7 @@ import {
   Settings,
   Sparkles
 } from 'lucide-react';
+import { GovernanceHeader } from '@/components/layout/governance-header';
 
 function GovernanceContent() {
   const [selectedTimeframe, setSelectedTimeframe] = useState('month');
@@ -124,44 +125,14 @@ function GovernanceContent() {
   };
 
   return (
-    <div className="h-full overflow-y-auto">
-      {/* Header */}
-      <header className="backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/50 dark:border-slate-700/50 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-3">
-                <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/25">
-                    <div className="w-5 h-5 bg-white/90 rounded-lg transform rotate-45" />
-                  </div>
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-slate-800 dark:from-white dark:via-slate-200 dark:to-slate-300 bg-clip-text text-transparent tracking-tight">
-                    ARKITEKTON
-                  </h1>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide">GOVERNANCE</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              <Link href="/">
-                <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
-                  <Home className="h-4 w-4 mr-2" />
-                  Dashboard
-                </Button>
-              </Link>
-              <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
-                <Settings className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-6 py-8">
+    <div className="h-full overflow-hidden flex flex-col">
+      <GovernanceHeader 
+        moduleTitle="Governance & Compliance" 
+        moduleIcon={Shield} 
+      />
+      
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Governance Overview */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
@@ -487,6 +458,7 @@ function GovernanceContent() {
             </Card>
           </TabsContent>
         </Tabs>
+        </div>
       </div>
     </div>
   );
