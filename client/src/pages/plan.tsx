@@ -78,7 +78,6 @@ import { CSS } from '@dnd-kit/utilities';
 // User Story interface for enhanced functionality
 interface UserStory {
   id: string;
-  parentTaskId: string | null;
   epicId?: string | null; // Link to Epic (EA Value Stream)
   title: string;
   description: string | null;
@@ -1148,7 +1147,7 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
   // Helper to convert backend stories to frontend format
   const convertBackendStory = (story: BackendUserStory): UserStory => ({
     id: story.id,
-    parentTaskId: story.parentTaskId || '',
+    epicId: story.epicId || null,
     title: story.title,
     description: story.description || '',
     acceptanceCriteria: story.acceptanceCriteria,
@@ -1171,28 +1170,8 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
     updatedAt: typeof story.updatedAt === 'string' ? story.updatedAt : new Date().toISOString()
   });
 
-  // Filter stories by task
-  const getStoriesForTask = (taskId: string): UserStory[] => {
-    return allStories
-      .filter((story: BackendUserStory) => story.parentTaskId === taskId)
-      .map(convertBackendStory);
-  };
-
-  // Get independent stories (no parent task)
-  const independentStories = allStories
-    .filter((story: BackendUserStory) => !story.parentTaskId)
-    .map(convertBackendStory);
-
-  const generateUserStories = (task: Task): Array<UserStory> => {
-    // First check if we have real stories for this task
-    const realStories = getStoriesForTask(task.id);
-    if (realStories.length > 0) {
-      return realStories;
-    }
-
-    // If no real stories exist, return empty array (no more fake generation)
-    return [];
-  };
+  // Stories are now organized by Epic, not by individual tasks
+  // All stories retrieved from backend are already filtered if epicId is provided
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -1251,7 +1230,7 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
   const createNewStory = () => {
     const newStory: UserStory = {
       id: `US-${Date.now().toString().slice(-7)}`,
-      parentTaskId: '', // Will be set in dialog
+      epicId: null, // Will be set in dialog
       title: '',
       description: '',
       acceptanceCriteria: `Given [context]
@@ -1288,7 +1267,7 @@ Scenario: [scenario name]
 
   const saveStory = (story: UserStory) => {
     // Update existing or create new story via backend API
-    const existingStory = independentStories.find((s: UserStory) => s.id === story.id);
+    const existingStory = allStories.find((s: BackendUserStory) => s.id === story.id);
     if (existingStory) {
       // Update existing story - exclude date fields as they're auto-handled
       const { createdAt, updatedAt, ...updates } = story;
@@ -1322,7 +1301,7 @@ Scenario: [scenario name]
         
         const story: UserStory = {
           id: `US-${Date.now().toString().slice(-7)}${i.toString().padStart(2, '0')}`,
-          parentTaskId: getValue(values, headers, 'epic_id') || getValue(values, headers, 'task_id') || '',
+          epicId: getValue(values, headers, 'epic_id') || null,
           title: getValue(values, headers, 'title') || getValue(values, headers, 'user_story') || '',
           description: getValue(values, headers, 'description') || '',
           acceptanceCriteria: getValue(values, headers, 'acceptance_criteria') || getValue(values, headers, 'gherkin') || 
@@ -1370,17 +1349,13 @@ Then [expected outcome]`,
     return index >= 0 ? values[index]?.trim() : undefined;
   };
 
-  // Get all stories (generated + independent)
-  const allGeneratedStories = tasks.reduce((acc, task) => acc + generateUserStories(task).length, 0);
-  const totalStories = allGeneratedStories + independentStories.length;
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-foreground">User Stories</h3>
         <div className="flex items-center gap-4">
           <div className="text-sm text-muted-foreground">
-            {total > 0 ? `${total} Total Stories` : `${tasks.length} Epic${tasks.length !== 1 ? 's' : ''} • ${totalStories} Stories`}
+            {total > 0 && `${total} Total Stories`}
           </div>
           <div className="flex items-center gap-2">
             {/* Epic Filter */}
@@ -1667,76 +1642,7 @@ Then [expected outcome]`,
         );
       })}
 
-      {/* Independent Stories Section */}
-      {independentStories.length > 0 && (
-        <div className="space-y-4 mt-8">
-          <div className="flex items-center gap-2 pb-2 border-b">
-            <h4 className="font-medium text-foreground">Independent Stories</h4>
-            <span className="text-sm text-muted-foreground">({independentStories.length})</span>
-          </div>
-          
-          {independentStories.map((story: UserStory) => (
-            <div key={story.id} className="bg-white dark:bg-gray-800 rounded-lg border p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="font-medium text-sm">{story.title}</div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(story.status)}`}>
-                      {story.status}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {story.storyPoints} point{story.storyPoints !== 1 ? 's' : ''}
-                    </span>
-                    {story.parentTaskId && (
-                      <span className="text-xs text-blue-600 dark:text-blue-400">
-                        → Linked to Epic
-                      </span>
-                    )}
-                  </div>
-                  {story.assignee && (
-                    <div className="text-xs text-muted-foreground mt-1">
-                      Assigned to: {story.assignee}
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-1">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-xs h-7 px-2"
-                    onClick={() => createGitHubBranch(story)}
-                    data-testid={`button-create-branch-${story.id}`}
-                  >
-                    <GitBranch className="w-3 h-3 mr-1" />
-                    Create branch
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-xs h-7 px-2"
-                    onClick={() => createGitHubCommit(story)}
-                    data-testid={`button-create-commit-${story.id}`}
-                  >
-                    <Code2 className="w-3 h-3 mr-1" />
-                    Create commit
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-7 px-2"
-                    onClick={() => editStory(story)}
-                    data-testid={`button-edit-story-${story.id}`}
-                  >
-                    <Edit className="w-3 h-3" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {tasks.length === 0 && independentStories.length === 0 && (
+      {total === 0 && (
         <div className="text-center py-12 text-muted-foreground">
           No stories found. Create your first story or import from CSV to get started.
         </div>
