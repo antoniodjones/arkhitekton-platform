@@ -28,11 +28,13 @@ import {
   Link,
   History,
   XCircle,
-  Wrench
+  Wrench,
+  Edit
 } from 'lucide-react';
 import { detectTechnicalDebtRisk, TechnicalDebtRiskIndicators } from '@/utils/technical-debt-detection';
 import { TechnicalDebtPrompt } from '@/components/dialogs/technical-debt-prompt';
 import { AppLayout } from '@/components/layout/app-layout';
+import { GovernanceHeader } from '@/components/layout/governance-header';
 
 interface TicketData {
   id: string;
@@ -298,30 +300,24 @@ function EditTicketContent() {
   const TypeIcon = getTypeIcon(ticket.type);
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="max-w-5xl mx-auto px-6 py-8">
-        {/* Header */}
+    <div className="h-full overflow-hidden flex flex-col">
+      <GovernanceHeader 
+        moduleTitle="Edit Ticket" 
+        moduleIcon={Edit} 
+      />
+      
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-5xl mx-auto px-6 py-8">
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/tickets')}
-              className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Tickets
-            </Button>
-            <Separator orientation="vertical" className="h-6" />
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-emerald-800 dark:from-white dark:via-slate-200 dark:to-emerald-200 bg-clip-text text-transparent">
-                Edit Ticket
-              </h1>
-              <p className="text-slate-600 dark:text-slate-300 mt-2">
-                Modify ticket details and update status
-              </p>
-            </div>
-          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/tickets')}
+            className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Tickets
+          </Button>
           <div className="flex items-center space-x-3">
             <Button
               variant="outline"
@@ -702,6 +698,7 @@ function EditTicketContent() {
             onCreateDebtTicket={handleCreateDebtTicket}
           />
         )}
+        </div>
       </div>
     </div>
   );

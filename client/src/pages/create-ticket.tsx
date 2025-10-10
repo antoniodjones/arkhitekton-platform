@@ -33,8 +33,8 @@ import { detectTechnicalDebtRisk, TechnicalDebtRiskIndicators } from '@/utils/te
 import { TechnicalDebtPrompt } from '@/components/dialogs/technical-debt-prompt';
 import { PortfolioAssociationForm } from '@/components/portfolio/portfolio-association-form';
 import { SearchableSelect } from '@/components/forms/searchable-select';
-import { IntegrationBadge } from '@/components/ui/integration-badge';
 import { AppLayout } from '@/components/layout/app-layout';
+import { GovernanceHeader } from '@/components/layout/governance-header';
 
 interface TicketFormData {
   type: 'architecture_review' | 'architect_request' | 'adr' | 'change_request' | 'technical_debt' | '';
@@ -179,6 +179,7 @@ function CreateTicketContent() {
   const [activeTab, setActiveTab] = useState('basic');
   const [showDebtPrompt, setShowDebtPrompt] = useState(false);
   const [debtRiskIndicators, setDebtRiskIndicators] = useState<TechnicalDebtRiskIndicators | null>(null);
+  const [createdTicketId, setCreatedTicketId] = useState<string | null>(null);
 
   // Load pre-populated debt ticket data if coming from ADR
   useEffect(() => {
@@ -279,6 +280,9 @@ function CreateTicketContent() {
         // Save the ADR first
         localStorage.setItem(`ticket-${ticketData.id}`, JSON.stringify(ticketData));
         
+        // Store the ticket ID for later use
+        setCreatedTicketId(ticketData.id);
+        
         // Then show the technical debt prompt
         setDebtRiskIndicators(riskIndicators);
         setShowDebtPrompt(true);
@@ -346,17 +350,19 @@ function CreateTicketContent() {
       localStorage.setItem(`ticket-${fullDebtTicket.id}`, JSON.stringify(fullDebtTicket));
       
       // Update the original ADR ticket to link back to the debt ticket
-      const adrData = JSON.parse(localStorage.getItem(`ticket-${ticketData.id}`) || '{}');
-      if (adrData.id) {
-        adrData.linkedObjects = adrData.linkedObjects || [];
-        adrData.linkedObjects.push({
-          id: fullDebtTicket.id,
-          type: 'technical_debt',
-          title: fullDebtTicket.title,
-          ticketNumber: fullDebtTicket.ticketNumber,
-          relationship: 'generates'
-        });
-        localStorage.setItem(`ticket-${adrData.id}`, JSON.stringify(adrData));
+      if (createdTicketId) {
+        const adrData = JSON.parse(localStorage.getItem(`ticket-${createdTicketId}`) || '{}');
+        if (adrData.id) {
+          adrData.linkedObjects = adrData.linkedObjects || [];
+          adrData.linkedObjects.push({
+            id: fullDebtTicket.id,
+            type: 'technical_debt',
+            title: fullDebtTicket.title,
+            ticketNumber: fullDebtTicket.ticketNumber,
+            relationship: 'generates'
+          });
+          localStorage.setItem(`ticket-${adrData.id}`, JSON.stringify(adrData));
+        }
       }
       
       navigate('/tickets');
@@ -370,30 +376,24 @@ function CreateTicketContent() {
   const TypeIcon = getTypeIcon(formData.type);
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="max-w-5xl mx-auto px-6 py-8">
-        {/* Header */}
+    <div className="h-full overflow-hidden flex flex-col">
+      <GovernanceHeader 
+        moduleTitle="Create Ticket" 
+        moduleIcon={Plus} 
+      />
+      
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-5xl mx-auto px-6 py-8">
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/tickets')}
-              className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Tickets
-            </Button>
-            <Separator orientation="vertical" className="h-6" />
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-emerald-800 dark:from-white dark:via-slate-200 dark:to-emerald-200 bg-clip-text text-transparent">
-                Create New Ticket
-              </h1>
-              <p className="text-slate-600 dark:text-slate-300 mt-2">
-                Create a new architecture ticket for review, assignment, or decision tracking
-              </p>
-            </div>
-          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/tickets')}
+            className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Tickets
+          </Button>
           <div className="flex items-center space-x-3">
             <Button
               variant="outline"
@@ -1135,6 +1135,7 @@ function CreateTicketContent() {
             onCreateDebtTicket={handleCreateDebtTicket}
           />
         )}
+        </div>
       </div>
     </div>
   );

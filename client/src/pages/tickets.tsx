@@ -39,6 +39,7 @@ import {
   Wrench
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/app-layout';
+import { GovernanceHeader } from '@/components/layout/governance-header';
 
 interface TicketData {
   id: string;
@@ -392,18 +393,15 @@ function TicketsContent() {
   };
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-emerald-800 dark:from-white dark:via-slate-200 dark:to-emerald-200 bg-clip-text text-transparent">
-              Architecture Tickets
-            </h1>
-            <p className="text-slate-600 dark:text-slate-300 mt-2">
-              Comprehensive ticket system for architecture reviews, decisions, and change management
-            </p>
-          </div>
+    <div className="h-full overflow-hidden flex flex-col">
+      <GovernanceHeader 
+        moduleTitle="Governance Tickets" 
+        moduleIcon={Ticket} 
+      />
+      
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="flex items-center justify-end mb-8">
           <div className="flex space-x-3">
             <Button variant="outline" className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
               <Bot className="h-4 w-4 mr-2" />
@@ -769,6 +767,7 @@ function TicketsContent() {
             </CardContent>
           </Card>
         )}
+        </div>
       </div>
     </div>
   );
