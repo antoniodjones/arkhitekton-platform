@@ -893,3 +893,105 @@ export const insertApplicationSettingSchema = createInsertSchema(applicationSett
 
 export type ApplicationSetting = typeof applicationSettings.$inferSelect;
 export type InsertApplicationSetting = z.infer<typeof insertApplicationSettingSchema>;
+
+// Applications - Application Portfolio Management (APM) / CMDB
+export const applications = pgTable("applications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Basic Information
+  name: text("name").notNull(),
+  description: text("description"),
+  
+  // Classification
+  type: text("type").notNull().default("web_application"), // 'web_application', 'mobile_app', 'api_service', 'database', 'infrastructure', 'saas_tool', 'custom'
+  category: text("category").notNull().default("business"), // 'business', 'technical', 'infrastructure', 'integration', 'data', 'security'
+  
+  // Technology Stack
+  technologyStack: jsonb("technology_stack").$type<{
+    frontend?: string[];
+    backend?: string[];
+    database?: string[];
+    infrastructure?: string[];
+    thirdParty?: string[];
+  }>().default({}),
+  
+  // Ownership & Governance
+  owner: text("owner"), // Primary owner/maintainer
+  team: text("team"), // Owning team
+  stakeholders: jsonb("stakeholders").$type<string[]>().default([]),
+  
+  // Business Context
+  businessCapabilities: jsonb("business_capabilities").$type<string[]>().default([]),
+  criticality: text("criticality").notNull().default("medium"), // 'low', 'medium', 'high', 'critical'
+  businessValue: text("business_value"), // Description of business value
+  
+  // Technical Details
+  hostingEnvironment: text("hosting_environment"), // 'on_premise', 'aws', 'azure', 'gcp', 'hybrid', 'multi_cloud'
+  region: text("region"), // Geographic region/data center
+  architecture: text("architecture"), // 'monolithic', 'microservices', 'serverless', 'event_driven'
+  
+  // Integration & Dependencies
+  integrations: jsonb("integrations").$type<Array<{
+    name: string;
+    type: string;
+    direction: 'inbound' | 'outbound' | 'bidirectional';
+  }>>().default([]),
+  dependencies: jsonb("dependencies").$type<string[]>().default([]), // Application IDs this app depends on
+  
+  // Performance & Operational Metrics
+  metrics: jsonb("metrics").$type<{
+    uptime?: number;
+    responseTime?: number;
+    errorRate?: number;
+    throughput?: number;
+    customMetrics?: Record<string, any>;
+  }>().default({}),
+  
+  // Cost Management
+  costCenter: text("cost_center"),
+  annualCost: integer("annual_cost"), // Annual cost in dollars
+  costBreakdown: jsonb("cost_breakdown").$type<{
+    infrastructure?: number;
+    licenses?: number;
+    maintenance?: number;
+    support?: number;
+  }>().default({}),
+  
+  // Lifecycle Management
+  status: text("status").notNull().default("active"), // 'active', 'deprecated', 'retired', 'planned', 'development'
+  version: text("version").default("1.0.0"),
+  deployedDate: text("deployed_date"), // ISO date string
+  retirementDate: text("retirement_date"), // Planned retirement date
+  
+  // External References
+  repositoryUrl: text("repository_url"),
+  documentationUrl: text("documentation_url"),
+  monitoringUrl: text("monitoring_url"),
+  
+  // Metadata
+  tags: jsonb("tags").$type<string[]>().default([]),
+  notes: text("notes"), // Additional notes or context
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+// Application validation schemas
+export const insertApplicationSchema = createInsertSchema(applications).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  name: z.string().min(1, "Application name is required"),
+  type: z.enum(['web_application', 'mobile_app', 'api_service', 'database', 'infrastructure', 'saas_tool', 'custom']).default('web_application'),
+  category: z.enum(['business', 'technical', 'infrastructure', 'integration', 'data', 'security']).default('business'),
+  criticality: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
+  status: z.enum(['active', 'deprecated', 'retired', 'planned', 'development']).default('active'),
+});
+
+export const updateApplicationSchema = insertApplicationSchema.partial();
+
+export type Application = typeof applications.$inferSelect;
+export type InsertApplication = z.infer<typeof insertApplicationSchema>;
+export type UpdateApplication = z.infer<typeof updateApplicationSchema>;
