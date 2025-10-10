@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -23,7 +24,8 @@ import {
   Globe,
   Zap,
   BarChart3,
-  CheckCircle2
+  CheckCircle2,
+  ArrowLeft
 } from 'lucide-react';
 
 export default function PitchDeck() {
@@ -263,8 +265,19 @@ export default function PitchDeck() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      {/* Print Controls - Hidden when printing */}
-      <div className="print:hidden fixed top-4 right-4 z-50 flex gap-2">
+      {/* Navigation Header - Hidden when printing */}
+      <div className="print:hidden fixed top-4 left-4 right-4 z-50 flex items-center justify-between">
+        <Link href="/">
+          <Button
+            variant="outline"
+            className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-slate-200 dark:border-slate-700 shadow-lg"
+            data-testid="button-back-dashboard"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Dashboard
+          </Button>
+        </Link>
+        
         <Button
           onClick={handlePrint}
           className="bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg"
