@@ -1034,6 +1034,18 @@ Keep response concise but comprehensive.`;
     }
   });
 
+  // Get defects for a user story
+  app.get('/api/user-stories/:id/defects', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const defects = await storage.getDefectsByStory(id);
+      res.json(defects);
+    } catch (error) {
+      console.error('Error fetching story defects:', error);
+      res.status(500).json({ error: 'Failed to fetch defects' });
+    }
+  });
+
   app.get('/api/github/integration-summary', async (req, res) => {
     try {
       // Get all user stories with GitHub integration

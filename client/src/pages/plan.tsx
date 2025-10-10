@@ -55,6 +55,7 @@ import {
 import { Link, useLocation } from 'wouter';
 import { GovernanceHeader } from '@/components/layout/governance-header';
 import { AppLayout } from '@/components/layout/app-layout';
+import { DefectManagement, DefectBadge } from '@/components/defect-management';
 import { 
   DndContext,
   closestCenter,
@@ -1467,6 +1468,7 @@ Then [expected outcome]`,
                             {story.storyPoints} pts
                           </Badge>
                         )}
+                        <DefectBadge userStoryId={story.id} />
                         {story.epicId && (() => {
                           const epic = epics.find(e => e.id === story.epicId);
                           return epic ? (
@@ -2070,6 +2072,12 @@ Scenario: [scenario name]
                   </div>
                 )}
               </div>
+
+              {/* Defect Management */}
+              <DefectManagement 
+                userStoryId={editingStory.id} 
+                userStoryTitle={editingStory.title}
+              />
 
               {/* GitHub Integration */}
               <div className="space-y-4 p-4 border rounded-lg bg-gray-50 dark:bg-gray-900">
