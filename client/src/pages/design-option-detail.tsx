@@ -1,11 +1,11 @@
 import { useRoute } from "wouter";
 import { useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { FileText } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AppLayout } from "@/components/layout/app-layout";
+import { GovernanceHeader } from "@/components/layout/governance-header";
 
 // Logo components (reusing from original design-options page)
 function Option1Logo() {
@@ -154,18 +154,17 @@ function DesignOptionDetailContent() {
   
   if (!content) {
     return (
-      <div className="min-h-screen bg-background p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-4 mb-6">
-            <Link href="/design-options">
-              <Button variant="ghost" size="sm" data-testid="back-to-options">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Design Options
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Option Not Found</h1>
-              <p className="text-muted-foreground mt-2">The requested design option could not be found.</p>
+      <div className="h-full overflow-hidden flex flex-col">
+        <GovernanceHeader 
+          moduleTitle="Design Option Detail" 
+          moduleIcon={FileText} 
+        />
+        
+        <div className="flex-1 overflow-auto">
+          <div className="max-w-7xl mx-auto px-6 py-8">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-foreground mb-2">Option Not Found</h2>
+              <p className="text-muted-foreground">The requested design option could not be found.</p>
             </div>
           </div>
         </div>
@@ -174,32 +173,23 @@ function DesignOptionDetailContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      {/* Header */}
-      <div className="max-w-6xl mx-auto mb-8">
-        <div className="flex items-center gap-4 mb-6">
-          <Link href="/design-options">
-            <Button variant="ghost" size="sm" data-testid="back-to-options">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Design Options
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">{content.title}</h1>
-            <p className="text-muted-foreground mt-2">{content.description}</p>
+    <div className="h-full overflow-hidden flex flex-col">
+      <GovernanceHeader 
+        moduleTitle="Design Option Detail" 
+        moduleIcon={FileText} 
+      />
+      
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-8">
+            <p className="text-blue-800 dark:text-blue-200 text-sm">
+              <strong>ARKHITEKTON Design Philosophy:</strong> Every design decision reflects our commitment to transforming 
+              architectural complexity into elegant, understandable models that empower enterprise architects.
+            </p>
           </div>
-        </div>
-        
-        <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-8">
-          <p className="text-blue-800 dark:text-blue-200 text-sm">
-            <strong>ARKHITEKTON Design Philosophy:</strong> Every design decision reflects our commitment to transforming 
-            architectural complexity into elegant, understandable models that empower enterprise architects.
-          </p>
-        </div>
-      </div>
 
-      {/* Options Grid */}
-      <div className="max-w-6xl mx-auto grid gap-8 md:grid-cols-1 lg:grid-cols-3">
+          {/* Options Grid */}
+          <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-3">
         {content.items.map((item) => (
           <Card key={item.id} className="group hover:shadow-lg transition-shadow">
             <CardHeader className="text-center pb-4">
@@ -276,21 +266,19 @@ function DesignOptionDetailContent() {
             </CardContent>
           </Card>
         ))}
-      </div>
-      
-      <div className="max-w-6xl mx-auto mt-12 text-center">
-        <p className="text-muted-foreground text-sm">
-          Click "Select Option" on your preferred choice to implement it throughout ARKHITEKTON
-        </p>
+          </div>
+          
+          <div className="mt-12 text-center">
+            <p className="text-muted-foreground text-sm">
+              Click "Select Option" on your preferred choice to implement it throughout ARKHITEKTON
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
 export default function DesignOptionDetailPage() {
-  return (
-    <AppLayout>
-      <DesignOptionDetailContent />
-    </AppLayout>
-  );
+  return <DesignOptionDetailContent />;
 }

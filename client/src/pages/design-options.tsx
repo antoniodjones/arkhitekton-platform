@@ -1,9 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft } from 'lucide-react';
+import { Palette } from 'lucide-react';
 import { Link } from 'wouter';
-import { AppLayout } from '@/components/layout/app-layout';
+import { GovernanceHeader } from '@/components/layout/governance-header';
 
 // Logo Option Components
 function Option1Logo() {
@@ -408,27 +408,16 @@ function DesignOptionsContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      {/* Header */}
-      <div className="max-w-6xl mx-auto mb-8">
-        <div className="flex items-center gap-4 mb-6">
-          <Link href="/">
-            <Button variant="ghost" size="sm" data-testid="back-to-dashboard">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Design Options</h1>
-            <p className="text-muted-foreground mt-2">
-              ARKHITEKTON design system categories and variations
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Design Categories Grid */}
-      <div className="max-w-6xl mx-auto space-y-4">
+    <div className="h-full overflow-hidden flex flex-col">
+      <GovernanceHeader 
+        moduleTitle="Design Options" 
+        moduleIcon={Palette} 
+      />
+      
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          {/* Design Categories Grid */}
+          <div className="space-y-4">
         {designCategories.map((category) => (
           <Card 
             key={category.id} 
@@ -485,12 +474,14 @@ function DesignOptionsContent() {
             </CardHeader>
           </Card>
         ))}
-      </div>
-      
-      <div className="max-w-6xl mx-auto mt-12 text-center">
-        <p className="text-muted-foreground text-sm">
-          Double-click a category or use the View Options button to see detailed design options
-        </p>
+          </div>
+          
+          <div className="mt-12 text-center">
+            <p className="text-muted-foreground text-sm">
+              Double-click a category or use the View Options button to see detailed design options
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -498,9 +489,5 @@ function DesignOptionsContent() {
 
 // Main Design Options Page Component
 export default function DesignOptionsPage() {
-  return (
-    <AppLayout>
-      <DesignOptionsContent />
-    </AppLayout>
-  );
+  return <DesignOptionsContent />;
 }
