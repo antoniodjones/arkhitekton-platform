@@ -11,6 +11,8 @@ import {
   type InsertTask,
   type UserStory,
   type InsertUserStory,
+  type Defect,
+  type InsertDefect,
   type Epic,
   type InsertEpic,
   type IntegrationChannel,
@@ -68,6 +70,18 @@ export interface IStorage {
   createUserStory(story: InsertUserStory): Promise<UserStory>;
   updateUserStory(id: string, updates: Partial<UserStory>): Promise<UserStory | undefined>;
   deleteUserStory(id: string): Promise<boolean>;
+
+  // Defects - Quality assurance and bug tracking
+  getAllDefects(): Promise<Defect[]>;
+  getDefect(id: string): Promise<Defect | undefined>;
+  getDefectsByStory(userStoryId: string): Promise<Defect[]>;
+  getOpenDefectsByStory(userStoryId: string): Promise<Defect[]>;
+  getDefectsBySeverity(severity: string): Promise<Defect[]>;
+  getDefectsByAssignee(assignee: string): Promise<Defect[]>;
+  createDefect(defect: InsertDefect): Promise<Defect>;
+  updateDefect(id: string, updates: Partial<Defect>): Promise<Defect | undefined>;
+  resolveDefect(id: string, resolution: string, rootCause?: string): Promise<Defect | undefined>;
+  deleteDefect(id: string): Promise<boolean>;
 
   // Epics - Enterprise Architecture Value Streams
   getAllEpics(): Promise<Epic[]>;
@@ -139,6 +153,7 @@ export class MemStorage implements IStorage {
   private knowledgeBasePages: Map<string, KnowledgeBasePage>;
   private tasks: Map<string, Task>;
   private userStories: Map<string, UserStory>;
+  private defects: Map<string, Defect>;
   private epics: Map<string, Epic>;
   private integrationChannels: Map<string, IntegrationChannel>;
   private objectSyncFlows: Map<string, ObjectSyncFlow>;
@@ -152,6 +167,7 @@ export class MemStorage implements IStorage {
     this.tasks = new Map();
     this.applicationSettings = new Map();
     this.userStories = new Map();
+    this.defects = new Map();
     this.epics = new Map();
     this.integrationChannels = new Map();
     this.objectSyncFlows = new Map();
@@ -548,6 +564,81 @@ export class MemStorage implements IStorage {
 
   async getUserStoriesByEpic(epicId: string): Promise<UserStory[]> {
     return Array.from(this.userStories.values()).filter(story => story.epicId === epicId);
+  }
+
+  // Defect CRUD Operations
+  async getAllDefects(): Promise<Defect[]> {
+    return Array.from(this.defects.values());
+  }
+
+  async getDefect(id: string): Promise<Defect | undefined> {
+    return this.defects.get(id);
+  }
+
+  async getDefectsByStory(userStoryId: string): Promise<Defect[]> {
+    return Array.from(this.defects.values()).filter(defect => defect.userStoryId === userStoryId);
+  }
+
+  async getOpenDefectsByStory(userStoryId: string): Promise<Defect[]> {
+    return Array.from(this.defects.values()).filter(
+      defect => defect.userStoryId === userStoryId && 
+      defect.status !== 'resolved' && 
+      defect.status !== 'closed'
+    );
+  }
+
+  async getDefectsBySeverity(severity: string): Promise<Defect[]> {
+    return Array.from(this.defects.values()).filter(defect => defect.severity === severity);
+  }
+
+  async getDefectsByAssignee(assignee: string): Promise<Defect[]> {
+    return Array.from(this.defects.values()).filter(defect => defect.assignedTo === assignee);
+  }
+
+  async createDefect(defectData: InsertDefect): Promise<Defect> {
+    const id = randomUUID();
+    const defect: Defect = {
+      ...defectData,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      resolvedAt: null
+    };
+    this.defects.set(id, defect);
+    return defect;
+  }
+
+  async updateDefect(id: string, updates: Partial<Defect>): Promise<Defect | undefined> {
+    const defect = this.defects.get(id);
+    if (!defect) return undefined;
+
+    const updatedDefect: Defect = {
+      ...defect,
+      ...updates,
+      updatedAt: new Date()
+    };
+    this.defects.set(id, updatedDefect);
+    return updatedDefect;
+  }
+
+  async resolveDefect(id: string, resolution: string, rootCause?: string): Promise<Defect | undefined> {
+    const defect = this.defects.get(id);
+    if (!defect) return undefined;
+
+    const resolvedDefect: Defect = {
+      ...defect,
+      status: 'resolved',
+      resolution,
+      rootCause: rootCause || defect.rootCause,
+      resolvedAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.defects.set(id, resolvedDefect);
+    return resolvedDefect;
+  }
+
+  async deleteDefect(id: string): Promise<boolean> {
+    return this.defects.delete(id);
   }
 
   // Epic CRUD Operations
