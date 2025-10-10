@@ -2558,34 +2558,7 @@ function PlanContent() {
             />
           </div>
 
-          {/* Time Filter */}
-          <Select defaultValue="all-time">
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="All Time" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all-time">All Time</SelectItem>
-              <SelectItem value="today">Today</SelectItem>
-              <SelectItem value="this-week">This Week</SelectItem>
-              <SelectItem value="this-month">This Month</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {/* Category Filter */}
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="All Categories" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All Categories">All Categories</SelectItem>
-              <SelectItem value="foundation">Foundation</SelectItem>
-              <SelectItem value="modeling">Modeling</SelectItem>
-              <SelectItem value="knowledge-base">Knowledge Base</SelectItem>
-              <SelectItem value="architecture">Architecture</SelectItem>
-              <SelectItem value="ui-ux">UI/UX</SelectItem>
-              <SelectItem value="development">Development</SelectItem>
-            </SelectContent>
-          </Select>
+          {/* REMOVED: Time Filter and Category Filter - deprecated task system filters */}
         </div>
       </div>
 
