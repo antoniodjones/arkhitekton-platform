@@ -167,6 +167,7 @@ The application aims for a sophisticated, elegant design. The frontend uses Reac
 - **Cloud Architecture Support**: Comprehensive design palettes for AWS, Azure, GCP, and Oracle Cloud, along with ArchiMate 3.0, TOGAF, and BPMN frameworks.
 - **Task Management**: Comprehensive task views (Board, List, Table) with date handling, ID visibility, and double-click editing. Critical date handling ensures conversion between ISO and YYYY-MM-DD formats.
 - **Enterprise Architecture Governance**: Integrated ticket system with JIRA-like functionality, Architecture Review Requests, Architect Assignment Requests, and an enhanced ADR system with state management. Includes AI change detection and object linkage for real-time impact alerts and notifications.
+- **Gherkin Acceptance Criteria Validation** (US-XIGJUQ7 - Completed October 10, 2025): Comprehensive Gherkin format validation for user story acceptance criteria with multi-format support (multi-line, single-line, Scenario headers). Features real-time UI validation feedback, backend schema enforcement, and status change prevention (blocks in-progress without valid Given/When/Then format). Implemented in shared/gherkin-validator.ts with validation utilities and error reporting.
 
 ## System Design Choices
 - **Strategic Cloud Platform**: GCP is the primary platform for ARKHITEKTON's core infrastructure, leveraging Vertex AI, BigQuery, and Google's AI innovation.
