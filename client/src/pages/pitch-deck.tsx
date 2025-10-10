@@ -426,13 +426,64 @@ export default function PitchDeck() {
           {/* App Pages Screenshots */}
           {appPages.map((page, index) => {
             const Icon = page.icon;
+            
+            // Page-specific content details
+            const pageDetails: Record<string, { features: string[]; highlights: string }> = {
+              '/': {
+                features: ['Real-time architecture health metrics', 'Active projects overview', 'Recent activities feed', 'Team collaboration status', 'AI-powered insights'],
+                highlights: 'Strategic command center with executive dashboards and key performance indicators'
+              },
+              '/portfolio': {
+                features: ['Transformation initiative tracking', 'Investment prioritization', 'ROI analytics', 'Roadmap visualization', 'Stakeholder management'],
+                highlights: 'Portfolio-level view for managing multiple architecture initiatives and measuring business value'
+              },
+              '/workspace': {
+                features: ['Comprehensive design palette (AWS, Azure, GCP, Oracle)', 'ArchiMate 3.0, TOGAF, BPMN support', 'Resizable panels for palette and properties', 'AI Assistant integration', 'Change Detection system'],
+                highlights: 'Professional modeling workspace with enterprise-grade architecture frameworks and cloud provider support'
+              },
+              '/modeling': {
+                features: ['Universal modeling engine', 'Pre-configured architecture templates', 'Intelligent object connections', 'Version control for models', 'Export capabilities'],
+                highlights: 'Specialized modeling environment with curated shapes and sophisticated architectural patterns'
+              },
+              '/governance': {
+                features: ['Compliance tracking', 'Risk assessment', 'Policy management', 'Audit trails', 'Regulatory reporting'],
+                highlights: 'Enterprise governance framework ensuring architectural compliance and risk management'
+              },
+              '/capabilities': {
+                features: ['Business capability modeling', 'Maturity assessment', 'Gap analysis', 'Heat mapping', 'Capability roadmapping'],
+                highlights: 'Strategic capability assessment tools for evaluating business architecture maturity'
+              },
+              '/decisions': {
+                features: ['Architecture Decision Records (ADRs)', 'Decision tracking and history', 'Impact analysis', 'Stakeholder approval workflows', 'Template library'],
+                highlights: 'Comprehensive ADR system for documenting and managing architectural decisions'
+              },
+              '/workflows': {
+                features: ['Architecture review processes', 'Approval workflows', 'Review request management', 'Status tracking', 'Automated notifications'],
+                highlights: 'Structured review workflows ensuring architectural governance and quality assurance'
+              },
+              '/tickets': {
+                features: ['Architecture review requests', 'Architect assignment system', 'Priority management', 'Ticket lifecycle tracking', 'Integration with Jira'],
+                highlights: 'JIRA-like ticketing system specifically designed for architecture governance'
+              },
+              '/plan': {
+                features: ['Development roadmap', 'Task management', 'Sprint planning', 'Dependency tracking', 'Team coordination'],
+                highlights: 'Integrated planning tools connecting architecture decisions to development execution'
+              },
+              '/wiki': {
+                features: ['Implementation guides', 'Best practices documentation', 'Pattern library', 'Team knowledge base', 'Search and discovery'],
+                highlights: 'Collaborative knowledge management for architectural standards and implementation guidance'
+              }
+            };
+            
+            const details = pageDetails[page.route] || { features: [], highlights: '' };
+            
             return (
               <div key={page.route} className="min-h-screen flex flex-col p-12 print:page-break-after-always">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
                     <Icon className="h-8 w-8 text-white" />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <h3 className="text-4xl font-bold text-slate-900 dark:text-white">
                       {page.name}
                     </h3>
@@ -440,20 +491,66 @@ export default function PitchDeck() {
                       {page.description}
                     </p>
                   </div>
+                  <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 text-sm px-3 py-1">
+                    {page.route}
+                  </Badge>
                 </div>
                 
-                <div className="flex-1 bg-white dark:bg-slate-800 rounded-lg border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-xl">
-                  <iframe
-                    src={page.route}
-                    className="w-full h-full"
-                    style={{ minHeight: '800px' }}
-                    title={`Screenshot of ${page.name}`}
-                  />
-                </div>
-                
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-4 text-center">
-                  Live capture from: {page.route}
-                </p>
+                {/* Page Mockup */}
+                <Card className="flex-1 p-8 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-2 border-slate-200 dark:border-slate-700 shadow-xl">
+                  <div className="space-y-6">
+                    {/* Header representation */}
+                    <div className="flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                      <div className="flex items-center gap-3">
+                        <Icon className="h-6 w-6 text-orange-500" />
+                        <span className="font-semibold text-slate-900 dark:text-white">{page.name}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <div className="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                        <div className="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                        <div className="w-8 h-8 bg-orange-500 rounded"></div>
+                      </div>
+                    </div>
+                    
+                    {/* Content representation */}
+                    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+                      <h4 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+                        Key Features:
+                      </h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        {details.features.map((feature, idx) => (
+                          <div key={idx} className="flex items-start gap-2">
+                            <CheckCircle2 className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                            <span className="text-sm text-slate-700 dark:text-slate-300">{feature}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Highlights */}
+                    <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 rounded-lg border border-orange-200 dark:border-orange-800 p-6">
+                      <h4 className="text-sm font-semibold text-orange-700 dark:text-orange-400 mb-2">
+                        Platform Highlight
+                      </h4>
+                      <p className="text-slate-700 dark:text-slate-300">
+                        {details.highlights}
+                      </p>
+                    </div>
+                    
+                    {/* Visual mockup elements */}
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="aspect-video bg-slate-200 dark:bg-slate-700 rounded-lg flex items-center justify-center">
+                        <Icon className="h-12 w-12 text-slate-400 dark:text-slate-600" />
+                      </div>
+                      <div className="aspect-video bg-slate-200 dark:bg-slate-700 rounded-lg flex items-center justify-center">
+                        <BarChart3 className="h-12 w-12 text-slate-400 dark:text-slate-600" />
+                      </div>
+                      <div className="aspect-video bg-slate-200 dark:bg-slate-700 rounded-lg flex items-center justify-center">
+                        <Globe className="h-12 w-12 text-slate-400 dark:text-slate-600" />
+                      </div>
+                    </div>
+                  </div>
+                </Card>
               </div>
             );
           })}
