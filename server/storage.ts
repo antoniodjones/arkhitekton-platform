@@ -63,7 +63,6 @@ export interface IStorage {
   // User Stories
   getAllUserStories(): Promise<UserStory[]>;
   getUserStory(id: string): Promise<UserStory | undefined>;
-  getUserStoriesByTask(taskId: string): Promise<UserStory[]>;
   getUserStoriesByAssignee(assignee: string): Promise<UserStory[]>;
   getUserStoriesByEpic(epicId: string): Promise<UserStory[]>;
   createUserStory(story: InsertUserStory): Promise<UserStory>;
@@ -506,10 +505,6 @@ export class MemStorage implements IStorage {
     return this.userStories.get(id);
   }
 
-  async getUserStoriesByTask(taskId: string): Promise<UserStory[]> {
-    return Array.from(this.userStories.values()).filter(story => story.parentTaskId === taskId);
-  }
-
   async getUserStoriesByAssignee(assignee: string): Promise<UserStory[]> {
     return Array.from(this.userStories.values()).filter(story => 
       story.assignee === assignee || 
@@ -611,7 +606,6 @@ export class MemStorage implements IStorage {
   private async initializeSampleUserStories() {
     const sampleStories: InsertUserStory[] = [
       {
-        parentTaskId: null, // Independent story
         title: "As a systems architect, I want to create enterprise architecture models, so that I can design scalable systems",
         description: "This story covers the basic architecture modeling capability",
         acceptanceCriteria: `Given I am a systems architect
@@ -635,7 +629,6 @@ Scenario: Model Creation
         requirement: "Scalable architecture modeling platform"
       },
       {
-        parentTaskId: null,
         title: "As a product manager, I want to manage user stories with team assignments, so that I can coordinate development work effectively",
         description: "Complete story management with searchable team assignment capabilities",
         acceptanceCriteria: `Given I am a product manager
@@ -1211,13 +1204,6 @@ export class DatabaseStorage implements IStorage {
       .from(schema.userStories)
       .where(eq(schema.userStories.id, id));
     return story || undefined;
-  }
-
-  async getUserStoriesByTask(taskId: string): Promise<UserStory[]> {
-    const stories = await db.select()
-      .from(schema.userStories)
-      .where(eq(schema.userStories.parentTaskId, taskId));
-    return stories;
   }
 
   async getUserStoriesByAssignee(assignee: string): Promise<UserStory[]> {
