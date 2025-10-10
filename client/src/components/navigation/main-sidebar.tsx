@@ -20,7 +20,9 @@ import {
   GitBranch,
   Ticket,
   Shapes,
-  Wrench
+  Wrench,
+  ChevronDown,
+  Presentation
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -30,6 +32,7 @@ interface NavigationItem {
   icon: React.ComponentType<{ className?: string }>;
   description: string;
   badge?: string;
+  children?: NavigationItem[];
 }
 
 interface MainSidebarProps {
@@ -40,6 +43,7 @@ export function MainSidebar({ className }: MainSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(320); // 80 * 4 = 320px (w-80)
   const [isResizing, setIsResizing] = useState(false);
+  const [expandedItems, setExpandedItems] = useState<string[]>(['wiki']); // Knowledge Base expanded by default
   const [location] = useLocation();
   const sidebarRef = useRef<HTMLElement>(null);
 
@@ -126,7 +130,16 @@ export function MainSidebar({ className }: MainSidebarProps) {
       label: 'Knowledge Base',
       href: '/wiki',
       icon: BookOpen,
-      description: 'Implementation documentation & guides'
+      description: 'Implementation documentation & guides',
+      children: [
+        {
+          id: 'pitch-deck',
+          label: 'VC Pitch Deck',
+          href: '/pitch-deck',
+          icon: Presentation,
+          description: 'Investor presentation & platform overview'
+        }
+      ]
     }
   ];
 
@@ -152,6 +165,14 @@ export function MainSidebar({ className }: MainSidebarProps) {
       return location === '/';
     }
     return location.startsWith(href);
+  };
+
+  const toggleExpanded = (itemId: string) => {
+    setExpandedItems(prev => 
+      prev.includes(itemId) 
+        ? prev.filter(id => id !== itemId)
+        : [...prev, itemId]
+    );
   };
 
   const startResize = useCallback((e: React.MouseEvent) => {
@@ -250,44 +271,122 @@ export function MainSidebar({ className }: MainSidebarProps) {
       <div className="flex-1 p-3 space-y-1 overflow-y-auto">
         {navigationItems.map((item) => {
           const isActive = isActiveRoute(item.href);
+          const isExpanded = expandedItems.includes(item.id);
           const IconComponent = item.icon;
+          const hasChildren = item.children && item.children.length > 0;
           
           return (
-            <Link key={item.id} href={item.href}>
-              <Button
-                variant={isActive ? "default" : "ghost"}
-                className={cn(
-                  "w-full justify-start h-auto p-3 text-left transition-all duration-200",
-                  isActive 
-                    ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25" 
-                    : "text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800",
-                  isCollapsed && "justify-center px-0"
-                )}
-                data-testid={`nav-${item.id}`}
-              >
-                <div className={cn("flex items-center", isCollapsed ? "justify-center" : "space-x-3")}>
-                  <IconComponent className={cn("h-5 w-5 flex-shrink-0", isCollapsed && "mx-auto")} />
-                  {!isCollapsed && (
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <p className="font-medium truncate">{item.label}</p>
-                        {item.badge && (
-                          <span className="ml-2 px-2 py-0.5 text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300 rounded-full">
-                            {item.badge}
-                          </span>
-                        )}
-                      </div>
-                      <p className={cn(
-                        "text-sm truncate mt-0.5",
-                        isActive ? "text-white/80" : "text-slate-500 dark:text-slate-400"
-                      )}>
-                        {item.description}
-                      </p>
-                    </div>
+            <div key={item.id}>
+              {hasChildren ? (
+                <Button
+                  variant={isActive ? "default" : "ghost"}
+                  onClick={() => toggleExpanded(item.id)}
+                  className={cn(
+                    "w-full justify-start h-auto p-3 text-left transition-all duration-200",
+                    isActive 
+                      ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25" 
+                      : "text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800",
+                    isCollapsed && "justify-center px-0"
                   )}
+                  data-testid={`nav-${item.id}`}
+                >
+                  <div className={cn("flex items-center w-full", isCollapsed ? "justify-center" : "space-x-3")}>
+                    <IconComponent className={cn("h-5 w-5 flex-shrink-0", isCollapsed && "mx-auto")} />
+                    {!isCollapsed && (
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="font-medium truncate">{item.label}</p>
+                          <ChevronDown className={cn(
+                            "h-4 w-4 transition-transform",
+                            isExpanded && "transform rotate-180"
+                          )} />
+                        </div>
+                        <p className={cn(
+                          "text-sm truncate mt-0.5",
+                          isActive ? "text-white/80" : "text-slate-500 dark:text-slate-400"
+                        )}>
+                          {item.description}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </Button>
+              ) : (
+                <Link href={item.href}>
+                  <Button
+                    variant={isActive ? "default" : "ghost"}
+                    className={cn(
+                      "w-full justify-start h-auto p-3 text-left transition-all duration-200",
+                      isActive 
+                        ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25" 
+                        : "text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800",
+                      isCollapsed && "justify-center px-0"
+                    )}
+                    data-testid={`nav-${item.id}`}
+                  >
+                    <div className={cn("flex items-center", isCollapsed ? "justify-center" : "space-x-3")}>
+                      <IconComponent className={cn("h-5 w-5 flex-shrink-0", isCollapsed && "mx-auto")} />
+                      {!isCollapsed && (
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <p className="font-medium truncate">{item.label}</p>
+                            {item.badge && (
+                              <span className="ml-2 px-2 py-0.5 text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300 rounded-full">
+                                {item.badge}
+                              </span>
+                            )}
+                          </div>
+                          <p className={cn(
+                            "text-sm truncate mt-0.5",
+                            isActive ? "text-white/80" : "text-slate-500 dark:text-slate-400"
+                          )}>
+                            {item.description}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </Button>
+                </Link>
+              )}
+              
+              {/* Child Items */}
+              {hasChildren && isExpanded && !isCollapsed && (
+                <div className="ml-8 mt-1 space-y-1">
+                  {item.children!.map((child) => {
+                    const childIsActive = isActiveRoute(child.href);
+                    const ChildIcon = child.icon;
+                    
+                    return (
+                      <Link key={child.id} href={child.href}>
+                        <Button
+                          variant={childIsActive ? "default" : "ghost"}
+                          className={cn(
+                            "w-full justify-start h-auto p-2 text-left transition-all duration-200",
+                            childIsActive 
+                              ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25" 
+                              : "text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+                          )}
+                          data-testid={`nav-${child.id}`}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <ChildIcon className="h-4 w-4 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{child.label}</p>
+                              <p className={cn(
+                                "text-xs truncate",
+                                childIsActive ? "text-white/70" : "text-slate-500 dark:text-slate-400"
+                              )}>
+                                {child.description}
+                              </p>
+                            </div>
+                          </div>
+                        </Button>
+                      </Link>
+                    );
+                  })}
                 </div>
-              </Button>
-            </Link>
+              )}
+            </div>
           );
         })}
       </div>
