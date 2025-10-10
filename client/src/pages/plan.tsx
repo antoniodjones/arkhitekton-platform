@@ -1029,6 +1029,9 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
     localStorage.setItem('userStories-pageSize', pageSize.toString());
   }, [page, pageSize]);
 
+  // Epic filter state (must be declared before useQuery that uses it)
+  const [epicFilter, setEpicFilter] = useState<string>('all');
+
   // Fetch user stories with pagination
   const queryClient = useQueryClient();
   const { data: storiesResponse, isLoading: isLoadingStories } = useQuery<{ items: UserStory[]; total: number; totalPages: number }>({
@@ -1131,7 +1134,6 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
   // Epic dialog state
   const [editingEpic, setEditingEpic] = useState<Epic | null>(null);
   const [isEpicDialogOpen, setIsEpicDialogOpen] = useState(false);
-  const [epicFilter, setEpicFilter] = useState<string>('all');
 
   // Mock developer list - in real app this would come from your team management system
   const developers = [
