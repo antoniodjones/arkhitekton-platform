@@ -19,6 +19,7 @@ import {
 } from "@shared/schema";
 import Anthropic from '@anthropic-ai/sdk';
 import { encrypt, decrypt, isEncrypted } from './encryption';
+import { validateGherkinFormat } from '@shared/gherkin-validator';
 
 // Initialize Anthropic AI client
 const anthropic = new Anthropic({
@@ -552,6 +553,27 @@ Keep response concise but comprehensive.`;
       const existingStory = await storage.getUserStory(id);
       if (!existingStory) {
         return res.status(404).json({ message: "User story not found" });
+      }
+      
+      // Enforce Gherkin format requirement for in-progress status
+      if (validatedUpdates.status === 'in-progress') {
+        const criteriaToCheck = validatedUpdates.acceptanceCriteria ?? existingStory.acceptanceCriteria;
+        
+        if (!criteriaToCheck || criteriaToCheck.trim().length === 0) {
+          return res.status(400).json({ 
+            message: "Cannot move story to in-progress: acceptance criteria are required"
+          });
+        }
+        
+        // Validate Gherkin format
+        const validation = validateGherkinFormat(criteriaToCheck);
+        
+        if (!validation.isValid) {
+          return res.status(400).json({ 
+            message: "Cannot move story to in-progress: acceptance criteria must follow Gherkin format (Given/When/Then)",
+            errors: validation.errors
+          });
+        }
       }
       
       const updatedStory = await storage.updateUserStory(id, validatedUpdates);
