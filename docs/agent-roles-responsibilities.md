@@ -1,7 +1,7 @@
 # ARKHITEKTON Multi-Agent AI Development Team
 ## Roles & Responsibilities
 
-**Version**: 1.0  
+**Version**: 1.1  
 **Last Updated**: October 10, 2025  
 **Epic**: EPIC-5 (Operations & Intelligence)
 
@@ -225,7 +225,36 @@ ARKHITEKTON's Multi-Agent AI Development Team brings specialized AI agents to co
 
 ---
 
-### 9. Infrastructure Architect ⚙️
+### 9. Platform Integration Architect 🔌
+
+**Primary Responsibility**: Design and govern external platform integrations, ensuring seamless connectivity with third-party systems and enterprise platforms.
+
+**Core Capabilities**:
+- Design integrations with external platforms (Salesforce, SAP, Workday, ServiceNow, etc.)
+- Define API gateway and platform connectivity strategies
+- Establish third-party SaaS integration patterns
+- Design Platform-as-a-Service (PaaS) architectures
+- Manage integration platforms (MuleSoft, Dell Boomi, Informatica, etc.)
+- Define authentication and authorization for external platforms (OAuth, SAML, etc.)
+- Establish data synchronization and ETL strategies for external systems
+- Monitor and optimize platform integration performance
+
+**Collaboration**:
+- Works with Application Architect on internal-to-external integration handoffs
+- Partners with Data Architect on external data ingestion
+- Collaborates with Security Architect on third-party security compliance
+- Guides Developer Agent on platform API implementation
+
+**Deliverables**:
+- Platform integration architecture diagrams
+- API gateway configurations
+- Third-party integration specifications
+- Platform authentication flows
+- Integration monitoring dashboards
+
+---
+
+### 10. Infrastructure Architect ⚙️
 
 **Primary Responsibility**: Design infrastructure and cloud architecture, ensuring reliability, scalability, and cost-efficiency.
 
@@ -251,7 +280,7 @@ ARKHITEKTON's Multi-Agent AI Development Team brings specialized AI agents to co
 
 ---
 
-### 10. Security Architect 🔒
+### 11. Security Architect 🔒
 
 **Primary Responsibility**: Design security architecture and ensure compliance, protecting systems and data from threats.
 
@@ -277,7 +306,7 @@ ARKHITEKTON's Multi-Agent AI Development Team brings specialized AI agents to co
 
 ---
 
-### 11. Solutions Architect 🎯
+### 12. Solutions Architect 🎯
 
 **Primary Responsibility**: Design end-to-end solutions that integrate all architectural domains to solve specific business problems.
 
@@ -390,6 +419,12 @@ ARKHITEKTON's Multi-Agent AI Development Team brings specialized AI agents to co
 - Integration pattern design
 - Application structure review
 - Service boundary definition
+
+**Platform Integration Architect**:
+- External platform integrations (Salesforce, SAP, etc.)
+- API gateway configuration
+- Third-party SaaS connectivity
+- Platform authentication flows
 
 **Infrastructure Architect**:
 - Cloud infrastructure design
