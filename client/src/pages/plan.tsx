@@ -2424,310 +2424,34 @@ Scenario: [scenario name]
   );
 }
 
-// Plan Content Component
+// Plan Content Component  
 function PlanContent() {
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
-  const [currentView, setCurrentView] = useState<'board' | 'list' | 'gantt' | 'calendar' | 'table' | 'stories'>('stories');
-  
   const [searchQuery, setSearchQuery] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('All Categories');
-
   const queryClient = useQueryClient();
 
-  // DEPRECATED: Task system removed - use user stories exclusively
-  // Tasks have been migrated to user stories (96 tasks → stories distributed across Epics)
-  const { data: tasks = [], isLoading } = useQuery({
-    queryKey: ['/api/tasks', 'disabled'],
-    queryFn: async () => {
-      return [];
-    },
-    enabled: false,
-  });
-
-  // Create task mutation
-  const createTaskMutation = useMutation({
-    mutationFn: async (newTask: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
-      const response = await fetch('/api/tasks', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newTask),
-      });
-      if (!response.ok) throw new Error('Failed to create task');
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
-    },
-  });
-
-  // Update task mutation
-  const updateTaskMutation = useMutation({
-    mutationFn: async ({ id, ...updates }: { id: string } & Partial<Task>) => {
-      const response = await fetch(`/api/tasks/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      });
-      if (!response.ok) throw new Error('Failed to update task');
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
-    },
-  });
-
-  const deleteTaskMutation = useMutation({
-    mutationFn: async (taskId: string) => {
-      const response = await fetch(`/api/tasks/${taskId}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) throw new Error('Failed to delete task');
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
-    },
-  });
-
-  // Drag and drop setup
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  // Print function for List view - moved to after filteredTasks is defined
-
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveId(null);
-
-    if (!over) return;
-
-    const activeTask = tasks.find((t: Task) => t.id === active.id);
-    if (!activeTask) return;
-
-    const newStatus = over.id as Task['status'];
-    if (activeTask.status !== newStatus) {
-      updateTaskMutation.mutate({
-        id: activeTask.id,
-        status: newStatus,
-        completed: newStatus === 'completed' ? 1 : 0
-      });
-    }
-  };
-
-  // Task management handlers
-  const handleCreateTask = () => {
-    setEditingTask(undefined);
-    setIsDialogOpen(true);
-  };
-
-  const handleEditTask = (task: Task) => {
-    console.log('🚀 EDIT CLICK (NEW VERSION):', task.id, task.title);
-    console.log('📝 Setting editing task:', task);
-    setEditingTask(task);
-    setIsDialogOpen(true);
-    console.log('✅ Dialog should be open now');
-  };
-
-  const handleArchiveTask = (task: Task) => {
-    // For now, we'll update the status to 'completed' as an archive simulation
-    updateTaskMutation.mutate({
-      id: task.id,
-      status: 'completed',
-      completed: 1
-    });
-  };
-
-  const handleDeleteTask = (taskOrId: Task | string) => {
-    const task = typeof taskOrId === 'string' ? tasks.find((t: Task) => t.id === taskOrId) : taskOrId;
-    const taskId = typeof taskOrId === 'string' ? taskOrId : taskOrId.id;
-    const taskTitle = task?.title || 'this task';
-    
-    // Add confirmation before deleting
-    if (window.confirm(`Are you sure you want to delete "${taskTitle}"? This action cannot be undone.`)) {
-      deleteTaskMutation.mutate(taskId);
-    }
-  };
-
-  // Toggle task completion status and update database
-  const handleToggleTaskComplete = (task: Task) => {
-    updateTaskMutation.mutate({
-      id: task.id,
-      completed: task.completed ? 0 : 1,
-      status: task.completed ? 'todo' : 'completed'
-    });
-  };
-
-  const handleSaveTask = (taskData: Omit<Task, 'id'>) => {
-    if (editingTask) {
-      updateTaskMutation.mutate({ id: editingTask.id, ...taskData });
-    } else {
-      createTaskMutation.mutate(taskData);
-    }
-    setIsDialogOpen(false);
-    setEditingTask(undefined);
-  };
-
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
-    setEditingTask(undefined);
-  };
-
-  // Filter tasks by status
-  const getTasksByStatus = (status: Task['status']) => {
-    return filteredTasks.filter((task: Task) => task.status === status);
-  };
-
-  // Helper functions for styling
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'low': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-    }
-  };
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'foundation': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'modeling': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
-      case 'knowledge-base': return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200';
-      case 'ai': return 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200';
-      case 'integration': return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
-      case 'ux': return 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-    }
-  };
-
-  // Filter tasks based on search and category
-  const filteredTasks = tasks.filter((task: Task) => {
-    const matchesSearch = searchQuery === '' || 
-      task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      task.id.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesCategory = categoryFilter === 'All Categories' || task.category === categoryFilter;
-    
-    return matchesSearch && matchesCategory;
-  });
-
-  // Print function for List view
-  const handlePrintList = () => {
-    try {
-      const printWindow = window.open('', '', 'height=600,width=800');
-      if (!printWindow) {
-        alert('Print function requires popup permission. Please allow popups and try again.');
-        return;
-      }
-      
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>ARKHITEKTON Development Plan - Task List</title>
-            <style>
-              body { font-family: system-ui, sans-serif; margin: 20px; line-height: 1.5; }
-              .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
-              .task-item { border: 1px solid #e5e7eb; margin-bottom: 12px; padding: 15px; border-radius: 8px; page-break-inside: avoid; }
-              .task-title { font-weight: 600; margin-bottom: 8px; font-size: 16px; }
-              .task-id { color: #6b7280; font-size: 12px; font-family: monospace; }
-              .task-priority, .task-category { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; margin-right: 8px; font-weight: 500; }
-              .priority-high { background-color: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
-              .priority-medium { background-color: #fffbeb; color: #d97706; border: 1px solid #fcd34d; }
-              .priority-low { background-color: #f0fdf4; color: #16a34a; border: 1px solid #86efac; }
-              .category { background-color: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
-              .task-description { color: #6b7280; margin: 10px 0; font-size: 14px; }
-              .task-dates { color: #6b7280; font-size: 13px; margin: 8px 0; }
-              .task-meta { margin-top: 10px; color: #6b7280; font-size: 12px; }
-              .completed { text-decoration: line-through; opacity: 0.7; }
-              .stats { text-align: center; margin-bottom: 20px; font-size: 14px; }
-              @media print { 
-                body { margin: 0; } 
-                .task-item { page-break-inside: avoid; }
-                @page { margin: 1in; }
-              }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <h1>ARKHITEKTON Development Plan</h1>
-              <h2>Task List Report</h2>
-            </div>
-            <div class="stats">
-              <p><strong>Generated on:</strong> ${new Date().toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}</p>
-              <p><strong>Total Tasks:</strong> ${filteredTasks.length}</p>
-              <p><strong>Completed:</strong> ${filteredTasks.filter((t: Task) => t.completed).length} | 
-                 <strong>In Progress:</strong> ${filteredTasks.filter((t: Task) => t.status === 'in-progress').length} | 
-                 <strong>Todo:</strong> ${filteredTasks.filter((t: Task) => t.status === 'todo').length}</p>
-            </div>
-            <hr>
-            ${filteredTasks.map((task: Task) => `
-              <div class="task-item ${task.completed ? 'completed' : ''}">
-                <div class="task-title">
-                  <span class="task-id">(${task.id.substring(0, 8)})</span> ${task.title.replace(/[<>&"']/g, (char: string) => {
-                    const escapeMap: Record<string, string> = { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' };
-                    return escapeMap[char];
-                  })}
-                  <span class="task-priority priority-${task.priority}">${task.priority.toUpperCase()}</span>
-                  <span class="task-category category">${task.category.toUpperCase()}</span>
-                </div>
-                ${task.description ? `<div class="task-description">${task.description.replace(/[<>&"']/g, (char: string) => {
-                  const escapeMap: Record<string, string> = { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' };
-                  return escapeMap[char];
-                })}</div>` : ''}
-                ${task.startDate || task.endDate ? `
-                  <div class="task-dates">
-                    📅 ${task.startDate && task.endDate ? 
-                      `${new Date(task.startDate).toLocaleDateString()} - ${new Date(task.endDate).toLocaleDateString()}` :
-                      task.startDate ? `Start: ${new Date(task.startDate).toLocaleDateString()}` :
-                      task.endDate ? `End: ${new Date(task.endDate).toLocaleDateString()}` : 'No dates set'
-                    }
-                  </div>
-                ` : ''}
-                ${task.dependencies?.length || task.subtasks?.length ? `
-                  <div class="task-meta">
-                    ${task.dependencies?.length ? `🔗 Dependencies: ${task.dependencies.length} task(s)` : ''}
-                    ${task.dependencies?.length && task.subtasks?.length ? ' • ' : ''}
-                    ${task.subtasks?.length ? `✅ Subtasks: ${task.subtasks.filter((st: any) => st.completed).length}/${task.subtasks.length}` : ''}
-                  </div>
-                ` : ''}
-              </div>
-            `).join('')}
-            <hr style="margin-top: 40px;">
-            <p style="text-align: center; font-size: 12px; color: #6b7280;">
-              Generated by ARKHITEKTON - Enterprise Architecture Platform
-            </p>
-          </body>
-        </html>
-      `);
-      
-      printWindow.document.close();
-      printWindow.focus();
-      
-      // Give the window time to load before printing
-      setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-      }, 250);
-    } catch (error) {
-      console.error('Print error:', error);
-      alert('Unable to print. Please try again or check browser settings.');
-    }
-  };
+  // DEPRECATED: All task-related code below is dormant and unreachable
+  // Task system has been fully migrated to user stories
+  const currentView = 'stories';
+  const tasks: Task[] = [];
+  const filteredTasks: Task[] = [];
+  const categoryFilter = 'All Categories';
+  const setCategoryFilter = (value: string) => {};
+  const handleEditTask = (task: Task) => {};
+  const handleCreateTask = () => {};
+  const handleArchiveTask = (task: Task) => {};
+  const handleDeleteTask = (taskOrId: Task | string) => {};
+  const handleToggleTaskComplete = (task: Task) => {};
+  const handleSaveTask = (taskData: Omit<Task, 'id'>) => {};
+  const handleCloseDialog = () => {};
+  const getTasksByStatus = (status: Task['status']) => [];
+  const getPriorityColor = (priority: string) => '';
+  const getCategoryColor = (category: string) => '';
+  const handlePrintList = () => {};
+  const isLoading = false;
+  const isDialogOpen = false;
+  const setIsDialogOpen = (value: boolean) => {};
+  const editingTask: Task | undefined = undefined;
+  const activeId: string | null = null;
 
   if (isLoading) {
     return (
