@@ -28,6 +28,7 @@ import {
   Zap
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/app-layout';
+import { GovernanceHeader } from '@/components/layout/governance-header';
 import { TreeNavigation } from '@/components/knowledge-base/TreeNavigation';
 import { KnowledgeBasePage } from '@/components/knowledge-base/KnowledgeBasePage';
 import { PageEditor } from '@/components/knowledge-base/PageEditor';
@@ -393,34 +394,16 @@ Creates a distinctive, professional identity that architects associate with crea
   };
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-emerald-800 dark:from-white dark:via-slate-200 dark:to-emerald-200 bg-clip-text text-transparent">
-              Knowledge Base
-            </h1>
-            <p className="text-slate-600 dark:text-slate-300 mt-2">
-              Centralized governance documentation and enterprise architecture knowledge
-            </p>
-          </div>
-          <Button 
-            onClick={() => {
-              setIsCreatingNewPage(true);
-              setSelectedPageId('new-page');
-              setShowTreeView(true);
-            }}
-            className="bg-orange-600 hover:bg-orange-700 text-white"
-            data-testid="button-create-page"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Create Page
-          </Button>
-        </div>
-
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
+    <div className="h-full overflow-hidden flex flex-col">
+      <GovernanceHeader 
+        moduleTitle="Knowledge Base" 
+        moduleIcon={BookOpen} 
+      />
+      
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          {/* Stats Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
           <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -723,10 +706,9 @@ Creates a distinctive, professional identity that architects associate with crea
             </ResizablePanelGroup>
           </TabsContent>
         </Tabs>
-        
-        {/* Remove old modal editor - now using inline */}
       </div>
     </div>
+  </div>
   );
 }
 
