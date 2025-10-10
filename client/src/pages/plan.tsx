@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, parseISO, isWithinInterval, addDays } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import type { UserStory as BackendUserStory } from '@shared/schema';
+import type { UserStory as BackendUserStory, Epic } from '@shared/schema';
 import { formatDateForInput, formatDateForAPI, formatDateForDisplay } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -78,28 +78,29 @@ import { CSS } from '@dnd-kit/utilities';
 // User Story interface for enhanced functionality
 interface UserStory {
   id: string;
-  parentTaskId: string;
+  parentTaskId: string | null;
+  epicId?: string | null; // Link to Epic (EA Value Stream)
   title: string;
-  description?: string;
+  description: string | null;
   acceptanceCriteria: string; // Gherkin format
   storyPoints: number;
   status: 'backlog' | 'sprint' | 'in-progress' | 'review' | 'done';
   priority: 'low' | 'medium' | 'high';
-  assignee?: string;
+  assignee: string | null;
   productManager?: string;
   techLead?: string;
   labels: string[];
   
   // Story composition guidance fields
-  feature?: string;
-  value?: string;
-  requirement?: string;
+  feature: string | null;
+  value: string | null;
+  requirement: string | null;
   
   // GitHub Integration
   githubRepo?: string;
   githubBranch?: string;
   githubIssue?: number;
-  githubCommits: string[];
+  githubCommits: { sha: string; message: string; author: string; email: string; timestamp: string; url: string; }[];
   
   // Media
   screenshots: string[]; // URLs to uploaded images
@@ -1087,6 +1088,39 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
     }
   });
 
+  // Fetch Epics (Enterprise Architecture Value Streams)
+  const { data: epicsResponse } = useQuery<{ data: Epic[] }>({
+    queryKey: ['/api/epics'],
+    staleTime: 60000
+  });
+  const epics = epicsResponse?.data || [];
+
+  // Epic mutations
+  const createEpicMutation = useMutation({
+    mutationFn: async (epicData: Partial<Epic>) => {
+      const response = await apiRequest('POST', '/api/epics', epicData);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/epics'] });
+    }
+  });
+
+  const updateEpicMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<Epic> }) => {
+      const response = await apiRequest('PATCH', `/api/epics/${id}`, updates);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/epics'] });
+    }
+  });
+
+  // Epic dialog state
+  const [editingEpic, setEditingEpic] = useState<Epic | null>(null);
+  const [isEpicDialogOpen, setIsEpicDialogOpen] = useState(false);
+  const [epicFilter, setEpicFilter] = useState<string>('all');
+
   // Mock developer list - in real app this would come from your team management system
   const developers = [
     'Alex Johnson', 'Sarah Chen', 'Mike Rodriguez', 'Emily Davis', 'David Kim',
@@ -1349,6 +1383,30 @@ Then [expected outcome]`,
             {total > 0 ? `${total} Total Stories` : `${tasks.length} Epic${tasks.length !== 1 ? 's' : ''} • ${totalStories} Stories`}
           </div>
           <div className="flex items-center gap-2">
+            {/* Epic Filter */}
+            <Select value={epicFilter} onValueChange={setEpicFilter}>
+              <SelectTrigger className="w-[200px]" data-testid="select-epic-filter">
+                <SelectValue placeholder="All Epics" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Epics</SelectItem>
+                {epics.map(epic => (
+                  <SelectItem key={epic.id} value={epic.id}>{epic.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => {
+                setEditingEpic(null);
+                setIsEpicDialogOpen(true);
+              }}
+              data-testid="button-create-epic"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create Epic
+            </Button>
             <Button 
               variant="outline" 
               size="sm"
@@ -2193,6 +2251,72 @@ Scenario: [scenario name]
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Epic Dialog */}
+      <Dialog open={isEpicDialogOpen} onOpenChange={setIsEpicDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{editingEpic ? 'Edit Epic' : 'Create Epic'}</DialogTitle>
+            <DialogDescription>
+              {editingEpic ? 'Update the Epic details below.' : 'Create a new Epic (EA Value Stream) for organizing user stories.'}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            const epicData = {
+              name: formData.get('name') as string,
+              description: formData.get('description') as string || null,
+              valueStream: formData.get('valueStream') as string,
+              status: 'planned',
+              priority: 'medium'
+            };
+            
+            if (editingEpic) {
+              updateEpicMutation.mutate({ id: editingEpic.id, updates: epicData });
+            } else {
+              createEpicMutation.mutate(epicData);
+            }
+            setIsEpicDialogOpen(false);
+          }} className="space-y-4 mt-4">
+            <div>
+              <Label htmlFor="epic-name">Epic Name *</Label>
+              <Input id="epic-name" name="name" defaultValue={editingEpic?.name || ''} required data-testid="input-epic-name" />
+            </div>
+            
+            <div>
+              <Label htmlFor="epic-valueStream">Enterprise Architecture Value Stream *</Label>
+              <Select name="valueStream" defaultValue={editingEpic?.valueStream || 'strategy'} required>
+                <SelectTrigger data-testid="select-epic-valuestream">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="strategy">Strategy & Business Planning</SelectItem>
+                  <SelectItem value="design">Architecture Design & Modeling</SelectItem>
+                  <SelectItem value="governance">Governance & Decision Management</SelectItem>
+                  <SelectItem value="development">Development & Implementation</SelectItem>
+                  <SelectItem value="operations">Operations & Intelligence</SelectItem>
+                  <SelectItem value="knowledge">Knowledge & Collaboration</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="epic-description">Description</Label>
+              <Textarea id="epic-description" name="description" defaultValue={editingEpic?.description || ''} rows={3} data-testid="input-epic-description" />
+            </div>
+            
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={() => setIsEpicDialogOpen(false)} data-testid="button-cancel-epic">
+                Cancel
+              </Button>
+              <Button type="submit" data-testid="button-save-epic">
+                {editingEpic ? 'Update' : 'Create'} Epic
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     </div>
