@@ -2429,24 +2429,21 @@ function PlanContent() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
-  const [currentView, setCurrentView] = useState<'board' | 'list' | 'gantt' | 'calendar' | 'table' | 'stories'>('board');
+  const [currentView, setCurrentView] = useState<'board' | 'list' | 'gantt' | 'calendar' | 'table' | 'stories'>('stories');
   
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All Categories');
 
   const queryClient = useQueryClient();
 
-  // Fetch tasks from API
+  // DEPRECATED: Task system removed - use user stories exclusively
+  // Tasks have been migrated to user stories (96 tasks → stories distributed across Epics)
   const { data: tasks = [], isLoading } = useQuery({
-    queryKey: ['/api/tasks', 'v2'], // Force cache break
+    queryKey: ['/api/tasks', 'disabled'],
     queryFn: async () => {
-      console.log('🔄 FETCHING TASKS (NEW VERSION)');
-      const response = await fetch('/api/tasks');
-      if (!response.ok) throw new Error('Failed to fetch tasks');
-      const data = await response.json();
-      console.log('📊 LOADED TASKS:', data.length, 'tasks');
-      return data;
+      return [];
     },
+    enabled: false,
   });
 
   // Create task mutation
@@ -2809,62 +2806,17 @@ function PlanContent() {
 
       {/* View Selection and Filters */}
       <div className="space-y-4">
-        {/* View Selection Tabs */}
+        {/* View Selection Tabs - DEPRECATED: Task views removed, Stories view only */}
         <div className="flex items-center gap-1 bg-muted p-1 rounded-lg w-fit">
+          {/* REMOVED: Board, List, Table, Calendar, Gantt views - Task system migrated to user stories */}
           <Button
-            variant={currentView === 'board' ? 'default' : 'ghost'}
+            variant="default"
             size="sm"
-            onClick={() => setCurrentView('board')}
-            className="flex items-center gap-2"
-          >
-            <LayoutGrid className="w-4 h-4" />
-            Board
-          </Button>
-          <Button
-            variant={currentView === 'list' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setCurrentView('list')}
-            className="flex items-center gap-2"
-          >
-            <List className="w-4 h-4" />
-            List
-          </Button>
-          <Button
-            variant={currentView === 'gantt' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setCurrentView('gantt')}
-            className="flex items-center gap-2"
-          >
-            <BarChart3 className="w-4 h-4" />
-            Gantt
-          </Button>
-          <Button
-            variant={currentView === 'calendar' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setCurrentView('calendar')}
-            className="flex items-center gap-2"
-          >
-            <Calendar className="w-4 h-4" />
-            Calendar
-          </Button>
-          <Button
-            variant={currentView === 'table' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setCurrentView('table')}
-            className="flex items-center gap-2"
-          >
-            <Table className="w-4 h-4" />
-            Table
-          </Button>
-          <Button
-            variant={currentView === 'stories' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setCurrentView('stories')}
             className="flex items-center gap-2"
             data-testid="button-view-stories"
           >
             <GitBranch className="w-4 h-4" />
-            Stories
+            User Stories
           </Button>
         </div>
 

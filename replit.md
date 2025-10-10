@@ -28,6 +28,7 @@ The application features a sophisticated, elegant design. The frontend uses Reac
 
 ## Feature Specifications
 - **Cloud Architecture Support**: Design palettes for AWS, Azure, GCP, Oracle Cloud, ArchiMate 3.0, TOGAF, and BPMN.
+- **Application Portfolio Management (APM)**: Comprehensive asset management for tools, technologies, and physical resources. APM objects are used throughout the platform for modeling, analytics, performance tracking, cost management, and resource optimization. Enables complete visibility and governance of the application and technology portfolio.
 - **Enterprise Architecture Governance**: Integrated ticket system, Architecture Review Requests, Architect Assignment Requests, and an enhanced ADR system with state management. Includes AI change detection and object linkage for real-time impact alerts and notifications.
 - **Gherkin Acceptance Criteria Validation**: Comprehensive Gherkin format validation for user story acceptance criteria with multi-format support, real-time UI validation feedback, backend schema enforcement, and status change prevention.
 - **Defect Management System**: Complete defect tracking and management integrated into user story workflow with severity levels and types, real-time defect badges, status tracking with resolution notes and root cause analysis, and story status blocking.
