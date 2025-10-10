@@ -419,92 +419,237 @@ function DashboardContent() {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Strategic Tasks */}
-          <div className="space-y-6">
+        <div>
+          {/* Section Headers */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-6">
             <h3 className={`text-xl font-bold ${palette.textPrimary} flex items-center`}>
               <Clock className={`h-5 w-5 mr-3 ${palette.accent}`} />
               Strategic Priorities
             </h3>
-            <div className="space-y-4">
-              {recentTasks.map((task, index) => (
-                <div key={index} className="group relative h-[140px]">
-                  <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
-                  <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg h-full flex flex-col justify-between`}>
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <h4 className={`font-semibold ${palette.textPrimary} mb-1`}>{task.title}</h4>
-                        <p className={`text-sm ${palette.textSecondary} line-clamp-2`}>{task.description}</p>
-                      </div>
-                      <span className="text-xs text-slate-500 dark:text-slate-400 ml-2 flex-shrink-0">{task.timeAgo}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="text-xs">{task.type}</Badge>
-                      {task.priority === 'high' && (
-                        <Badge className="text-xs bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300">Critical</Badge>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="space-y-6">
             <h3 className={`text-xl font-bold ${palette.textPrimary} flex items-center`}>
               <Zap className={`h-5 w-5 mr-3 ${palette.accent}`} />
               Quick Actions
             </h3>
-            <div className="space-y-4">
-              {quickLinks.map((link, index) => (
-                <Link key={index} href={link.href}>
-                  <div className="group relative cursor-pointer h-[140px]">
-                    <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
-                    <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg h-full flex items-center`}>
-                      <div className="flex items-center w-full">
-                        <link.icon className={`h-6 w-6 mr-4 ${link.color} flex-shrink-0`} />
-                        <div className="flex-1">
-                          <h4 className={`font-semibold ${palette.textPrimary}`}>{link.title}</h4>
-                          <p className={`text-sm ${palette.textSecondary}`}>{link.description}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Recent Models */}
-          <div className="space-y-6">
             <h3 className={`text-xl font-bold ${palette.textPrimary} flex items-center`}>
               <Building className={`h-5 w-5 mr-3 ${palette.accent}`} />
               Architecture Models
             </h3>
-            <div className="space-y-4">
-              {recentModels.map((model, index) => (
-                <Link key={index} href="/workspace">
-                  <div className="group relative cursor-pointer h-[140px]" data-testid={`card-recent-model-${index}`}>
-                    <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
-                    <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg h-full flex flex-col justify-between`}>
-                      <div>
-                        <h4 className={`font-semibold ${palette.textPrimary} mb-1`}>{model.title}</h4>
-                        <p className={`text-sm ${palette.textSecondary} mb-3 line-clamp-2`}>{model.description}</p>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <Badge variant="outline" className="text-xs">{model.type}</Badge>
-                        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                          <Users className="h-3 w-3" />
-                          <span>{model.collaborators}</span>
-                          <span>•</span>
-                          <span>{model.modified}</span>
-                        </div>
+          </div>
+
+          {/* Cards Grid - Aligned Horizontally */}
+          <div className="space-y-4">
+            {/* Row 1 */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Strategic Priorities - Card 1 */}
+              <div className="group relative h-[140px]">
+                <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
+                <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg h-full flex flex-col justify-between`}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <h4 className={`font-semibold ${palette.textPrimary} mb-1`}>Strategic Architecture Review</h4>
+                      <p className={`text-sm ${palette.textSecondary} line-clamp-2`}>Assess enterprise transformation roadmap</p>
+                    </div>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 ml-2 flex-shrink-0">2 hours ago</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="text-xs">Strategy</Badge>
+                    <Badge className="text-xs bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300">Critical</Badge>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions - Card 1 */}
+              <Link href="/workspace">
+                <div className="group relative cursor-pointer h-[140px]">
+                  <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
+                  <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg h-full flex items-center`}>
+                    <div className="flex items-center w-full">
+                      <Sparkles className={`h-6 w-6 mr-4 ${palette.accent} flex-shrink-0`} />
+                      <div className="flex-1">
+                        <h4 className={`font-semibold ${palette.textPrimary}`}>Create Architecture Model</h4>
+                        <p className={`text-sm ${palette.textSecondary}`}>Design your enterprise architecture</p>
                       </div>
                     </div>
                   </div>
-                </Link>
-              ))}
+                </div>
+              </Link>
+
+              {/* Architecture Models - Card 1 */}
+              <Link href="/workspace">
+                <div className="group relative cursor-pointer h-[140px]" data-testid="card-recent-model-0">
+                  <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
+                  <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg h-full flex flex-col justify-between`}>
+                    <div>
+                      <h4 className={`font-semibold ${palette.textPrimary} mb-1`}>Digital Transformation Blueprint</h4>
+                      <p className={`text-sm ${palette.textSecondary} mb-3 line-clamp-2`}>Enterprise-wide transformation architecture</p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Badge variant="outline" className="text-xs">Strategic</Badge>
+                      <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                        <Users className="h-3 w-3" />
+                        <span>8</span>
+                        <span>•</span>
+                        <span>2 hours ago</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </div>
+
+            {/* Row 2 */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Strategic Priorities - Card 2 */}
+              <div className="group relative h-[140px]">
+                <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
+                <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg h-full flex flex-col justify-between`}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <h4 className={`font-semibold ${palette.textPrimary} mb-1`}>Digital Capability Mapping</h4>
+                      <p className={`text-sm ${palette.textSecondary} line-clamp-2`}>Map core digital capabilities and gaps</p>
+                    </div>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 ml-2 flex-shrink-0">1 day ago</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="text-xs">Assessment</Badge>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions - Card 2 */}
+              <Link href="/governance">
+                <div className="group relative cursor-pointer h-[140px]">
+                  <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
+                  <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg h-full flex items-center`}>
+                    <div className="flex items-center w-full">
+                      <Shield className={`h-6 w-6 mr-4 ${palette.accent} flex-shrink-0`} />
+                      <div className="flex-1">
+                        <h4 className={`font-semibold ${palette.textPrimary}`}>Governance Dashboard</h4>
+                        <p className={`text-sm ${palette.textSecondary}`}>Monitor compliance and risk assessment</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+
+              {/* Architecture Models - Card 2 */}
+              <Link href="/workspace">
+                <div className="group relative cursor-pointer h-[140px]" data-testid="card-recent-model-1">
+                  <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
+                  <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg h-full flex flex-col justify-between`}>
+                    <div>
+                      <h4 className={`font-semibold ${palette.textPrimary} mb-1`}>Cloud-Native Platform Design</h4>
+                      <p className={`text-sm ${palette.textSecondary} mb-3 line-clamp-2`}>Modern application platform architecture</p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Badge variant="outline" className="text-xs">Technical</Badge>
+                      <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                        <Users className="h-3 w-3" />
+                        <span>12</span>
+                        <span>•</span>
+                        <span>1 day ago</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </div>
+
+            {/* Row 3 */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Strategic Priorities - Card 3 */}
+              <div className="group relative h-[140px]">
+                <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
+                <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg h-full flex flex-col justify-between`}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <h4 className={`font-semibold ${palette.textPrimary} mb-1`}>Technology Modernization</h4>
+                      <p className={`text-sm ${palette.textSecondary} line-clamp-2`}>Define future-state technology vision</p>
+                    </div>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 ml-2 flex-shrink-0">3 days ago</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="text-xs">Planning</Badge>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions - Card 3 */}
+              <Link href="/innovation">
+                <div className="group relative cursor-pointer h-[140px]">
+                  <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
+                  <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg h-full flex items-center`}>
+                    <div className="flex items-center w-full">
+                      <Zap className={`h-6 w-6 mr-4 ${palette.accent} flex-shrink-0`} />
+                      <div className="flex-1">
+                        <h4 className={`font-semibold ${palette.textPrimary}`}>Innovation Portfolio</h4>
+                        <p className={`text-sm ${palette.textSecondary}`}>Track transformation initiatives</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+
+              {/* Architecture Models - Card 3 */}
+              <Link href="/workspace">
+                <div className="group relative cursor-pointer h-[140px]" data-testid="card-recent-model-2">
+                  <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
+                  <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg h-full flex flex-col justify-between`}>
+                    <div>
+                      <h4 className={`font-semibold ${palette.textPrimary} mb-1`}>Customer Experience Journey</h4>
+                      <p className={`text-sm ${palette.textSecondary} mb-3 line-clamp-2`}>End-to-end customer interaction model</p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Badge variant="outline" className="text-xs">Business</Badge>
+                      <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                        <Users className="h-3 w-3" />
+                        <span>6</span>
+                        <span>•</span>
+                        <span>2 days ago</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </div>
+
+            {/* Row 4 */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Strategic Priorities - Card 4 */}
+              <div className="group relative h-[140px]">
+                <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
+                <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg h-full flex flex-col justify-between`}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <h4 className={`font-semibold ${palette.textPrimary} mb-1`}>Model-driven Apps Rationalization</h4>
+                      <p className={`text-sm ${palette.textSecondary} line-clamp-2`}>Optimize and consolidate application portfolio</p>
+                    </div>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 ml-2 flex-shrink-0">5 days ago</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="text-xs">Planning</Badge>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions - Card 4 */}
+              <Link href="/strategy">
+                <div className="group relative cursor-pointer h-[140px]">
+                  <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
+                  <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg h-full flex items-center`}>
+                    <div className="flex items-center w-full">
+                      <TrendingUp className={`h-6 w-6 mr-4 ${palette.accent} flex-shrink-0`} />
+                      <div className="flex-1">
+                        <h4 className={`font-semibold ${palette.textPrimary}`}>Strategic Planning</h4>
+                        <p className={`text-sm ${palette.textSecondary}`}>Define architectural roadmaps</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+
+              {/* Architecture Models - Empty space for alignment */}
+              <div className="h-[140px]"></div>
             </div>
           </div>
         </div>
