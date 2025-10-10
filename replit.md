@@ -27,6 +27,8 @@ The application features a sophisticated, elegant design. The frontend uses Reac
 - User profile and theme toggle controls
 - Consistent flex layout with overflow handling (h-full overflow-hidden flex flex-col → GovernanceHeader → flex-1 overflow-auto wrapper)
 
+**Design Studio Consolidation**: Architecture Modeling, Architecture Workspace, and Design Palette pages were consolidated into a single unified "Design Studio" (`/studio`) to provide one comprehensive workspace for all modeling and design activities. The Design Studio uses the ModelingWorkspace component, featuring: object palette, modeling canvas, properties panel, AI assistant, change detection, achievement system, and multiple view modes (detailed, overview, executive, presentation). Old routes redirect to /studio for backward compatibility.
+
 ## Technical Implementations
 - **Frontend**: React 18, TypeScript, shadcn/ui, Radix UI, Tailwind CSS, Wouter for routing, React Hook Form with Zod for validation, TanStack Query for server state.
 - **Backend**: Express.js with TypeScript (ESM), simple REST API, interface-based storage layer, Drizzle ORM for PostgreSQL.
