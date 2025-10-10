@@ -9,6 +9,8 @@ import {
   insertTaskSchema,
   insertUserStorySchema,
   updateUserStorySchema,
+  insertDefectSchema,
+  updateDefectSchema,
   insertEpicSchema,
   insertIntegrationChannelSchema,
   insertObjectSyncFlowSchema,
@@ -610,6 +612,149 @@ Keep response concise but comprehensive.`;
     } catch (error) {
       console.error("Failed to delete user story:", error);
       res.status(500).json({ message: "Failed to delete user story" });
+    }
+  });
+
+  // ============================================================
+  // DEFECT API ENDPOINTS - Quality Assurance & Bug Tracking
+  // ============================================================
+
+  // Get all defects or filter by story/severity/assignee
+  app.get("/api/defects", async (req, res) => {
+    try {
+      const { userStoryId, severity, assignee, open } = req.query;
+      
+      let defects;
+      if (userStoryId && typeof userStoryId === 'string') {
+        if (open === 'true') {
+          defects = await storage.getOpenDefectsByStory(userStoryId);
+        } else {
+          defects = await storage.getDefectsByStory(userStoryId);
+        }
+      } else if (severity && typeof severity === 'string') {
+        defects = await storage.getDefectsBySeverity(severity);
+      } else if (assignee && typeof assignee === 'string') {
+        defects = await storage.getDefectsByAssignee(assignee);
+      } else {
+        defects = await storage.getAllDefects();
+      }
+      
+      res.json({ data: defects });
+    } catch (error) {
+      console.error("Failed to fetch defects:", error);
+      res.status(500).json({ message: "Failed to fetch defects" });
+    }
+  });
+
+  // Get single defect
+  app.get("/api/defects/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const defect = await storage.getDefect(id);
+      
+      if (!defect) {
+        return res.status(404).json({ message: "Defect not found" });
+      }
+      
+      res.json({ data: defect });
+    } catch (error) {
+      console.error("Failed to fetch defect:", error);
+      res.status(500).json({ message: "Failed to fetch defect" });
+    }
+  });
+
+  // Create defect
+  app.post("/api/defects", async (req, res) => {
+    try {
+      const validatedData = insertDefectSchema.parse(req.body);
+      
+      // Verify the user story exists
+      const story = await storage.getUserStory(validatedData.userStoryId);
+      if (!story) {
+        return res.status(404).json({ message: "User story not found" });
+      }
+      
+      const defect = await storage.createDefect(validatedData);
+      res.status(201).json(defect);
+    } catch (error) {
+      console.error("Failed to create defect:", error);
+      
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ 
+          message: "Validation failed", 
+          errors: error.message
+        });
+      }
+      
+      res.status(400).json({ 
+        message: "Failed to create defect", 
+        error: error instanceof Error ? error.message : String(error) 
+      });
+    }
+  });
+
+  // Update defect
+  app.patch("/api/defects/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedUpdates = updateDefectSchema.parse(req.body);
+      
+      const updatedDefect = await storage.updateDefect(id, validatedUpdates);
+      if (!updatedDefect) {
+        return res.status(404).json({ message: "Defect not found" });
+      }
+      
+      res.json(updatedDefect);
+    } catch (error) {
+      console.error("Failed to update defect:", error);
+      
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ 
+          message: "Validation failed", 
+          errors: error.message
+        });
+      }
+      
+      res.status(500).json({ message: "Failed to update defect" });
+    }
+  });
+
+  // Resolve defect
+  app.post("/api/defects/:id/resolve", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { resolution, rootCause } = req.body;
+      
+      if (!resolution || typeof resolution !== 'string') {
+        return res.status(400).json({ message: "Resolution is required" });
+      }
+      
+      const resolvedDefect = await storage.resolveDefect(id, resolution, rootCause);
+      if (!resolvedDefect) {
+        return res.status(404).json({ message: "Defect not found" });
+      }
+      
+      res.json(resolvedDefect);
+    } catch (error) {
+      console.error("Failed to resolve defect:", error);
+      res.status(500).json({ message: "Failed to resolve defect" });
+    }
+  });
+
+  // Delete defect
+  app.delete("/api/defects/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteDefect(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Defect not found" });
+      }
+      
+      res.json({ message: "Defect deleted successfully" });
+    } catch (error) {
+      console.error("Failed to delete defect:", error);
+      res.status(500).json({ message: "Failed to delete defect" });
     }
   });
 
