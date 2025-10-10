@@ -626,7 +626,14 @@ export const userStories = pgTable("user_stories", {
   githubRepo: text("github_repo"),
   githubBranch: text("github_branch"),
   githubIssue: integer("github_issue"),
-  githubCommits: jsonb("github_commits").$type<string[]>().default([]),
+  githubCommits: jsonb("github_commits").$type<Array<{
+    sha: string;
+    message: string;
+    author: string;
+    email: string;
+    timestamp: string;
+    url: string;
+  }>>().default([]),
   
   // Labels and metadata
   labels: jsonb("labels").$type<string[]>().default([]),

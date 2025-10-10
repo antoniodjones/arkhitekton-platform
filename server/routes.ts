@@ -1161,6 +1161,174 @@ Keep response concise but comprehensive.`;
     }
   });
 
+  // GitHub Webhook Handler
+  app.post("/api/webhooks/github", async (req, res) => {
+    try {
+      const event = req.headers['x-github-event'];
+      
+      // Only process push events for now
+      if (event !== 'push') {
+        return res.json({ message: 'Event type not supported', processed: 0 });
+      }
+
+      const payload = req.body;
+      const commits = payload.commits || [];
+      
+      // Track processing results
+      const results = {
+        processed: 0,
+        linked: 0,
+        blocked: 0, // Commits blocked due to violations
+        stories_updated: [] as string[],
+        violations: [] as Array<{ commit: string; message: string; reason: string; story?: string }>
+      };
+
+      // Regex to extract story IDs: US-XXXXXXX
+      const storyIdRegex = /US-[A-Z0-9]{7}/g;
+
+      for (const commit of commits) {
+        results.processed++;
+        
+        // Extract story IDs from commit message
+        const storyIds = commit.message.match(storyIdRegex) || [];
+        
+        if (storyIds.length === 0) {
+          // VIOLATION: No story ID in commit - BLOCK ENTIRE COMMIT
+          results.violations.push({
+            commit: commit.id.substring(0, 7),
+            message: commit.message.split('\n')[0],
+            reason: '❌ BLOCKED: No user story ID found (US-XXXXXXX format required)'
+          });
+          results.blocked++;
+          console.log(`❌ BLOCKED commit ${commit.id.substring(0, 7)}: No story ID`);
+          continue; // Skip this commit entirely
+        }
+
+        // PHASE 1: PRE-VALIDATION - Check ALL stories before linking ANY
+        let commitIsValid = true;
+        const validatedStories = [];
+        
+        for (const storyId of storyIds) {
+          // Check if story exists
+          const story = await storage.getUserStory(storyId);
+          
+          if (!story) {
+            results.violations.push({
+              commit: commit.id.substring(0, 7),
+              message: commit.message.split('\n')[0],
+              reason: `❌ BLOCKED: Story ${storyId} not found in database`,
+              story: storyId
+            });
+            commitIsValid = false;
+            console.log(`❌ BLOCKED commit ${commit.id.substring(0, 7)} → ${storyId}: Story not found`);
+            break; // Entire commit is invalid
+          }
+
+          // ENFORCE: Story MUST have acceptance criteria - BLOCKING RULE
+          if (!story.acceptanceCriteria || story.acceptanceCriteria.trim().length === 0) {
+            results.violations.push({
+              commit: commit.id.substring(0, 7),
+              message: commit.message.split('\n')[0],
+              reason: `❌ BLOCKED: Story ${storyId} has no acceptance criteria (required for commit linking)`,
+              story: storyId
+            });
+            commitIsValid = false;
+            console.log(`❌ BLOCKED commit ${commit.id.substring(0, 7)} → ${storyId}: No acceptance criteria`);
+            break; // Entire commit is invalid
+          }
+
+          // TODO: Validate Gherkin format (Given/When/Then)
+          
+          // Story is valid - add to validated list
+          validatedStories.push(story);
+        }
+
+        // If ANY story failed validation, BLOCK the entire commit
+        if (!commitIsValid) {
+          results.blocked++;
+          continue; // Do NOT link this commit to ANY story
+        }
+
+        // PHASE 2: LINKING - All stories are valid, proceed with linking
+        const commitData = {
+          sha: commit.id,
+          message: commit.message.split('\n')[0], // First line only
+          author: commit.author.name,
+          email: commit.author.email,
+          timestamp: commit.timestamp,
+          url: commit.url
+        };
+
+        for (const story of validatedStories) {
+          // Get existing commits
+          const existingCommits = story.githubCommits || [];
+          
+          // Check if commit already linked (avoid duplicates)
+          const isDuplicate = existingCommits.some(c => c.sha === commit.id);
+          if (isDuplicate) {
+            console.log(`⏭️  Skipped duplicate: ${commit.id.substring(0, 7)} → ${story.id} (already linked)`);
+            continue;
+          }
+
+          // Add new commit
+          const updatedCommits = [...existingCommits, commitData];
+
+          // Update story with new commit
+          await storage.updateUserStory(story.id, {
+            githubCommits: updatedCommits
+          });
+
+          results.linked++;
+          
+          // Track unique stories updated
+          if (!results.stories_updated.includes(story.id)) {
+            results.stories_updated.push(story.id);
+          }
+
+          console.log(`✅ Linked commit ${commit.id.substring(0, 7)} → ${story.id}: "${commit.message.split('\n')[0].substring(0, 60)}..."`);
+        }
+      }
+
+      // Enhanced logging with context
+      console.log('\n📊 GitHub Webhook Processing Summary:');
+      console.log(`   Repository: ${payload.repository?.full_name || 'unknown'}`);
+      console.log(`   Branch: ${payload.ref || 'unknown'}`);
+      console.log(`   Pusher: ${payload.pusher?.name || 'unknown'}`);
+      console.log(`   Commits processed: ${results.processed}`);
+      console.log(`   Commits linked: ${results.linked}`);
+      console.log(`   Commits blocked: ${results.blocked}`);
+      console.log(`   Stories updated: ${results.stories_updated.join(', ') || 'none'}`);
+      console.log(`   Violations: ${results.violations.length}`);
+      
+      if (results.violations.length > 0) {
+        console.log('\n⚠️  Violations detected:');
+        results.violations.forEach((v, idx) => {
+          console.log(`   ${idx + 1}. [${v.commit}] "${v.message}"`);
+          console.log(`      Reason: ${v.reason}`);
+        });
+      }
+
+      // Structured response with enhanced context
+      res.json({
+        success: true,
+        repository: payload.repository?.full_name,
+        branch: payload.ref?.replace('refs/heads/', ''),
+        pusher: payload.pusher?.name,
+        ...results
+      });
+    } catch (error) {
+      console.error('❌ GitHub webhook error:', error);
+      
+      // Structured error response
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to process webhook",
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
