@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { z } from "zod";
 import { 
   insertArchitectureElementSchema,
   insertKnowledgeBasePageSchema,
@@ -555,9 +556,9 @@ Keep response concise but comprehensive.`;
       const { id } = req.params;
       
       // Validate story ID format
-      if (!id || !id.startsWith('US-') || id.length !== 10) {
+      if (!id || !id.startsWith('US-')) {
         return res.status(400).json({ 
-          message: "Invalid story ID format. Expected US-XXXXXXX"
+          message: "Invalid story ID format. Expected US-*"
         });
       }
       
