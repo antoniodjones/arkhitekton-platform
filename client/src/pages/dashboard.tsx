@@ -175,6 +175,13 @@ function DashboardContent() {
       href: "/workspace"
     },
     {
+      title: "Application Portfolio",
+      description: "Manage enterprise applications and assets",
+      icon: Package,
+      color: palette.accent,
+      href: "/apm"
+    },
+    {
       title: "Governance Dashboard", 
       description: "Monitor compliance and risk assessment",
       icon: Shield,
