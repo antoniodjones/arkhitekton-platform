@@ -26,7 +26,8 @@ import {
   Wrench,
   GitBranch,
   GripVertical,
-  Cloud
+  Cloud,
+  Presentation
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -125,12 +126,19 @@ const navigationItems: NavigationItem[] = [
     description: 'Development roadmap and task tracking'
   },
   {
+    id: 'pitch-deck',
+    label: 'VC Pitch Deck',
+    href: '/pitch-deck',
+    icon: Presentation,
+    description: 'Investor presentation & platform overview',
+    badge: 'New'
+  },
+  {
     id: 'wiki',
     label: 'Knowledge Base',
     href: '/wiki',
     icon: BookOpen,
-    description: 'Documentation and knowledge repository',
-    badge: 'New'
+    description: 'Documentation and knowledge repository'
   }
 ];
 
