@@ -156,6 +156,13 @@ function DashboardContent() {
       type: "Planning",
       timeAgo: "3 days ago",
       priority: "low"
+    },
+    {
+      title: "Model-driven Apps Rationalization",
+      description: "Optimize and consolidate application portfolio",
+      type: "Planning",
+      timeAgo: "5 days ago",
+      priority: "medium"
     }
   ];
 
@@ -421,15 +428,15 @@ function DashboardContent() {
             </h3>
             <div className="space-y-4">
               {recentTasks.map((task, index) => (
-                <div key={index} className="group relative">
+                <div key={index} className="group relative h-[140px]">
                   <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
-                  <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg`}>
+                  <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg h-full flex flex-col justify-between`}>
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <h4 className={`font-semibold ${palette.textPrimary} mb-1`}>{task.title}</h4>
-                        <p className={`text-sm ${palette.textSecondary}`}>{task.description}</p>
+                        <p className={`text-sm ${palette.textSecondary} line-clamp-2`}>{task.description}</p>
                       </div>
-                      <span className="text-xs text-slate-500 dark:text-slate-400">{task.timeAgo}</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400 ml-2 flex-shrink-0">{task.timeAgo}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant="secondary" className="text-xs">{task.type}</Badge>
@@ -452,12 +459,12 @@ function DashboardContent() {
             <div className="space-y-4">
               {quickLinks.map((link, index) => (
                 <Link key={index} href={link.href}>
-                  <div className="group relative cursor-pointer">
+                  <div className="group relative cursor-pointer h-[140px]">
                     <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
-                    <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg`}>
-                      <div className="flex items-center">
-                        <link.icon className={`h-6 w-6 mr-4 ${link.color}`} />
-                        <div>
+                    <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg h-full flex items-center`}>
+                      <div className="flex items-center w-full">
+                        <link.icon className={`h-6 w-6 mr-4 ${link.color} flex-shrink-0`} />
+                        <div className="flex-1">
                           <h4 className={`font-semibold ${palette.textPrimary}`}>{link.title}</h4>
                           <p className={`text-sm ${palette.textSecondary}`}>{link.description}</p>
                         </div>
@@ -478,20 +485,20 @@ function DashboardContent() {
             <div className="space-y-4">
               {recentModels.map((model, index) => (
                 <Link key={index} href="/workspace">
-                  <div className="group relative cursor-pointer" data-testid={`card-recent-model-${index}`}>
+                  <div className="group relative cursor-pointer h-[140px]" data-testid={`card-recent-model-${index}`}>
                     <div className={`absolute inset-0 ${gradients.overlay} rounded-xl transition-all duration-200`} />
-                    <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg`}>
+                    <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-xl p-5 shadow-lg h-full flex flex-col justify-between`}>
                       <div>
                         <h4 className={`font-semibold ${palette.textPrimary} mb-1`}>{model.title}</h4>
-                        <p className={`text-sm ${palette.textSecondary} mb-3`}>{model.description}</p>
-                        <div className="flex items-center justify-between">
-                          <Badge variant="outline" className="text-xs">{model.type}</Badge>
-                          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                            <Users className="h-3 w-3" />
-                            <span>{model.collaborators}</span>
-                            <span>•</span>
-                            <span>{model.modified}</span>
-                          </div>
+                        <p className={`text-sm ${palette.textSecondary} mb-3 line-clamp-2`}>{model.description}</p>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Badge variant="outline" className="text-xs">{model.type}</Badge>
+                        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                          <Users className="h-3 w-3" />
+                          <span>{model.collaborators}</span>
+                          <span>•</span>
+                          <span>{model.modified}</span>
                         </div>
                       </div>
                     </div>
