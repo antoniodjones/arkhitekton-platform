@@ -415,7 +415,7 @@ Keep response concise but comprehensive.`;
   // Get all user stories with enterprise pagination and sorting
   app.get("/api/user-stories", async (req, res) => {
     try {
-      const { assignee, epicId, page = '1', pageSize = '25', sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+      const { assignee, epicId, search, page = '1', pageSize = '25', sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
       
       // Validate pagination parameters
       const parsedPage = Math.max(parseInt(page as string) || 1, 1);
@@ -447,6 +447,17 @@ Keep response concise but comprehensive.`;
         stories = await storage.getUserStoriesByAssignee(assignee);
       } else {
         stories = await storage.getAllUserStories();
+      }
+      
+      // Apply search filter
+      if (search && typeof search === 'string' && search.trim().length > 0) {
+        const searchLower = search.trim().toLowerCase();
+        stories = stories.filter(story => 
+          story.id.toLowerCase().includes(searchLower) ||
+          story.title.toLowerCase().includes(searchLower) ||
+          (story.description && story.description.toLowerCase().includes(searchLower)) ||
+          (story.acceptanceCriteria && story.acceptanceCriteria.toLowerCase().includes(searchLower))
+        );
       }
       
       // Apply sorting
@@ -642,7 +653,7 @@ Keep response concise but comprehensive.`;
   // Get all defects or filter by story/severity/assignee
   app.get("/api/defects", async (req, res) => {
     try {
-      const { userStoryId, severity, assignee, open } = req.query;
+      const { userStoryId, severity, assignee, open, search } = req.query;
       
       let defects;
       if (userStoryId && typeof userStoryId === 'string') {
@@ -657,6 +668,16 @@ Keep response concise but comprehensive.`;
         defects = await storage.getDefectsByAssignee(assignee);
       } else {
         defects = await storage.getAllDefects();
+      }
+      
+      // Apply search filter
+      if (search && typeof search === 'string' && search.trim().length > 0) {
+        const searchLower = search.trim().toLowerCase();
+        defects = defects.filter(defect => 
+          defect.title.toLowerCase().includes(searchLower) ||
+          (defect.description && defect.description.toLowerCase().includes(searchLower)) ||
+          defect.userStoryId.toLowerCase().includes(searchLower)
+        );
       }
       
       res.json({ data: defects });

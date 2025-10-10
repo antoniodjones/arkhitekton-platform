@@ -1032,6 +1032,34 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
   // Epic filter state (must be declared before useQuery that uses it)
   const [epicFilter, setEpicFilter] = useState<string>('all');
 
+  // Unified search state for stories and defects
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  // Search stories (only when search query exists)
+  const { data: storySearchResults } = useQuery<UserStory[]>({
+    queryKey: ['/api/user-stories/search', searchQuery],
+    queryFn: async () => {
+      if (!searchQuery.trim()) return [];
+      const response = await fetch(`/api/user-stories?search=${encodeURIComponent(searchQuery)}&pageSize=10`);
+      const data = await response.json();
+      return data.items || [];
+    },
+    enabled: searchQuery.trim().length > 0,
+  });
+
+  // Search defects (only when search query exists)
+  const { data: defectSearchResults } = useQuery<any[]>({
+    queryKey: ['/api/defects/search', searchQuery],
+    queryFn: async () => {
+      if (!searchQuery.trim()) return [];
+      const response = await fetch(`/api/defects?search=${encodeURIComponent(searchQuery)}`);
+      const data = await response.json();
+      return data.data || [];
+    },
+    enabled: searchQuery.trim().length > 0,
+  });
+
   // Fetch user stories with pagination
   const queryClient = useQueryClient();
   const { data: storiesResponse, isLoading: isLoadingStories } = useQuery<{ items: UserStory[]; total: number; totalPages: number }>({
@@ -1367,7 +1395,109 @@ Then [expected outcome]`,
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-foreground">User Stories</h3>
+        <div className="flex items-center gap-4 flex-1">
+          <h3 className="text-lg font-semibold text-foreground">User Stories</h3>
+          
+          {/* Unified Search for Stories & Defects */}
+          <div className="relative flex-1 max-w-md">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search stories and defects..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setIsSearchOpen(e.target.value.trim().length > 0);
+                }}
+                onFocus={() => setIsSearchOpen(searchQuery.trim().length > 0)}
+                className="pl-10"
+                data-testid="input-unified-search"
+              />
+            </div>
+            
+            {/* Search Results Dropdown */}
+            {isSearchOpen && (searchQuery.trim().length > 0) && (
+              <div className="absolute z-50 top-full mt-2 w-full bg-white dark:bg-gray-800 border rounded-lg shadow-lg max-h-96 overflow-y-auto">
+                {/* Stories Results */}
+                {storySearchResults && storySearchResults.length > 0 && (
+                  <div className="p-2">
+                    <div className="text-xs font-semibold text-muted-foreground px-2 py-1">USER STORIES</div>
+                    {storySearchResults.map((story) => (
+                      <button
+                        key={story.id}
+                        className="w-full text-left p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded flex items-start gap-2"
+                        onClick={() => {
+                          setEditingStory(story);
+                          setIsStoryDialogOpen(true);
+                          setIsSearchOpen(false);
+                          setSearchQuery('');
+                        }}
+                        data-testid={`search-result-story-${story.id}`}
+                      >
+                        <FileText className="w-4 h-4 mt-0.5 text-blue-500" />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium truncate">{story.id}</div>
+                          <div className="text-sm truncate">{story.title}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Defects Results */}
+                {defectSearchResults && defectSearchResults.length > 0 && (
+                  <div className="p-2 border-t">
+                    <div className="text-xs font-semibold text-muted-foreground px-2 py-1">DEFECTS</div>
+                    {defectSearchResults.map((defect) => (
+                      <button
+                        key={defect.id}
+                        className="w-full text-left p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded flex items-start gap-2"
+                        onClick={async () => {
+                          // Find and open the parent story
+                          const story = allStories.find(s => s.id === defect.userStoryId);
+                          if (story) {
+                            setEditingStory(story);
+                            setIsStoryDialogOpen(true);
+                          }
+                          setIsSearchOpen(false);
+                          setSearchQuery('');
+                        }}
+                        data-testid={`search-result-defect-${defect.id}`}
+                      >
+                        <Bug className="w-4 h-4 mt-0.5 text-red-500" />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium truncate flex items-center gap-2">
+                            {defect.title}
+                            <Badge variant={defect.severity === 'critical' || defect.severity === 'high' ? 'destructive' : 'secondary'} className="text-xs">
+                              {defect.severity}
+                            </Badge>
+                          </div>
+                          <div className="text-xs text-muted-foreground truncate">in {defect.userStoryId}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* No Results */}
+                {(!storySearchResults || storySearchResults.length === 0) && 
+                 (!defectSearchResults || defectSearchResults.length === 0) && (
+                  <div className="p-4 text-center text-sm text-muted-foreground">
+                    No stories or defects found
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Click outside to close */}
+            {isSearchOpen && (
+              <div 
+                className="fixed inset-0 z-40" 
+                onClick={() => setIsSearchOpen(false)}
+              />
+            )}
+          </div>
+        </div>
         <div className="flex items-center gap-4">
           <div className="text-sm text-muted-foreground">
             {total > 0 && `${total} Total Stories`}
