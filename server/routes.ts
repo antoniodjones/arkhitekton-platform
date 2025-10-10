@@ -412,7 +412,7 @@ Keep response concise but comprehensive.`;
   // Get all user stories with enterprise pagination and sorting
   app.get("/api/user-stories", async (req, res) => {
     try {
-      const { taskId, assignee, epicId, page = '1', pageSize = '25', sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+      const { assignee, epicId, page = '1', pageSize = '25', sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
       
       // Validate pagination parameters
       const parsedPage = Math.max(parseInt(page as string) || 1, 1);
@@ -436,12 +436,6 @@ Keep response concise but comprehensive.`;
           return res.status(400).json({ message: "Invalid epicId" });
         }
         stories = await storage.getUserStoriesByEpic(epicId);
-      } else if (taskId && typeof taskId === 'string') {
-        // Validate UUID format for taskId
-        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(taskId)) {
-          return res.status(400).json({ message: "Invalid taskId format" });
-        }
-        stories = await storage.getUserStoriesByTask(taskId);
       } else if (assignee && typeof assignee === 'string') {
         // Basic assignee validation (non-empty string)
         if (assignee.trim().length === 0) {
@@ -520,17 +514,6 @@ Keep response concise but comprehensive.`;
     try {
       const validatedData = insertUserStorySchema.parse(req.body);
       
-      // Validate referential integrity - check if parentTaskId exists
-      if (validatedData.parentTaskId) {
-        const parentTask = await storage.getTask(validatedData.parentTaskId);
-        if (!parentTask) {
-          return res.status(400).json({ 
-            message: "Validation failed",
-            errors: { parentTaskId: "Referenced task does not exist" }
-          });
-        }
-      }
-      
       const story = await storage.createUserStory(validatedData);
       res.status(201).json(story);
     } catch (error) {
@@ -569,19 +552,6 @@ Keep response concise but comprehensive.`;
       const existingStory = await storage.getUserStory(id);
       if (!existingStory) {
         return res.status(404).json({ message: "User story not found" });
-      }
-      
-      // Validate referential integrity for parentTaskId if being updated
-      if (validatedUpdates.parentTaskId !== undefined) {
-        if (validatedUpdates.parentTaskId !== null) {
-          const parentTask = await storage.getTask(validatedUpdates.parentTaskId);
-          if (!parentTask) {
-            return res.status(400).json({ 
-              message: "Validation failed",
-              errors: { parentTaskId: "Referenced task does not exist" }
-            });
-          }
-        }
       }
       
       const updatedStory = await storage.updateUserStory(id, validatedUpdates);
@@ -857,7 +827,7 @@ Keep response concise but comprehensive.`;
         codeMappings,
         githubLogs,
         traceabilityPath: {
-          epic: story.parentTaskId,
+          epic: story.epicId,
           story: story.id,
           github: {
             repo: story.githubRepo,
