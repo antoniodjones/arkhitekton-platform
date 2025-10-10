@@ -1458,6 +1458,7 @@ Then [expected outcome]`,
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs font-mono text-muted-foreground">{story.id}</span>
                         <span className="font-medium">{story.title}</span>
                         <Badge variant="outline" className={getStatusColor(story.status)}>
                           {story.status}
@@ -1585,7 +1586,10 @@ Then [expected outcome]`,
                 {userStories.map((story, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                     <div className="flex-1">
-                      <div className="font-medium text-sm">{story.title}</div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-mono text-muted-foreground">{story.id}</span>
+                        <div className="font-medium text-sm">{story.title}</div>
+                      </div>
                       <div className="flex items-center gap-2 mt-1">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(story.status)}`}>
                           {story.status}
