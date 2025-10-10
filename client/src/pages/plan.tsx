@@ -1671,6 +1671,11 @@ Then [expected outcome]`,
             <DialogTitle className="flex items-center gap-2">
               <FileText className="w-5 h-5" />
               Edit User Story
+              {editingStory && (
+                <span className="ml-2 text-sm font-mono text-muted-foreground">
+                  {editingStory.id}
+                </span>
+              )}
             </DialogTitle>
           </DialogHeader>
           
