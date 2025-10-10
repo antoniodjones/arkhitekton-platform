@@ -213,21 +213,22 @@ export function CompactSidebar() {
     >
       {/* Main sidebar content */}
       <div className="flex flex-col flex-1">
-        {/* Header */}
+        {/* Header - Matches dashboard header height */}
         <div className={cn(
-          "flex h-10 items-center border-b border-slate-200/50 dark:border-slate-700/50 p-1",
-          showLabels ? "justify-start px-3" : "justify-center"
+          "flex items-center border-b border-slate-200/50 dark:border-slate-700/50 px-2 py-4",
+          showLabels ? "justify-start" : "justify-center"
         )}>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center cursor-pointer">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 flex-shrink-0">
-                    <span className="text-xs font-bold text-white">A</span>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 via-orange-400 to-amber-500 flex-shrink-0 shadow-lg shadow-orange-500/25">
+                    <div className="w-5 h-5 bg-white/90 rounded-lg transform rotate-45" />
                   </div>
                   {showLabels && (
-                    <div className="ml-2 overflow-hidden">
-                      <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">ARKHITEKTON</p>
+                    <div className="ml-3 overflow-hidden">
+                      <p className="text-base font-bold text-slate-900 dark:text-slate-100 truncate tracking-tight">ARKHITEKTON</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide">MASTER BUILDER</p>
                     </div>
                   )}
                 </div>
@@ -236,7 +237,7 @@ export function CompactSidebar() {
                 <TooltipContent side="right" className="bg-slate-900 dark:bg-slate-50">
                   <div className="text-xs">
                     <p className="font-semibold text-white dark:text-slate-900">ARKHITEKTON</p>
-                    <p className="text-slate-300 dark:text-slate-600">Enterprise Architecture</p>
+                    <p className="text-slate-300 dark:text-slate-600">Master Builder</p>
                   </div>
                 </TooltipContent>
               )}
