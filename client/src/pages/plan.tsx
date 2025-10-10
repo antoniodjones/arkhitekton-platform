@@ -110,7 +110,7 @@ interface UserStory {
 
 // User Story Count Component - Optimized to avoid unnecessary API calls
 function UserStoryCount({ taskId, disabled = false }: { taskId: string; disabled?: boolean }) {
-  const { data: response, isLoading } = useQuery({
+  const { data: response, isLoading } = useQuery<{ data: UserStory[] }>({
     queryKey: ['/api/user-stories?taskId=' + taskId],
     enabled: false, // Temporarily disabled to avoid unnecessary API calls during Stories view optimization
     staleTime: 60000 // Cache for 1 minute to reduce unnecessary requests
@@ -1018,9 +1018,9 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
 
   // Fetch user stories with pagination
   const queryClient = useQueryClient();
-  const { data: storiesResponse, isLoading: isLoadingStories } = useQuery({
+  const { data: storiesResponse, isLoading: isLoadingStories } = useQuery<{ items: UserStory[]; total: number; totalPages: number }>({
     queryKey: [`/api/user-stories?page=${page}&pageSize=${pageSize}`],
-    keepPreviousData: true,
+    placeholderData: (previousData) => previousData,
     staleTime: 30000
   });
 
@@ -1254,23 +1254,18 @@ Scenario: [scenario name]
 
   const saveStory = (story: UserStory) => {
     // Update existing or create new story via backend API
-    const existingStory = independentStories.find(s => s.id === story.id);
+    const existingStory = independentStories.find((s: UserStory) => s.id === story.id);
     if (existingStory) {
-      // Update existing story
+      // Update existing story - exclude date fields as they're auto-handled
+      const { createdAt, updatedAt, ...updates } = story;
       updateStoryMutation.mutate({ 
         id: story.id, 
-        updates: { 
-          ...story, 
-          updatedAt: new Date().toISOString() 
-        } 
+        updates 
       });
     } else {
-      // Create new story
-      createStoryMutation.mutate({
-        ...story,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      });
+      // Create new story - exclude date fields as they're auto-generated
+      const { createdAt, updatedAt, ...storyData } = story;
+      createStoryMutation.mutate(storyData);
     }
     setIsStoryDialogOpen(false);
   };
@@ -1326,7 +1321,8 @@ Then [expected outcome]`,
       
       // Import stories via backend API
       for (const newStory of newStories) {
-        createStoryMutation.mutate(newStory);
+        const { createdAt, updatedAt, ...storyData } = newStory;
+        createStoryMutation.mutate(storyData);
       }
       alert(`Successfully imported ${newStories.length} stories from CSV!`);
     };
@@ -1613,7 +1609,7 @@ Then [expected outcome]`,
             <span className="text-sm text-muted-foreground">({independentStories.length})</span>
           </div>
           
-          {independentStories.map((story) => (
+          {independentStories.map((story: UserStory) => (
             <div key={story.id} className="bg-white dark:bg-gray-800 rounded-lg border p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
