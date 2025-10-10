@@ -427,36 +427,33 @@ export default function PitchDeck() {
           {appPages.map((page, index) => {
             const Icon = page.icon;
             return (
-              <div key={page.route} className="min-h-screen flex items-center justify-center p-12 print:page-break-after-always">
-                <div className="max-w-6xl w-full">
-                  <div className="flex items-center gap-4 mb-8">
-                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center">
-                      <Icon className="h-8 w-8 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-4xl font-bold text-slate-900 dark:text-white">
-                        {page.name}
-                      </h3>
-                      <p className="text-xl text-slate-600 dark:text-slate-400">
-                        {page.description}
-                      </p>
-                    </div>
+              <div key={page.route} className="min-h-screen flex flex-col p-12 print:page-break-after-always">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center">
+                    <Icon className="h-8 w-8 text-white" />
                   </div>
-                  
-                  <Card className="p-8 bg-slate-100 dark:bg-slate-900">
-                    <div className="aspect-video bg-white dark:bg-slate-800 rounded-lg border-2 border-slate-200 dark:border-slate-700 flex items-center justify-center">
-                      <div className="text-center">
-                        <Icon className="h-24 w-24 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-                        <p className="text-slate-400 dark:text-slate-500 text-lg">
-                          Screenshot Placeholder: {page.name}
-                        </p>
-                        <p className="text-slate-400 dark:text-slate-500 text-sm mt-2">
-                          Route: {page.route}
-                        </p>
-                      </div>
-                    </div>
-                  </Card>
+                  <div>
+                    <h3 className="text-4xl font-bold text-slate-900 dark:text-white">
+                      {page.name}
+                    </h3>
+                    <p className="text-xl text-slate-600 dark:text-slate-400">
+                      {page.description}
+                    </p>
+                  </div>
                 </div>
+                
+                <div className="flex-1 bg-white dark:bg-slate-800 rounded-lg border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-xl">
+                  <iframe
+                    src={page.route}
+                    className="w-full h-full"
+                    style={{ minHeight: '800px' }}
+                    title={`Screenshot of ${page.name}`}
+                  />
+                </div>
+                
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-4 text-center">
+                  Live capture from: {page.route}
+                </p>
               </div>
             );
           })}
