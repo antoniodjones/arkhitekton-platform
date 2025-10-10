@@ -73,6 +73,7 @@ Transform ARKHITEKTON into an enterprise-grade platform where:
 feat: Add new feature [US-HCMCP76]
 
 - Implement feature X
+- Story belongs to EPIC-4 (Development & Implementation)
 - Update component Y
 ```
 
@@ -218,15 +219,17 @@ jobs:
 **New Tab: "Traceability"**
 
 **Sections:**
-1. **Stories with Commits**
-   - Story ID, Title, Commit Count
-   - Latest commit info
-   - Status indicator
+1. **Stories with Commits (Grouped by Epic)**
+   - Epic-based grouping for EA Value Stream visibility
+   - Story ID, Title, Epic Badge, Commit Count
+   - Latest commit info with SHA and author
+   - Status indicator with GitHub sync status
+   - Epic progress tracking: % of stories with commits
 
 2. **Orphan Commits (Violations)**
    - Commits without story IDs
    - Highlighted in red
-   - Quick action to create story
+   - Quick action to create story and assign to Epic
 
 3. **Stories Without Criteria**
    - Stories missing acceptance criteria
@@ -244,6 +247,44 @@ jobs:
 - Developer filter
 - Status filter
 - Repository filter
+- **Epic filter** - Filter by EA Value Stream
+
+### 8.1 Epic-to-Code Mapping ✅ COMPLETE
+
+**Architecture Overview:**
+
+ARKHITEKTON now provides comprehensive Epic-to-Code traceability through Enterprise Architecture Value Streams:
+
+**Epic Structure (6 EA Value Streams):**
+1. **EPIC-1**: Strategy & Business Planning (11 stories)
+2. **EPIC-2**: Architecture Design & Modeling (55 stories)
+3. **EPIC-3**: Governance & Decision Management (13 stories)
+4. **EPIC-4**: Development & Implementation (33 stories)
+5. **EPIC-5**: Operations & Intelligence (10 stories)
+6. **EPIC-6**: Knowledge & Collaboration (9 stories)
+
+**Traceability Chain:**
+```
+Epic (EA Value Stream) 
+  → User Story (Feature) 
+    → GitHub Commits (Code Changes)
+      → Pull Requests (Reviews)
+        → Deployments (Production)
+```
+
+**Benefits:**
+- **Portfolio Visibility**: Leadership can track code delivery by business capability
+- **Value Stream Metrics**: Measure development velocity per EA domain
+- **Impact Analysis**: Understand which business capabilities are affected by code changes
+- **Strategic Alignment**: Ensure code changes align with strategic initiatives
+- **Resource Planning**: Track developer allocation across EA domains
+
+**Implementation:**
+- All 131 stories migrated to Epic structure (keyword-based categorization)
+- Epic badges displayed on story cards with ARKHITEKTON orange branding
+- Epic filter dropdown for Story/Kanban/List/Table views
+- GitHub commit linking preserves Epic context via story.epicId
+- Traceability dashboard shows Epic-grouped commit activity
 
 ### 9. AI Story Generation 🤖 FUTURE
 

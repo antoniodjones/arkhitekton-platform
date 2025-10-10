@@ -18,6 +18,8 @@ Design Preference: Unique ARKHITEKTON identity with sophisticated, elegant desig
 ARKHITEKTON organizes all features and user stories into 6 strategic Epics aligned with Enterprise Architecture Value Streams:
 
 ## EPIC 1: Strategy & Business Planning
+**Epic ID**: EPIC-1  
+**Story Count**: 11 stories  
 **Value Stream**: Business strategy to architecture alignment  
 **Target Personas**: Enterprise Architects, Business Analysts, Portfolio Managers  
 **Core Capabilities**: 
@@ -30,6 +32,8 @@ ARKHITEKTON organizes all features and user stories into 6 strategic Epics align
 **Key Features**: Dashboard, Portfolio, Capability Assessment, Strategic Planning
 
 ## EPIC 2: Architecture Design & Modeling
+**Epic ID**: EPIC-2  
+**Story Count**: 55 stories  
 **Value Stream**: Visual design and architectural modeling  
 **Target Personas**: Enterprise Architects, System Architects, Solution Architects  
 **Core Capabilities**:
@@ -43,6 +47,8 @@ ARKHITEKTON organizes all features and user stories into 6 strategic Epics align
 **Key Features**: Modeling Workspace, Design Palette, Cloud Architecture Pages, Object/Connection Management
 
 ## EPIC 3: Governance & Decision Management
+**Epic ID**: EPIC-3  
+**Story Count**: 13 stories  
 **Value Stream**: Architectural governance and compliance  
 **Target Personas**: Enterprise Architects, Security Engineers, Compliance Officers  
 **Core Capabilities**:
@@ -56,6 +62,8 @@ ARKHITEKTON organizes all features and user stories into 6 strategic Epics align
 **Key Features**: Governance Dashboard, ADR System, Review Workflows, Tickets System, Compliance Tracking
 
 ## EPIC 4: Development & Implementation
+**Epic ID**: EPIC-4  
+**Story Count**: 33 stories  
 **Value Stream**: Architecture to code realization  
 **Target Personas**: Developers, Tech Leads, DevOps Engineers, Product Managers  
 **Core Capabilities**:
@@ -70,6 +78,8 @@ ARKHITEKTON organizes all features and user stories into 6 strategic Epics align
 **Key Features**: Plan (Kanban/List/Table/Calendar/Stories), GitHub Integration, Task Management, Story-to-Code Mapping
 
 ## EPIC 5: Operations & Intelligence
+**Epic ID**: EPIC-5  
+**Story Count**: 10 stories  
 **Value Stream**: AI-powered insights and operational excellence  
 **Target Personas**: Enterprise Architects, AI Engineers, Data Analysts  
 **Core Capabilities**:
@@ -84,6 +94,8 @@ ARKHITEKTON organizes all features and user stories into 6 strategic Epics align
 **Key Features**: AI Assistant, Element Analysis, Recommendation Engine, Impact Analysis Dashboard
 
 ## EPIC 6: Knowledge & Collaboration
+**Epic ID**: EPIC-6  
+**Story Count**: 9 stories  
 **Value Stream**: Documentation and organizational learning  
 **Target Personas**: All Users, Knowledge Managers, Documentation Specialists  
 **Core Capabilities**:
@@ -96,6 +108,33 @@ ARKHITEKTON organizes all features and user stories into 6 strategic Epics align
 - Real-time collaboration features
 
 **Key Features**: Knowledge Base, Wiki Pages, Search, Comments, Version Control, Templates
+
+## Epic Migration & Story Distribution
+
+**Migration Date**: October 10, 2025
+
+All 131 user stories have been successfully migrated to the 6 Epic structure using keyword-based pattern matching:
+
+**Migration Approach**:
+- **Method**: Keyword-based categorization analyzing story titles, descriptions, and features
+- **Tool**: `scripts/migrate-stories-keyword.ts` - Automated migration script with Epic mapping logic
+- **Validation**: Full referential integrity with epicId foreign keys to epics table
+- **Coverage**: 100% of stories assigned to appropriate Epics (no orphaned stories)
+
+**Final Distribution**:
+- **EPIC-1** (Strategy & Business Planning): 11 stories (8%)
+- **EPIC-2** (Architecture Design & Modeling): 55 stories (42%) - Largest epic reflecting core platform focus
+- **EPIC-3** (Governance & Decision Management): 13 stories (10%)
+- **EPIC-4** (Development & Implementation): 33 stories (25%)
+- **EPIC-5** (Operations & Intelligence): 10 stories (8%)
+- **EPIC-6** (Knowledge & Collaboration): 9 stories (7%)
+
+**Technical Implementation**:
+- Epic schema with ID generation (EPIC-{number} format with atomic retry logic)
+- Epic status tracking: 'planning', 'in-progress', 'completed', 'on-hold'
+- Epic value streams aligned with EA practice areas
+- UI features: Epic filter dropdown, Create Epic dialog, Epic badges on story cards
+- Bug fixes: Relaxed story ID validation to support varied formats (US-WS001, US-AI-F002, etc.)
 
 # System Architecture
 
