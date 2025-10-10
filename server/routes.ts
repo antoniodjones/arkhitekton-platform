@@ -14,6 +14,8 @@ import {
   insertIntegrationChannelSchema,
   insertObjectSyncFlowSchema,
   insertApplicationSettingSchema,
+  insertApplicationSchema,
+  updateApplicationSchema,
   type KnowledgeBasePage,
   type IntegrationChannel,
   type ObjectSyncFlow
@@ -1654,6 +1656,115 @@ Keep response concise but comprehensive.`;
         error: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString()
       });
+    }
+  });
+
+  // ============================================================================
+  // Applications API - Application Portfolio Management (APM/CMDB)
+  // ============================================================================
+
+  // GET /api/applications - Get all applications with optional filters
+  app.get("/api/applications", async (req, res) => {
+    try {
+      const { status, type, owner, team, search } = req.query;
+      
+      let applications;
+      
+      if (search && typeof search === 'string') {
+        applications = await storage.searchApplications(search);
+      } else if (status && typeof status === 'string') {
+        applications = await storage.getApplicationsByStatus(status);
+      } else if (type && typeof type === 'string') {
+        applications = await storage.getApplicationsByType(type);
+      } else if (owner && typeof owner === 'string') {
+        applications = await storage.getApplicationsByOwner(owner);
+      } else if (team && typeof team === 'string') {
+        applications = await storage.getApplicationsByTeam(team);
+      } else {
+        applications = await storage.getAllApplications();
+      }
+      
+      res.json(applications);
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+      res.status(500).json({ error: "Failed to fetch applications" });
+    }
+  });
+
+  // GET /api/applications/:id - Get single application by ID
+  app.get("/api/applications/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const application = await storage.getApplication(id);
+      
+      if (!application) {
+        return res.status(404).json({ error: "Application not found" });
+      }
+      
+      res.json(application);
+    } catch (error) {
+      console.error('Error fetching application:', error);
+      res.status(500).json({ error: "Failed to fetch application" });
+    }
+  });
+
+  // POST /api/applications - Create new application
+  app.post("/api/applications", async (req, res) => {
+    try {
+      const validatedData = insertApplicationSchema.parse(req.body);
+      const application = await storage.createApplication(validatedData);
+      res.status(201).json(application);
+    } catch (error) {
+      console.error('Error creating application:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          error: "Invalid application data",
+          details: error.errors
+        });
+      }
+      res.status(500).json({ error: "Failed to create application" });
+    }
+  });
+
+  // PATCH /api/applications/:id - Update application
+  app.patch("/api/applications/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedData = updateApplicationSchema.parse(req.body);
+      
+      const updatedApplication = await storage.updateApplication(id, validatedData);
+      
+      if (!updatedApplication) {
+        return res.status(404).json({ error: "Application not found" });
+      }
+      
+      res.json(updatedApplication);
+    } catch (error) {
+      console.error('Error updating application:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          error: "Invalid application data",
+          details: error.errors
+        });
+      }
+      res.status(500).json({ error: "Failed to update application" });
+    }
+  });
+
+  // DELETE /api/applications/:id - Delete application
+  app.delete("/api/applications/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deleteApplication(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ error: "Application not found" });
+      }
+      
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting application:', error);
+      res.status(500).json({ error: "Failed to delete application" });
     }
   });
 
