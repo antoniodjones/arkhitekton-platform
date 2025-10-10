@@ -29,6 +29,7 @@ import ArkhitektonArchitectureOracle from "@/pages/arkhitekton-architecture-orac
 import ArkhitektonSystemsIntegration from "@/pages/arkhitekton-systems-integration";
 import { WorkspacePage } from "@/pages/workspace";
 import PitchDeck from "@/pages/pitch-deck";
+import SettingsPage from "@/pages/settings";
 
 function Router() {
   return (
@@ -50,6 +51,7 @@ function Router() {
       <Route path="/design-options" component={DesignOptionsPage} />
       <Route path="/design-options/:id" component={DesignOptionDetailPage} />
       <Route path="/plan" component={PlanPage} />
+      <Route path="/settings" component={SettingsPage} />
       <Route path="/arkhitekton-architecture" component={ArkhitektonArchitecture} />
       <Route path="/arkhitekton-architecture/aws" component={ArkhitektonArchitectureAWS} />
       <Route path="/arkhitekton-architecture/azure" component={ArkhitektonArchitectureAzure} />
