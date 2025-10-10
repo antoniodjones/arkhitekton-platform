@@ -18,7 +18,10 @@ import {
   type ObjectSyncFlow,
   type InsertObjectSyncFlow,
   type ApplicationSetting,
-  type InsertApplicationSetting
+  type InsertApplicationSetting,
+  type Application,
+  type InsertApplication,
+  type UpdateApplication
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
@@ -109,6 +112,18 @@ export interface IStorage {
   createSetting(setting: InsertApplicationSetting): Promise<ApplicationSetting>;
   updateSetting(key: string, updates: Partial<ApplicationSetting>): Promise<ApplicationSetting | undefined>;
   deleteSetting(key: string): Promise<boolean>;
+
+  // Applications - APM/CMDB
+  getAllApplications(): Promise<Application[]>;
+  getApplication(id: string): Promise<Application | undefined>;
+  getApplicationsByStatus(status: string): Promise<Application[]>;
+  getApplicationsByType(type: string): Promise<Application[]>;
+  getApplicationsByOwner(owner: string): Promise<Application[]>;
+  getApplicationsByTeam(team: string): Promise<Application[]>;
+  searchApplications(query: string): Promise<Application[]>;
+  createApplication(application: InsertApplication): Promise<Application>;
+  updateApplication(id: string, updates: UpdateApplication): Promise<Application | undefined>;
+  deleteApplication(id: string): Promise<boolean>;
 }
 
 // Standardized User Story ID generator with collision detection
@@ -1446,6 +1461,94 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(schema.applicationSettings)
       .where(eq(schema.applicationSettings.key, key));
+    return result.rowCount! > 0;
+  }
+
+  // Applications - APM/CMDB
+  async getAllApplications(): Promise<Application[]> {
+    const applications = await db.select().from(schema.applications);
+    return applications;
+  }
+
+  async getApplication(id: string): Promise<Application | undefined> {
+    const [application] = await db
+      .select()
+      .from(schema.applications)
+      .where(eq(schema.applications.id, id));
+    return application || undefined;
+  }
+
+  async getApplicationsByStatus(status: string): Promise<Application[]> {
+    const applications = await db
+      .select()
+      .from(schema.applications)
+      .where(eq(schema.applications.status, status));
+    return applications;
+  }
+
+  async getApplicationsByType(type: string): Promise<Application[]> {
+    const applications = await db
+      .select()
+      .from(schema.applications)
+      .where(eq(schema.applications.type, type));
+    return applications;
+  }
+
+  async getApplicationsByOwner(owner: string): Promise<Application[]> {
+    const applications = await db
+      .select()
+      .from(schema.applications)
+      .where(eq(schema.applications.owner, owner));
+    return applications;
+  }
+
+  async getApplicationsByTeam(team: string): Promise<Application[]> {
+    const applications = await db
+      .select()
+      .from(schema.applications)
+      .where(eq(schema.applications.team, team));
+    return applications;
+  }
+
+  async searchApplications(query: string): Promise<Application[]> {
+    const applications = await db.select().from(schema.applications);
+    const searchLower = query.toLowerCase();
+    return applications.filter(app => 
+      app.name.toLowerCase().includes(searchLower) ||
+      (app.description && app.description.toLowerCase().includes(searchLower)) ||
+      (app.owner && app.owner.toLowerCase().includes(searchLower)) ||
+      (app.team && app.team.toLowerCase().includes(searchLower))
+    );
+  }
+
+  async createApplication(application: InsertApplication): Promise<Application> {
+    const [newApp] = await db
+      .insert(schema.applications)
+      .values({
+        ...application,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+    return newApp;
+  }
+
+  async updateApplication(id: string, updates: UpdateApplication): Promise<Application | undefined> {
+    const [updated] = await db
+      .update(schema.applications)
+      .set({
+        ...updates,
+        updatedAt: new Date()
+      })
+      .where(eq(schema.applications.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async deleteApplication(id: string): Promise<boolean> {
+    const result = await db
+      .delete(schema.applications)
+      .where(eq(schema.applications.id, id));
     return result.rowCount! > 0;
   }
 }
