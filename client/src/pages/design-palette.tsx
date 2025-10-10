@@ -3,6 +3,8 @@ import { PaletteSidebar } from "@/components/palette/palette-sidebar";
 import { PaletteContent } from "@/components/palette/palette-content";
 import { PropertiesPanel } from "@/components/palette/properties-panel";
 import { archimateElements, ArchimateElement } from "@/data/archimate-elements";
+import { GovernanceHeader } from "@/components/layout/governance-header";
+import { Palette } from "lucide-react";
 
 export default function DesignPalette() {
   const [selectedCategory, setSelectedCategory] = useState('technology');
@@ -34,7 +36,12 @@ export default function DesignPalette() {
   };
 
   return (
-    <div className="h-screen flex flex-col" data-testid="design-palette-page">
+    <div className="h-full overflow-hidden flex flex-col" data-testid="design-palette-page">
+      <GovernanceHeader 
+        moduleTitle="Design Palette" 
+        moduleIcon={Palette} 
+      />
+      
       <div className="flex flex-1 overflow-hidden">
         <PaletteSidebar
           selectedCategory={selectedCategory}

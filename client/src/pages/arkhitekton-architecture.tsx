@@ -15,8 +15,10 @@ import {
   CheckCircle2,
   TrendingUp,
   Users,
-  Lock
+  Lock,
+  Layers
 } from "lucide-react";
+import { GovernanceHeader } from "@/components/layout/governance-header";
 
 interface CloudProvider {
   id: string;
@@ -227,69 +229,15 @@ export default function ArkhitektonArchitecture() {
 
   return (
     <AppLayout>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 dark:from-slate-950 dark:via-blue-950/20 dark:to-indigo-950/20">
-        {/* Hero Section */}
-        <div className="relative overflow-hidden py-8">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-indigo-600/10 to-purple-600/10 dark:from-blue-400/5 dark:via-indigo-400/5 dark:to-purple-400/5"></div>
-          
-          <div className="relative max-w-7xl mx-auto px-6">
-            <div className="text-center mb-8">
-              <div className="flex items-center justify-center mb-6">
-                <div className="p-3 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 shadow-lg">
-                  <Cloud className="h-8 w-8 text-white" />
-                </div>
-              </div>
-              
-              <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-slate-900 via-blue-800 to-indigo-900 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
-                ARKHITEKTON
-              </h1>
-              <h2 className="text-3xl font-semibold mb-4 text-slate-800 dark:text-slate-200">
-                Enterprise Architecture Platform
-              </h2>
-              <p className="text-xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto leading-relaxed">
-                Comprehensive technical architecture designs for deploying ARKHITEKTON across leading cloud platforms. 
-                Choose your preferred infrastructure approach for maximum enterprise scalability and performance.
-              </p>
-            </div>
-
-            {/* Platform Comparison Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <Card className="text-center">
-                <CardContent className="pt-6">
-                  <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center mx-auto mb-4">
-                    <Server className="h-6 w-6 text-orange-600 dark:text-orange-400" />
-                  </div>
-                  <h3 className="font-semibold mb-2 text-slate-900 dark:text-white">Enterprise Scale</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-300">Production-ready architectures supporting 10,000+ concurrent users</p>
-                </CardContent>
-              </Card>
-              
-              <Card className="text-center">
-                <CardContent className="pt-6">
-                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mx-auto mb-4">
-                    <Shield className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <h3 className="font-semibold mb-2 text-slate-900 dark:text-white">Security First</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-300">Zero-trust architecture with enterprise compliance standards</p>
-                </CardContent>
-              </Card>
-              
-              <Card className="text-center">
-                <CardContent className="pt-6">
-                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mx-auto mb-4">
-                    <Zap className="h-6 w-6 text-green-600 dark:text-green-400" />
-                  </div>
-                  <h3 className="font-semibold mb-2 text-slate-900 dark:text-white">AI-Powered</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-300">Integrated AI services for intelligent architecture assistance</p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-
-        {/* Architecture Navigation */}
-        <div className="max-w-7xl mx-auto px-6 pb-8">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-lg border border-slate-200 dark:border-slate-700">
+      <div className="h-full overflow-hidden flex flex-col">
+        <GovernanceHeader 
+          moduleTitle="ARKHITEKTON Architecture" 
+          moduleIcon={Layers} 
+        />
+        
+        <div className="flex-1 overflow-auto">
+          <div className="max-w-7xl mx-auto px-6 py-8">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-lg border border-slate-200 dark:border-slate-700">
             <div className="text-center mb-6">
               <h3 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white">Enterprise Architecture Resources</h3>
               <p className="text-slate-600 dark:text-slate-300">Comprehensive documentation and integration guides for enterprise deployment</p>
@@ -338,11 +286,10 @@ export default function ArkhitektonArchitecture() {
                 </CardContent>
               </Card>
             </div>
-          </div>
-        </div>
+            </div>
 
-        {/* Cloud Provider Options */}
-        <div className="max-w-7xl mx-auto px-6 pb-8">
+          {/* Cloud Provider Options */}
+          <div className="mt-8">
           <div className="text-center mb-6">
             <h2 className="text-3xl font-bold mb-4 text-slate-900 dark:text-white">
               Choose Your Cloud Architecture
@@ -506,6 +453,8 @@ export default function ArkhitektonArchitecture() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
           </div>
         </div>
       </div>

@@ -20,6 +20,13 @@ Design Preference: Unique ARKHITEKTON identity with sophisticated, elegant desig
 ## UI/UX Decisions
 The application features a sophisticated, elegant design. The frontend uses React 18 with TypeScript, a component-based architecture, shadcn/ui with Radix UI for accessibility, and Tailwind CSS for styling with a custom design system.
 
+**GovernanceHeader Component**: All pages (except home/dashboard) use a consistent GovernanceHeader component that provides:
+- ARKHITEKTON branding with orange gradient logo
+- Module-specific title and icon
+- Breadcrumb navigation (Home > Module Name)
+- User profile and theme toggle controls
+- Consistent flex layout with overflow handling (h-full overflow-hidden flex flex-col → GovernanceHeader → flex-1 overflow-auto wrapper)
+
 ## Technical Implementations
 - **Frontend**: React 18, TypeScript, shadcn/ui, Radix UI, Tailwind CSS, Wouter for routing, React Hook Form with Zod for validation, TanStack Query for server state.
 - **Backend**: Express.js with TypeScript (ESM), simple REST API, interface-based storage layer, Drizzle ORM for PostgreSQL.
@@ -32,7 +39,7 @@ The application features a sophisticated, elegant design. The frontend uses Reac
 - **Enterprise Architecture Governance**: Integrated ticket system, Architecture Review Requests, Architect Assignment Requests, and an enhanced ADR system with state management. Includes AI change detection and object linkage for real-time impact alerts and notifications.
 - **Gherkin Acceptance Criteria Validation**: Comprehensive Gherkin format validation for user story acceptance criteria with multi-format support, real-time UI validation feedback, backend schema enforcement, and status change prevention.
 - **Defect Management System**: Complete defect tracking and management integrated into user story workflow with severity levels and types, real-time defect badges, status tracking with resolution notes and root cause analysis, and story status blocking.
-- **Epic Structure**: Features are organized into 6 strategic Epics aligned with Enterprise Architecture Value Streams: Strategy & Business Planning, Architecture Design & Modeling, Governance & Decision Management, Development & Implementation, Operations & Intelligence, and Knowledge & Collaboration. User stories are exclusively used for uniformity and EA Value Stream alignment, replacing a separate task management system.
+- **Epic Structure**: Features are organized into 7 strategic Epics: 6 aligned with Enterprise Architecture Value Streams (Strategy & Business Planning, Architecture Design & Modeling, Governance & Decision Management, Development & Implementation, Operations & Intelligence, Knowledge & Collaboration) plus Application Foundations for core infrastructure and cross-cutting improvements. User stories are exclusively used for uniformity and EA Value Stream alignment, replacing a separate task management system.
 
 ## System Design Choices
 - **Strategic Cloud Platform**: GCP is the primary platform, leveraging Vertex AI, BigQuery, and Google's AI innovation.

@@ -31,48 +31,19 @@ import {
   Clock,
   Settings
 } from "lucide-react";
+import { GovernanceHeader } from "@/components/layout/governance-header";
 
 export default function ArkhitektonArchitectureOracle() {
   return (
     <AppLayout>
-      <div className="min-h-screen bg-gradient-to-br from-red-50/30 via-orange-50/20 to-amber-50/30 dark:from-red-950/10 dark:via-orange-950/5 dark:to-amber-950/10">
+      <div className="h-full overflow-hidden flex flex-col">
+        <GovernanceHeader 
+          moduleTitle="Oracle Cloud Architecture" 
+          moduleIcon={Cloud} 
+        />
         
-        {/* Header */}
-        <div className="bg-gradient-to-r from-red-500 to-orange-600 text-white">
+        <div className="flex-1 overflow-auto">
           <div className="max-w-7xl mx-auto px-6 py-8">
-            <div className="flex items-center mb-6">
-              <Link href="/arkhitekton-architecture">
-                <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 mr-4">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Overview
-                </Button>
-              </Link>
-              <div className="p-2 rounded-lg bg-white/20">
-                <Cloud className="h-6 w-6" />
-              </div>
-            </div>
-            
-            <h1 className="text-4xl font-bold mb-4">ARKHITEKTON on Oracle Cloud</h1>
-            <p className="text-xl text-red-100 max-w-4xl">
-              Enterprise architecture leveraging Oracle's autonomous database technology and business applications platform. 
-              Designed for mission-critical workloads with superior database performance and enterprise application integration.
-            </p>
-            
-            <div className="flex items-center mt-6 space-x-6">
-              <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                Autonomous Database
-              </Badge>
-              <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                99.995% SLA Available
-              </Badge>
-              <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                Enterprise Apps Ready
-              </Badge>
-            </div>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-6 py-12">
           
           {/* Enterprise Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
@@ -1025,6 +996,7 @@ export default function ArkhitektonArchitectureOracle() {
             </div>
           </div>
 
+          </div>
         </div>
       </div>
     </AppLayout>

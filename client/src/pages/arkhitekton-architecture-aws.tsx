@@ -31,48 +31,19 @@ import {
   Clock,
   Settings
 } from "lucide-react";
+import { GovernanceHeader } from "@/components/layout/governance-header";
 
 export default function ArkhitektonArchitectureAWS() {
   return (
     <AppLayout>
-      <div className="min-h-screen bg-gradient-to-br from-orange-50/30 via-amber-50/20 to-red-50/30 dark:from-orange-950/10 dark:via-amber-950/5 dark:to-red-950/10">
+      <div className="h-full overflow-hidden flex flex-col">
+        <GovernanceHeader 
+          moduleTitle="AWS Architecture" 
+          moduleIcon={Cloud} 
+        />
         
-        {/* Header */}
-        <div className="bg-gradient-to-r from-orange-500 to-amber-600 text-white">
+        <div className="flex-1 overflow-auto">
           <div className="max-w-7xl mx-auto px-6 py-8">
-            <div className="flex items-center mb-6">
-              <Link href="/arkhitekton-architecture">
-                <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 mr-4">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Overview
-                </Button>
-              </Link>
-              <div className="p-2 rounded-lg bg-white/20">
-                <Cloud className="h-6 w-6" />
-              </div>
-            </div>
-            
-            <h1 className="text-4xl font-bold mb-4">ARKHITEKTON on AWS</h1>
-            <p className="text-xl text-orange-100 max-w-4xl">
-              Comprehensive enterprise architecture leveraging AWS's extensive service ecosystem for maximum scalability, 
-              reliability, and global reach. Designed for enterprise-grade performance with 99.99% uptime SLA.
-            </p>
-            
-            <div className="flex items-center mt-6 space-x-6">
-              <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                200+ AWS Services Available
-              </Badge>
-              <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                99 Availability Zones
-              </Badge>
-              <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                Enterprise Support Included
-              </Badge>
-            </div>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-6 py-12">
           
           {/* Architecture Overview */}
           <div className="mb-12">
@@ -1482,6 +1453,7 @@ export default function ArkhitektonArchitectureAWS() {
           </div>
         </div>
       </div>
+    </div>
     </AppLayout>
   );
 }

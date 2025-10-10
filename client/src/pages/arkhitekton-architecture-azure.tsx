@@ -34,48 +34,19 @@ import {
   Key,
   FileText
 } from "lucide-react";
+import { GovernanceHeader } from "@/components/layout/governance-header";
 
 export default function ArkhitektonArchitectureAzure() {
   return (
     <AppLayout>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-cyan-50/30 dark:from-blue-950/10 dark:via-indigo-950/5 dark:to-cyan-950/10">
+      <div className="h-full overflow-hidden flex flex-col">
+        <GovernanceHeader 
+          moduleTitle="Azure Architecture" 
+          moduleIcon={Cloud} 
+        />
         
-        {/* Header */}
-        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
+        <div className="flex-1 overflow-auto">
           <div className="max-w-7xl mx-auto px-6 py-8">
-            <div className="flex items-center mb-6">
-              <Link href="/arkhitekton-architecture">
-                <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 mr-4">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Overview
-                </Button>
-              </Link>
-              <div className="p-2 rounded-lg bg-white/20">
-                <Cloud className="h-6 w-6" />
-              </div>
-            </div>
-            
-            <h1 className="text-4xl font-bold mb-4">ARKHITEKTON on Microsoft Azure</h1>
-            <p className="text-xl text-blue-100 max-w-4xl">
-              Enterprise-first architecture leveraging Azure's deep Microsoft ecosystem integration, advanced hybrid cloud 
-              capabilities, and enterprise-grade identity management for seamless organizational deployment.
-            </p>
-            
-            <div className="flex items-center mt-6 space-x-6">
-              <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                60+ Regions Worldwide
-              </Badge>
-              <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                Azure AD Integration
-              </Badge>
-              <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                Hybrid Cloud Ready
-              </Badge>
-            </div>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-6 py-12">
           
           {/* Architecture Overview */}
           <div className="mb-12">
@@ -1721,6 +1692,7 @@ export default function ArkhitektonArchitectureAzure() {
                 </div>
               </CardContent>
             </Card>
+          </div>
           </div>
         </div>
       </div>

@@ -36,48 +36,19 @@ import {
   Lightbulb,
   BarChart3
 } from "lucide-react";
+import { GovernanceHeader } from "@/components/layout/governance-header";
 
 export default function ArkhitektonArchitectureGCP() {
   return (
     <AppLayout>
-      <div className="min-h-screen bg-gradient-to-br from-green-50/30 via-emerald-50/20 to-teal-50/30 dark:from-green-950/10 dark:via-emerald-950/5 dark:to-teal-950/10">
+      <div className="h-full overflow-hidden flex flex-col">
+        <GovernanceHeader 
+          moduleTitle="GCP Architecture" 
+          moduleIcon={Cloud} 
+        />
         
-        {/* Header */}
-        <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white">
+        <div className="flex-1 overflow-auto">
           <div className="max-w-7xl mx-auto px-6 py-8">
-            <div className="flex items-center mb-6">
-              <Link href="/arkhitekton-architecture">
-                <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 mr-4">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Overview
-                </Button>
-              </Link>
-              <div className="p-2 rounded-lg bg-white/20">
-                <Cloud className="h-6 w-6" />
-              </div>
-            </div>
-            
-            <h1 className="text-4xl font-bold mb-4">ARKHITEKTON on Google Cloud Platform</h1>
-            <p className="text-xl text-green-100 max-w-4xl">
-              Innovation-first architecture leveraging Google's industry-leading AI/ML capabilities, superior data analytics, 
-              and cutting-edge Kubernetes orchestration for intelligent, scalable enterprise architecture platforms.
-            </p>
-            
-            <div className="flex items-center mt-6 space-x-6">
-              <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                35+ Regions &amp; 105+ Zones
-              </Badge>
-              <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                Vertex AI Powered
-              </Badge>
-              <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                BigQuery Analytics
-              </Badge>
-            </div>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-6 py-12">
           
           {/* Architecture Overview */}
           <div className="mb-12">
@@ -1780,6 +1751,7 @@ export default function ArkhitektonArchitectureGCP() {
                 </div>
               </CardContent>
             </Card>
+          </div>
           </div>
         </div>
       </div>
