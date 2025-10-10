@@ -604,7 +604,6 @@ export type InsertTask = z.infer<typeof insertTaskSchema>;
 // User Stories - Enterprise story management
 export const userStories = pgTable("user_stories", {
   id: text("id").primaryKey(), // US-XXXXXXX format
-  parentTaskId: uuid("parent_task_id").references(() => tasks.id), // Optional task connection (legacy)
   epicId: text("epic_id").references(() => epics.id), // Epic assignment (EA Value Stream)
   title: text("title").notNull(),
   description: text("description").default(""),
@@ -662,7 +661,6 @@ export const insertUserStorySchema = createInsertSchema(userStories).omit({
 // Update schema that prevents modification of immutable fields and enforces business rules
 export const updateUserStorySchema = insertUserStorySchema.partial().extend({
   // Optional validation for updates
-  parentTaskId: z.string().uuid().optional().nullable(), // Validate UUID format if provided
   epicId: z.string().optional().nullable(), // Validate Epic ID format if provided (EPIC-XX)
   storyPoints: z.number().int().min(1).max(13).optional(),
   githubIssue: z.number().int().positive().optional().nullable(),
