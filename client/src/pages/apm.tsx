@@ -30,6 +30,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { Application, InsertApplication } from '@shared/schema';
 import { ApplicationForm } from '@/components/application-form';
+import { AppLayout } from '@/components/layout/app-layout';
+import { GovernanceHeader } from '@/components/layout/governance-header';
 
 const APP_TYPE_ICONS: Record<string, any> = {
   web_application: Globe,
@@ -56,7 +58,7 @@ const CRITICALITY_COLORS: Record<string, string> = {
   critical: 'bg-red-500/10 text-red-700 dark:text-red-400',
 };
 
-export default function APMPage() {
+function APMContent() {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -181,24 +183,14 @@ export default function APMPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* Header */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-lg">
-              <Package className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent" data-testid="heading-apm">
-                Application Portfolio
-              </h1>
-              <p className="text-slate-600 dark:text-slate-400" data-testid="text-subtitle">
-                Manage your enterprise application landscape
-              </p>
-            </div>
-          </div>
-        </div>
+    <div className="h-full overflow-hidden flex flex-col">
+      <GovernanceHeader 
+        moduleTitle="Application Portfolio Management" 
+        moduleIcon={Package} 
+      />
+
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-7xl mx-auto p-6 space-y-6">
 
         {/* Search and Filters */}
         <Card>
@@ -413,7 +405,16 @@ export default function APMPage() {
           defaultValues={editingApp}
           isLoading={createMutation.isPending || updateMutation.isPending}
         />
+        </div>
       </div>
     </div>
+  );
+}
+
+export default function APMPage() {
+  return (
+    <AppLayout>
+      <APMContent />
+    </AppLayout>
   );
 }
