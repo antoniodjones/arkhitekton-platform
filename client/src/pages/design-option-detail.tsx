@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { GovernanceHeader } from "@/components/layout/governance-header";
+import { AppLayout } from "@/components/layout/app-layout";
 
 // Logo components (reusing from original design-options page)
 function Option1Logo() {
@@ -280,5 +281,9 @@ function DesignOptionDetailContent() {
 }
 
 export default function DesignOptionDetailPage() {
-  return <DesignOptionDetailContent />;
+  return (
+    <AppLayout>
+      <DesignOptionDetailContent />
+    </AppLayout>
+  );
 }

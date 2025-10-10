@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Palette } from 'lucide-react';
 import { Link } from 'wouter';
 import { GovernanceHeader } from '@/components/layout/governance-header';
+import { AppLayout } from '@/components/layout/app-layout';
 
 // Logo Option Components
 function Option1Logo() {
@@ -489,5 +490,9 @@ function DesignOptionsContent() {
 
 // Main Design Options Page Component
 export default function DesignOptionsPage() {
-  return <DesignOptionsContent />;
+  return (
+    <AppLayout>
+      <DesignOptionsContent />
+    </AppLayout>
+  );
 }

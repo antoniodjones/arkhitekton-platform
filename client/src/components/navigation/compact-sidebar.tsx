@@ -27,7 +27,10 @@ import {
   GitBranch,
   GripVertical,
   Cloud,
-  Presentation
+  Presentation,
+  Palette,
+  Database,
+  Plug
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -53,6 +56,20 @@ const navigationItems: NavigationItem[] = [
     href: '/portfolio',
     icon: TrendingUp,
     description: 'Track transformation initiatives'
+  },
+  {
+    id: 'apm',
+    label: 'Application Portfolio',
+    href: '/apm',
+    icon: Database,
+    description: 'Manage applications, tools, and technologies'
+  },
+  {
+    id: 'design-palette',
+    label: 'Design Palette',
+    href: '/design-palette',
+    icon: Palette,
+    description: 'Cloud architecture design patterns'
   },
   {
     id: 'modeling',
@@ -81,6 +98,13 @@ const navigationItems: NavigationItem[] = [
     href: '/arkhitekton-architecture',
     icon: Cloud,
     description: 'Enterprise cloud deployment architectures'
+  },
+  {
+    id: 'systems-integration',
+    label: 'Systems Integration',
+    href: '/arkhitekton-systems-integration',
+    icon: Plug,
+    description: 'Enterprise systems integration architecture'
   },
   {
     id: 'governance',

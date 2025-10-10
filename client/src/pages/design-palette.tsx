@@ -4,6 +4,7 @@ import { PaletteContent } from "@/components/palette/palette-content";
 import { PropertiesPanel } from "@/components/palette/properties-panel";
 import { archimateElements, ArchimateElement } from "@/data/archimate-elements";
 import { GovernanceHeader } from "@/components/layout/governance-header";
+import { AppLayout } from "@/components/layout/app-layout";
 import { Palette } from "lucide-react";
 
 export default function DesignPalette() {
@@ -36,11 +37,12 @@ export default function DesignPalette() {
   };
 
   return (
-    <div className="h-full overflow-hidden flex flex-col" data-testid="design-palette-page">
-      <GovernanceHeader 
-        moduleTitle="Design Palette" 
-        moduleIcon={Palette} 
-      />
+    <AppLayout>
+      <div className="h-full overflow-hidden flex flex-col" data-testid="design-palette-page">
+        <GovernanceHeader 
+          moduleTitle="Design Palette" 
+          moduleIcon={Palette} 
+        />
       
       <div className="flex flex-1 overflow-hidden">
         <PaletteSidebar
@@ -80,5 +82,6 @@ export default function DesignPalette() {
         </div>
       </footer>
     </div>
+    </AppLayout>
   );
 }
