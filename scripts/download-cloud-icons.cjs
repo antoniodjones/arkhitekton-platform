@@ -1,45 +1,33 @@
-const AdmZip = require('adm-zip');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const https = require('https');
+const { execSync } = require('child_process');
 
 const tmpDir = '/tmp/cloud-icons';
 const targetDir = './client/public/icons/cloud';
 
-// Download URLs for different cloud vendors
+// Cloud icon sources using GitHub repos for easier access
 const CLOUD_VENDORS = {
   gcp: {
     name: 'Google Cloud',
-    urls: [
-      {
-        url: 'https://services.google.com/fh/files/misc/core-products-icons.zip',
-        type: 'core'
-      },
-      {
-        url: 'https://services.google.com/fh/files/misc/category-icons.zip',
-        type: 'category'
-      }
-    ]
+    // Use the existing GCP icons already downloaded
+    skip: true
   },
   aws: {
     name: 'AWS',
-    urls: [
-      {
-        // Latest AWS Architecture Icons - updated quarterly
-        url: 'https://d1.awsstatic.com/webteam/architecture-icons/q3-2024/Asset-Package_07312024.489977c3b3c4ce9ea88e45f0f645f770fb7b3e42.zip',
-        type: 'all'
-      }
-    ]
+    github: 'https://github.com/icacho-dev/aws-architecture-icons.git',
+    sourcePath: 'Architecture-Service-Icons_02072025',
+    categories: ['Arch_Compute', 'Arch_Storage', 'Arch_Database', 'Arch_Networking-Content-Delivery', 'Arch_Analytics', 'Arch_Machine-Learning', 'Arch_Security-Identity-Compliance']
+  },
+  azure: {
+    name: 'Microsoft Azure',
+    github: 'https://github.com/benc-uk/icon-collection.git',
+    sourcePath: 'azure-icons'
   },
   oracle: {
     name: 'Oracle Cloud',
-    urls: [
-      {
-        // Oracle draw.io package contains SVG icons
-        url: 'https://docs.oracle.com/iaas/Content/Resources/Assets/OCI-Style-Guide-for-Drawio.zip',
-        type: 'all'
-      }
-    ]
+    // Oracle icons require manual download - will use placeholders or skip for now
+    skip: true  
   }
 };
 
@@ -49,41 +37,6 @@ if (!fs.existsSync(tmpDir)) {
 }
 if (!fs.existsSync(targetDir)) {
   fs.mkdirSync(targetDir, { recursive: true });
-}
-
-// Download a file with redirect support
-function downloadFile(url, destPath) {
-  return new Promise((resolve, reject) => {
-    console.log(`Downloading ${url}...`);
-    const file = fs.createWriteStream(destPath);
-    
-    const fetch = (downloadUrl) => {
-      https.get(downloadUrl, (response) => {
-        if (response.statusCode === 302 || response.statusCode === 301) {
-          file.close();
-          fs.unlinkSync(destPath);
-          fetch(response.headers.location);
-        } else if (response.statusCode === 200) {
-          response.pipe(file);
-          file.on('finish', () => {
-            file.close();
-            console.log(`✓ Downloaded: ${path.basename(destPath)}`);
-            resolve();
-          });
-        } else {
-          file.close();
-          fs.unlinkSync(destPath);
-          reject(new Error(`Failed to download: ${response.statusCode}`));
-        }
-      }).on('error', (err) => {
-        file.close();
-        fs.unlinkSync(destPath);
-        reject(err);
-      });
-    };
-    
-    fetch(url);
-  });
 }
 
 // Walk directories recursively
@@ -96,24 +49,49 @@ const walkDir = (dir, callback) => {
   });
 };
 
-// Copy SVG files from source to target
-const copySvgFiles = (sourceDir, vendor, type) => {
+// Copy SVG files from source to target with limit
+const copySvgFiles = (sourceDir, vendor, limit = 50) => {
   const targetSubdir = path.join(targetDir, vendor);
   if (!fs.existsSync(targetSubdir)) {
     fs.mkdirSync(targetSubdir, { recursive: true });
   }
   
   const files = [];
+  let count = 0;
+  
   walkDir(sourceDir, (filePath) => {
-    if (filePath.endsWith('.svg')) {
+    if (filePath.endsWith('.svg') && count < limit) {
       const fileName = path.basename(filePath);
       const targetPath = path.join(targetSubdir, fileName);
-      fs.copyFileSync(filePath, targetPath);
-      files.push({ name: fileName, type });
+      
+      // Avoid duplicates
+      if (!fs.existsSync(targetPath)) {
+        fs.copyFileSync(filePath, targetPath);
+        files.push(fileName);
+        count++;
+      }
     }
   });
-  return files;
+  
+  return files.sort();
 };
+
+// Clone GitHub repository
+function cloneRepo(url, destPath) {
+  console.log(`Cloning ${url}...`);
+  try {
+    // Shallow clone to save time and space
+    execSync(`git clone --depth 1 ${url} ${destPath}`, { 
+      stdio: 'pipe',
+      timeout: 60000 
+    });
+    console.log(`✓ Cloned successfully`);
+    return true;
+  } catch (error) {
+    console.error(`✗ Failed to clone:`, error.message);
+    return false;
+  }
+}
 
 // Main execution
 async function main() {
@@ -124,48 +102,89 @@ async function main() {
   };
 
   try {
-    // Process each cloud vendor
+    // Process GCP (already downloaded)
+    console.log('\n=== Google Cloud ===');
+    const gcpDir = './client/public/icons/gcp';
+    if (fs.existsSync(gcpDir)) {
+      const gcpFiles = [];
+      walkDir(gcpDir, (filePath) => {
+        if (filePath.endsWith('.svg')) {
+          gcpFiles.push(path.basename(filePath));
+        }
+      });
+      
+      // Copy to cloud directory for unified access
+      const gcpTargetDir = path.join(targetDir, 'gcp');
+      if (!fs.existsSync(gcpTargetDir)) {
+        fs.mkdirSync(gcpTargetDir, { recursive: true });
+      }
+      
+      walkDir(gcpDir, (filePath) => {
+        if (filePath.endsWith('.svg')) {
+          const fileName = path.basename(filePath);
+          const targetPath = path.join(gcpTargetDir, fileName);
+          if (!fs.existsSync(targetPath)) {
+            fs.copyFileSync(filePath, targetPath);
+          }
+        }
+      });
+      
+      manifest.vendors.gcp = {
+        name: 'Google Cloud',
+        icons: gcpFiles.sort(),
+        count: gcpFiles.length
+      };
+      manifest.sources.gcp = 'https://cloud.google.com/icons';
+      console.log(`✓ Found ${gcpFiles.length} GCP icons`);
+    }
+
+    // Process each cloud vendor from GitHub
     for (const [vendorKey, vendorConfig] of Object.entries(CLOUD_VENDORS)) {
+      if (vendorConfig.skip || vendorKey === 'gcp') continue;
+      
       console.log(`\n=== Processing ${vendorConfig.name} ===`);
       
       const vendorTmpDir = path.join(tmpDir, vendorKey);
-      if (!fs.existsSync(vendorTmpDir)) {
-        fs.mkdirSync(vendorTmpDir, { recursive: true });
-      }
-
-      let allFiles = [];
-
-      // Download each URL for this vendor
-      for (const source of vendorConfig.urls) {
-        const zipFileName = `${vendorKey}-${source.type}.zip`;
-        const zipPath = path.join(vendorTmpDir, zipFileName);
+      
+      // Clone repository
+      if (cloneRepo(vendorConfig.github, vendorTmpDir)) {
+        // Find and copy SVG files
+        const sourceDir = path.join(vendorTmpDir, vendorConfig.sourcePath);
         
-        try {
-          await downloadFile(source.url, zipPath);
+        if (vendorConfig.categories) {
+          // For AWS, process specific categories
+          let allFiles = [];
+          for (const category of vendorConfig.categories) {
+            const categoryPath = path.join(sourceDir, category);
+            if (fs.existsSync(categoryPath)) {
+              const files = copySvgFiles(categoryPath, vendorKey, 10); // 10 per category
+              allFiles.push(...files);
+            }
+          }
           
-          // Extract ZIP
-          console.log(`Extracting ${zipFileName}...`);
-          const zip = new AdmZip(zipPath);
-          const extractPath = path.join(vendorTmpDir, source.type);
-          zip.extractAllTo(extractPath, true);
+          if (allFiles.length > 0) {
+            manifest.vendors[vendorKey] = {
+              name: vendorConfig.name,
+              icons: allFiles,
+              count: allFiles.length
+            };
+            manifest.sources[vendorKey] = vendorConfig.github;
+          }
+          console.log(`✓ Found ${allFiles.length} ${vendorConfig.name} icons`);
+        } else {
+          // For Azure, copy from main directory
+          const files = copySvgFiles(sourceDir, vendorKey, 50);
           
-          // Copy SVG files
-          const files = copySvgFiles(extractPath, vendorKey, source.type);
-          allFiles.push(...files);
-          console.log(`✓ Found ${files.length} SVG icons`);
-        } catch (error) {
-          console.error(`✗ Failed to process ${vendorConfig.name} ${source.type}:`, error.message);
+          if (files.length > 0) {
+            manifest.vendors[vendorKey] = {
+              name: vendorConfig.name,
+              icons: files,
+              count: files.length
+            };
+            manifest.sources[vendorKey] = vendorConfig.github;
+          }
+          console.log(`✓ Found ${files.length} ${vendorConfig.name} icons`);
         }
-      }
-
-      // Update manifest
-      if (allFiles.length > 0) {
-        manifest.vendors[vendorKey] = {
-          name: vendorConfig.name,
-          icons: allFiles.map(f => f.name).sort(),
-          count: allFiles.length
-        };
-        manifest.sources[vendorKey] = vendorConfig.urls[0].url;
       }
     }
 

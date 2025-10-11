@@ -30,7 +30,7 @@ import ArkhitektonSystemsIntegration from "@/pages/arkhitekton-systems-integrati
 import PitchDeck from "@/pages/pitch-deck";
 import SettingsPage from "@/pages/settings";
 import APMPage from "@/pages/apm";
-import GCPIconsPage from "@/pages/gcp-icons";
+import CloudIconsPage from "@/pages/cloud-icons";
 
 // Redirect component for deprecated routes
 function Redirect({ to }: { to: string }) {
@@ -65,7 +65,8 @@ function Router() {
       <Route path="/design-options/:id" component={DesignOptionDetailPage} />
       <Route path="/plan" component={PlanPage} />
       <Route path="/apm" component={APMPage} />
-      <Route path="/gcp-icons" component={GCPIconsPage} />
+      <Route path="/cloud-icons" component={CloudIconsPage} />
+      <Route path="/gcp-icons">{() => <Redirect to="/cloud-icons" />}</Route>
       <Route path="/settings" component={SettingsPage} />
       <Route path="/arkhitekton-architecture" component={ArkhitektonArchitecture} />
       <Route path="/arkhitekton-architecture/aws" component={ArkhitektonArchitectureAWS} />
