@@ -13,6 +13,13 @@ import { GovernanceHeader } from '@/components/layout/governance-header';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { 
   Table,
   TableBody,
@@ -53,6 +60,22 @@ function StudioContent() {
   
   // Audit view state
   const [auditSearchQuery, setAuditSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [frameworkFilter, setFrameworkFilter] = useState<string>('all');
+  const [shapeFilter, setShapeFilter] = useState<string>('all');
+  
+  // Column widths for resizable table
+  const [columnWidths, setColumnWidths] = useState({
+    visual: 100,
+    name: 200,
+    purpose: 400,
+    category: 150,
+    type: 150,
+    framework: 150,
+    pattern: 250,
+    shape: 150
+  });
   
   // AI and change detection state
   const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
@@ -111,6 +134,23 @@ function StudioContent() {
     return archimateElements.slice(0, 4);
   }, []);
 
+  // Get unique values for filters
+  const uniqueCategories = useMemo(() => {
+    return Array.from(new Set(archimateElements.map(e => e.category))).sort();
+  }, []);
+
+  const uniqueTypes = useMemo(() => {
+    return Array.from(new Set(archimateElements.map(e => e.type))).sort();
+  }, []);
+
+  const uniqueFrameworks = useMemo(() => {
+    return Array.from(new Set(archimateElements.map(e => e.framework))).sort();
+  }, []);
+
+  const uniqueShapes = useMemo(() => {
+    return Array.from(new Set(archimateElements.map(e => e.shape))).sort();
+  }, []);
+
   // Filter elements for audit view
   const auditFilteredElements = useMemo(() => {
     return archimateElements.filter(element => {
@@ -122,9 +162,14 @@ function StudioContent() {
         element.framework.toLowerCase().includes(auditSearchQuery.toLowerCase()) ||
         element.type.toLowerCase().includes(auditSearchQuery.toLowerCase());
       
-      return matchesSearch;
+      const matchesCategory = categoryFilter === 'all' || element.category === categoryFilter;
+      const matchesType = typeFilter === 'all' || element.type === typeFilter;
+      const matchesFramework = frameworkFilter === 'all' || element.framework === frameworkFilter;
+      const matchesShape = shapeFilter === 'all' || element.shape === shapeFilter;
+      
+      return matchesSearch && matchesCategory && matchesType && matchesFramework && matchesShape;
     });
-  }, [auditSearchQuery]);
+  }, [auditSearchQuery, categoryFilter, typeFilter, frameworkFilter, shapeFilter]);
 
   // Helper to render shape icon
   const renderShapeIcon = (element: ArchimateElement) => {
@@ -156,6 +201,14 @@ function StudioContent() {
   const handleCreateTicket = (change: any) => {
     console.log('Creating ticket for change:', change);
     // TODO: Navigate to tickets page or open ticket creation modal
+  };
+
+  // Column resize handler
+  const handleColumnResize = (column: keyof typeof columnWidths, delta: number) => {
+    setColumnWidths(prev => ({
+      ...prev,
+      [column]: Math.max(80, prev[column] + delta)
+    }));
   };
 
   return (
@@ -367,48 +420,204 @@ function StudioContent() {
             </div>
 
             {/* Audit Table */}
-            <div className="border rounded-lg overflow-hidden">
+            <div className="border rounded-lg overflow-x-auto overflow-y-auto max-h-[calc(100vh-320px)]">
               <Table>
-                <TableHeader>
+                <TableHeader className="sticky top-0 bg-background z-10">
                   <TableRow>
-                    <TableHead className="w-20">Visual</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead className="w-80">Purpose & Usage</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Framework</TableHead>
-                    <TableHead>Pattern</TableHead>
-                    <TableHead>Shape</TableHead>
+                    <TableHead style={{ width: `${columnWidths.visual}px`, minWidth: `${columnWidths.visual}px` }}>
+                      <div className="flex items-center justify-between">
+                        <span>Visual</span>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-6 w-6 p-0"
+                          onClick={() => setColumnWidths(prev => ({ ...prev, visual: prev.visual + 50 }))}
+                          data-testid="expand-visual"
+                        >
+                          +
+                        </Button>
+                      </div>
+                    </TableHead>
+                    <TableHead style={{ width: `${columnWidths.name}px`, minWidth: `${columnWidths.name}px` }}>
+                      <div className="flex items-center justify-between">
+                        <span>Name</span>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-6 w-6 p-0"
+                          onClick={() => setColumnWidths(prev => ({ ...prev, name: prev.name + 50 }))}
+                          data-testid="expand-name"
+                        >
+                          +
+                        </Button>
+                      </div>
+                    </TableHead>
+                    <TableHead style={{ width: `${columnWidths.purpose}px`, minWidth: `${columnWidths.purpose}px` }}>
+                      <div className="flex items-center justify-between">
+                        <span>Purpose & Usage</span>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-6 w-6 p-0"
+                          onClick={() => setColumnWidths(prev => ({ ...prev, purpose: prev.purpose + 100 }))}
+                          data-testid="expand-purpose"
+                        >
+                          +
+                        </Button>
+                      </div>
+                    </TableHead>
+                    <TableHead style={{ width: `${columnWidths.category}px`, minWidth: `${columnWidths.category}px` }}>
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span>Category</span>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 w-6 p-0"
+                            onClick={() => setColumnWidths(prev => ({ ...prev, category: prev.category + 50 }))}
+                            data-testid="expand-category"
+                          >
+                            +
+                          </Button>
+                        </div>
+                        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                          <SelectTrigger className="h-8 text-xs" data-testid="filter-category">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Categories</SelectItem>
+                            {uniqueCategories.map(cat => (
+                              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </TableHead>
+                    <TableHead style={{ width: `${columnWidths.type}px`, minWidth: `${columnWidths.type}px` }}>
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span>Type</span>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 w-6 p-0"
+                            onClick={() => setColumnWidths(prev => ({ ...prev, type: prev.type + 50 }))}
+                            data-testid="expand-type"
+                          >
+                            +
+                          </Button>
+                        </div>
+                        <Select value={typeFilter} onValueChange={setTypeFilter}>
+                          <SelectTrigger className="h-8 text-xs" data-testid="filter-type">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Types</SelectItem>
+                            {uniqueTypes.map(type => (
+                              <SelectItem key={type} value={type}>{type}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </TableHead>
+                    <TableHead style={{ width: `${columnWidths.framework}px`, minWidth: `${columnWidths.framework}px` }}>
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span>Framework</span>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 w-6 p-0"
+                            onClick={() => setColumnWidths(prev => ({ ...prev, framework: prev.framework + 50 }))}
+                            data-testid="expand-framework"
+                          >
+                            +
+                          </Button>
+                        </div>
+                        <Select value={frameworkFilter} onValueChange={setFrameworkFilter}>
+                          <SelectTrigger className="h-8 text-xs" data-testid="filter-framework">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Frameworks</SelectItem>
+                            {uniqueFrameworks.map(fw => (
+                              <SelectItem key={fw} value={fw}>{fw}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </TableHead>
+                    <TableHead style={{ width: `${columnWidths.pattern}px`, minWidth: `${columnWidths.pattern}px` }}>
+                      <div className="flex items-center justify-between">
+                        <span>Pattern</span>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-6 w-6 p-0"
+                          onClick={() => setColumnWidths(prev => ({ ...prev, pattern: prev.pattern + 50 }))}
+                          data-testid="expand-pattern"
+                        >
+                          +
+                        </Button>
+                      </div>
+                    </TableHead>
+                    <TableHead style={{ width: `${columnWidths.shape}px`, minWidth: `${columnWidths.shape}px` }}>
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span>Shape</span>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 w-6 p-0"
+                            onClick={() => setColumnWidths(prev => ({ ...prev, shape: prev.shape + 50 }))}
+                            data-testid="expand-shape"
+                          >
+                            +
+                          </Button>
+                        </div>
+                        <Select value={shapeFilter} onValueChange={setShapeFilter}>
+                          <SelectTrigger className="h-8 text-xs" data-testid="filter-shape">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Shapes</SelectItem>
+                            {uniqueShapes.map(shape => (
+                              <SelectItem key={shape} value={shape}>{shape}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {auditFilteredElements.map((element) => (
                     <TableRow key={element.id} data-testid={`row-object-${element.id}`}>
-                      <TableCell>
+                      <TableCell style={{ width: `${columnWidths.visual}px`, minWidth: `${columnWidths.visual}px` }}>
                         <div className="flex items-center justify-center p-2 rounded" style={{ backgroundColor: `${element.color}20` }}>
                           {renderShapeIcon(element)}
                         </div>
                       </TableCell>
-                      <TableCell className="font-medium">{element.name}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        <div className="line-clamp-2">{element.usageGuidelines}</div>
+                      <TableCell className="font-medium" style={{ width: `${columnWidths.name}px`, minWidth: `${columnWidths.name}px` }}>{element.name}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground" style={{ width: `${columnWidths.purpose}px`, minWidth: `${columnWidths.purpose}px` }}>
+                        <div>{element.usageGuidelines}</div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell style={{ width: `${columnWidths.category}px`, minWidth: `${columnWidths.category}px` }}>
                         <Badge variant="outline">{element.category}</Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell style={{ width: `${columnWidths.type}px`, minWidth: `${columnWidths.type}px` }}>
                         <Badge variant="secondary">{element.type}</Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell style={{ width: `${columnWidths.framework}px`, minWidth: `${columnWidths.framework}px` }}>
                         <Badge>{element.framework}</Badge>
                       </TableCell>
-                      <TableCell className="text-xs">
-                        <div className="max-w-32 truncate" title={element.relationships.join(', ')}>
+                      <TableCell className="text-xs" style={{ width: `${columnWidths.pattern}px`, minWidth: `${columnWidths.pattern}px` }}>
+                        <div title={element.relationships.join(', ')}>
                           {element.relationships.slice(0, 2).join(', ')}
                           {element.relationships.length > 2 && '...'}
                         </div>
                       </TableCell>
-                      <TableCell className="capitalize text-sm">{element.shape}</TableCell>
+                      <TableCell className="capitalize text-sm" style={{ width: `${columnWidths.shape}px`, minWidth: `${columnWidths.shape}px` }}>{element.shape}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
