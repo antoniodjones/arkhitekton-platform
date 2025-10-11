@@ -64,6 +64,7 @@
     "@uppy/aws-s3": "^5.0.1",
     "@uppy/core": "^5.1.0",
     "@uppy/react": "^5.1.0",
+    "adm-zip": "^0.5.16",
     "axe-core": "^4.10.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
