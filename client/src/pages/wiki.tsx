@@ -25,7 +25,10 @@ import {
   Target,
   Database,
   Code,
-  Zap
+  Zap,
+  BookOpenCheck,
+  Compass,
+  Link2
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { GovernanceHeader } from '@/components/layout/governance-header';
@@ -64,6 +67,7 @@ function WikiContent() {
   const [showTreeView, setShowTreeView] = useState(false);
   const [showPageEditor, setShowPageEditor] = useState(false);
   const [isCreatingNewPage, setIsCreatingNewPage] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
 
   const handlePageSelect = (page: KBPage) => {
     setSelectedPageId(page.id);
@@ -517,24 +521,43 @@ Creates a distinctive, professional identity that architects associate with crea
           </Select>
         </div>
 
-        {/* Knowledge Base Tree View or Content Grid */}
-        <Tabs value={showTreeView ? "tree" : "overview"} className="w-full">
+        {/* Knowledge Base Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="mb-6">
             <TabsTrigger 
               value="overview" 
-              onClick={handleBackToOverview}
               data-testid="tab-overview"
             >
               <FileText className="h-4 w-4 mr-2" />
               Overview
             </TabsTrigger>
             <TabsTrigger 
-              value="tree" 
-              onClick={() => setShowTreeView(true)}
-              data-testid="tab-tree-view"
+              value="user-guide" 
+              data-testid="tab-user-guide"
             >
-              <Folder className="h-4 w-4 mr-2" />
-              Tree View
+              <BookOpenCheck className="h-4 w-4 mr-2" />
+              User Guide
+            </TabsTrigger>
+            <TabsTrigger 
+              value="technology-strategy" 
+              data-testid="tab-technology-strategy"
+            >
+              <Compass className="h-4 w-4 mr-2" />
+              Technology Strategy
+            </TabsTrigger>
+            <TabsTrigger 
+              value="integration" 
+              data-testid="tab-integration"
+            >
+              <Link2 className="h-4 w-4 mr-2" />
+              Integration
+            </TabsTrigger>
+            <TabsTrigger 
+              value="data" 
+              data-testid="tab-data"
+            >
+              <Database className="h-4 w-4 mr-2" />
+              Data
             </TabsTrigger>
           </TabsList>
 
@@ -650,60 +673,218 @@ Creates a distinctive, professional identity that architects associate with crea
             )}
           </TabsContent>
 
-          <TabsContent value="tree" className="h-full">
-            <ResizablePanelGroup direction="horizontal" className="h-full">
-              {/* Tree Navigation Sidebar */}
-              <ResizablePanel defaultSize={25} minSize={15} maxSize={40}>
-                <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border-slate-200/50 dark:border-slate-700/50 h-full">
-                  <TreeNavigation 
-                    onPageSelect={handlePageSelect}
-                    selectedPageId={selectedPageId}
-                    isCreatingNewPage={isCreatingNewPage}
-                    onCreateNewPage={() => {
-                      setIsCreatingNewPage(true);
-                      setSelectedPageId('new-page');
-                      setShowTreeView(true);
-                    }}
-                    className="h-full"
-                  />
-                </Card>
-              </ResizablePanel>
-              
-              <ResizableHandle withHandle />
-              
-              {/* Page Content */}
-              <ResizablePanel defaultSize={75} minSize={60}>
-                <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border-slate-200/50 dark:border-slate-700/50 h-full ml-2">
-                  {selectedPageId === 'new-page' && isCreatingNewPage ? (
-                    <PageEditor 
-                      pageId="new-page"
-                      onSave={(savedPage) => {
-                        // Don't change the view immediately - keep editing until user manually exits
-                        console.log('Page saved:', savedPage.id);
-                      }}
-                      onCancel={() => {
-                        setIsCreatingNewPage(false);
-                        // Find the most recently created page and select it
-                        setTimeout(() => {
-                          // This will trigger a refresh and show the new page in read mode
-                          setSelectedPageId(undefined);
-                          window.location.reload();
-                        }, 100);
-                      }}
-                      autoFocus={true}
-                      inline={true}
-                      className="h-full p-6"
-                    />
-                  ) : (
-                    <KnowledgeBasePage 
-                      pageId={selectedPageId}
-                      onBack={handleBackToOverview}
-                      className="h-full"
-                    />
-                  )}
-                </Card>
-              </ResizablePanel>
-            </ResizablePanelGroup>
+          <TabsContent value="user-guide">
+            <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border-slate-200/50 dark:border-slate-700/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BookOpenCheck className="h-5 w-5" />
+                  User Guide
+                </CardTitle>
+                <CardDescription>Comprehensive guides and tutorials for using ARKHITEKTON</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">User guide content coming soon. This section will include tutorials, how-to guides, and best practices for working with ARKHITEKTON.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="technology-strategy">
+            <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border-slate-200/50 dark:border-slate-700/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Compass className="h-5 w-5" />
+                  Technology Strategy
+                </CardTitle>
+                <CardDescription>ARKHITEKTON's architectural vision, strategy, and technology roadmap</CardDescription>
+              </CardHeader>
+              <CardContent className="prose dark:prose-invert max-w-none">
+                <div className="space-y-8">
+                  {/* Architecture Vision */}
+                  <section>
+                    <h2 className="text-2xl font-bold text-foreground mb-4">Architecture Vision</h2>
+                    <p className="text-muted-foreground mb-4">
+                      ARKHITEKTON envisions a revolutionary AI-first systems design platform that bridges the gap between technical architecture 
+                      and creative design. Our platform transforms how enterprise architects work by combining:
+                    </p>
+                    <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
+                      <li><strong>Code Expressiveness</strong>: Type-safe, developer-friendly architecture modeling</li>
+                      <li><strong>Visual Intuitiveness</strong>: Drag-and-drop canvas with intelligent object connections</li>
+                      <li><strong>AI Power</strong>: Contextual recommendations and automated impact analysis</li>
+                      <li><strong>Enterprise Integration</strong>: Native connectivity with Jira, Confluence, GitHub, and development tools</li>
+                    </ul>
+                  </section>
+
+                  {/* Strategic Approach */}
+                  <section>
+                    <h2 className="text-2xl font-bold text-foreground mb-4">Strategic Approach</h2>
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="text-xl font-semibold text-foreground mb-2">1. Object-Oriented Model Design</h3>
+                        <p className="text-muted-foreground">
+                          Components are intelligent objects with built-in connection capabilities, enabling intuitive linking and full traceability 
+                          from strategy through deployment.
+                        </p>
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold text-foreground mb-2">2. State Management & Versioning</h3>
+                        <p className="text-muted-foreground">
+                          Single current state with multiple transition states, architect-defined checkpoints, Git-like merging, and complete traceability 
+                          of architectural decisions.
+                        </p>
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold text-foreground mb-2">3. AI-Powered Guidance</h3>
+                        <p className="text-muted-foreground">
+                          Contextual suggestions based on architectural patterns, best practices, and real-time change detection for impact alerts.
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Technology Choices */}
+                  <section>
+                    <h2 className="text-2xl font-bold text-foreground mb-4">Technology Stack</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <h3 className="text-lg font-semibold text-foreground mb-2">Frontend Architecture</h3>
+                        <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground">
+                          <li><strong>React 18</strong>: Modern component-based UI with TypeScript</li>
+                          <li><strong>Vite</strong>: Lightning-fast development and optimized builds</li>
+                          <li><strong>shadcn/ui + Radix UI</strong>: Accessible, customizable components</li>
+                          <li><strong>Tailwind CSS</strong>: Utility-first styling with custom design system</li>
+                          <li><strong>TanStack Query</strong>: Server state management</li>
+                          <li><strong>Wouter</strong>: Lightweight routing</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-foreground mb-2">Backend Architecture</h3>
+                        <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground">
+                          <li><strong>Express.js</strong>: Fast, minimalist web framework</li>
+                          <li><strong>TypeScript ESM</strong>: Type-safe server code</li>
+                          <li><strong>Drizzle ORM</strong>: Type-safe database layer</li>
+                          <li><strong>PostgreSQL (Neon)</strong>: Serverless database</li>
+                          <li><strong>Google Cloud Storage</strong>: Object storage for assets</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-foreground mb-2">AI & Intelligence</h3>
+                        <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground">
+                          <li><strong>Anthropic Claude</strong>: Advanced AI reasoning and analysis</li>
+                          <li><strong>Multi-Agent System</strong>: Specialized AI agents for different domains</li>
+                          <li><strong>Change Detection</strong>: Real-time impact analysis</li>
+                          <li><strong>Pattern Recognition</strong>: Architecture pattern suggestions</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-foreground mb-2">Cloud & Integration</h3>
+                        <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground">
+                          <li><strong>Google Cloud Platform</strong>: Primary cloud provider</li>
+                          <li><strong>Multi-Cloud Icons</strong>: AWS, Azure, GCP, IBM support</li>
+                          <li><strong>GitHub Integration</strong>: Bi-directional sync</li>
+                          <li><strong>Enterprise Tools</strong>: Jira, Confluence, Azure DevOps</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Roadmap */}
+                  <section>
+                    <h2 className="text-2xl font-bold text-foreground mb-4">Technology Roadmap</h2>
+                    <div className="space-y-4">
+                      <div className="border-l-4 border-orange-500 pl-4">
+                        <h3 className="text-lg font-semibold text-foreground">Phase 1: Foundation (Current)</h3>
+                        <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground mt-2">
+                          <li>Core modeling canvas with intelligent objects</li>
+                          <li>Multi-vendor cloud icon library (AWS, Azure, GCP, IBM)</li>
+                          <li>User story management with Gherkin validation</li>
+                          <li>GitHub integration for commit traceability</li>
+                          <li>Knowledge base with collaborative documentation</li>
+                        </ul>
+                      </div>
+                      <div className="border-l-4 border-blue-500 pl-4">
+                        <h3 className="text-lg font-semibold text-foreground">Phase 2: Intelligence Enhancement</h3>
+                        <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground mt-2">
+                          <li>AI-powered architecture recommendations</li>
+                          <li>Automated impact analysis and change detection</li>
+                          <li>Natural language architecture queries</li>
+                          <li>Pattern recognition and suggestions</li>
+                        </ul>
+                      </div>
+                      <div className="border-l-4 border-green-500 pl-4">
+                        <h3 className="text-lg font-semibold text-foreground">Phase 3: Enterprise Scale</h3>
+                        <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground mt-2">
+                          <li>Real-time collaboration features</li>
+                          <li>Advanced version control and branching</li>
+                          <li>IDE plugin architecture</li>
+                          <li>Forward/reverse engineering capabilities</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Strategic Decisions */}
+                  <section>
+                    <h2 className="text-2xl font-bold text-foreground mb-4">Key Strategic Decisions</h2>
+                    <div className="grid grid-cols-1 gap-4">
+                      <div className="bg-orange-50 dark:bg-orange-950/20 p-4 rounded-lg">
+                        <h4 className="font-semibold text-foreground mb-2">🎯 GCP as Primary Platform</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Leveraging Google's AI innovation (Vertex AI, BigQuery) while maintaining multi-cloud modeling support
+                        </p>
+                      </div>
+                      <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
+                        <h4 className="font-semibold text-foreground mb-2">🧬 Type-Safe Full Stack</h4>
+                        <p className="text-sm text-muted-foreground">
+                          TypeScript across frontend and backend with shared schemas ensures consistency and developer productivity
+                        </p>
+                      </div>
+                      <div className="bg-green-50 dark:bg-green-950/20 p-4 rounded-lg">
+                        <h4 className="font-semibold text-foreground mb-2">🤖 AI-First Architecture</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Claude-powered multi-agent system for intelligent recommendations and automated analysis
+                        </p>
+                      </div>
+                      <div className="bg-purple-50 dark:bg-purple-950/20 p-4 rounded-lg">
+                        <h4 className="font-semibold text-foreground mb-2">📊 Object-Oriented Models</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Intelligent architectural objects with semantic awareness and automated connection capabilities
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="integration">
+            <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border-slate-200/50 dark:border-slate-700/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Link2 className="h-5 w-5" />
+                  Integration Documentation
+                </CardTitle>
+                <CardDescription>APIs, webhooks, and enterprise tool integrations</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Integration documentation coming soon. This section will cover GitHub Actions, Jira, Confluence, Azure DevOps, and custom API integrations.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="data">
+            <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border-slate-200/50 dark:border-slate-700/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Database className="h-5 w-5" />
+                  Data Architecture
+                </CardTitle>
+                <CardDescription>Database schemas, data models, and storage architecture</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Data architecture documentation coming soon. This section will detail the database schema, data models, storage strategies, and data governance policies.</p>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
