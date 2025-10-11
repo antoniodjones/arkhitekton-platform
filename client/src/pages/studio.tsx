@@ -64,6 +64,7 @@ function StudioContent() {
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [frameworkFilter, setFrameworkFilter] = useState<string>('all');
   const [shapeFilter, setShapeFilter] = useState<string>('all');
+  const [vendorFilter, setVendorFilter] = useState<string>('all');
   
   // Column widths for resizable table
   const [columnWidths, setColumnWidths] = useState({
@@ -73,6 +74,7 @@ function StudioContent() {
     category: 150,
     type: 150,
     framework: 150,
+    vendor: 150,
     pattern: 250,
     shape: 150
   });
@@ -151,6 +153,10 @@ function StudioContent() {
     return Array.from(new Set(archimateElements.map(e => e.shape))).sort();
   }, []);
 
+  const uniqueVendors = useMemo(() => {
+    return Array.from(new Set(archimateElements.map(e => e.vendor).filter(Boolean))).sort();
+  }, []);
+
   // Filter elements for audit view
   const auditFilteredElements = useMemo(() => {
     return archimateElements.filter(element => {
@@ -160,16 +166,18 @@ function StudioContent() {
         element.usageGuidelines.toLowerCase().includes(auditSearchQuery.toLowerCase()) ||
         element.category.toLowerCase().includes(auditSearchQuery.toLowerCase()) ||
         element.framework.toLowerCase().includes(auditSearchQuery.toLowerCase()) ||
-        element.type.toLowerCase().includes(auditSearchQuery.toLowerCase());
+        element.type.toLowerCase().includes(auditSearchQuery.toLowerCase()) ||
+        (element.vendor && element.vendor.toLowerCase().includes(auditSearchQuery.toLowerCase()));
       
       const matchesCategory = categoryFilter === 'all' || element.category === categoryFilter;
       const matchesType = typeFilter === 'all' || element.type === typeFilter;
       const matchesFramework = frameworkFilter === 'all' || element.framework === frameworkFilter;
       const matchesShape = shapeFilter === 'all' || element.shape === shapeFilter;
+      const matchesVendor = vendorFilter === 'all' || element.vendor === vendorFilter;
       
-      return matchesSearch && matchesCategory && matchesType && matchesFramework && matchesShape;
+      return matchesSearch && matchesCategory && matchesType && matchesFramework && matchesShape && matchesVendor;
     });
-  }, [auditSearchQuery, categoryFilter, typeFilter, frameworkFilter, shapeFilter]);
+  }, [auditSearchQuery, categoryFilter, typeFilter, frameworkFilter, shapeFilter, vendorFilter]);
 
   // Helper to render shape icon
   const renderShapeIcon = (element: ArchimateElement) => {
@@ -551,6 +559,33 @@ function StudioContent() {
                         </Select>
                       </div>
                     </TableHead>
+                    <TableHead className="bg-background" style={{ width: `${columnWidths.vendor}px`, minWidth: `${columnWidths.vendor}px` }}>
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span>Vendor</span>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 w-6 p-0"
+                            onClick={() => setColumnWidths(prev => ({ ...prev, vendor: prev.vendor + 50 }))}
+                            data-testid="expand-vendor"
+                          >
+                            +
+                          </Button>
+                        </div>
+                        <Select value={vendorFilter} onValueChange={setVendorFilter}>
+                          <SelectTrigger className="h-8 text-xs" data-testid="filter-vendor">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Vendors</SelectItem>
+                            {uniqueVendors.map(vendor => (
+                              <SelectItem key={vendor} value={vendor!}>{vendor}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </TableHead>
                     <TableHead className="bg-background" style={{ width: `${columnWidths.pattern}px`, minWidth: `${columnWidths.pattern}px` }}>
                       <div className="flex items-center justify-between">
                         <span>Pattern</span>
@@ -628,6 +663,9 @@ function StudioContent() {
                       </TableCell>
                       <TableCell style={{ width: `${columnWidths.framework}px`, minWidth: `${columnWidths.framework}px` }}>
                         <Badge>{element.framework}</Badge>
+                      </TableCell>
+                      <TableCell style={{ width: `${columnWidths.vendor}px`, minWidth: `${columnWidths.vendor}px` }}>
+                        <Badge variant="outline">{element.vendor || 'N/A'}</Badge>
                       </TableCell>
                       <TableCell className="text-xs" style={{ width: `${columnWidths.pattern}px`, minWidth: `${columnWidths.pattern}px` }}>
                         <div title={element.relationships.join(', ')}>
