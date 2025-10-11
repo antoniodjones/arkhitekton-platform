@@ -79,6 +79,13 @@ const navigationItems: NavigationItem[] = [
     description: 'Cloud architecture icons for AWS, Azure, GCP, and IBM'
   },
   {
+    id: 'drawio-poc',
+    label: 'Draw.io POC',
+    href: '/drawio-poc',
+    icon: Palette,
+    description: 'Draw.io integration proof of concept with ARKHITEKTON branding'
+  },
+  {
     id: 'design-options',
     label: 'Design Options',
     href: '/design-options',

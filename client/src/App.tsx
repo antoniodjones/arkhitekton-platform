@@ -31,6 +31,7 @@ import PitchDeck from "@/pages/pitch-deck";
 import SettingsPage from "@/pages/settings";
 import APMPage from "@/pages/apm";
 import CloudIconsPage from "@/pages/cloud-icons";
+import DrawioPOCPage from "@/pages/drawio-poc";
 
 // Redirect component for deprecated routes
 function Redirect({ to }: { to: string }) {
@@ -67,6 +68,7 @@ function Router() {
       <Route path="/apm" component={APMPage} />
       <Route path="/cloud-icons" component={CloudIconsPage} />
       <Route path="/gcp-icons">{() => <Redirect to="/cloud-icons" />}</Route>
+      <Route path="/drawio-poc" component={DrawioPOCPage} />
       <Route path="/settings" component={SettingsPage} />
       <Route path="/arkhitekton-architecture" component={ArkhitektonArchitecture} />
       <Route path="/arkhitekton-architecture/aws" component={ArkhitektonArchitectureAWS} />
