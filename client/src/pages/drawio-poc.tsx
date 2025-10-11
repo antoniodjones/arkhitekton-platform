@@ -117,12 +117,21 @@ function DrawioPOCContent() {
 
   // Initialize draw.io editor
   const openEditor = () => {
+    console.log('Opening ARKHITEKTON Architecture Editor...');
     const editorUrl = `https://embed.diagrams.net/?embed=1&proto=json&spin=1&configure=1&ui=${arkhitektonConfig.ui}&libraries=${arkhitektonConfig.libraries}`;
+    console.log('Editor URL:', editorUrl);
     
-    if (iframeRef.current) {
-      iframeRef.current.src = editorUrl;
-      setIsEditorOpen(true);
-    }
+    setIsEditorOpen(true);
+    
+    // Set iframe src after it's rendered
+    setTimeout(() => {
+      if (iframeRef.current) {
+        iframeRef.current.src = editorUrl;
+        console.log('Iframe src set successfully');
+      } else {
+        console.error('Iframe ref not available');
+      }
+    }, 100);
   };
 
   // Handle messages from draw.io
