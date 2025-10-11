@@ -38,6 +38,7 @@ function getVendorColor(vendor: string) {
     gcp: 'from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900',
     aws: 'from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900',
     azure: 'from-sky-50 to-sky-100 dark:from-sky-950 dark:to-sky-900',
+    ibm: 'from-indigo-50 to-indigo-100 dark:from-indigo-950 dark:to-indigo-900',
     oracle: 'from-red-50 to-red-100 dark:from-red-950 dark:to-red-900'
   };
   return colors[vendor as keyof typeof colors] || 'from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900';
@@ -132,7 +133,7 @@ function CloudIconsContent() {
               <div>
                 <h1 className="text-3xl font-bold text-foreground mb-2">Cloud Architecture Icons</h1>
                 <p className="text-muted-foreground">
-                  Official architecture icons from AWS, Azure, and Google Cloud
+                  Official architecture icons from AWS, Azure, Google Cloud, and IBM Cloud
                 </p>
                 {manifest.downloadedAt && (
                   <p className="text-sm text-muted-foreground mt-1">

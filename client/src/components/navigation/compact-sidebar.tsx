@@ -76,7 +76,7 @@ const navigationItems: NavigationItem[] = [
     label: 'Cloud Icons',
     href: '/cloud-icons',
     icon: Cloud,
-    description: 'Cloud architecture icons for AWS, Azure, and GCP'
+    description: 'Cloud architecture icons for AWS, Azure, GCP, and IBM'
   },
   {
     id: 'design-options',
