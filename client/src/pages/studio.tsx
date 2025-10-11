@@ -594,7 +594,21 @@ function StudioContent() {
                   {auditFilteredElements.map((element) => (
                     <TableRow key={element.id} data-testid={`row-object-${element.id}`}>
                       <TableCell style={{ width: `${columnWidths.visual}px`, minWidth: `${columnWidths.visual}px` }}>
-                        <div className="flex items-center justify-center p-2 rounded" style={{ backgroundColor: `${element.color}20` }}>
+                        <div 
+                          className="flex items-center justify-center p-2 rounded" 
+                          style={{ 
+                            background: `linear-gradient(135deg, ${element.color}40 0%, ${element.color}20 50%, ${element.color}60 100%)`,
+                            boxShadow: `
+                              inset -2px -2px 4px rgba(0, 0, 0, 0.2),
+                              inset 2px 2px 4px rgba(255, 255, 255, 0.3),
+                              4px 4px 8px rgba(0, 0, 0, 0.15),
+                              -2px -2px 6px rgba(255, 255, 255, 0.1)
+                            `,
+                            border: '1px solid rgba(255, 255, 255, 0.2)',
+                            transform: 'perspective(100px) rotateX(5deg) rotateY(-5deg)',
+                            transition: 'all 0.3s ease'
+                          }}
+                        >
                           {renderShapeIcon(element)}
                         </div>
                       </TableCell>
