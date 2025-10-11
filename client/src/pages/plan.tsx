@@ -54,6 +54,7 @@ import {
 } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { GovernanceHeader } from '@/components/layout/governance-header';
+import { SimpleFileUploader } from '@/components/SimpleFileUploader';
 import { AppLayout } from '@/components/layout/app-layout';
 import { DefectManagement, DefectBadge } from '@/components/defect-management';
 import { 
@@ -2267,10 +2268,34 @@ Scenario: [scenario name]
                   Screenshots & Diagrams
                 </h4>
                 <div className="space-y-2">
-                  <Button variant="outline" size="sm" className="w-full" data-testid="button-upload-screenshot">
+                  <SimpleFileUploader
+                    maxFiles={5}
+                    maxFileSize={10485760}
+                    onUploadComplete={async (uploadedUrls: string[]) => {
+                      if (uploadedUrls.length > 0 && editingStory) {
+                        for (const uploadURL of uploadedUrls) {
+                          await fetch(`/api/user-stories/${editingStory.id}/screenshots`, {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ screenshotURL: uploadURL }),
+                          });
+                        }
+                        // Refresh the story to get updated screenshots
+                        const response = await fetch(`/api/user-stories/${editingStory.id}`);
+                        const updatedStory = await response.json();
+                        setEditingStory(updatedStory);
+                      }
+                    }}
+                    variant="outline"
+                    size="sm"
+                    testId="button-upload-screenshot"
+                    className="w-full"
+                  >
                     <Upload className="w-4 h-4 mr-2" />
-                    Upload Figma Mockup / UX Diagram
-                  </Button>
+                    Upload (e.g., Figma, UX, Images, Documents)
+                  </SimpleFileUploader>
                   {editingStory.screenshots && editingStory.screenshots.length > 0 && (
                     <div className="grid grid-cols-3 gap-2 mt-2">
                       {editingStory.screenshots.map((screenshot, index) => (
@@ -2295,17 +2320,30 @@ Scenario: [scenario name]
               </div>
 
               {/* Action Buttons */}
-              <div className="flex justify-end gap-2 pt-4">
-                <Button variant="outline" onClick={() => setIsStoryDialogOpen(false)} data-testid="button-cancel-story">
-                  Cancel
+              <div className="flex justify-between items-center pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    // Print as PDF
+                    window.print();
+                  }} 
+                  data-testid="button-print-story"
+                >
+                  <Printer className="w-4 h-4 mr-2" />
+                  Print as PDF
                 </Button>
-                <Button onClick={() => {
-                  if (editingStory) {
-                    saveStory(editingStory);
-                  }
-                }} data-testid="button-save-story">
-                  Save Story
-                </Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => setIsStoryDialogOpen(false)} data-testid="button-cancel-story">
+                    Cancel
+                  </Button>
+                  <Button onClick={() => {
+                    if (editingStory) {
+                      saveStory(editingStory);
+                    }
+                  }} data-testid="button-save-story">
+                    Save Story
+                  </Button>
+                </div>
               </div>
             </div>
           )}

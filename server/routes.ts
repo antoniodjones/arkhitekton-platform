@@ -1768,6 +1768,101 @@ Keep response concise but comprehensive.`;
     }
   });
 
+  // Object Storage API - for file uploads
+  const { ObjectStorageService, ObjectNotFoundError } = await import("./objectStorage");
+  
+  // Public file serving endpoint
+  app.get("/public-objects/:filePath(*)", async (req, res) => {
+    const filePath = req.params.filePath;
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const file = await objectStorageService.searchPublicObject(filePath);
+      if (!file) {
+        return res.status(404).json({ error: "File not found" });
+      }
+      objectStorageService.downloadObject(file, res);
+    } catch (error) {
+      console.error("Error searching for public object:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Private objects endpoint (accessible publicly for now - can add auth later)
+  app.get("/objects/:objectPath(*)", async (req, res) => {
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const objectFile = await objectStorageService.getObjectEntityFile(
+        req.path,
+      );
+      objectStorageService.downloadObject(objectFile, res);
+    } catch (error) {
+      console.error("Error checking object access:", error);
+      if (error instanceof ObjectNotFoundError) {
+        return res.sendStatus(404);
+      }
+      return res.sendStatus(500);
+    }
+  });
+
+  // Get upload URL endpoint
+  app.post("/api/objects/upload", async (req, res) => {
+    const objectStorageService = new ObjectStorageService();
+    const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+    res.json({ uploadURL });
+  });
+
+  // Update screenshot URLs after upload
+  app.post("/api/user-stories/:id/screenshots", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { screenshotURL } = req.body;
+      
+      if (!screenshotURL) {
+        return res.status(400).json({ error: "screenshotURL is required" });
+      }
+      
+      const objectStorageService = new ObjectStorageService();
+      
+      // Extract object path from the signed URL
+      // The signed URL format is: https://storage.googleapis.com/bucket-name/path?signature...
+      let objectPath = screenshotURL;
+      if (screenshotURL.startsWith('https://storage.googleapis.com/')) {
+        const url = new URL(screenshotURL);
+        const pathParts = url.pathname.split('/');
+        // Skip bucket name and get the rest of the path
+        if (pathParts.length >= 3) {
+          const privateDir = process.env.PRIVATE_OBJECT_DIR || '';
+          const fullPath = pathParts.slice(1).join('/'); // Remove leading empty string
+          
+          // Check if this path starts with private directory
+          if (fullPath.startsWith(privateDir.replace(/^\//, ''))) {
+            // Extract the object ID from the path
+            const objectId = fullPath.replace(privateDir.replace(/^\//, ''), '').replace(/^\//, '');
+            objectPath = `/objects/${objectId}`;
+          }
+        }
+      }
+      
+      // Get current story
+      const story = await storage.getUserStory(id);
+      if (!story) {
+        return res.status(404).json({ error: "Story not found" });
+      }
+      
+      // Add screenshot to array
+      const screenshots = [...(story.screenshots || []), objectPath];
+      await storage.updateUserStory(id, { screenshots });
+      
+      res.status(200).json({
+        objectPath,
+        screenshots
+      });
+    } catch (error) {
+      console.error("Error adding screenshot:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
