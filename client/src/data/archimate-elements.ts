@@ -1167,7 +1167,7 @@ export const archimateElements: ArchimateElement[] = [
     description: 'Sticky note for brainstorming and idea capture.',
     usageGuidelines: 'Use for ideas, notes, comments, or brainstorming sessions.',
     iconName: 'Square',
-    color: 'hsl(60 100% 85%)',
+    color: 'hsl(270 70% 70%)',
     shape: 'square',
     relationships: ['Idea', 'Category', 'Action Item']
   },
