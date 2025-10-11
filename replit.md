@@ -29,6 +29,8 @@ The application features a sophisticated, elegant design. The frontend uses Reac
 
 **Design Studio Consolidation**: Architecture Modeling, Architecture Workspace, and Design Palette pages were consolidated into a single unified "Design Studio" (`/studio`) to provide one comprehensive workspace for all modeling and design activities. The Design Studio uses the ModelingWorkspace component, featuring: object palette, modeling canvas, properties panel, AI assistant, change detection, achievement system, and multiple view modes (detailed, overview, executive, presentation). Old routes redirect to /studio for backward compatibility.
 
+**Object Audit View**: Comprehensive audit table displays all 182+ architecture elements with filterable columns including Visual preview, Name, Purpose & Usage, Category, Type, Framework, Vendor (tracks shape creators: AWS, Google Cloud, Microsoft Azure, Oracle, The Open Group, OMG, ARKHITEKTON), Pattern, and Shape. Features sticky headers, expandable columns, and multi-criteria filtering for efficient shape discovery and governance.
+
 ## Technical Implementations
 - **Frontend**: React 18, TypeScript, shadcn/ui, Radix UI, Tailwind CSS, Wouter for routing, React Hook Form with Zod for validation, TanStack Query for server state.
 - **Backend**: Express.js with TypeScript (ESM), simple REST API, interface-based storage layer, Drizzle ORM for PostgreSQL.
