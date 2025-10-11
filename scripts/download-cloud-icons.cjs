@@ -64,22 +64,30 @@ const copySvgFiles = (sourceDir, vendor, limit = 50) => {
       const fileName = path.basename(filePath);
       const targetPath = path.join(targetSubdir, fileName);
       
-      // Avoid duplicates
+      // Copy file if it doesn't exist
       if (!fs.existsSync(targetPath)) {
         fs.copyFileSync(filePath, targetPath);
-        files.push(fileName);
-        count++;
       }
+      
+      // Always record the filename (whether copied or already exists)
+      files.push(fileName);
+      count++;
     }
   });
   
   return files.sort();
 };
 
-// Clone GitHub repository
+// Clone GitHub repository (idempotent - cleans up existing directory first)
 function cloneRepo(url, destPath) {
   console.log(`Cloning ${url}...`);
   try {
+    // Remove existing directory if it exists
+    if (fs.existsSync(destPath)) {
+      console.log(`Cleaning up existing directory...`);
+      fs.rmSync(destPath, { recursive: true, force: true });
+    }
+    
     // Shallow clone to save time and space
     execSync(`git clone --depth 1 ${url} ${destPath}`, { 
       stdio: 'pipe',

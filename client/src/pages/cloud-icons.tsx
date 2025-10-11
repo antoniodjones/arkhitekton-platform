@@ -132,7 +132,7 @@ function CloudIconsContent() {
               <div>
                 <h1 className="text-3xl font-bold text-foreground mb-2">Cloud Architecture Icons</h1>
                 <p className="text-muted-foreground">
-                  Official architecture icons from AWS, Azure, Google Cloud, and Oracle
+                  Official architecture icons from AWS, Azure, and Google Cloud
                 </p>
                 {manifest.downloadedAt && (
                   <p className="text-sm text-muted-foreground mt-1">
