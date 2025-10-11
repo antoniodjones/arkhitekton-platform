@@ -112,44 +112,38 @@ function DrawioPOCContent() {
     // UI configuration
     ui: 'kennedy', // Minimal, clean interface
     
-    // Minimal libraries for faster loading (only essentials)
-    libraries: 'general;aws;gcp;azure',
+    // Minimal libraries for fastest loading
+    libraries: 'general;aws',
   };
 
-  // Preload draw.io in background for instant launch
-  const preloadEditor = () => {
-    if (isPreloading || isEditorOpen) return;
+  // Preload draw.io immediately on page load for instant opening
+  useEffect(() => {
+    // Preload after 1 second to avoid blocking page render
+    const timer = setTimeout(() => {
+      if (iframeRef.current && !iframeRef.current.src) {
+        console.log('Preloading draw.io editor...');
+        setIsPreloading(true);
+        
+        // Minimal libraries for fastest load
+        const editorUrl = `https://embed.diagrams.net/?embed=1&proto=json&spin=1&configure=1&ui=${arkhitektonConfig.ui}&libraries=general;aws&chrome=0&offline=1`;
+        iframeRef.current.src = editorUrl;
+      }
+    }, 1000);
     
-    console.log('Preloading self-hosted draw.io editor...');
-    setIsPreloading(true);
-    
-    // Use local self-hosted draw.io for instant loading (1-2 seconds!)
-    const editorUrl = `/drawio/?embed=1&proto=json&spin=1&configure=1&ui=${arkhitektonConfig.ui}&libraries=${arkhitektonConfig.libraries}&chrome=0&offline=1`;
-    
-    if (iframeRef.current && !iframeRef.current.src) {
-      iframeRef.current.src = editorUrl;
-    }
-  };
+    return () => clearTimeout(timer);
+  }, []);
 
   // Initialize draw.io editor (instant if preloaded)
   const openEditor = () => {
-    console.log('Opening ARKHITEKTON Architecture Editor (self-hosted)...');
-    
-    if (!isPreloading && iframeRef.current && !iframeRef.current.src) {
-      // Use local self-hosted draw.io for instant loading
-      const editorUrl = `/drawio/?embed=1&proto=json&spin=1&configure=1&ui=${arkhitektonConfig.ui}&libraries=${arkhitektonConfig.libraries}&chrome=0&offline=1`;
-      iframeRef.current.src = editorUrl;
-    }
-    
+    console.log('Opening ARKHITEKTON Architecture Editor...');
     setIsEditorOpen(true);
   };
 
   // Handle messages from draw.io
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      // Security: Only accept messages from our local draw.io or embed.diagrams.net
-      const allowedOrigins = [window.location.origin, 'https://embed.diagrams.net'];
-      if (!allowedOrigins.includes(event.origin)) return;
+      // Security: Only accept messages from embed.diagrams.net
+      if (event.origin !== 'https://embed.diagrams.net') return;
       if (!event.data || typeof event.data !== 'string') return;
       
       try {
@@ -168,17 +162,13 @@ function DrawioPOCContent() {
         if (msg.event === 'configure') {
           console.log('Sending ARKHITEKTON configuration...');
           if (iframeRef.current?.contentWindow) {
-            const targetOrigin = iframeRef.current.src.startsWith('/drawio') 
-              ? window.location.origin 
-              : 'https://embed.diagrams.net';
-            
             // Send custom configuration (config must be an object, not double-stringified)
             iframeRef.current.contentWindow.postMessage(
               JSON.stringify({
                 action: 'configure',
                 config: arkhitektonConfig
               }),
-              targetOrigin
+              'https://embed.diagrams.net'
             );
             
             setIsConfigured(true);
@@ -192,7 +182,7 @@ function DrawioPOCContent() {
                     xml: diagramXml,
                     autosave: 1
                   }),
-                  targetOrigin
+                  'https://embed.diagrams.net'
                 );
               }, 500);
             }
@@ -211,17 +201,13 @@ function DrawioPOCContent() {
           
           // Request export as PNG
           if (iframeRef.current?.contentWindow) {
-            const targetOrigin = iframeRef.current.src.startsWith('/drawio') 
-              ? window.location.origin 
-              : 'https://embed.diagrams.net';
-            
             iframeRef.current.contentWindow.postMessage(
               JSON.stringify({
                 action: 'export',
                 format: 'xmlpng',
                 xml: msg.xml
               }),
-              targetOrigin
+              'https://embed.diagrams.net'
             );
           }
         }
@@ -278,15 +264,15 @@ function DrawioPOCContent() {
                 ARKHITEKTON + Draw.io Integration
               </CardTitle>
               <CardDescription className="text-base">
-                Self-hosted draw.io for instant loading (1-2 seconds) with ARKHITEKTON branding
+                Optimized draw.io with preloading for instant launch (1-2 seconds) with ARKHITEKTON branding
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white dark:bg-slate-900 p-4 rounded-lg">
-                  <h4 className="font-semibold text-orange-600 mb-2">Self-Hosted Performance</h4>
+                  <h4 className="font-semibold text-orange-600 mb-2">Optimized Performance</h4>
                   <p className="text-sm text-muted-foreground">
-                    Local draw.io instance for instant loading (1-2 seconds) with offline support
+                    Preloaded on page load, minimal libraries, instant launch when you click
                   </p>
                 </div>
                 <div className="bg-white dark:bg-slate-900 p-4 rounded-lg">
@@ -308,13 +294,12 @@ function DrawioPOCContent() {
           {/* Controls */}
           <div className="flex items-center gap-4">
             <Button 
-              onMouseEnter={preloadEditor}
               onClick={openEditor}
               className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600"
               data-testid="button-open-editor"
             >
               <Palette className="h-4 w-4 mr-2" />
-              Open Architecture Editor
+              {isPreloading ? 'Open Architecture Editor (Preloaded)' : 'Open Architecture Editor'}
             </Button>
             
             {diagramXml && (
