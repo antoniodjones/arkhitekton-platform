@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { GovernanceHeader } from '@/components/layout/governance-header';
-import { Palette, Square, Circle, Type, Download, Zap } from 'lucide-react';
+import { Palette, Square, Circle, Type, Download, Zap, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Shape {
@@ -17,11 +17,21 @@ interface Shape {
   color: string;
 }
 
+interface Connector {
+  id: string;
+  from: string;
+  to: string;
+  type: 'arrow' | 'line';
+}
+
 export default function InstantCanvasPage() {
   const { toast } = useToast();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [shapes, setShapes] = useState<Shape[]>([]);
+  const [connectors, setConnectors] = useState<Connector[]>([]);
   const [dragging, setDragging] = useState<{ id: string; offsetX: number; offsetY: number } | null>(null);
+  const [connectMode, setConnectMode] = useState(false);
+  const [connectFrom, setConnectFrom] = useState<string | null>(null);
 
   // Draw all shapes
   useEffect(() => {
@@ -51,18 +61,70 @@ export default function InstantCanvasPage() {
       ctx.stroke();
     }
 
+    // Draw connectors first (behind shapes)
+    connectors.forEach((connector) => {
+      const fromShape = shapes.find(s => s.id === connector.from);
+      const toShape = shapes.find(s => s.id === connector.to);
+      if (!fromShape || !toShape) return;
+
+      // Calculate center points for all shape types
+      const getShapeCenter = (shape: Shape): { x: number; y: number } => {
+        if (shape.type === 'circle') {
+          return { x: shape.x, y: shape.y };
+        } else if (shape.type === 'rect') {
+          return { x: shape.x + (shape.width! / 2), y: shape.y + (shape.height! / 2) };
+        } else { // text
+          return { x: shape.x + 50, y: shape.y - 10 }; // Approximate text center
+        }
+      };
+
+      const fromCenter = getShapeCenter(fromShape);
+      const toCenter = getShapeCenter(toShape);
+      const fromX = fromCenter.x;
+      const fromY = fromCenter.y;
+      const toX = toCenter.x;
+      const toY = toCenter.y;
+
+      // Draw line
+      ctx.strokeStyle = '#F97316';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(fromX, fromY);
+      ctx.lineTo(toX, toY);
+      ctx.stroke();
+
+      // Draw arrow head
+      if (connector.type === 'arrow') {
+        const angle = Math.atan2(toY - fromY, toX - fromX);
+        const arrowSize = 15;
+        ctx.fillStyle = '#F97316';
+        ctx.beginPath();
+        ctx.moveTo(toX, toY);
+        ctx.lineTo(
+          toX - arrowSize * Math.cos(angle - Math.PI / 6),
+          toY - arrowSize * Math.sin(angle - Math.PI / 6)
+        );
+        ctx.lineTo(
+          toX - arrowSize * Math.cos(angle + Math.PI / 6),
+          toY - arrowSize * Math.sin(angle + Math.PI / 6)
+        );
+        ctx.closePath();
+        ctx.fill();
+      }
+    });
+
     // Draw shapes
     shapes.forEach((shape) => {
       if (shape.type === 'rect') {
         ctx.fillStyle = shape.color;
-        ctx.strokeStyle = '#F97316';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = connectFrom === shape.id ? '#10B981' : '#F97316';
+        ctx.lineWidth = connectFrom === shape.id ? 4 : 2;
         ctx.fillRect(shape.x, shape.y, shape.width!, shape.height!);
         ctx.strokeRect(shape.x, shape.y, shape.width!, shape.height!);
       } else if (shape.type === 'circle') {
         ctx.fillStyle = shape.color;
-        ctx.strokeStyle = '#F59E0B';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = connectFrom === shape.id ? '#10B981' : '#F59E0B';
+        ctx.lineWidth = connectFrom === shape.id ? 4 : 2;
         ctx.beginPath();
         ctx.arc(shape.x, shape.y, shape.radius!, 0, 2 * Math.PI);
         ctx.fill();
@@ -73,7 +135,7 @@ export default function InstantCanvasPage() {
         ctx.fillText(shape.text || '', shape.x, shape.y);
       }
     });
-  }, [shapes]);
+  }, [shapes, connectors, connectFrom]);
 
   // Add shapes
   const addRect = () => {
@@ -140,7 +202,27 @@ export default function InstantCanvasPage() {
       }
 
       if (hit) {
-        setDragging({ id: shape.id, offsetX: x - shape.x, offsetY: y - shape.y });
+        // Connect mode: create connector
+        if (connectMode) {
+          if (!connectFrom) {
+            setConnectFrom(shape.id);
+            toast({ title: 'Select target', description: 'Click another shape to connect' });
+          } else if (connectFrom !== shape.id) {
+            const newConnector: Connector = {
+              id: `conn-${Date.now()}`,
+              from: connectFrom,
+              to: shape.id,
+              type: 'arrow',
+            };
+            setConnectors([...connectors, newConnector]);
+            setConnectFrom(null);
+            setConnectMode(false);
+            toast({ title: 'Connected!', description: 'Shapes are now linked' });
+          }
+        } else {
+          // Drag mode
+          setDragging({ id: shape.id, offsetX: x - shape.x, offsetY: y - shape.y });
+        }
         break;
       }
     }
@@ -238,6 +320,21 @@ export default function InstantCanvasPage() {
               <Button onClick={addText} variant="outline" className="gap-2" data-testid="button-add-text">
                 <Type className="h-4 w-4" />
                 Add Label
+              </Button>
+              <Button 
+                onClick={() => {
+                  setConnectMode(!connectMode);
+                  setConnectFrom(null);
+                  if (!connectMode) {
+                    toast({ title: 'Connect Mode', description: 'Click two shapes to connect them' });
+                  }
+                }}
+                variant={connectMode ? "default" : "outline"}
+                className={connectMode ? "gap-2 bg-green-600 hover:bg-green-700" : "gap-2"}
+                data-testid="button-connect"
+              >
+                <ArrowRight className="h-4 w-4" />
+                {connectMode ? 'Connecting...' : 'Connect Shapes'}
               </Button>
               <Button
                 onClick={exportCanvas}
