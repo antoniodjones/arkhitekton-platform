@@ -21,6 +21,7 @@ function DrawioPOCContent() {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [diagramXml, setDiagramXml] = useState<string>('');
   const [isConfigured, setIsConfigured] = useState(false);
+  const [isPreloading, setIsPreloading] = useState(false);
 
   // ARKHITEKTON custom theme configuration
   const arkhitektonConfig = {
@@ -111,27 +112,34 @@ function DrawioPOCContent() {
     // UI configuration
     ui: 'kennedy', // Minimal, clean interface
     
-    // Custom libraries (we'll add cloud icons here)
-    libraries: 'general;uml;er;bpmn;aws;azure;gcp',
+    // Minimal libraries for faster loading (only essentials)
+    libraries: 'general;aws;gcp;azure',
   };
 
-  // Initialize draw.io editor
+  // Preload draw.io in background for instant launch
+  const preloadEditor = () => {
+    if (isPreloading || isEditorOpen) return;
+    
+    console.log('Preloading draw.io editor...');
+    setIsPreloading(true);
+    
+    const editorUrl = `https://embed.diagrams.net/?embed=1&proto=json&spin=1&configure=1&ui=${arkhitektonConfig.ui}&libraries=${arkhitektonConfig.libraries}&chrome=0`;
+    
+    if (iframeRef.current && !iframeRef.current.src) {
+      iframeRef.current.src = editorUrl;
+    }
+  };
+
+  // Initialize draw.io editor (instant if preloaded)
   const openEditor = () => {
     console.log('Opening ARKHITEKTON Architecture Editor...');
-    const editorUrl = `https://embed.diagrams.net/?embed=1&proto=json&spin=1&configure=1&ui=${arkhitektonConfig.ui}&libraries=${arkhitektonConfig.libraries}`;
-    console.log('Editor URL:', editorUrl);
+    
+    if (!isPreloading && iframeRef.current && !iframeRef.current.src) {
+      const editorUrl = `https://embed.diagrams.net/?embed=1&proto=json&spin=1&configure=1&ui=${arkhitektonConfig.ui}&libraries=${arkhitektonConfig.libraries}&chrome=0`;
+      iframeRef.current.src = editorUrl;
+    }
     
     setIsEditorOpen(true);
-    
-    // Set iframe src after it's rendered
-    setTimeout(() => {
-      if (iframeRef.current) {
-        iframeRef.current.src = editorUrl;
-        console.log('Iframe src set successfully');
-      } else {
-        console.error('Iframe ref not available');
-      }
-    }, 100);
   };
 
   // Handle messages from draw.io
@@ -289,6 +297,7 @@ function DrawioPOCContent() {
           {/* Controls */}
           <div className="flex items-center gap-4">
             <Button 
+              onMouseEnter={preloadEditor}
               onClick={openEditor}
               className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600"
               data-testid="button-open-editor"
@@ -410,17 +419,15 @@ function DrawioPOCContent() {
         </div>
       </div>
 
-      {/* Draw.io Editor Iframe */}
-      {isEditorOpen && (
-        <div className="fixed inset-0 z-50 bg-background">
-          <iframe
-            ref={iframeRef}
-            className="w-full h-full border-0"
-            title="ARKHITEKTON Architecture Editor"
-            data-testid="iframe-drawio-editor"
-          />
-        </div>
-      )}
+      {/* Draw.io Editor Iframe - Hidden when preloading */}
+      <div className={`fixed inset-0 z-50 bg-background ${isEditorOpen ? 'block' : 'hidden'}`}>
+        <iframe
+          ref={iframeRef}
+          className="w-full h-full border-0"
+          title="ARKHITEKTON Architecture Editor"
+          data-testid="iframe-drawio-editor"
+        />
+      </div>
     </div>
   );
 }
