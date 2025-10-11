@@ -72,6 +72,13 @@ const navigationItems: NavigationItem[] = [
     description: 'Unified modeling and design workspace'
   },
   {
+    id: 'gcp-icons',
+    label: 'Google Cloud Icons',
+    href: '/gcp-icons',
+    icon: Cloud,
+    description: 'Official GCP icon library for modeling'
+  },
+  {
     id: 'design-options',
     label: 'Design Options',
     href: '/design-options',
