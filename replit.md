@@ -33,6 +33,7 @@ The application features a sophisticated, elegant design. The frontend uses Reac
 - **Frontend**: React 18, TypeScript, shadcn/ui, Radix UI, Tailwind CSS, Wouter for routing, React Hook Form with Zod for validation, TanStack Query for server state.
 - **Backend**: Express.js with TypeScript (ESM), simple REST API, interface-based storage layer, Drizzle ORM for PostgreSQL.
 - **Data Storage**: Hybrid approach with Drizzle ORM for PostgreSQL (in-memory for development). Schema includes users, user_stories, epics, defects, architecture_elements, recent_elements, knowledge_base_pages, and sessions, with JSON fields for flexibility.
+- **Object Storage**: Google Cloud Storage integration via Replit's object storage service. Supports file uploads with presigned URLs, screenshot attachments for user stories, and ACL-based access control (bypassed until access control is defined). Files are stored in private directory and served via `/objects/` endpoints.
 - **Build System**: Vite for frontend, esbuild for backend.
 
 ## Feature Specifications
@@ -42,6 +43,7 @@ The application features a sophisticated, elegant design. The frontend uses Reac
 - **Gherkin Acceptance Criteria Validation**: Comprehensive Gherkin format validation for user story acceptance criteria with multi-format support, real-time UI validation feedback, backend schema enforcement, and status change prevention.
 - **Defect Management System**: Complete defect tracking and management integrated into user story workflow with severity levels and types, real-time defect badges, status tracking with resolution notes and root cause analysis, and story status blocking.
 - **Epic Structure**: Features are organized into 7 strategic Epics: 6 aligned with Enterprise Architecture Value Streams (Strategy & Business Planning, Architecture Design & Modeling, Governance & Decision Management, Development & Implementation, Operations & Intelligence, Knowledge & Collaboration) plus Application Foundations for core infrastructure and cross-cutting improvements. User stories are exclusively used for uniformity and EA Value Stream alignment, replacing a separate task management system.
+- **File Upload & Screenshots**: User stories support file attachments (Figma mockups, UX diagrams, images, documents) via object storage. Files are uploaded through a simple file uploader component, stored with presigned URLs, and normalized to downloadable paths. Stories include Print as PDF functionality for easy export.
 
 ## System Design Choices
 - **Strategic Cloud Platform**: GCP is the primary platform, leveraging Vertex AI, BigQuery, and Google's AI innovation.
