@@ -16,6 +16,7 @@ export const architectureElements = pgTable("architecture_elements", {
   type: text("type").notNull(), // 'structural', 'behavioral', 'motivational', 'passive'
   category: text("category").notNull(), // 'business', 'application', 'data', 'technology'
   framework: text("framework").notNull().default('archimate'), // 'archimate', 'togaf', 'bpmn'
+  vendor: text("vendor"), // Vendor who created the shape (e.g., 'AWS', 'Google Cloud', 'The Open Group')
   description: text("description").notNull(),
   usageGuidelines: text("usageGuidelines"),
   iconName: text("iconName"),
