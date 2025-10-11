@@ -175,7 +175,11 @@ function StudioContent() {
   const renderShapeIcon = (element: ArchimateElement) => {
     const iconProps = {
       className: "h-6 w-6",
-      style: { color: element.color }
+      style: { 
+        color: element.color,
+        filter: 'none',
+        transform: 'none'
+      }
     };
     
     const IconComponent = (Icons as any)[element.iconName] || Palette;
@@ -420,11 +424,11 @@ function StudioContent() {
             </div>
 
             {/* Audit Table */}
-            <div className="border rounded-lg overflow-x-auto overflow-y-auto max-h-[calc(100vh-320px)]">
+            <div className="border rounded-lg overflow-x-auto overflow-y-auto max-h-[calc(100vh-320px)] relative">
               <Table>
-                <TableHeader className="sticky top-0 bg-background z-10">
-                  <TableRow>
-                    <TableHead style={{ width: `${columnWidths.visual}px`, minWidth: `${columnWidths.visual}px` }}>
+                <TableHeader className="sticky top-0 bg-background z-20 border-b shadow-sm">
+                  <TableRow className="bg-background">
+                    <TableHead className="bg-background" style={{ width: `${columnWidths.visual}px`, minWidth: `${columnWidths.visual}px` }}>
                       <div className="flex items-center justify-between">
                         <span>Visual</span>
                         <Button 
@@ -438,7 +442,7 @@ function StudioContent() {
                         </Button>
                       </div>
                     </TableHead>
-                    <TableHead style={{ width: `${columnWidths.name}px`, minWidth: `${columnWidths.name}px` }}>
+                    <TableHead className="bg-background" style={{ width: `${columnWidths.name}px`, minWidth: `${columnWidths.name}px` }}>
                       <div className="flex items-center justify-between">
                         <span>Name</span>
                         <Button 
@@ -452,7 +456,7 @@ function StudioContent() {
                         </Button>
                       </div>
                     </TableHead>
-                    <TableHead style={{ width: `${columnWidths.purpose}px`, minWidth: `${columnWidths.purpose}px` }}>
+                    <TableHead className="bg-background" style={{ width: `${columnWidths.purpose}px`, minWidth: `${columnWidths.purpose}px` }}>
                       <div className="flex items-center justify-between">
                         <span>Purpose & Usage</span>
                         <Button 
@@ -466,7 +470,7 @@ function StudioContent() {
                         </Button>
                       </div>
                     </TableHead>
-                    <TableHead style={{ width: `${columnWidths.category}px`, minWidth: `${columnWidths.category}px` }}>
+                    <TableHead className="bg-background" style={{ width: `${columnWidths.category}px`, minWidth: `${columnWidths.category}px` }}>
                       <div className="space-y-1">
                         <div className="flex items-center justify-between">
                           <span>Category</span>
@@ -493,7 +497,7 @@ function StudioContent() {
                         </Select>
                       </div>
                     </TableHead>
-                    <TableHead style={{ width: `${columnWidths.type}px`, minWidth: `${columnWidths.type}px` }}>
+                    <TableHead className="bg-background" style={{ width: `${columnWidths.type}px`, minWidth: `${columnWidths.type}px` }}>
                       <div className="space-y-1">
                         <div className="flex items-center justify-between">
                           <span>Type</span>
@@ -520,7 +524,7 @@ function StudioContent() {
                         </Select>
                       </div>
                     </TableHead>
-                    <TableHead style={{ width: `${columnWidths.framework}px`, minWidth: `${columnWidths.framework}px` }}>
+                    <TableHead className="bg-background" style={{ width: `${columnWidths.framework}px`, minWidth: `${columnWidths.framework}px` }}>
                       <div className="space-y-1">
                         <div className="flex items-center justify-between">
                           <span>Framework</span>
@@ -547,7 +551,7 @@ function StudioContent() {
                         </Select>
                       </div>
                     </TableHead>
-                    <TableHead style={{ width: `${columnWidths.pattern}px`, minWidth: `${columnWidths.pattern}px` }}>
+                    <TableHead className="bg-background" style={{ width: `${columnWidths.pattern}px`, minWidth: `${columnWidths.pattern}px` }}>
                       <div className="flex items-center justify-between">
                         <span>Pattern</span>
                         <Button 
@@ -561,7 +565,7 @@ function StudioContent() {
                         </Button>
                       </div>
                     </TableHead>
-                    <TableHead style={{ width: `${columnWidths.shape}px`, minWidth: `${columnWidths.shape}px` }}>
+                    <TableHead className="bg-background" style={{ width: `${columnWidths.shape}px`, minWidth: `${columnWidths.shape}px` }}>
                       <div className="space-y-1">
                         <div className="flex items-center justify-between">
                           <span>Shape</span>
