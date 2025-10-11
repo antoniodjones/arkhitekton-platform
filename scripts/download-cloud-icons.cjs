@@ -24,6 +24,11 @@ const CLOUD_VENDORS = {
     github: 'https://github.com/benc-uk/icon-collection.git',
     sourcePath: 'azure-icons'
   },
+  ibm: {
+    name: 'IBM Cloud',
+    github: 'https://github.com/IBM-Cloud/architecture-icons.git',
+    sourcePath: 'svg'
+  },
   oracle: {
     name: 'Oracle Cloud',
     // Oracle icons require manual download - will use placeholders or skip for now
