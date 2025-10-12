@@ -43,8 +43,10 @@ export function ShapePopover({ category, onShapeSelect, onClose }: ShapePopoverP
       />
       
       {/* Popover Panel */}
-      <div className="absolute left-full ml-2 top-0 z-50 bg-background border rounded-lg shadow-xl p-3 min-w-[240px]">
-        <div className="space-y-2">
+      <div className="absolute left-full ml-2 top-0 z-50 bg-white dark:bg-slate-900 border rounded-lg shadow-xl p-3 min-w-[240px] relative">
+        {/* Grid background */}
+        <div className="absolute inset-0 bg-grid-white opacity-40 rounded-lg" />
+        <div className="space-y-2 relative z-10">
           {/* Drawing tools - only for shapes category */}
           {category === 'shapes' && (
             <div className="flex items-center gap-1 pb-2 border-b">
@@ -93,6 +95,22 @@ export function ShapePopover({ category, onShapeSelect, onClose }: ShapePopoverP
           )}
         </div>
       </div>
+
+      {/* Grid Pattern CSS */}
+      <style>{`
+        .bg-grid-white {
+          background-image: 
+            linear-gradient(to right, rgba(0,0,0,0.08) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(0,0,0,0.08) 1px, transparent 1px);
+          background-size: 20px 20px;
+        }
+        
+        .dark .bg-grid-white {
+          background-image: 
+            linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px);
+        }
+      `}</style>
     </>
   );
 }
