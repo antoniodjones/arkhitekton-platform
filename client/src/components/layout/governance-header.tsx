@@ -6,9 +6,10 @@ import { Home, Settings } from 'lucide-react';
 interface GovernanceHeaderProps {
   moduleTitle: string;
   moduleIcon: React.ComponentType<{ className?: string }>;
+  children?: React.ReactNode;
 }
 
-export function GovernanceHeader({ moduleTitle, moduleIcon: ModuleIcon }: GovernanceHeaderProps) {
+export function GovernanceHeader({ moduleTitle, moduleIcon: ModuleIcon, children }: GovernanceHeaderProps) {
   return (
     <header className="bg-slate-900 dark:bg-slate-900 border-b border-slate-700/50">
       <div className="px-6 py-3">
@@ -39,6 +40,7 @@ export function GovernanceHeader({ moduleTitle, moduleIcon: ModuleIcon }: Govern
 
           {/* Right Section - Navigation */}
           <div className="flex items-center space-x-3">
+            {children}
             <Link href="/">
               <Button 
                 variant="ghost" 

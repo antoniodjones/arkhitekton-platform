@@ -1,10 +1,13 @@
 import { useState } from 'react';
+import { useLocation } from 'wouter';
 import { GovernanceHeader } from '@/components/layout/governance-header';
 import { ShapeToolbar } from '@/components/design-studio/shape-toolbar';
 import { ShapePropertiesPanel } from '@/components/design-studio/shape-properties-panel';
-import { Palette } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Palette, ArrowLeft } from 'lucide-react';
 
 export default function CanvasSimple() {
+  const [, setLocation] = useLocation();
   const [selectedShape, setSelectedShape] = useState<string | null>(null);
   const [propertiesPanelOpen, setPropertiesPanelOpen] = useState(false);
 
@@ -23,7 +26,18 @@ export default function CanvasSimple() {
       <GovernanceHeader 
         moduleTitle="Design Studio - Canvas" 
         moduleIcon={Palette} 
-      />
+      >
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setLocation('/studio')}
+          className="text-slate-300 hover:text-white hover:bg-slate-800 border-0"
+          data-testid="button-back-to-studio"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Design Studio
+        </Button>
+      </GovernanceHeader>
 
       <div className="flex-1 relative bg-slate-50 dark:bg-slate-950">
         {/* Grid Background */}
