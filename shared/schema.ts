@@ -600,6 +600,10 @@ export const userStories = pgTable("user_stories", {
   labels: jsonb("labels").$type<string[]>().default([]),
   screenshots: jsonb("screenshots").$type<string[]>().default([]), // URLs to uploaded images
   
+  // Traceability - Link stories to implementation and documentation
+  relatedFiles: jsonb("related_files").$type<string[]>().default([]), // Files that implement this story
+  documentationPageId: text("documentation_page_id"), // Link to knowledge base article
+  
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow()
 });
