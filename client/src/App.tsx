@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import NotFound from "@/pages/not-found";
 import StudioPage from "@/pages/studio";
+import DesignStudioHome from "@/pages/design-studio-home";
 import Dashboard from "@/pages/dashboard";
 import { GovernancePage } from "@/pages/governance";
 import { DecisionsPage } from "@/pages/decisions";
@@ -50,7 +51,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
-      <Route path="/studio" component={StudioPage} />
+      <Route path="/studio" component={DesignStudioHome} />
+      <Route path="/studio/canvas" component={StudioPage} />
       <Route path="/design-palette">{() => <Redirect to="/studio" />}</Route>
       <Route path="/workspace">{() => <Redirect to="/studio" />}</Route>
       <Route path="/modeling">{() => <Redirect to="/studio" />}</Route>
