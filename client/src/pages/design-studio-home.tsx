@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { GovernanceHeader } from '@/components/layout/governance-header';
+import { DesignStudioEmptyState } from '@/components/design-studio/empty-state';
+import { TemplateGalleryModal } from '@/components/design-studio/template-gallery-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -44,45 +46,38 @@ import {
 } from 'lucide-react';
 import { SiAmazon, SiGooglecloud, SiOracle } from 'react-icons/si';
 
-// Mock data for diagrams
-const mockDiagrams = [
-  {
-    id: 'diagram-1',
-    name: 'Healthcare System',
-    framework: 'ArchiMate',
-    thumbnail: null,
-    lastModified: '2 hours ago',
-    owner: 'Antonio Jones',
-    collaborators: [
-      { id: '1', name: 'Antonio Jones', online: true },
-      { id: '2', name: 'Sarah Chen', online: false },
-      { id: '3', name: 'Mike Wilson', online: true },
-    ],
-  },
-  {
-    id: 'diagram-2',
-    name: 'AWS Cloud Architecture',
-    framework: 'AWS',
-    thumbnail: null,
-    lastModified: 'Yesterday',
-    owner: 'You',
-    collaborators: [{ id: '1', name: 'You', online: true }],
-  },
-  {
-    id: 'diagram-3',
-    name: 'Digital Transformation BPMN',
-    framework: 'BPMN',
-    thumbnail: null,
-    lastModified: '3 days ago',
-    owner: 'Sarah Chen',
-    collaborators: [
-      { id: '1', name: 'Sarah Chen', online: false },
-      { id: '2', name: 'John Doe', online: false },
-      { id: '3', name: 'Jane Smith', online: true },
-      { id: '4', name: 'Bob Johnson', online: false },
-      { id: '5', name: 'Alice Brown', online: true },
-    ],
-  },
+// Diagram type definition
+interface Diagram {
+  id: string;
+  name: string;
+  framework: string;
+  thumbnail: string | null;
+  lastModified: string;
+  owner: string;
+  collaborators: Array<{
+    id: string;
+    name: string;
+    online: boolean;
+  }>;
+}
+
+// Mock data for diagrams - empty by default for first-time users
+// TODO: Replace with real API call to fetch user's diagrams
+const mockDiagrams: Diagram[] = [
+  // Uncomment to test populated state:
+  // {
+  //   id: 'diagram-1',
+  //   name: 'Healthcare System',
+  //   framework: 'ArchiMate',
+  //   thumbnail: null,
+  //   lastModified: '2 hours ago',
+  //   owner: 'Antonio Jones',
+  //   collaborators: [
+  //     { id: '1', name: 'Antonio Jones', online: true },
+  //     { id: '2', name: 'Sarah Chen', online: false },
+  //     { id: '3', name: 'Mike Wilson', online: true },
+  //   ],
+  // },
 ];
 
 // Framework categories with template counts
@@ -152,6 +147,8 @@ export default function DesignStudioHome() {
   const [frameworkFilter, setFrameworkFilter] = useState('all');
   const [ownerFilter, setOwnerFilter] = useState('anyone');
   const [sortBy, setSortBy] = useState('last-opened');
+  const [templateGalleryOpen, setTemplateGalleryOpen] = useState(false);
+  const [selectedGalleryFramework, setSelectedGalleryFramework] = useState('all');
 
   // Filter and sort diagrams
   const filteredDiagrams = mockDiagrams.filter(diagram => {
@@ -168,8 +165,8 @@ export default function DesignStudioHome() {
   };
 
   const handleTemplateClick = (frameworkId: string) => {
-    console.log('Open template gallery for:', frameworkId);
-    // TODO: Open template gallery modal
+    setSelectedGalleryFramework(frameworkId);
+    setTemplateGalleryOpen(true);
   };
 
   const handleNewDiagram = () => {
@@ -202,6 +199,7 @@ export default function DesignStudioHome() {
             <Button 
               variant="outline" 
               size="sm"
+              onClick={() => setTemplateGalleryOpen(true)}
               data-testid="button-templates"
             >
               Templates
@@ -228,9 +226,13 @@ export default function DesignStudioHome() {
       </div>
 
       <div className="flex-1 overflow-auto">
-        <div className="p-6 space-y-8">
-          {/* Recently Opened Diagrams */}
-          <section>
+        {/* Empty State */}
+        {mockDiagrams.length === 0 ? (
+          <DesignStudioEmptyState onTemplateClick={handleTemplateClick} />
+        ) : (
+          <div className="p-6 space-y-8">
+            {/* Recently Opened Diagrams */}
+            <section>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-foreground">Recently Opened Diagrams</h2>
               <Button variant="ghost" size="sm" data-testid="button-view-all-recent">
@@ -581,7 +583,15 @@ export default function DesignStudioHome() {
             )}
           </section>
         </div>
+        )}
       </div>
+
+      {/* Template Gallery Modal */}
+      <TemplateGalleryModal
+        open={templateGalleryOpen}
+        onOpenChange={setTemplateGalleryOpen}
+        selectedFramework={selectedGalleryFramework}
+      />
     </div>
   );
 }
