@@ -596,6 +596,14 @@ export const userStories = pgTable("user_stories", {
     url: string;
   }>>().default([]),
   
+  // Jira integration
+  jiraIssueKey: text("jira_issue_key"), // PROJ-1234
+  jiraIssueId: text("jira_issue_id"), // Numeric ID from Jira
+  lastSyncedAt: timestamp("last_synced_at"),
+  syncSource: text("sync_source"), // 'arkhitekton', 'jira', 'manual'
+  syncStatus: text("sync_status"), // 'synced', 'pending', 'error', 'disabled'
+  syncError: text("sync_error"), // Error message if sync failed
+  
   // Labels and metadata
   labels: jsonb("labels").$type<string[]>().default([]),
   screenshots: jsonb("screenshots").$type<string[]>().default([]), // URLs to uploaded images
@@ -665,6 +673,13 @@ export const defects = pgTable("defects", {
     author: string;
     timestamp: string;
   }>>().default([]),
+  
+  // Jira integration
+  jiraIssueKey: text("jira_issue_key"), // PROJ-1234
+  jiraIssueId: text("jira_issue_id"),
+  lastSyncedAt: timestamp("last_synced_at"),
+  syncSource: text("sync_source"), // 'arkhitekton', 'jira', 'manual'
+  syncStatus: text("sync_status"), // 'synced', 'pending', 'error', 'disabled'
   
   // Resolution tracking
   rootCause: text("root_cause"), // Analysis of what caused the defect
@@ -1000,3 +1015,110 @@ export const updateApplicationSchema = insertApplicationSchema.partial();
 export type Application = typeof applications.$inferSelect;
 export type InsertApplication = z.infer<typeof insertApplicationSchema>;
 export type UpdateApplication = z.infer<typeof updateApplicationSchema>;
+
+// Jira Integration - Native bi-directional sync infrastructure
+// Each system maintains own IDs with mapping table approach
+
+// ID Mapping table - Links ARKHITEKTON entities to Jira issues
+export const jiraIntegrationMappings = pgTable("jira_integration_mappings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // ARKHITEKTON entity
+  arkhitektonId: varchar("arkhitekton_id").notNull(),
+  arkhitektonType: varchar("arkhitekton_type").notNull(), // 'user_story', 'defect', 'epic'
+  
+  // Jira entity
+  jiraIssueKey: varchar("jira_issue_key").notNull(), // PROJ-1234
+  jiraIssueId: varchar("jira_issue_id").notNull(), // 10001 (numeric ID)
+  jiraIssueType: varchar("jira_issue_type").notNull(), // 'Story', 'Bug', 'Epic'
+  jiraProjectKey: varchar("jira_project_key").notNull(), // PROJ
+  
+  // Sync metadata
+  syncDirection: varchar("sync_direction"), // 'to_jira', 'from_jira', 'bi_directional'
+  lastSyncedAt: timestamp("last_synced_at").defaultNow(),
+  syncStatus: varchar("sync_status").default("active"), // 'active', 'paused', 'error'
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Sync audit logs - Track all sync operations for debugging and compliance
+export const jiraSyncLogs = pgTable("jira_sync_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Mapping reference
+  mappingId: varchar("mapping_id"),
+  
+  // Sync details
+  syncDirection: varchar("sync_direction").notNull(), // 'to_jira', 'from_jira'
+  syncType: varchar("sync_type").notNull(), // 'create', 'update', 'delete'
+  syncSource: varchar("sync_source").notNull(), // 'webhook', 'manual', 'scheduled'
+  
+  // Payload
+  requestPayload: jsonb("request_payload").$type<any>(),
+  responsePayload: jsonb("response_payload").$type<any>(),
+  
+  // Status
+  status: varchar("status").notNull(), // 'success', 'failed', 'pending', 'retrying'
+  errorMessage: text("error_message"),
+  errorCode: varchar("error_code"),
+  
+  // Performance
+  durationMs: integer("duration_ms"),
+  retryCount: integer("retry_count").default(0),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Webhook events - Store incoming Jira webhooks for processing
+export const jiraWebhookEvents = pgTable("jira_webhook_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Webhook details
+  webhookId: varchar("webhook_id"),
+  eventType: varchar("event_type").notNull(), // 'issue:created', 'issue:updated', etc.
+  jiraIssueKey: varchar("jira_issue_key").notNull(),
+  
+  // Payload
+  rawPayload: jsonb("raw_payload").$type<any>().notNull(),
+  
+  // Processing
+  processedAt: timestamp("processed_at"),
+  processingStatus: varchar("processing_status").default("pending"), // 'pending', 'processed', 'failed', 'ignored'
+  processingError: text("processing_error"),
+  
+  // Idempotency
+  idempotencyKey: varchar("idempotency_key").unique(),
+  
+  // Timestamps
+  receivedAt: timestamp("received_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Jira Integration validation schemas
+export const insertJiraMappingSchema = createInsertSchema(jiraIntegrationMappings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertJiraSyncLogSchema = createInsertSchema(jiraSyncLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertJiraWebhookEventSchema = createInsertSchema(jiraWebhookEvents).omit({
+  id: true,
+  receivedAt: true,
+  createdAt: true,
+});
+
+// Jira Integration types
+export type JiraIntegrationMapping = typeof jiraIntegrationMappings.$inferSelect;
+export type InsertJiraMapping = z.infer<typeof insertJiraMappingSchema>;
+export type JiraSyncLog = typeof jiraSyncLogs.$inferSelect;
+export type InsertJiraSyncLog = z.infer<typeof insertJiraSyncLogSchema>;
+export type JiraWebhookEvent = typeof jiraWebhookEvents.$inferSelect;
+export type InsertJiraWebhookEvent = z.infer<typeof insertJiraWebhookEventSchema>;

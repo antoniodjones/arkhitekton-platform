@@ -16,9 +16,15 @@ import {
   insertApplicationSettingSchema,
   insertApplicationSchema,
   updateApplicationSchema,
+  insertJiraMappingSchema,
+  insertJiraSyncLogSchema,
+  insertJiraWebhookEventSchema,
   type KnowledgeBasePage,
   type IntegrationChannel,
-  type ObjectSyncFlow
+  type ObjectSyncFlow,
+  type InsertJiraMapping,
+  type InsertJiraSyncLog,
+  type InsertJiraWebhookEvent
 } from "@shared/schema";
 import Anthropic from '@anthropic-ai/sdk';
 import { encrypt, decrypt, isEncrypted } from './encryption';
@@ -1863,6 +1869,329 @@ Keep response concise but comprehensive.`;
     }
   });
 
+  // ============================================================================
+  // Jira Integration API - Native bi-directional sync
+  // Stories: US-SXLNYIG (Webhook), US-SRV4N7Z (ID Mapping), US-T5QNZ82 (Outbound Sync)
+  // ============================================================================
+
+  // POST /api/jira/webhooks - Receive webhooks from Jira
+  app.post("/api/jira/webhooks", async (req, res) => {
+    const startTime = Date.now();
+    
+    try {
+      const { webhookEvent, issue, changelog } = req.body;
+      
+      if (!webhookEvent || !issue) {
+        return res.status(400).json({ error: "Invalid webhook payload" });
+      }
+      
+      // Extract event details
+      const jiraIssueKey = issue.key;
+      const eventType = webhookEvent; // 'issue:created', 'issue:updated', 'issue:deleted'
+      
+      // Generate idempotency key to prevent duplicate processing
+      const idempotencyKey = `${webhookEvent}-${issue.id}-${issue.fields.updated}`;
+      
+      // Check if already processed
+      const existingEvent = await storage.getJiraWebhookEventByIdempotency(idempotencyKey);
+      if (existingEvent) {
+        console.log(`⏭️  Webhook already processed: ${idempotencyKey}`);
+        return res.status(200).json({ 
+          status: "already_processed",
+          eventId: existingEvent.id 
+        });
+      }
+      
+      // Store webhook event for async processing
+      const webhookEventId = await storage.createJiraWebhookEvent({
+        webhookId: req.headers['x-atlassian-webhook-identifier'] as string,
+        eventType,
+        jiraIssueKey,
+        rawPayload: req.body,
+        idempotencyKey,
+        processingStatus: "pending"
+      });
+      
+      // Quick response to Jira (< 200ms)
+      const responseTime = Date.now() - startTime;
+      console.log(`✅ Jira webhook received: ${eventType} for ${jiraIssueKey} (${responseTime}ms)`);
+      
+      res.status(200).json({
+        status: "accepted",
+        eventId: webhookEventId,
+        processingTime: responseTime
+      });
+      
+      // TODO: Queue async job for processing (implement in future iteration)
+      // For now, process synchronously in background
+      setImmediate(async () => {
+        try {
+          await processJiraWebhook(webhookEventId, eventType, issue, changelog, storage);
+        } catch (error) {
+          console.error(`❌ Webhook processing error:`, error);
+        }
+      });
+      
+    } catch (error) {
+      console.error('❌ Jira webhook error:', error);
+      res.status(500).json({ 
+        error: "Failed to process webhook",
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // GET /api/jira/mappings/:arkhitektonId - Get Jira mapping for ARKHITEKTON entity
+  app.get("/api/jira/mappings/:arkhitektonId", async (req, res) => {
+    try {
+      const { arkhitektonId } = req.params;
+      const mapping = await storage.getJiraMappingByArkhitektonId(arkhitektonId);
+      
+      if (!mapping) {
+        return res.status(404).json({ error: "No Jira mapping found" });
+      }
+      
+      res.json(mapping);
+    } catch (error) {
+      console.error('Error fetching Jira mapping:', error);
+      res.status(500).json({ error: "Failed to fetch mapping" });
+    }
+  });
+
+  // POST /api/jira/mappings - Create manual Jira mapping
+  app.post("/api/jira/mappings", async (req, res) => {
+    try {
+      const validatedData = insertJiraMappingSchema.parse(req.body);
+      const mapping = await storage.createJiraMapping(validatedData);
+      res.status(201).json(mapping);
+    } catch (error) {
+      console.error('Error creating Jira mapping:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          error: "Invalid mapping data",
+          details: error.errors
+        });
+      }
+      res.status(500).json({ error: "Failed to create mapping" });
+    }
+  });
+
+  // POST /api/user-stories/:id/sync-to-jira - Manually sync story to Jira
+  app.post("/api/user-stories/:id/sync-to-jira", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { jiraProjectKey, forceUpdate } = req.body;
+      
+      if (!jiraProjectKey) {
+        return res.status(400).json({ error: "jiraProjectKey is required" });
+      }
+      
+      const story = await storage.getUserStory(id);
+      if (!story) {
+        return res.status(404).json({ error: "Story not found" });
+      }
+      
+      // Check if already synced
+      if (story.jiraIssueKey && !forceUpdate) {
+        return res.status(400).json({ 
+          error: "Story already synced to Jira",
+          jiraIssueKey: story.jiraIssueKey
+        });
+      }
+      
+      // TODO: Implement actual Jira API call to create/update issue
+      // For now, just update sync status
+      await storage.updateUserStory(id, {
+        syncStatus: "pending",
+        syncSource: "manual"
+      });
+      
+      res.json({
+        status: "sync_initiated",
+        storyId: id,
+        jiraProjectKey
+      });
+      
+    } catch (error) {
+      console.error('Error syncing to Jira:', error);
+      res.status(500).json({ error: "Failed to sync to Jira" });
+    }
+  });
+
+  // GET /api/jira/sync/stats - Get sync statistics
+  app.get("/api/jira/sync/stats", async (req, res) => {
+    try {
+      const stats = await storage.getJiraSyncStats();
+      res.json(stats);
+    } catch (error) {
+      console.error('Error fetching sync stats:', error);
+      res.status(500).json({ error: "Failed to fetch sync stats" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
+}
+
+// ============================================================================
+// Jira Webhook Processing - Async background processing
+// ============================================================================
+
+async function processJiraWebhook(
+  webhookEventId: string,
+  eventType: string,
+  issue: any,
+  changelog: any,
+  storage: any
+) {
+  const startTime = Date.now();
+  
+  try {
+    // Loop prevention: Check if update came from ARKHITEKTON
+    if (isUpdateFromArkhitekton(changelog)) {
+      await storage.updateJiraWebhookEvent(webhookEventId, {
+        processingStatus: "ignored",
+        processedAt: new Date()
+      });
+      console.log(`⏭️  Ignored webhook (loop prevention): ${issue.key}`);
+      return;
+    }
+    
+    // Extract ARKHITEKTON ID from Jira custom field
+    const arkhitektonId = issue.fields.customfield_10001; // ARKHITEKTON_ID custom field
+    
+    if (!arkhitektonId) {
+      await storage.updateJiraWebhookEvent(webhookEventId, {
+        processingStatus: "ignored",
+        processedAt: new Date(),
+        processingError: "No ARKHITEKTON_ID found in Jira issue"
+      });
+      console.log(`⏭️  Ignored webhook (no ARKHITEKTON ID): ${issue.key}`);
+      return;
+    }
+    
+    // Find or create mapping
+    let mapping = await storage.getJiraMappingByIssueKey(issue.key);
+    
+    if (!mapping && eventType === 'issue:created') {
+      // Create new mapping for Jira-originated issue
+      mapping = await storage.createJiraMapping({
+        arkhitektonId,
+        arkhitektonType: mapJiraIssueTypeToArkhitekton(issue.fields.issuetype.name),
+        jiraIssueKey: issue.key,
+        jiraIssueId: issue.id,
+        jiraIssueType: issue.fields.issuetype.name,
+        jiraProjectKey: issue.fields.project.key,
+        syncDirection: "from_jira"
+      });
+      console.log(`✅ Created mapping: ${arkhitektonId} ↔ ${issue.key}`);
+    }
+    
+    if (!mapping) {
+      await storage.updateJiraWebhookEvent(webhookEventId, {
+        processingStatus: "ignored",
+        processedAt: new Date(),
+        processingError: "No mapping found and not a creation event"
+      });
+      return;
+    }
+    
+    // Map Jira fields to ARKHITEKTON schema
+    const updateData = {
+      title: issue.fields.summary,
+      description: issue.fields.description || "",
+      status: mapJiraStatusToArkhitekton(issue.fields.status.name),
+      priority: mapJiraPriorityToArkhitekton(issue.fields.priority?.name),
+      syncSource: "jira",
+      lastSyncedAt: new Date(),
+      syncStatus: "synced",
+      jiraIssueKey: issue.key,
+      jiraIssueId: issue.id
+    };
+    
+    // Update ARKHITEKTON entity
+    await storage.updateUserStory(arkhitektonId, updateData);
+    
+    // Log successful sync
+    const duration = Date.now() - startTime;
+    await storage.createJiraSyncLog({
+      mappingId: mapping.id,
+      syncDirection: "from_jira",
+      syncType: eventType.split(':')[1], // 'created', 'updated', 'deleted'
+      syncSource: "webhook",
+      requestPayload: issue,
+      status: "success",
+      durationMs: duration
+    });
+    
+    // Mark webhook as processed
+    await storage.updateJiraWebhookEvent(webhookEventId, {
+      processingStatus: "processed",
+      processedAt: new Date()
+    });
+    
+    console.log(`✅ Processed webhook: ${issue.key} → ${arkhitektonId} (${duration}ms)`);
+    
+  } catch (error) {
+    console.error(`❌ Webhook processing failed:`, error);
+    
+    await storage.updateJiraWebhookEvent(webhookEventId, {
+      processingStatus: "failed",
+      processedAt: new Date(),
+      processingError: error instanceof Error ? error.message : 'Unknown error'
+    });
+    
+    throw error;
+  }
+}
+
+// Helper: Check if update originated from ARKHITEKTON (loop prevention)
+function isUpdateFromArkhitekton(changelog: any): boolean {
+  if (!changelog || !changelog.items) return false;
+  
+  // Check if sync_source field was updated to 'arkhitekton'
+  return changelog.items.some((item: any) => 
+    item.field === 'customfield_10002' && // sync_source custom field
+    item.toString === 'arkhitekton'
+  );
+}
+
+// Helper: Map Jira issue type to ARKHITEKTON type
+function mapJiraIssueTypeToArkhitekton(jiraIssueType: string): string {
+  const mapping: Record<string, string> = {
+    'Story': 'user_story',
+    'Task': 'user_story',
+    'Bug': 'defect',
+    'Epic': 'epic'
+  };
+  return mapping[jiraIssueType] || 'user_story';
+}
+
+// Helper: Map Jira status to ARKHITEKTON status
+function mapJiraStatusToArkhitekton(jiraStatus: string): string {
+  const mapping: Record<string, string> = {
+    'To Do': 'backlog',
+    'Backlog': 'backlog',
+    'In Progress': 'in-progress',
+    'In Review': 'review',
+    'Code Review': 'review',
+    'Done': 'done',
+    'Closed': 'done',
+    'Won\'t Do': 'backlog'
+  };
+  return mapping[jiraStatus] || 'backlog';
+}
+
+// Helper: Map Jira priority to ARKHITEKTON priority
+function mapJiraPriorityToArkhitekton(jiraPriority: string | undefined): string {
+  if (!jiraPriority) return 'medium';
+  
+  const mapping: Record<string, string> = {
+    'Highest': 'high',
+    'High': 'high',
+    'Medium': 'medium',
+    'Low': 'low',
+    'Lowest': 'low'
+  };
+  return mapping[jiraPriority] || 'medium';
 }

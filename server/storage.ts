@@ -124,6 +124,16 @@ export interface IStorage {
   createApplication(application: InsertApplication): Promise<Application>;
   updateApplication(id: string, updates: UpdateApplication): Promise<Application | undefined>;
   deleteApplication(id: string): Promise<boolean>;
+  
+  // Jira Integration - Native bi-directional sync
+  getJiraWebhookEventByIdempotency(idempotencyKey: string): Promise<any | undefined>;
+  createJiraWebhookEvent(event: any): Promise<string>;
+  updateJiraWebhookEvent(id: string, updates: any): Promise<void>;
+  getJiraMappingByArkhitektonId(arkhitektonId: string): Promise<any | undefined>;
+  getJiraMappingByIssueKey(jiraIssueKey: string): Promise<any | undefined>;
+  createJiraMapping(mapping: any): Promise<any>;
+  createJiraSyncLog(log: any): Promise<void>;
+  getJiraSyncStats(): Promise<any>;
 }
 
 // Standardized User Story ID generator with collision detection
@@ -1550,6 +1560,95 @@ export class DatabaseStorage implements IStorage {
       .delete(schema.applications)
       .where(eq(schema.applications.id, id));
     return result.rowCount! > 0;
+  }
+  
+  // Jira Integration Methods
+  async getJiraWebhookEventByIdempotency(idempotencyKey: string): Promise<any | undefined> {
+    const [event] = await db
+      .select()
+      .from(schema.jiraWebhookEvents)
+      .where(eq(schema.jiraWebhookEvents.idempotencyKey, idempotencyKey))
+      .limit(1);
+    return event || undefined;
+  }
+  
+  async createJiraWebhookEvent(event: any): Promise<string> {
+    const [newEvent] = await db
+      .insert(schema.jiraWebhookEvents)
+      .values({
+        ...event,
+        createdAt: new Date(),
+        receivedAt: new Date()
+      })
+      .returning();
+    return newEvent.id;
+  }
+  
+  async updateJiraWebhookEvent(id: string, updates: any): Promise<void> {
+    await db
+      .update(schema.jiraWebhookEvents)
+      .set(updates)
+      .where(eq(schema.jiraWebhookEvents.id, id));
+  }
+  
+  async getJiraMappingByArkhitektonId(arkhitektonId: string): Promise<any | undefined> {
+    const [mapping] = await db
+      .select()
+      .from(schema.jiraIntegrationMappings)
+      .where(eq(schema.jiraIntegrationMappings.arkhitektonId, arkhitektonId))
+      .limit(1);
+    return mapping || undefined;
+  }
+  
+  async getJiraMappingByIssueKey(jiraIssueKey: string): Promise<any | undefined> {
+    const [mapping] = await db
+      .select()
+      .from(schema.jiraIntegrationMappings)
+      .where(eq(schema.jiraIntegrationMappings.jiraIssueKey, jiraIssueKey))
+      .limit(1);
+    return mapping || undefined;
+  }
+  
+  async createJiraMapping(mapping: any): Promise<any> {
+    const [newMapping] = await db
+      .insert(schema.jiraIntegrationMappings)
+      .values({
+        ...mapping,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+    return newMapping;
+  }
+  
+  async createJiraSyncLog(log: any): Promise<void> {
+    await db
+      .insert(schema.jiraSyncLogs)
+      .values({
+        ...log,
+        createdAt: new Date()
+      });
+  }
+  
+  async getJiraSyncStats(): Promise<any> {
+    // Get total mappings
+    const mappings = await db.select().from(schema.jiraIntegrationMappings);
+    const syncLogs = await db.select().from(schema.jiraSyncLogs);
+    
+    const activeSyncs = mappings.filter(m => m.syncStatus === 'active').length;
+    const errorSyncs = mappings.filter(m => m.syncStatus === 'error').length;
+    const successfulSyncs = syncLogs.filter(l => l.status === 'success').length;
+    const failedSyncs = syncLogs.filter(l => l.status === 'failed').length;
+    
+    return {
+      totalMappings: mappings.length,
+      activeSyncs,
+      errorSyncs,
+      totalSyncLogs: syncLogs.length,
+      successfulSyncs,
+      failedSyncs,
+      successRate: syncLogs.length > 0 ? (successfulSyncs / syncLogs.length * 100).toFixed(2) + '%' : '0%'
+    };
   }
 }
 
