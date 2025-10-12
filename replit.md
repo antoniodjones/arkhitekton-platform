@@ -13,12 +13,15 @@ Design Preference: Unique ARKHITEKTON identity with sophisticated, elegant desig
 - **Object-Oriented Model Design**: Components are objects with intelligent connection capabilities, intuitive linking, and full traceability.
 - **State Management & Versioning**: Single current state, multiple transition states with architect-defined checkpoints, Git-like merging, and traceability.
 - **AI-Powered Guidance**: Contextual suggestions based on architectural patterns and best practices.
+- **Multi-Agent Development System**: Specialized AI agents for code review (Architect Agent) and UX design (UX Experience Agent with 15 years expertise). UX Agent ensures Sparx Enterprise Architect power with Miro/Figma simplicity through progressive disclosure patterns.
 - **Enterprise Tool Integration**: Native integration with tools like Jira, Confluence, Aha!, Azure DevOps, Figma, and code editors for bi-directional sync.
 - **End-to-End Development Lifecycle Mapping**: Traceability from strategy to deployment, including forward/reverse engineering and impact analysis.
 - **Code Editor Integration**: Plugin architecture for major IDEs for code generation, reverse engineering, and synchronization.
 
 ## UI/UX Decisions
 The application features a sophisticated, elegant design. The frontend uses React 18 with TypeScript, a component-based architecture, shadcn/ui with Radix UI for accessibility, and Tailwind CSS for styling with a custom design system.
+
+**UX Experience Agent**: A specialized AI consultant with 15 years of enterprise UX design experience guides all interface decisions. The agent ensures ARKHITEKTON achieves "Sparx Enterprise Architect power with Miro/Figma simplicity" through progressive disclosure patterns, adaptive palettes, and contextual UI. The UX Agent reviews canvas features, modeling tools, and collaboration interfaces before completion. Core principles: start minimal, reveal complexity progressively, guide without constraining, AI suggests but users decide. Documentation: `docs/ux-agent-persona.md`, `docs/ux-review-process.md`.
 
 **GovernanceHeader Component**: All pages (except home/dashboard) use a consistent GovernanceHeader component that provides:
 - ARKHITEKTON branding with orange gradient logo
@@ -46,6 +49,7 @@ The application features a sophisticated, elegant design. The frontend uses Reac
 - **Defect Management System**: Complete defect tracking and management integrated into user story workflow with severity levels and types, real-time defect badges, status tracking with resolution notes and root cause analysis, and story status blocking.
 - **Epic Structure**: Features are organized into 7 strategic Epics: 6 aligned with Enterprise Architecture Value Streams (Strategy & Business Planning, Architecture Design & Modeling, Governance & Decision Management, Development & Implementation, Operations & Intelligence, Knowledge & Collaboration) plus Application Foundations for core infrastructure and cross-cutting improvements. User stories are exclusively used for uniformity and EA Value Stream alignment, replacing a separate task management system.
 - **File Upload & Screenshots**: User stories support file attachments (Figma mockups, UX diagrams, images, documents) via object storage. Files are uploaded through a simple file uploader component, stored with presigned URLs, and normalized to downloadable paths. Stories include Print as PDF functionality for easy export.
+- **Instant Canvas Modeling**: Custom vanilla JavaScript canvas replacing draw.io for architecture modeling. Achieves <100ms load time (vs 30+ seconds) with shapes, connectors, drag-and-drop, and PNG export. UX roadmap includes progressive disclosure, adaptive palettes (200+ cloud icons without clutter), AI-powered connection suggestions, and real-time collaboration.
 
 ## System Design Choices
 - **Strategic Cloud Platform**: GCP is the primary platform, leveraging Vertex AI, BigQuery, and Google's AI innovation.
