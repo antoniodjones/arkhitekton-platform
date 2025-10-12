@@ -35,6 +35,7 @@ import CloudIconsPage from "@/pages/cloud-icons";
 import DrawioPOCPage from "@/pages/drawio-poc";
 import CanvasPOCPage from "@/pages/canvas-poc";
 import InstantCanvasPage from "@/pages/instant-canvas";
+import CanvasSimple from "@/pages/canvas-simple";
 
 // Redirect component for deprecated routes
 function Redirect({ to }: { to: string }) {
@@ -52,7 +53,8 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/studio" component={DesignStudioHome} />
-      <Route path="/studio/canvas" component={StudioPage} />
+      <Route path="/studio/canvas" component={CanvasSimple} />
+      <Route path="/studio/canvas-advanced" component={StudioPage} />
       <Route path="/design-palette">{() => <Redirect to="/studio" />}</Route>
       <Route path="/workspace">{() => <Redirect to="/studio" />}</Route>
       <Route path="/modeling">{() => <Redirect to="/studio" />}</Route>
