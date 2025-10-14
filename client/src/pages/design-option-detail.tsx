@@ -146,6 +146,103 @@ function DesignOptionDetailContent() {
           ]
         };
       
+      case "print-formats":
+        return {
+          title: "Print Story as PDF",
+          description: "Professional PDF export formats for user stories with elegant layouts",
+          items: [
+            {
+              id: "ARKPF-00001",
+              title: "Executive Summary",
+              description: "Clean, minimal layout emphasizing key information for leadership reviews and quick status updates",
+              concept: "Essential Information Only",
+              component: (
+                <div className="w-full bg-white border rounded-lg p-3 text-xs">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded"></div>
+                      <span className="font-bold text-[10px]">ARKHITEKTON</span>
+                    </div>
+                    <span className="font-mono text-[10px]">US-ABC123</span>
+                  </div>
+                  <div className="text-[9px] font-semibold mb-1 border-b pb-1">Story Title Here</div>
+                  <div className="flex gap-1 mb-2">
+                    <span className="bg-green-100 text-green-800 px-1 rounded text-[8px]">Done</span>
+                    <span className="bg-orange-100 text-orange-800 px-1 rounded text-[8px]">High</span>
+                    <span className="bg-blue-100 text-blue-800 px-1 rounded text-[8px]">5pts</span>
+                  </div>
+                  <div className="text-[8px] text-gray-600 leading-tight">
+                    Given user wants feature<br/>
+                    When action occurs<br/>
+                    Then expected result
+                  </div>
+                </div>
+              ),
+              pros: ["Perfect for leadership", "Quick visual scan", "Minimal clutter", "Essential info only"],
+              cons: ["Hides technical details", "Limited metadata"],
+              status: "Active"
+            },
+            {
+              id: "ARKPF-00002",
+              title: "Technical Documentation",
+              description: "Comprehensive layout showing all fields and details for developers and technical teams",
+              concept: "Complete Information Archive",
+              component: (
+                <div className="w-full bg-white border rounded-lg p-3 text-xs">
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="col-span-1 border-r pr-2 text-[8px]">
+                      <div className="font-semibold mb-1">US-ABC123</div>
+                      <div className="space-y-0.5 text-gray-600">
+                        <div>Status: Done</div>
+                        <div>Priority: High</div>
+                        <div>Points: 5</div>
+                        <div>Epic: E-001</div>
+                      </div>
+                    </div>
+                    <div className="col-span-2 text-[8px]">
+                      <div className="font-semibold mb-1">Description</div>
+                      <div className="text-gray-600 mb-2">Story details here...</div>
+                      <div className="font-semibold mb-1">Acceptance Criteria</div>
+                      <div className="font-mono text-[7px] bg-gray-50 p-1 rounded">
+                        Given...<br/>When...<br/>Then...
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ),
+              pros: ["All information visible", "Developer-friendly", "Audit trail included", "Code-ready format"],
+              cons: ["Dense layout", "Longer print output"],
+              status: "Active"
+            },
+            {
+              id: "ARKPF-00003",
+              title: "Presentation Format",
+              description: "Visually striking design suitable for stakeholder presentations with large typography and strategic branding",
+              concept: "Stakeholder Communication",
+              component: (
+                <div className="w-full bg-white border-2 border-orange-500 rounded-lg p-3">
+                  <div className="border-l-4 border-orange-500 pl-2 mb-2">
+                    <div className="text-[10px] font-bold">Story Title</div>
+                    <div className="text-[8px] text-gray-600">US-ABC123</div>
+                  </div>
+                  <div className="bg-orange-50 rounded p-2 mb-2">
+                    <div className="text-[8px] italic text-orange-900">
+                      "As a user, I want feature, so that I can achieve value"
+                    </div>
+                  </div>
+                  <div className="flex gap-2 text-[7px]">
+                    <div className="bg-orange-500 text-white px-2 py-0.5 rounded">HIGH PRIORITY</div>
+                    <div className="border border-orange-500 text-orange-600 px-2 py-0.5 rounded">5 POINTS</div>
+                  </div>
+                </div>
+              ),
+              pros: ["Visually impressive", "Great for presentations", "Clear narrative focus", "Strong branding"],
+              cons: ["Less detailed", "Larger page count"],
+              status: "Active"
+            }
+          ]
+        };
+      
       default:
         return null;
     }

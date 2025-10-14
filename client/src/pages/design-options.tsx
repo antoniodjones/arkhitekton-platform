@@ -295,6 +295,16 @@ function DesignOptionsContent() {
       dateCreated: "2025-09-02",
       itemCount: 3,
       status: "Proposed"
+    },
+    {
+      id: "print-formats",
+      title: "Print Story as PDF",
+      description: "Professional PDF export formats for user stories with elegant layouts optimized for printing and presentations",
+      category: "Print Design",
+      priority: "High",
+      dateCreated: "2025-10-14",
+      itemCount: 3,
+      status: "Active"
     }
   ];
 
