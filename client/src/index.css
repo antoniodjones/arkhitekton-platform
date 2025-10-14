@@ -484,17 +484,18 @@ aside [data-radix-popper-content-wrapper] {
 }
 
 /* ============================================================================
-   Print Styles - User Story PDF Export
-   Ensures all content is fully visible without overflow/cutoff
+   Print Styles - User Story PDF Export (3 Professional Formats)
+   ARKHITEKTON Print Design System
    ============================================================================ */
+
+/* ========== SHARED PRINT BASE ========== */
 @media print {
-  /* Reset page layout */
   @page {
-    size: A4;
-    margin: 1.5cm;
+    size: A4 portrait;
+    margin: 20mm;
   }
   
-  /* Hide UI elements that shouldn't print */
+  /* Hide UI chrome */
   button,
   .print-hide,
   [data-testid*="button-"],
@@ -502,11 +503,15 @@ aside [data-radix-popper-content-wrapper] {
   header,
   nav,
   .sidebar,
-  aside {
+  aside,
+  [data-testid="select-epic-connection"],
+  [data-testid="select-story-status"],
+  [data-testid="select-story-points"],
+  [data-testid="select-story-priority"] {
     display: none !important;
   }
   
-  /* Force dialog content to be visible and full width */
+  /* Dialog full width */
   [data-radix-dialog-content],
   [role="dialog"] {
     position: static !important;
@@ -518,201 +523,349 @@ aside [data-radix-popper-content-wrapper] {
     box-shadow: none !important;
     border: none !important;
     margin: 0 !important;
-    padding: 1rem !important;
+    padding: 0 !important;
   }
   
-  /* Remove overflow constraints from dialog */
-  .max-h-\[90vh\],
-  .overflow-y-auto,
-  .overflow-auto,
-  .overflow-hidden {
-    max-height: none !important;
-    overflow: visible !important;
-  }
-  
-  /* Expand all text areas to show full content */
-  textarea,
-  .textarea,
-  [data-testid="textarea-story-description"],
-  [data-testid="textarea-acceptance-criteria"] {
+  /* Expand textareas fully */
+  textarea {
     height: auto !important;
     min-height: auto !important;
     max-height: none !important;
     overflow: visible !important;
-    resize: none !important;
-    border: 1px solid #ccc !important;
-    padding: 0.5rem !important;
-    white-space: pre-wrap !important;
-    word-wrap: break-word !important;
-    page-break-inside: avoid;
-  }
-  
-  /* Ensure all input fields show their content */
-  input,
-  select {
-    border: 1px solid #ccc !important;
-    padding: 0.25rem !important;
-    background: white !important;
-    color: black !important;
-  }
-  
-  /* Make all sections visible */
-  .space-y-2,
-  .space-y-4,
-  .grid,
-  .flex {
-    display: block !important;
-    page-break-inside: avoid;
-  }
-  
-  .grid > *,
-  .flex > * {
-    display: block !important;
-    margin-bottom: 0.5rem !important;
-  }
-  
-  /* Labels and headings */
-  label,
-  h1, h2, h3, h4, h5 {
-    color: black !important;
-    font-weight: bold !important;
-    margin-top: 0.75rem !important;
-    margin-bottom: 0.25rem !important;
-    page-break-after: avoid;
-  }
-  
-  /* Story ID and title */
-  [data-testid="input-story-title"] {
-    font-size: 1rem !important;
-    font-weight: 600 !important;
-  }
-  
-  /* Defect management section */
-  .defect-management,
-  [class*="defect"] {
-    page-break-inside: avoid;
-    margin: 1rem 0 !important;
-  }
-  
-  /* GitHub integration section */
-  [class*="github"] {
-    page-break-inside: avoid;
-    margin: 1rem 0 !important;
-  }
-  
-  /* Screenshots section */
-  [class*="screenshot"],
-  img {
-    max-width: 100% !important;
-    height: auto !important;
-    page-break-inside: avoid;
-    margin: 0.5rem 0 !important;
-  }
-  
-  /* Remove backgrounds and shadows for cleaner print */
-  .bg-blue-50,
-  .bg-blue-950\/20,
-  .bg-gray-50,
-  .bg-gray-900,
-  .dark\:bg-blue-950\/20,
-  .dark\:bg-gray-900 {
-    background: white !important;
-    border: 1px solid #ddd !important;
-  }
-  
-  /* Ensure text is black on white */
-  * {
-    color: black !important;
+    border: none !important;
     background: transparent !important;
-  }
-  
-  /* Exception for bordered sections */
-  .border,
-  .rounded-lg {
-    border: 1px solid #ccc !important;
-    padding: 0.75rem !important;
-    margin: 0.5rem 0 !important;
-    background: white !important;
-  }
-  
-  /* Page breaks */
-  .page-break-before {
-    page-break-before: always;
-  }
-  
-  .page-break-after {
-    page-break-after: always;
-  }
-  
-  /* Prevent orphaned labels */
-  label {
-    page-break-after: avoid;
-  }
-  
-  /* Keep content together */
-  .space-y-2 > *,
-  .space-y-4 > * {
-    page-break-inside: avoid;
-  }
-  
-  /* Acceptance criteria - special handling for long text */
-  #acceptance-criteria,
-  [data-testid="textarea-acceptance-criteria"] {
-    font-family: 'JetBrains Mono', monospace !important;
-    font-size: 0.85rem !important;
-    line-height: 1.5 !important;
+    padding: 0 !important;
     white-space: pre-wrap !important;
     word-break: break-word !important;
-    page-break-inside: auto;
   }
   
-  /* Gherkin validation messages */
-  [data-testid*="gherkin-"] {
-    display: block !important;
-    margin: 0.25rem 0 !important;
-    font-size: 0.85rem !important;
+  input {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
   }
   
-  /* Story composition guidance */
-  .text-blue-900,
-  .text-blue-700,
-  .dark\:text-blue-100,
-  .dark\:text-blue-300 {
-    color: #1e40af !important;
+  * {
+    overflow: visible !important;
+  }
+}
+
+/* ========== FORMAT 1: EXECUTIVE SUMMARY ========== */
+@media print {
+  .print-format-executive [data-radix-dialog-content] {
+    font-family: 'Archivo', 'Inter', sans-serif !important;
   }
   
-  /* Compact select trigger values */
-  [data-radix-select-trigger] {
-    border: 1px solid #ccc !important;
-    padding: 0.25rem !important;
-    background: white !important;
+  /* Header with logo and ID */
+  .print-format-executive .DialogHeader {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 0 0 12pt 0 !important;
+    border-bottom: 3pt solid #f97316 !important;
+    margin-bottom: 16pt !important;
   }
   
-  /* Ensure proper spacing between sections */
-  .DialogContent > div > .space-y-4 > * {
-    margin-bottom: 1rem !important;
+  .print-format-executive .DialogTitle {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8pt !important;
+    font-size: 16pt !important;
+    font-weight: 700 !important;
+    color: #1b1b1f !important;
   }
   
-  /* Dialog title */
-  [data-radix-dialog-title] {
-    font-size: 1.25rem !important;
-    font-weight: bold !important;
-    margin-bottom: 1rem !important;
-    padding-bottom: 0.5rem !important;
-    border-bottom: 2px solid #ccc !important;
-  }
-  
-  /* Hide action buttons */
-  [data-testid="button-print-story"],
-  [data-testid="button-cancel-story"],
-  [data-testid="button-save-story"] {
+  .print-format-executive .DialogTitle svg {
     display: none !important;
   }
   
-  /* Force visible text */
-  .text-muted-foreground,
-  .text-xs {
-    color: #555 !important;
-    font-size: 0.8rem !important;
+  .print-format-executive .DialogTitle::before {
+    content: "ARKHITEKTON" !important;
+    font-family: 'Archivo Black', sans-serif !important;
+    font-size: 14pt !important;
+    color: #f97316 !important;
+  }
+  
+  .print-format-executive .DialogTitle span {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 11pt !important;
+    color: #666 !important;
+  }
+  
+  /* Hide story composition guidance */
+  .print-format-executive .bg-blue-50,
+  .print-format-executive .bg-blue-950\/20 {
+    display: none !important;
+  }
+  
+  /* Story title prominent */
+  .print-format-executive [data-testid="input-story-title"] {
+    font-size: 14pt !important;
+    font-weight: 600 !important;
+    line-height: 1.4 !important;
+    color: #1b1b1f !important;
+    margin-bottom: 12pt !important;
+    display: block !important;
+  }
+  
+  /* Key metrics band */
+  .print-format-executive .grid.grid-cols-2.gap-4:first-of-type {
+    display: flex !important;
+    gap: 8pt !important;
+    margin-bottom: 16pt !important;
+    padding: 8pt !important;
+    background: #f5f5f5 !important;
+    border-radius: 4pt !important;
+  }
+  
+  .print-format-executive .grid.grid-cols-2.gap-4:first-of-type > div {
+    flex: 0 0 auto !important;
+  }
+  
+  .print-format-executive label {
+    font-size: 8pt !important;
+    color: #666 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5pt !important;
+    margin-bottom: 2pt !important;
+  }
+  
+  /* Hide team assignments and GitHub */
+  .print-format-executive .grid.grid-cols-3,
+  .print-format-executive [class*="github"],
+  .print-format-executive .defect-management,
+  .print-format-executive [class*="screenshot"] {
+    display: none !important;
+  }
+  
+  /* Description compact */
+  .print-format-executive [data-testid="textarea-story-description"] {
+    font-size: 10pt !important;
+    line-height: 1.5 !important;
+    color: #333 !important;
+    margin-bottom: 12pt !important;
+  }
+  
+  /* Acceptance criteria prominent */
+  .print-format-executive [data-testid="textarea-acceptance-criteria"] {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 9pt !important;
+    line-height: 1.6 !important;
+    color: #1b1b1f !important;
+    background: #f9f9f9 !important;
+    padding: 8pt !important;
+    border-left: 3pt solid #f97316 !important;
+  }
+  
+  /* Footer metadata */
+  .print-format-executive::after {
+    content: "" !important;
+    display: block !important;
+    margin-top: 16pt !important;
+    padding-top: 8pt !important;
+    border-top: 1pt solid #ddd !important;
+    font-size: 8pt !important;
+    color: #999 !important;
+  }
+}
+
+/* ========== FORMAT 2: TECHNICAL DOCUMENTATION ========== */
+@media print {
+  .print-format-technical [data-radix-dialog-content] {
+    font-family: 'Inter', sans-serif !important;
+  }
+  
+  /* Two-column layout */
+  .print-format-technical .space-y-4 {
+    display: grid !important;
+    grid-template-columns: 35% 65% !important;
+    gap: 16pt !important;
+  }
+  
+  /* Left sidebar: metadata */
+  .print-format-technical .DialogHeader,
+  .print-format-technical [data-testid="select-epic-connection"],
+  .print-format-technical .grid.grid-cols-2.gap-4:first-of-type,
+  .print-format-technical [data-testid="select-story-priority"],
+  .print-format-technical .grid.grid-cols-3,
+  .print-format-technical [class*="github"],
+  .print-format-technical .defect-management {
+    grid-column: 1 !important;
+  }
+  
+  /* Right main: content */
+  .print-format-technical [data-testid="input-story-title"],
+  .print-format-technical .bg-blue-50,
+  .print-format-technical [data-testid="textarea-story-description"],
+  .print-format-technical [data-testid="textarea-acceptance-criteria"],
+  .print-format-technical [class*="screenshot"] {
+    grid-column: 2 !important;
+  }
+  
+  /* Metadata styling */
+  .print-format-technical label {
+    font-size: 8pt !important;
+    font-weight: 600 !important;
+    color: #666 !important;
+    text-transform: uppercase !important;
+    display: block !important;
+    margin-bottom: 3pt !important;
+  }
+  
+  .print-format-technical input,
+  .print-format-technical textarea {
+    font-size: 9pt !important;
+    color: #1b1b1f !important;
+    border-bottom: 1pt solid #e5e5e5 !important;
+    padding-bottom: 4pt !important;
+    margin-bottom: 8pt !important;
+  }
+  
+  /* Story title */
+  .print-format-technical [data-testid="input-story-title"] {
+    font-size: 13pt !important;
+    font-weight: 700 !important;
+    border-bottom: 2pt solid #f97316 !important;
+    padding-bottom: 8pt !important;
+    margin-bottom: 12pt !important;
+  }
+  
+  /* Acceptance criteria */
+  .print-format-technical [data-testid="textarea-acceptance-criteria"] {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 8pt !important;
+    line-height: 1.6 !important;
+    background: #f5f5f5 !important;
+    padding: 8pt !important;
+    border: 1pt solid #ddd !important;
+  }
+  
+  /* Defect table */
+  .print-format-technical .defect-management table {
+    width: 100% !important;
+    font-size: 7pt !important;
+    border-collapse: collapse !important;
+  }
+  
+  .print-format-technical .defect-management th,
+  .print-format-technical .defect-management td {
+    border: 1pt solid #ddd !important;
+    padding: 4pt !important;
+  }
+}
+
+/* ========== FORMAT 3: PRESENTATION ========== */
+@media print {
+  .print-format-presentation [data-radix-dialog-content] {
+    font-family: 'Archivo', sans-serif !important;
+  }
+  
+  /* Hero header */
+  .print-format-presentation .DialogHeader {
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%) !important;
+    color: white !important;
+    padding: 20pt !important;
+    margin: -20mm -20mm 20pt -20mm !important;
+    border-radius: 0 !important;
+  }
+  
+  .print-format-presentation .DialogTitle {
+    font-size: 20pt !important;
+    font-weight: 900 !important;
+    color: white !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1pt !important;
+  }
+  
+  .print-format-presentation .DialogTitle svg {
+    display: none !important;
+  }
+  
+  .print-format-presentation .DialogTitle span {
+    display: block !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 14pt !important;
+    font-weight: 400 !important;
+    opacity: 0.9 !important;
+    margin-top: 4pt !important;
+  }
+  
+  /* Hide composition guidance */
+  .print-format-presentation .bg-blue-50,
+  .print-format-presentation .bg-blue-950\/20 {
+    display: none !important;
+  }
+  
+  /* Story title as callout */
+  .print-format-presentation [data-testid="input-story-title"] {
+    font-size: 16pt !important;
+    font-weight: 700 !important;
+    line-height: 1.4 !important;
+    color: #1b1b1f !important;
+    background: #fff7ed !important;
+    padding: 12pt !important;
+    border-left: 5pt solid #f97316 !important;
+    margin-bottom: 16pt !important;
+    font-style: italic !important;
+  }
+  
+  /* Key metrics as badges */
+  .print-format-presentation .grid.grid-cols-2.gap-4:first-of-type {
+    display: flex !important;
+    gap: 12pt !important;
+    margin-bottom: 20pt !important;
+  }
+  
+  .print-format-presentation .grid.grid-cols-2.gap-4:first-of-type label {
+    display: none !important;
+  }
+  
+  .print-format-presentation .grid.grid-cols-2.gap-4:first-of-type input::before {
+    font-size: 12pt !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    background: #f97316 !important;
+    color: white !important;
+    padding: 6pt 12pt !important;
+    border-radius: 4pt !important;
+  }
+  
+  /* Hide technical details */
+  .print-format-presentation .grid.grid-cols-3,
+  .print-format-presentation [class*="github"],
+  .print-format-presentation .defect-management,
+  .print-format-presentation [class*="screenshot"] {
+    display: none !important;
+  }
+  
+  /* Description large */
+  .print-format-presentation [data-testid="textarea-story-description"] {
+    font-size: 12pt !important;
+    line-height: 1.7 !important;
+    color: #333 !important;
+    margin-bottom: 20pt !important;
+  }
+  
+  /* Acceptance criteria as section */
+  .print-format-presentation [data-testid="textarea-acceptance-criteria"] {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 11pt !important;
+    line-height: 1.8 !important;
+    color: #1b1b1f !important;
+    background: white !important;
+    padding: 16pt !important;
+    border: 2pt solid #f97316 !important;
+    border-radius: 8pt !important;
+  }
+  
+  .print-format-presentation [data-testid="textarea-acceptance-criteria"]::before {
+    content: "SUCCESS CRITERIA" !important;
+    display: block !important;
+    font-size: 10pt !important;
+    font-weight: 700 !important;
+    color: #f97316 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1pt !important;
+    margin-bottom: 8pt !important;
   }
 }
