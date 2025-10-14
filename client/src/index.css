@@ -495,6 +495,16 @@ aside [data-radix-popper-content-wrapper] {
     margin: 20mm;
   }
   
+  /* Hide everything except the dialog */
+  body > *:not([data-radix-portal]) {
+    display: none !important;
+  }
+  
+  /* Show only the dialog portal */
+  [data-radix-portal] {
+    display: block !important;
+  }
+  
   /* Hide UI chrome */
   button,
   .print-hide,
