@@ -974,7 +974,7 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
   const [editingStory, setEditingStory] = useState<UserStory | null>(null);
   const [isStoryDialogOpen, setIsStoryDialogOpen] = useState(false);
   const [gherkinValidation, setGherkinValidation] = useState<{isValid: boolean; errors: string[]; warnings: string[]}>({ isValid: true, errors: [], warnings: [] });
-  const [printFormat, setPrintFormat] = useState<'executive' | 'technical' | 'presentation'>('executive');
+  const [printFormat, setPrintFormat] = useState<'executive' | 'technical' | 'presentation'>('technical');
   
   // Validate Gherkin format when story is opened for editing (US-XIGJUQ7)
   useEffect(() => {
