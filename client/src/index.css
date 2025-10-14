@@ -482,3 +482,237 @@ aside [role="tooltip"],
 aside [data-radix-popper-content-wrapper] {
   z-index: 1000000 !important;
 }
+
+/* ============================================================================
+   Print Styles - User Story PDF Export
+   Ensures all content is fully visible without overflow/cutoff
+   ============================================================================ */
+@media print {
+  /* Reset page layout */
+  @page {
+    size: A4;
+    margin: 1.5cm;
+  }
+  
+  /* Hide UI elements that shouldn't print */
+  button,
+  .print-hide,
+  [data-testid*="button-"],
+  [data-radix-dialog-overlay],
+  header,
+  nav,
+  .sidebar,
+  aside {
+    display: none !important;
+  }
+  
+  /* Force dialog content to be visible and full width */
+  [data-radix-dialog-content],
+  [role="dialog"] {
+    position: static !important;
+    transform: none !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 1rem !important;
+  }
+  
+  /* Remove overflow constraints from dialog */
+  .max-h-\[90vh\],
+  .overflow-y-auto,
+  .overflow-auto,
+  .overflow-hidden {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  
+  /* Expand all text areas to show full content */
+  textarea,
+  .textarea,
+  [data-testid="textarea-story-description"],
+  [data-testid="textarea-acceptance-criteria"] {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    resize: none !important;
+    border: 1px solid #ccc !important;
+    padding: 0.5rem !important;
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    page-break-inside: avoid;
+  }
+  
+  /* Ensure all input fields show their content */
+  input,
+  select {
+    border: 1px solid #ccc !important;
+    padding: 0.25rem !important;
+    background: white !important;
+    color: black !important;
+  }
+  
+  /* Make all sections visible */
+  .space-y-2,
+  .space-y-4,
+  .grid,
+  .flex {
+    display: block !important;
+    page-break-inside: avoid;
+  }
+  
+  .grid > *,
+  .flex > * {
+    display: block !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  /* Labels and headings */
+  label,
+  h1, h2, h3, h4, h5 {
+    color: black !important;
+    font-weight: bold !important;
+    margin-top: 0.75rem !important;
+    margin-bottom: 0.25rem !important;
+    page-break-after: avoid;
+  }
+  
+  /* Story ID and title */
+  [data-testid="input-story-title"] {
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+  }
+  
+  /* Defect management section */
+  .defect-management,
+  [class*="defect"] {
+    page-break-inside: avoid;
+    margin: 1rem 0 !important;
+  }
+  
+  /* GitHub integration section */
+  [class*="github"] {
+    page-break-inside: avoid;
+    margin: 1rem 0 !important;
+  }
+  
+  /* Screenshots section */
+  [class*="screenshot"],
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+    page-break-inside: avoid;
+    margin: 0.5rem 0 !important;
+  }
+  
+  /* Remove backgrounds and shadows for cleaner print */
+  .bg-blue-50,
+  .bg-blue-950\/20,
+  .bg-gray-50,
+  .bg-gray-900,
+  .dark\:bg-blue-950\/20,
+  .dark\:bg-gray-900 {
+    background: white !important;
+    border: 1px solid #ddd !important;
+  }
+  
+  /* Ensure text is black on white */
+  * {
+    color: black !important;
+    background: transparent !important;
+  }
+  
+  /* Exception for bordered sections */
+  .border,
+  .rounded-lg {
+    border: 1px solid #ccc !important;
+    padding: 0.75rem !important;
+    margin: 0.5rem 0 !important;
+    background: white !important;
+  }
+  
+  /* Page breaks */
+  .page-break-before {
+    page-break-before: always;
+  }
+  
+  .page-break-after {
+    page-break-after: always;
+  }
+  
+  /* Prevent orphaned labels */
+  label {
+    page-break-after: avoid;
+  }
+  
+  /* Keep content together */
+  .space-y-2 > *,
+  .space-y-4 > * {
+    page-break-inside: avoid;
+  }
+  
+  /* Acceptance criteria - special handling for long text */
+  #acceptance-criteria,
+  [data-testid="textarea-acceptance-criteria"] {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 0.85rem !important;
+    line-height: 1.5 !important;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+    page-break-inside: auto;
+  }
+  
+  /* Gherkin validation messages */
+  [data-testid*="gherkin-"] {
+    display: block !important;
+    margin: 0.25rem 0 !important;
+    font-size: 0.85rem !important;
+  }
+  
+  /* Story composition guidance */
+  .text-blue-900,
+  .text-blue-700,
+  .dark\:text-blue-100,
+  .dark\:text-blue-300 {
+    color: #1e40af !important;
+  }
+  
+  /* Compact select trigger values */
+  [data-radix-select-trigger] {
+    border: 1px solid #ccc !important;
+    padding: 0.25rem !important;
+    background: white !important;
+  }
+  
+  /* Ensure proper spacing between sections */
+  .DialogContent > div > .space-y-4 > * {
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Dialog title */
+  [data-radix-dialog-title] {
+    font-size: 1.25rem !important;
+    font-weight: bold !important;
+    margin-bottom: 1rem !important;
+    padding-bottom: 0.5rem !important;
+    border-bottom: 2px solid #ccc !important;
+  }
+  
+  /* Hide action buttons */
+  [data-testid="button-print-story"],
+  [data-testid="button-cancel-story"],
+  [data-testid="button-save-story"] {
+    display: none !important;
+  }
+  
+  /* Force visible text */
+  .text-muted-foreground,
+  .text-xs {
+    color: #555 !important;
+    font-size: 0.8rem !important;
+  }
+}
