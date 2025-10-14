@@ -974,7 +974,6 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
   const [editingStory, setEditingStory] = useState<UserStory | null>(null);
   const [isStoryDialogOpen, setIsStoryDialogOpen] = useState(false);
   const [gherkinValidation, setGherkinValidation] = useState<{isValid: boolean; errors: string[]; warnings: string[]}>({ isValid: true, errors: [], warnings: [] });
-  const [printFormat, setPrintFormat] = useState<'executive' | 'technical' | 'presentation'>('technical');
   
   // Validate Gherkin format when story is opened for editing (US-XIGJUQ7)
   useEffect(() => {
@@ -1802,7 +1801,7 @@ Then [expected outcome]`,
 
       {/* Story Edit Dialog */}
       <Dialog open={isStoryDialogOpen} onOpenChange={setIsStoryDialogOpen}>
-        <DialogContent className={`max-w-4xl max-h-[90vh] overflow-y-auto print-format-${printFormat}`}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto print-format-technical">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <FileText className="w-5 h-5" />
@@ -2322,29 +2321,17 @@ Scenario: [scenario name]
 
               {/* Action Buttons */}
               <div className="flex justify-between items-center pt-4">
-                <div className="flex items-center gap-3">
-                  <Select value={printFormat} onValueChange={(value: 'executive' | 'technical' | 'presentation') => setPrintFormat(value)}>
-                    <SelectTrigger className="w-[200px]" data-testid="select-print-format" aria-label="Select print format">
-                      <SelectValue placeholder="Select print format" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="executive" data-testid="print-format-executive">Executive Summary</SelectItem>
-                      <SelectItem value="technical" data-testid="print-format-technical">Technical Docs</SelectItem>
-                      <SelectItem value="presentation" data-testid="print-format-presentation">Presentation</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      // Print as PDF with selected format
-                      window.print();
-                    }} 
-                    data-testid="button-print-story"
-                  >
-                    <Printer className="w-4 h-4 mr-2" />
-                    Print as PDF
-                  </Button>
-                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    // Print as PDF with Technical Documentation format
+                    window.print();
+                  }} 
+                  data-testid="button-print-story"
+                >
+                  <Printer className="w-4 h-4 mr-2" />
+                  Print as PDF
+                </Button>
                 <div className="flex gap-2">
                   <Button variant="outline" onClick={() => setIsStoryDialogOpen(false)} data-testid="button-cancel-story">
                     Cancel
