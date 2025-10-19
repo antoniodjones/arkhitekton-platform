@@ -144,14 +144,15 @@ export default function CanvasSimple() {
   const handleAddShape = (shapeType: string) => {
     if (!editor) return;
 
-    const viewportCenter = editor.getViewportPageCenter();
+    const viewportCenter = editor.getViewportScreenCenter();
+    const pagePoint = editor.screenToPage(viewportCenter);
     const shapeId = createShapeId();
 
     editor.createShape({
       id: shapeId,
       type: shapeType,
-      x: viewportCenter.x - 70,
-      y: viewportCenter.y - 40,
+      x: pagePoint.x - 70,
+      y: pagePoint.y - 40,
     });
 
     editor.select(shapeId);
