@@ -243,6 +243,17 @@ export default function CanvasSimple() {
           <Button
             variant="ghost"
             size="sm"
+            onClick={() => setShapesModalOpen(true)}
+            className="text-slate-300 hover:text-white hover:bg-slate-800 border-0"
+            data-testid="button-open-shapes"
+          >
+            <Shapes className="h-4 w-4 mr-2" />
+            Shapes
+          </Button>
+          <div className="w-px h-4 bg-slate-700" />
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => editor?.undo()}
             disabled={!canUndo}
             className="text-slate-300 hover:text-white hover:bg-slate-800 border-0"
@@ -298,18 +309,6 @@ export default function CanvasSimple() {
       </GovernanceHeader>
 
       <div className="flex-1 relative">
-        {/* Vertical Toolbar */}
-        <div className="absolute left-4 top-4 z-[1000] bg-white dark:bg-slate-900 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 p-2 flex flex-col gap-1">
-          <button
-            onClick={() => setShapesModalOpen(true)}
-            className="p-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300"
-            title="ArchiMate Shapes"
-            data-testid="button-open-shapes"
-          >
-            <Shapes className="h-5 w-5" />
-          </button>
-        </div>
-
         {/* Shapes Modal */}
         <Dialog open={shapesModalOpen} onOpenChange={setShapesModalOpen}>
           <DialogContent className="max-w-2xl max-h-[80vh]">
