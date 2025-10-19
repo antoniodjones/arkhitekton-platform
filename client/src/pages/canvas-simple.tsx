@@ -298,7 +298,7 @@ export default function CanvasSimple() {
 
       <div className="flex-1 relative">
         {/* Vertical Toolbar */}
-        <div className="absolute left-4 top-4 z-10 bg-white dark:bg-slate-900 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 p-2 flex flex-col gap-1">
+        <div className="absolute left-4 top-4 z-[1000] bg-white dark:bg-slate-900 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 p-2 flex flex-col gap-1">
           <button
             onClick={() => setShapesModalOpen(true)}
             className="p-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300"
