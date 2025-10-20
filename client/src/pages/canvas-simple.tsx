@@ -32,12 +32,18 @@ const ARCHIMATE_SHAPES = {
   ],
 };
 
-// Custom Toolbar Component (Miro-style vertical toolbar)
+// Custom Toolbar Component (Miro-style vertical toolbar) - using tldraw's InFrontOfTheCanvas
 function CustomToolbar({ onOpenShapes }: { onOpenShapes: () => void }) {
   return (
     <div 
-      className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-auto"
-      style={{ zIndex: 1000 }}
+      className="tlui-zone tlui-zone__left pointer-events-auto"
+      style={{ 
+        position: 'absolute',
+        left: '8px',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        zIndex: 1000,
+      }}
     >
       <div className="bg-white dark:bg-slate-800 rounded-lg shadow-2xl border border-slate-300 dark:border-slate-600 p-2 flex flex-col gap-2">
         <button
@@ -59,6 +65,11 @@ export default function CanvasSimple() {
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [shapesModalOpen, setShapesModalOpen] = useState(false);
+
+  // Define custom components for tldraw
+  const customComponents: TLComponents = {
+    InFrontOfTheCanvas: () => <CustomToolbar onOpenShapes={() => setShapesModalOpen(true)} />,
+  };
   const [draggedShape, setDraggedShape] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -458,9 +469,8 @@ export default function CanvasSimple() {
           <Tldraw
             onMount={handleMount}
             shapeUtils={archiMateShapeUtils}
-          >
-            <CustomToolbar onOpenShapes={() => setShapesModalOpen(true)} />
-          </Tldraw>
+            components={customComponents}
+          />
         </div>
       </div>
     </div>
