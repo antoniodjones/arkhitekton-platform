@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Tldraw, Editor, createShapeId } from 'tldraw';
+import { Tldraw, Editor, createShapeId, TLComponents, useEditor } from 'tldraw';
 import 'tldraw/tldraw.css';
 import { GovernanceHeader } from '@/components/layout/governance-header';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,27 @@ const ARCHIMATE_SHAPES = {
     { type: 'artifact', label: 'Artifact', color: '#C1E1C1' },
   ],
 };
+
+// Custom Toolbar Component (Miro-style vertical toolbar)
+function CustomToolbar({ onOpenShapes }: { onOpenShapes: () => void }) {
+  return (
+    <div 
+      className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-auto"
+      style={{ zIndex: 1000 }}
+    >
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-2xl border border-slate-300 dark:border-slate-600 p-2 flex flex-col gap-2">
+        <button
+          onClick={onOpenShapes}
+          className="p-2.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-300 hover:text-orange-500 dark:hover:text-orange-400"
+          title="ArchiMate Shapes"
+          data-testid="button-open-shapes-toolbar"
+        >
+          <Shapes className="h-5 w-5" />
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function CanvasSimple() {
   const [, setLocation] = useLocation();
@@ -298,23 +319,6 @@ export default function CanvasSimple() {
       </GovernanceHeader>
 
       <div className="flex-1 relative">
-        {/* Vertical Toolbar - Miro Style */}
-        <div 
-          className="absolute left-2 top-1/2 -translate-y-1/2 z-[9999] pointer-events-auto"
-          style={{ isolation: 'isolate' }}
-        >
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-2xl border border-slate-300 dark:border-slate-600 p-2 flex flex-col gap-2">
-            <button
-              onClick={() => setShapesModalOpen(true)}
-              className="p-2.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-300 hover:text-orange-500 dark:hover:text-orange-400"
-              title="ArchiMate Shapes"
-              data-testid="button-open-shapes-toolbar"
-            >
-              <Shapes className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
-
         {/* Shapes Modal */}
         <Dialog open={shapesModalOpen} onOpenChange={setShapesModalOpen}>
           <DialogContent className="max-w-2xl max-h-[80vh]">
@@ -454,7 +458,9 @@ export default function CanvasSimple() {
           <Tldraw
             onMount={handleMount}
             shapeUtils={archiMateShapeUtils}
-          />
+          >
+            <CustomToolbar onOpenShapes={() => setShapesModalOpen(true)} />
+          </Tldraw>
         </div>
       </div>
     </div>
