@@ -34,25 +34,46 @@ const ARCHIMATE_SHAPES = {
 
 // Custom Toolbar Component (Miro-style vertical toolbar) - using tldraw's InFrontOfTheCanvas
 function CustomToolbar({ onOpenShapes }: { onOpenShapes: () => void }) {
+  console.log('CustomToolbar rendering...');
+  
   return (
     <div 
-      className="tlui-zone tlui-zone__left pointer-events-auto"
       style={{ 
-        position: 'absolute',
-        left: '8px',
+        position: 'fixed',
+        left: '16px',
         top: '50%',
         transform: 'translateY(-50%)',
-        zIndex: 1000,
+        zIndex: 999999,
+        pointerEvents: 'auto',
       }}
     >
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-2xl border border-slate-300 dark:border-slate-600 p-2 flex flex-col gap-2">
+      <div 
+        style={{ 
+          backgroundColor: '#ff6600',
+          borderRadius: '8px',
+          padding: '12px',
+          boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+        }}
+      >
         <button
-          onClick={onOpenShapes}
-          className="p-2.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-300 hover:text-orange-500 dark:hover:text-orange-400"
+          onClick={() => {
+            console.log('Shapes button clicked!');
+            onOpenShapes();
+          }}
+          style={{
+            padding: '12px',
+            borderRadius: '6px',
+            border: 'none',
+            backgroundColor: 'white',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
           title="ArchiMate Shapes"
           data-testid="button-open-shapes-toolbar"
         >
-          <Shapes className="h-5 w-5" />
+          <Shapes style={{ width: '24px', height: '24px', color: '#ff6600' }} />
         </button>
       </div>
     </div>
