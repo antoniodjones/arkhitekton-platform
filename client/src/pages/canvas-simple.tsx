@@ -87,10 +87,6 @@ export default function CanvasSimple() {
   const [canRedo, setCanRedo] = useState(false);
   const [shapesModalOpen, setShapesModalOpen] = useState(false);
 
-  // Define custom components for tldraw
-  const customComponents: TLComponents = {
-    InFrontOfTheCanvas: () => <CustomToolbar onOpenShapes={() => setShapesModalOpen(true)} />,
-  };
   const [draggedShape, setDraggedShape] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -485,13 +481,14 @@ export default function CanvasSimple() {
         <div
           onDrop={handleCanvasDrop}
           onDragOver={handleDragOver}
-          className="h-full w-full"
+          className="h-full w-full relative"
         >
           <Tldraw
             onMount={handleMount}
             shapeUtils={archiMateShapeUtils}
-            components={customComponents}
           />
+          {/* Vertical Toolbar - Rendered outside tldraw but over canvas */}
+          <CustomToolbar onOpenShapes={() => setShapesModalOpen(true)} />
         </div>
       </div>
     </div>
