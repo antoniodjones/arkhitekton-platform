@@ -1,6 +1,6 @@
 import { useRoute } from "wouter";
 import { useState } from "react";
-import { FileText } from "lucide-react";
+import { FileText, Monitor } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,6 +53,173 @@ function DeltaColorPalette() {
   );
 }
 
+// Layout Option Wireframes
+function FigmaStyleLayout() {
+  return (
+    <div className="w-full h-40 bg-white border rounded-lg flex overflow-hidden">
+      {/* Sidebar */}
+      <div className="w-1/4 bg-gray-50 border-r p-2 flex flex-col gap-2">
+        <div className="h-4 w-4 bg-gray-300 rounded mb-2"></div>
+        <div className="h-2 w-3/4 bg-gray-200 rounded"></div>
+        <div className="h-2 w-1/2 bg-gray-200 rounded"></div>
+        <div className="mt-auto h-2 w-full bg-gray-200 rounded"></div>
+      </div>
+      {/* Main Content */}
+      <div className="flex-1 p-3">
+        <div className="flex justify-between mb-4">
+          <div className="h-3 w-1/3 bg-gray-200 rounded"></div>
+          <div className="h-6 w-20 bg-orange-100 rounded"></div>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="h-16 border rounded bg-gray-50"></div>
+          <div className="h-16 border rounded bg-gray-50"></div>
+          <div className="h-16 border rounded bg-gray-50"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MuralStyleLayout() {
+  return (
+    <div className="w-full h-40 bg-white border rounded-lg flex overflow-hidden">
+      {/* Left Nav */}
+      <div className="w-12 bg-gray-800 flex flex-col items-center py-2 gap-2">
+        <div className="w-6 h-6 bg-white/20 rounded"></div>
+        <div className="w-6 h-6 bg-white/20 rounded"></div>
+        <div className="w-6 h-6 bg-white/20 rounded"></div>
+      </div>
+      {/* Main Content - Card Grid */}
+      <div className="flex-1 p-4 bg-gray-50">
+        <div className="h-8 w-full bg-white rounded border mb-4 flex items-center px-2">
+          <div className="w-4 h-4 bg-gray-200 rounded"></div>
+        </div>
+        <div className="flex gap-3 overflow-x-auto">
+          <div className="w-24 h-20 bg-white border rounded shadow-sm shrink-0"></div>
+          <div className="w-24 h-20 bg-white border rounded shadow-sm shrink-0"></div>
+          <div className="w-24 h-20 bg-white border rounded shadow-sm shrink-0"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MiroStyleLayout() {
+  return (
+    <div className="w-full h-40 bg-white border rounded-lg flex overflow-hidden">
+      {/* Team Sidebar */}
+      <div className="w-10 bg-indigo-900 flex flex-col items-center py-2 gap-2">
+        <div className="w-6 h-6 bg-white/20 rounded"></div>
+      </div>
+      {/* Project Sidebar */}
+      <div className="w-32 bg-gray-50 border-r p-2">
+        <div className="h-3 w-full bg-gray-200 rounded mb-2"></div>
+        <div className="h-2 w-3/4 bg-gray-200 rounded mb-1"></div>
+        <div className="h-2 w-3/4 bg-gray-200 rounded mb-1"></div>
+      </div>
+      {/* Content */}
+      <div className="flex-1 p-3">
+        <div className="flex justify-between items-center mb-3">
+          <div className="h-4 w-1/3 bg-gray-200 rounded"></div>
+          <div className="h-5 w-16 bg-blue-100 rounded"></div>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="h-12 border bg-yellow-50 rounded"></div>
+          <div className="h-12 border bg-blue-50 rounded"></div>
+          <div className="h-12 border bg-green-50 rounded"></div>
+          <div className="h-12 border bg-purple-50 rounded"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EnterpriseLayout() {
+  return (
+    <div className="w-full h-40 bg-gray-50 border rounded-lg flex flex-col overflow-hidden">
+      {/* Top Nav */}
+      <div className="h-8 bg-white border-b flex items-center px-3 justify-between">
+        <div className="w-20 h-3 bg-gray-200 rounded"></div>
+        <div className="w-6 h-6 bg-gray-200 rounded-full"></div>
+      </div>
+      {/* Dashboard Content */}
+      <div className="flex-1 p-3 grid grid-cols-2 gap-3">
+        {/* Widget 1 */}
+        <div className="bg-white border rounded p-2">
+          <div className="h-2 w-1/2 bg-gray-200 rounded mb-2"></div>
+          <div className="h-8 w-full bg-blue-50 rounded"></div>
+        </div>
+        {/* Widget 2 */}
+        <div className="bg-white border rounded p-2">
+          <div className="h-2 w-1/2 bg-gray-200 rounded mb-2"></div>
+          <div className="space-y-1">
+            <div className="h-2 w-full bg-gray-100 rounded"></div>
+            <div className="h-2 w-full bg-gray-100 rounded"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HybridLayout() {
+  return (
+    <div className="w-full h-40 bg-white border rounded-lg flex flex-col overflow-hidden">
+      {/* Hero Search */}
+      <div className="h-16 bg-gradient-to-r from-orange-50 to-amber-50 flex items-center justify-center border-b">
+        <div className="w-1/2 h-6 bg-white border rounded shadow-sm"></div>
+      </div>
+      {/* Visual Grid */}
+      <div className="p-3">
+        <div className="h-2 w-1/4 bg-gray-200 rounded mb-2"></div>
+        <div className="flex gap-3">
+          <div className="w-24 h-16 bg-white border rounded-lg shadow-md hover:scale-105 transition-transform"></div>
+          <div className="w-24 h-16 bg-white border rounded-lg shadow-md hover:scale-105 transition-transform"></div>
+          <div className="w-24 h-16 bg-white border rounded-lg shadow-md hover:scale-105 transition-transform"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function IdeStyleLayout() {
+  return (
+    <div className="w-full h-40 bg-gray-900 border rounded-lg flex overflow-hidden">
+      {/* Activity Bar */}
+      <div className="w-10 bg-gray-800 flex flex-col items-center py-2 gap-3 border-r border-gray-700">
+        <div className="w-5 h-5 bg-blue-500 rounded"></div>
+        <div className="w-5 h-5 bg-gray-600 rounded"></div>
+        <div className="w-5 h-5 bg-gray-600 rounded"></div>
+      </div>
+      {/* Explorer Sidebar */}
+      <div className="w-32 bg-gray-800 border-r border-gray-700 p-2 flex flex-col">
+        <div className="h-3 w-16 bg-gray-600 rounded mb-2"></div>
+        <div className="space-y-1">
+          <div className="h-2 w-full bg-blue-500/20 rounded"></div>
+          <div className="h-2 w-3/4 bg-gray-700 rounded ml-2"></div>
+          <div className="h-2 w-3/4 bg-gray-700 rounded ml-2"></div>
+        </div>
+      </div>
+      {/* Editor Area */}
+      <div className="flex-1 flex flex-col bg-gray-900">
+        <div className="h-6 bg-gray-800 border-b border-gray-700 flex px-1 gap-1 items-end">
+          <div className="h-5 w-24 bg-gray-900 rounded-t border-t border-x border-gray-700"></div>
+          <div className="h-5 w-24 bg-gray-800 rounded-t border-t border-x border-transparent opacity-50"></div>
+        </div>
+        <div className="flex-1 p-2 grid grid-cols-2 gap-2">
+          <div className="border border-gray-700 rounded bg-gray-800/50"></div>
+          <div className="border border-gray-700 rounded bg-gray-800/50"></div>
+        </div>
+        {/* Terminal/Lower Panel */}
+        <div className="h-10 border-t border-gray-700 bg-gray-800 p-1">
+          <div className="h-2 w-full bg-gray-700 rounded mb-1"></div>
+          <div className="h-2 w-1/2 bg-gray-700 rounded"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function DesignOptionDetailContent() {
   const [, params] = useRoute("/design-options/:id");
   const optionId = params?.id;
@@ -75,7 +242,7 @@ function DesignOptionDetailContent() {
               status: "Proposed"
             },
             {
-              id: "ARKDD-00002", 
+              id: "ARKDD-00002",
               title: "Primary Geometric Flow",
               description: "Using triangle, circle, hexagon, and square in refined sequence with trailing dots",
               concept: "Geometric Harmony & Flow",
@@ -86,7 +253,7 @@ function DesignOptionDetailContent() {
             }
           ]
         };
-      
+
       case "color-palettes":
         return {
           title: "Color Palette Options",
@@ -104,7 +271,7 @@ function DesignOptionDetailContent() {
             },
             {
               id: "ARKCP-00002",
-              title: "Corporate Blue Slate", 
+              title: "Corporate Blue Slate",
               description: "Professional blue-gray palette with enterprise sophistication",
               concept: "Enterprise Sophistication",
               component: (
@@ -122,7 +289,7 @@ function DesignOptionDetailContent() {
             }
           ]
         };
-        
+
       case "typography":
         return {
           title: "Typography Systems",
@@ -145,7 +312,103 @@ function DesignOptionDetailContent() {
             }
           ]
         };
-      
+
+      case "canvas-dashboard-layouts":
+        return {
+          title: "Canvas Dashboard Layouts",
+          description: "Proposed landing page layouts inspired by industry leaders to balance B2B complexity with B2C usability",
+          items: [
+            {
+              id: "ARKDL-00001",
+              title: "The 'File & Community' Hub",
+              description: "Inspired by Figma. Prioritizes a clean grid of recent files while giving equal weight to 'Community' and 'Templates' in the sidebar.",
+              concept: "Figma-Style: File Centric + Community",
+              component: <FigmaStyleLayout />,
+              pros: [
+                "Familiar to designers",
+                "Great for managing many files",
+                "Promotes template reuse (Community)",
+                "Scales for Enterprise (Teams in sidebar)"
+              ],
+              cons: ["Can feel like a file system", "Less emphasis on 'Quick Start'"],
+              status: "Proposed"
+            },
+            {
+              id: "ARKDL-00002",
+              title: "The 'Infinite Start'",
+              description: "Inspired by Mural. A clean, spacious landing page that emphasizes immediate creation. Large 'Create' buttons and a horizontal scrolling list of templates.",
+              concept: "Mural-Style: Action Oriented",
+              component: <MuralStyleLayout />,
+              pros: [
+                "Extremely low barrier to entry",
+                "Fun and inviting (B2C feel)",
+                "Visual focus on templates",
+                "Less clutter"
+              ],
+              cons: ["Might hide advanced enterprise features", "Browsing archives can be harder"],
+              status: "Proposed"
+            },
+            {
+              id: "ARKDL-00003",
+              title: "The 'Workspace Commander'",
+              description: "Inspired by Miro. A structured three-pane layout: Teams/Spaces on far left, Project/Folder tree in middle, and Board Grid on right.",
+              concept: "Miro-Style: Structured Organization",
+              component: <MiroStyleLayout />,
+              pros: [
+                "Perfect for complex organizational hierarchies (B2B)",
+                "Separates 'Team' from 'Project'",
+                "Very organized feel"
+              ],
+              cons: ["Higher cognitive load", "Requires navigating hierarchy to find files"],
+              status: "Proposed"
+            },
+            {
+              id: "ARKDL-00004",
+              title: "The 'Enterprise Command Center'",
+              description: "A traditional B2B dashboard approach. Instead of just files, it shows 'My Tasks', 'Pending Approvals', and 'Recent Activity' feeds alongside diagrams.",
+              concept: "Enterprise Task-Based",
+              component: <EnterpriseLayout />,
+              pros: [
+                "Integrates with Governance workflows",
+                "Shows 'What needs my attention'",
+                "Feels like a serious business tool"
+              ],
+              cons: ["Can feel cluttered", "Less inspiring for creativity", "Rigid structure"],
+              status: "Proposed"
+            },
+            {
+              id: "ARKDL-00005",
+              title: "The 'Visual Curator' (Recommended)",
+              description: "A hybrid approach. Features a large, centralized 'Hero Search' bar (Google style) above a beautiful, curated grid of diagrams. Hides folder complexity behind smart search.",
+              concept: "Hybrid B2C/B2B: Search-First",
+              component: <HybridLayout />,
+              pros: [
+                "Cleanest aesthetic (Apple-like)",
+                "Search-first behavior suits power users",
+                "Visual previews emphasize diagram beauty",
+                "Hides 'Enterprise Bloat' until needed"
+              ],
+              cons: ["Relies heavily on good search", "Files might feel 'lost' without folder tree"],
+              status: "Proposed"
+            },
+            {
+              id: "ARKDL-00006",
+              title: "The 'Architect's IDE'",
+              description: "Inspired by VS Code. A dense, high-utility layout for power users. Features a dedicated file explorer sidebar, a tabbed interface for open diagrams, and a properties/terminal panel.",
+              concept: "Developer-Centric: Dense & Functional",
+              component: <IdeStyleLayout />,
+              pros: [
+                "Familiar to developers/engineers",
+                "Maximal information density",
+                "Multi-tab support for context switching",
+                "Integrated terminal/logs view"
+              ],
+              cons: ["Steep learning curve", "Not welcoming to business users", "Busy interface"],
+              status: "New"
+            }
+          ]
+        };
+
       case "print-formats":
         return {
           title: "Print Story as PDF",
@@ -172,8 +435,8 @@ function DesignOptionDetailContent() {
                     <span className="bg-blue-100 text-blue-800 px-1 rounded text-[8px]">5pts</span>
                   </div>
                   <div className="text-[8px] text-gray-600 leading-tight">
-                    Given user wants feature<br/>
-                    When action occurs<br/>
+                    Given user wants feature<br />
+                    When action occurs<br />
                     Then expected result
                   </div>
                 </div>
@@ -204,7 +467,7 @@ function DesignOptionDetailContent() {
                       <div className="text-gray-600 mb-2">Story details here...</div>
                       <div className="font-semibold mb-1">Acceptance Criteria</div>
                       <div className="font-mono text-[7px] bg-gray-50 p-1 rounded">
-                        Given...<br/>When...<br/>Then...
+                        Given...<br />When...<br />Then...
                       </div>
                     </div>
                   </div>
@@ -242,22 +505,22 @@ function DesignOptionDetailContent() {
             }
           ]
         };
-      
+
       default:
         return null;
     }
   };
 
   const content = getDetailContent();
-  
+
   if (!content) {
     return (
       <div className="h-full overflow-hidden flex flex-col">
-        <GovernanceHeader 
-          moduleTitle="Design Option Detail" 
-          moduleIcon={FileText} 
+        <GovernanceHeader
+          moduleTitle="Design Option Detail"
+          moduleIcon={FileText}
         />
-        
+
         <div className="flex-1 overflow-auto">
           <div className="max-w-7xl mx-auto px-6 py-8">
             <div className="text-center">
@@ -272,100 +535,117 @@ function DesignOptionDetailContent() {
 
   return (
     <div className="h-full overflow-hidden flex flex-col">
-      <GovernanceHeader 
-        moduleTitle="Design Option Detail" 
-        moduleIcon={FileText} 
+      <GovernanceHeader
+        moduleTitle="Design Option Detail"
+        moduleIcon={FileText}
       />
-      
+
       <div className="flex-1 overflow-auto">
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-8">
             <p className="text-blue-800 dark:text-blue-200 text-sm">
-              <strong>ARKHITEKTON Design Philosophy:</strong> Every design decision reflects our commitment to transforming 
+              <strong>ARKHITEKTON Design Philosophy:</strong> Every design decision reflects our commitment to transforming
               architectural complexity into elegant, understandable models that empower enterprise architects.
             </p>
           </div>
 
           {/* Options Grid */}
           <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-3">
-        {content.items.map((item) => (
-          <Card key={item.id} className="group hover:shadow-lg transition-shadow">
-            <CardHeader className="text-center pb-4">
-              <div className="flex justify-center mb-4">
-                <Badge variant="secondary" className="mb-2">
-                  {item.id}
-                </Badge>
-              </div>
-              
-              {/* Design Display */}
-              <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-6 mb-4 border-2 border-dashed border-slate-200 dark:border-slate-700">
-                <div className="flex justify-center">
-                  {item.component}
-                </div>
-              </div>
-              
-              <CardTitle className="text-xl">{item.title}</CardTitle>
-              <CardDescription className="text-center">
-                {item.description}
-              </CardDescription>
-            </CardHeader>
-            
-            <CardContent className="space-y-4">
-              <div className="bg-primary/5 rounded-lg p-3">
-                <h4 className="font-medium text-primary mb-1">Core Concept</h4>
-                <p className="text-sm text-muted-foreground">{item.concept}</p>
-              </div>
-              
-              <div className="grid gap-3">
-                <div>
-                  <h4 className="font-medium text-green-600 dark:text-green-400 mb-1 text-sm">Strengths</h4>
-                  <ul className="text-xs text-muted-foreground space-y-1">
-                    {item.pros.map((pro, index) => (
-                      <li key={index} className="flex items-start gap-1">
-                        <span className="text-green-500 mt-0.5">•</span>
-                        {pro}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <div>
-                  <h4 className="font-medium text-orange-600 dark:text-orange-400 mb-1 text-sm">Considerations</h4>
-                  <ul className="text-xs text-muted-foreground space-y-1">
-                    {item.cons.map((con, index) => (
-                      <li key={index} className="flex items-start gap-1">
-                        <span className="text-orange-500 mt-0.5">•</span>
-                        {con}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between pt-2">
-                <Badge variant="outline" className={
-                  item.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                  item.status === 'New' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
-                  'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                }>
-                  {item.status}
-                </Badge>
-                
-                <Button 
-                  size="sm"
-                  onClick={() => {
-                    alert(`Selected ${item.id}: ${item.title}\\n\\nThis design option will be implemented!`);
-                  }}
-                  data-testid={`select-${item.id}`}
-                >
-                  Select Option
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+            {content.items.map((item) => (
+              <Card key={item.id} className="group hover:shadow-lg transition-shadow">
+                <CardHeader className="text-center pb-4">
+                  <div className="flex justify-center mb-4">
+                    <Badge variant="secondary" className="mb-2">
+                      {item.id}
+                    </Badge>
+                  </div>
+
+                  {/* Design Display */}
+                  <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-6 mb-4 border-2 border-dashed border-slate-200 dark:border-slate-700">
+                    <div className="flex justify-center">
+                      {item.component}
+                    </div>
+                  </div>
+
+                  <CardTitle className="text-xl">{item.title}</CardTitle>
+                  <CardDescription className="text-center">
+                    {item.description}
+                  </CardDescription>
+                </CardHeader>
+
+                <CardContent className="space-y-4">
+                  <div className="bg-primary/5 rounded-lg p-3">
+                    <h4 className="font-medium text-primary mb-1">Core Concept</h4>
+                    <p className="text-sm text-muted-foreground">{item.concept}</p>
+                  </div>
+
+                  <div className="grid gap-3">
+                    <div>
+                      <h4 className="font-medium text-green-600 dark:text-green-400 mb-1 text-sm">Strengths</h4>
+                      <ul className="text-xs text-muted-foreground space-y-1">
+                        {item.pros.map((pro, index) => (
+                          <li key={index} className="flex items-start gap-1">
+                            <span className="text-green-500 mt-0.5">•</span>
+                            {pro}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium text-orange-600 dark:text-orange-400 mb-1 text-sm">Considerations</h4>
+                      <ul className="text-xs text-muted-foreground space-y-1">
+                        {item.cons.map((con, index) => (
+                          <li key={index} className="flex items-start gap-1">
+                            <span className="text-orange-500 mt-0.5">•</span>
+                            {con}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2 pt-4">
+                    <div className="flex items-center justify-between w-full">
+                      <Badge variant="outline" className={
+                        item.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                          item.status === 'New' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+                            'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                      }>
+                        {item.status}
+                      </Badge>
+                    </div>
+
+                    {item.id.startsWith('ARKDL') && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full bg-indigo-50 text-indigo-600 border-indigo-200 hover:bg-indigo-100 hover:text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-800"
+                        onClick={() => {
+                          window.location.href = `/design-options/canvas-dashboard-layouts/prototype/${item.id}`;
+                        }}
+                      >
+                        <Monitor className="w-4 h-4 mr-2" />
+                        Launch Prototype
+                      </Button>
+                    )}
+
+                    <Button
+                      size="sm"
+                      className="w-full"
+                      onClick={() => {
+                        alert(`Selected ${item.id}: ${item.title}\n\nThis design option will be implemented!`);
+                      }}
+                      data-testid={`select-${item.id}`}
+                    >
+                      Select Option
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-          
+
           <div className="mt-12 text-center">
             <p className="text-muted-foreground text-sm">
               Click "Select Option" on your preferred choice to implement it throughout ARKHITEKTON

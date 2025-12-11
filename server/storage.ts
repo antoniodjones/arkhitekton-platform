@@ -1,9 +1,9 @@
-import { 
-  type User, 
-  type InsertUser, 
-  type ArchitectureElement, 
-  type InsertArchitectureElement, 
-  type RecentElement, 
+import {
+  type User,
+  type InsertUser,
+  type ArchitectureElement,
+  type InsertArchitectureElement,
+  type RecentElement,
   type InsertRecentElement,
   type KnowledgeBasePage,
   type InsertKnowledgeBasePage,
@@ -21,28 +21,33 @@ import {
   type InsertApplicationSetting,
   type Application,
   type InsertApplication,
-  type UpdateApplication
+  type UpdateApplication,
+  type ArchitecturalModel,
+  type InsertArchitecturalModel,
+  type ArchitecturalObject,
+  type InsertArchitecturalObject,
+  type ObjectConnection
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, isNull } from "drizzle-orm";
 import * as schema from "@shared/schema";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   // Architecture Elements
   getArchitectureElements(): Promise<ArchitectureElement[]>;
   getArchitectureElementsByCategory(category: string): Promise<ArchitectureElement[]>;
   getArchitectureElementsByFramework(framework: string): Promise<ArchitectureElement[]>;
   createArchitectureElement(element: InsertArchitectureElement): Promise<ArchitectureElement>;
-  
+
   // Recent Elements
   getRecentElementsByUser(userId: string): Promise<RecentElement[]>;
   addRecentElement(recentElement: InsertRecentElement): Promise<RecentElement>;
-  
+
   // Knowledge Base Pages
   getAllKnowledgeBasePages(): Promise<KnowledgeBasePage[]>;
   getRootKnowledgeBasePages(): Promise<KnowledgeBasePage[]>;
@@ -124,7 +129,7 @@ export interface IStorage {
   createApplication(application: InsertApplication): Promise<Application>;
   updateApplication(id: string, updates: UpdateApplication): Promise<Application | undefined>;
   deleteApplication(id: string): Promise<boolean>;
-  
+
   // Jira Integration - Native bi-directional sync
   getJiraWebhookEventByIdempotency(idempotencyKey: string): Promise<any | undefined>;
   createJiraWebhookEvent(event: any): Promise<string>;
@@ -133,7 +138,23 @@ export interface IStorage {
   getJiraMappingByIssueKey(jiraIssueKey: string): Promise<any | undefined>;
   createJiraMapping(mapping: any): Promise<any>;
   createJiraSyncLog(log: any): Promise<void>;
+
   getJiraSyncStats(): Promise<any>;
+
+  // Architectural Models
+  getArchitecturalModels(): Promise<ArchitecturalModel[]>;
+  getArchitecturalModel(id: string): Promise<ArchitecturalModel | undefined>;
+  createArchitecturalModel(model: InsertArchitecturalModel): Promise<ArchitecturalModel>;
+  updateArchitecturalModel(id: string, updates: Partial<ArchitecturalModel>): Promise<ArchitecturalModel | undefined>;
+
+  // Architectural Objects
+  getArchitecturalObjects(modelId: string): Promise<ArchitecturalObject[]>;
+  createArchitecturalObject(object: InsertArchitecturalObject): Promise<ArchitecturalObject>;
+  updateArchitecturalObject(id: string, updates: Partial<ArchitecturalObject>): Promise<ArchitecturalObject | undefined>;
+
+  // Object Connections
+  getObjectConnections(modelId: string): Promise<ObjectConnection[]>;
+  createObjectConnection(connection: any): Promise<ObjectConnection>;
 }
 
 // Standardized User Story ID generator with collision detection
@@ -149,7 +170,7 @@ export function generateUserStoryId(): string {
 export async function generateUniqueUserStoryId(storage: IStorage): Promise<string> {
   let attempts = 0;
   const maxAttempts = 10; // Prevent infinite loops
-  
+
   while (attempts < maxAttempts) {
     const id = generateUserStoryId();
     const existing = await storage.getUserStory(id);
@@ -158,9 +179,11 @@ export async function generateUniqueUserStoryId(storage: IStorage): Promise<stri
     }
     attempts++;
   }
-  
+
   throw new Error("Failed to generate unique user story ID after maximum attempts");
 }
+
+
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
@@ -173,6 +196,11 @@ export class MemStorage implements IStorage {
   private integrationChannels: Map<string, IntegrationChannel>;
   private objectSyncFlows: Map<string, ObjectSyncFlow>;
   private applicationSettings: Map<string, ApplicationSetting>;
+  private architecturalModels: Map<string, ArchitecturalModel>;
+  private architecturalObjects: Map<string, ArchitecturalObject>;
+  private objectConnections: Map<string, ObjectConnection>;
+  private applications: Map<string, Application>;
+
 
   constructor() {
     this.users = new Map();
@@ -185,7 +213,12 @@ export class MemStorage implements IStorage {
     this.epics = new Map();
     this.integrationChannels = new Map();
     this.objectSyncFlows = new Map();
-    
+    this.architecturalModels = new Map();
+    this.architecturalObjects = new Map();
+    this.objectConnections = new Map();
+    this.applications = new Map();
+
+
     // Initialize with some sample architecture elements
     this.initializeArchitectureElements();
     // Initialize with sample knowledge base pages
@@ -229,6 +262,11 @@ export class MemStorage implements IStorage {
       const fullElement: ArchitectureElement = {
         ...element,
         id,
+        framework: (element.framework as string) || 'archimate',
+        vendor: element.vendor || null,
+        usageGuidelines: element.usageGuidelines || null,
+        iconName: element.iconName || null,
+        relationships: (element.relationships as any) || [],
         createdAt: new Date()
       };
       this.architectureElements.set(id, fullElement);
@@ -358,7 +396,7 @@ export class MemStorage implements IStorage {
   async searchKnowledgeBasePages(query: string): Promise<KnowledgeBasePage[]> {
     const searchTerm = query.toLowerCase();
     return Array.from(this.knowledgeBasePages.values())
-      .filter(page => 
+      .filter(page =>
         page.title.toLowerCase().includes(searchTerm) ||
         page.tags.some(tag => tag.toLowerCase().includes(searchTerm)) ||
         (page.searchKeywords && page.searchKeywords.toLowerCase().includes(searchTerm))
@@ -470,9 +508,9 @@ export class MemStorage implements IStorage {
   }
 
   async getUserStoriesByAssignee(assignee: string): Promise<UserStory[]> {
-    return Array.from(this.userStories.values()).filter(story => 
-      story.assignee === assignee || 
-      story.productManager === assignee || 
+    return Array.from(this.userStories.values()).filter(story =>
+      story.assignee === assignee ||
+      story.productManager === assignee ||
       story.techLead === assignee
     );
   }
@@ -529,10 +567,10 @@ export class MemStorage implements IStorage {
 
   async getOpenDefectsByStory(userStoryId: string): Promise<Defect[]> {
     return Array.from(this.defects.values()).filter(
-      defect => defect.userStoryId === userStoryId && 
-      defect.status !== 'resolved' && 
-      defect.status !== 'closed' &&
-      defect.status !== 'rejected'
+      defect => defect.userStoryId === userStoryId &&
+        defect.status !== 'resolved' &&
+        defect.status !== 'closed' &&
+        defect.status !== 'rejected'
     );
   }
 
@@ -614,7 +652,7 @@ export class MemStorage implements IStorage {
       error.code = '23505'; // PostgreSQL duplicate key error code
       throw error;
     }
-    
+
     const newEpic: Epic = {
       ...epic,
       createdAt: new Date(),
@@ -681,7 +719,7 @@ Scenario: Team Assignment
   Then I can assign the right people to the work
   And track progress across the team`,
         storyPoints: 5,
-        status: "in-progress", 
+        status: "in-progress",
         priority: "high",
         assignee: "Mike Rodriguez",
         productManager: "Emily Davis",
@@ -760,10 +798,10 @@ Scenario: Team Assignment
       }
     ];
 
-    sampleIntegrationChannels.forEach(channel => {
+    sampleIntegrationChannels.forEach(sampleChannel => {
       const id = randomUUID();
       const fullChannel: IntegrationChannel = {
-        ...channel,
+        ...sampleChannel,
         id,
         createdAt: new Date(),
         updatedAt: new Date()
@@ -771,9 +809,10 @@ Scenario: Team Assignment
       this.integrationChannels.set(id, fullChannel);
 
       // Create sample sync flows for each channel
+      const flowId = randomUUID();
       const sampleSyncFlow: InsertObjectSyncFlow = {
-        name: `${channel.name} Object Sync`,
-        description: `Git-like object synchronization for ${channel.name}`,
+        name: `${sampleChannel.name} Object Sync`,
+        description: `Git-like object synchronization for ${sampleChannel.name}`,
         integrationChannelId: id,
         objectTypes: ['component', 'service', 'interface', 'data_model'],
         sourceScope: 'workspace',
@@ -787,44 +826,124 @@ Scenario: Team Assignment
           },
           {
             from: 'staged',
-            to: 'committed',
-            trigger: 'commit',
-            actions: ['update_docs', 'notify_team']
-          },
-          {
-            from: 'committed',
-            to: 'merged',
-            trigger: 'merge',
-            actions: ['deploy', 'update_tracking']
+            action: 'updated'
           }
-        ],
-        conflictResolution: {
-          strategy: 'manual',
-          mergePatterns: ['semantic_merge', 'three_way_merge'],
-          reviewRequired: true
-        },
-        currentState: 'draft',
-        stateVersion: 1,
-        syncMetrics: {
-          successCount: 0,
-          errorCount: 0,
-          avgSyncTime: 0,
-          objectsProcessed: 0
-        },
-        isActive: 1,
-        syncTriggers: ['on_save', 'on_commit']
+        ]
       };
 
-      const syncFlowId = randomUUID();
-      const fullSyncFlow: ObjectSyncFlow = {
-        ...sampleSyncFlow,
-        id: syncFlowId,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      this.objectSyncFlows.set(syncFlowId, fullSyncFlow);
+      // Add flow to channel capabilities if not present
+      const channel = this.integrationChannels.get(id);
+      if (channel) {
+        if (!channel.capabilities) channel.capabilities = [];
+        if (!channel.capabilities.includes('model_sync')) {
+          channel.capabilities.push('model_sync');
+        }
+      }
+
+      this.objectSyncFlows.set(flowId, sampleSyncFlow as ObjectSyncFlow);
     });
   }
+
+  // Architectural Models
+  async getArchitecturalModels(): Promise<ArchitecturalModel[]> {
+    return Array.from(this.architecturalModels.values());
+  }
+
+  async getArchitecturalModel(id: string): Promise<ArchitecturalModel | undefined> {
+    return this.architecturalModels.get(id);
+  }
+
+  async createArchitecturalModel(modelData: InsertArchitecturalModel): Promise<ArchitecturalModel> {
+    const id = randomUUID();
+    const model: ArchitecturalModel = {
+      ...modelData,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      // Ensure defaults for JSONB fields
+      stakeholders: (modelData.stakeholders as any) || [],
+      canvasData: (modelData.canvasData as any) || { objects: [], connections: [], viewport: { x: 0, y: 0, zoom: 1 }, layouts: [] },
+      documentationPages: (modelData.documentationPages as any) || [],
+      metrics: (modelData.metrics as any) || {},
+      externalRefs: (modelData.externalRefs as any) || {},
+      version: modelData.version || "1.0.0",
+      state: modelData.state || "master",
+      status: modelData.status || "active",
+      parentModelId: modelData.parentModelId || null
+    };
+    this.architecturalModels.set(id, model);
+    return model;
+  }
+
+  async updateArchitecturalModel(id: string, updates: Partial<ArchitecturalModel>): Promise<ArchitecturalModel | undefined> {
+    const existing = this.architecturalModels.get(id);
+    if (!existing) return undefined;
+    const updated = { ...existing, ...updates, updatedAt: new Date() };
+    this.architecturalModels.set(id, updated);
+    return updated;
+  }
+
+  // Architectural Objects
+  async getArchitecturalObjects(modelId: string): Promise<ArchitecturalObject[]> {
+    return Array.from(this.architecturalObjects.values()).filter(o => o.modelId === modelId);
+  }
+
+  async createArchitecturalObject(objectData: InsertArchitecturalObject): Promise<ArchitecturalObject> {
+    const id = randomUUID();
+    const object: ArchitecturalObject = {
+      ...objectData,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      // Ensure defaults
+      semantics: (objectData.semantics as any) || { purpose: "", responsibilities: [], constraints: [], patterns: [] },
+      lifecycle: (objectData.lifecycle as any) || { state: "draft", milestones: [], decisions: [], changes: [] },
+      metrics: (objectData.metrics as any) || {},
+      implementation: (objectData.implementation as any) || {},
+      metadata: (objectData.metadata as any) || {}
+    };
+    this.architecturalObjects.set(id, object);
+    return object;
+  }
+
+  async updateArchitecturalObject(id: string, updates: Partial<ArchitecturalObject>): Promise<ArchitecturalObject | undefined> {
+    const existing = this.architecturalObjects.get(id);
+    if (!existing) return undefined;
+    const updated = { ...existing, ...updates, updatedAt: new Date() };
+    this.architecturalObjects.set(id, updated);
+    return updated;
+  }
+
+  // Object Connections
+  async getObjectConnections(modelId: string): Promise<ObjectConnection[]> {
+    // Find objects in the model
+    const modelObjectIds = new Set(
+      Array.from(this.architecturalObjects.values())
+        .filter(o => o.modelId === modelId)
+        .map(o => o.id)
+    );
+
+    // Return connections where both source and target are in the model
+    return Array.from(this.objectConnections.values()).filter(c =>
+      modelObjectIds.has(c.sourceObjectId) && modelObjectIds.has(c.targetObjectId)
+    );
+  }
+
+  async createObjectConnection(connData: any): Promise<ObjectConnection> {
+    const id = randomUUID();
+    const conn: ObjectConnection = {
+      ...connData,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      properties: connData.properties || {},
+      visual: connData.visual || { path: [], styling: {}, labels: [] }
+    };
+    this.objectConnections.set(id, conn);
+    return conn;
+  }
+
+
 
   // Developer Integration Channels Implementation
   async getAllIntegrationChannels(): Promise<IntegrationChannel[]> {
@@ -858,7 +977,7 @@ Scenario: Team Assignment
   async updateIntegrationChannel(id: string, updates: Partial<IntegrationChannel>): Promise<IntegrationChannel | undefined> {
     const channel = this.integrationChannels.get(id);
     if (!channel) return undefined;
-    
+
     const updatedChannel: IntegrationChannel = {
       ...channel,
       ...updates,
@@ -904,7 +1023,7 @@ Scenario: Team Assignment
   async updateObjectSyncFlow(id: string, updates: Partial<ObjectSyncFlow>): Promise<ObjectSyncFlow | undefined> {
     const flow = this.objectSyncFlows.get(id);
     if (!flow) return undefined;
-    
+
     const updatedFlow: ObjectSyncFlow = {
       ...flow,
       ...updates,
@@ -917,7 +1036,7 @@ Scenario: Team Assignment
   async updateSyncFlowState(id: string, state: string, stateVersion: number): Promise<ObjectSyncFlow | undefined> {
     const flow = this.objectSyncFlows.get(id);
     if (!flow || flow.stateVersion !== stateVersion) return undefined;
-    
+
     const updatedFlow: ObjectSyncFlow = {
       ...flow,
       currentState: state,
@@ -966,7 +1085,7 @@ Scenario: Team Assignment
   async updateSetting(key: string, updates: Partial<ApplicationSetting>): Promise<ApplicationSetting | undefined> {
     const setting = this.applicationSettings.get(key);
     if (!setting) return undefined;
-    
+
     const updated: ApplicationSetting = {
       ...setting,
       ...updates,
@@ -980,7 +1099,43 @@ Scenario: Team Assignment
   async deleteSetting(key: string): Promise<boolean> {
     return this.applicationSettings.delete(key);
   }
+
+  // Applications
+  async getAllApplications(): Promise<Application[]> { return Array.from(this.applications.values()); }
+  async getApplication(id: string): Promise<Application | undefined> { return this.applications.get(id); }
+  async getApplicationsByStatus(status: string): Promise<Application[]> { return Array.from(this.applications.values()).filter(a => a.status === status); }
+  async getApplicationsByType(type: string): Promise<Application[]> { return Array.from(this.applications.values()).filter(a => a.type === type); }
+  async getApplicationsByOwner(owner: string): Promise<Application[]> { return Array.from(this.applications.values()).filter(a => a.owner === owner); }
+  async getApplicationsByTeam(team: string): Promise<Application[]> { return Array.from(this.applications.values()).filter(a => a.team === team); }
+  async searchApplications(query: string): Promise<Application[]> { return Array.from(this.applications.values()).filter(a => a.name.includes(query)); }
+  async createApplication(app: InsertApplication): Promise<Application> {
+    const id = randomUUID();
+    const newApp: Application = { ...app, id, createdAt: new Date(), updatedAt: new Date(), description: app.description || null, owner: app.owner || null, team: app.team || null, status: app.status || 'active', type: app.type || 'web_application', hostingEnvironment: null, region: null, architecture: null, businessCapabilities: [], criticality: app.criticality || 'medium', businessValue: null, technologyStack: {}, integrations: [], dependencies: [], metrics: {}, costCenter: null, annualCost: null, costBreakdown: {}, version: "1.0.0", deployedDate: null, retirementDate: null, repositoryUrl: null, documentationUrl: null, monitoringUrl: null, tags: (app.tags as any) || [], notes: null, stakeholders: (app.stakeholders as any) || [] };
+    this.applications.set(id, newApp);
+    return newApp;
+  }
+  async updateApplication(id: string, updates: UpdateApplication): Promise<Application | undefined> {
+    const existing = this.applications.get(id);
+    if (!existing) return undefined;
+    const updated = { ...existing, ...updates, updatedAt: new Date() };
+    this.applications.set(id, updated);
+    return updated;
+  }
+  async deleteApplication(id: string): Promise<boolean> { return this.applications.delete(id); }
+
+  // Jira Integration (Stub)
+  async getJiraWebhookEventByIdempotency(idempotencyKey: string): Promise<any | undefined> { return undefined; }
+  async createJiraWebhookEvent(event: any): Promise<string> { return randomUUID(); }
+  async updateJiraWebhookEvent(id: string, updates: any): Promise<void> { }
+  async getJiraMappingByArkhitektonId(arkhitektonId: string): Promise<any | undefined> { return undefined; }
+  async getJiraMappingByIssueKey(jiraIssueKey: string): Promise<any | undefined> { return undefined; }
+  async createJiraMapping(mapping: any): Promise<any> { return mapping; }
+  async createJiraSyncLog(log: any): Promise<void> { }
+  async getJiraSyncStats(): Promise<any> { return { totalMappings: 0, activeSyncs: 0, errorSyncs: 0, totalSyncLogs: 0, successfulSyncs: 0, failedSyncs: 0, successRate: "0%" }; }
 }
+
+
+export const memStorage = new MemStorage();
 
 export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
@@ -1000,6 +1155,23 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return user;
   }
+
+  // Architectural Models (stub - using memory)
+  async getArchitecturalModels(): Promise<ArchitecturalModel[]> { return memStorage.getArchitecturalModels(); }
+  async getArchitecturalModel(id: string): Promise<ArchitecturalModel | undefined> { return memStorage.getArchitecturalModel(id); }
+  async createArchitecturalModel(model: InsertArchitecturalModel): Promise<ArchitecturalModel> { return memStorage.createArchitecturalModel(model); }
+  async updateArchitecturalModel(id: string, updates: Partial<ArchitecturalModel>): Promise<ArchitecturalModel | undefined> { return memStorage.updateArchitecturalModel(id, updates); }
+
+  // Architectural Objects (stub)
+  // Architectural Objects (stub)
+  async getArchitecturalObjects(modelId: string): Promise<ArchitecturalObject[]> { return memStorage.getArchitecturalObjects(modelId); }
+  async createArchitecturalObject(obj: InsertArchitecturalObject): Promise<ArchitecturalObject> { return memStorage.createArchitecturalObject(obj); }
+  async updateArchitecturalObject(id: string, updates: Partial<ArchitecturalObject>): Promise<ArchitecturalObject | undefined> { return memStorage.updateArchitecturalObject(id, updates); }
+
+  // Object Connections (stub)
+  // Object Connections (stub)
+  async getObjectConnections(modelId: string): Promise<ObjectConnection[]> { return memStorage.getObjectConnections(modelId); }
+  async createObjectConnection(conn: any): Promise<ObjectConnection> { return memStorage.createObjectConnection(conn); }
 
   // Architecture Elements (stub implementations - using memory for now)
   async getArchitectureElements(): Promise<ArchitectureElement[]> {
@@ -1042,13 +1214,13 @@ export class DatabaseStorage implements IStorage {
   async getRootKnowledgeBasePages(): Promise<KnowledgeBasePage[]> {
     return await db.select()
       .from(schema.knowledgeBasePages)
-      .where(eq(schema.knowledgeBasePages.parentId, ''));
+      .where(isNull(schema.knowledgeBasePages.parentPageId));
   }
 
   async getChildKnowledgeBasePages(parentId: string): Promise<KnowledgeBasePage[]> {
     return await db.select()
       .from(schema.knowledgeBasePages)
-      .where(eq(schema.knowledgeBasePages.parentId, parentId));
+      .where(eq(schema.knowledgeBasePages.parentPageId, parentId));
   }
 
   async getKnowledgeBasePage(id: string): Promise<KnowledgeBasePage | undefined> {
@@ -1067,7 +1239,7 @@ export class DatabaseStorage implements IStorage {
   async searchKnowledgeBasePages(query: string): Promise<KnowledgeBasePage[]> {
     // Simple text search implementation
     const allPages = await db.select().from(schema.knowledgeBasePages);
-    return allPages.filter(page => 
+    return allPages.filter(page =>
       page.title.toLowerCase().includes(query.toLowerCase()) ||
       page.content.toLowerCase().includes(query.toLowerCase())
     );
@@ -1076,7 +1248,10 @@ export class DatabaseStorage implements IStorage {
   async createKnowledgeBasePage(pageData: InsertKnowledgeBasePage): Promise<KnowledgeBasePage> {
     const [page] = await db
       .insert(schema.knowledgeBasePages)
-      .values(pageData)
+      .values({
+        ...pageData,
+        tags: (pageData.tags as any) || []
+      })
       .returning();
     return page;
   }
@@ -1101,33 +1276,33 @@ export class DatabaseStorage implements IStorage {
     // Simple breadcrumb implementation
     const page = await this.getKnowledgeBasePage(id);
     if (!page) return [];
-    
+
     const breadcrumbs = [{ id: page.id, title: page.title, path: `/knowledge-base/${page.id}` }];
-    
+
     if (page.parentId) {
       const parentBreadcrumbs = await this.getPageBreadcrumbs(page.parentId);
       return [...parentBreadcrumbs, ...breadcrumbs];
     }
-    
+
     return breadcrumbs;
   }
 
   async moveKnowledgeBasePage(id: string, newParentId: string | null, newOrder?: number): Promise<boolean> {
     const updateData: Partial<KnowledgeBasePage> = {
-      parentId: newParentId || '',
+      parentPageId: newParentId || null,
       updatedAt: new Date()
     };
-    
+
     if (newOrder !== undefined) {
       updateData.order = newOrder;
     }
-    
+
     const [updatedPage] = await db
       .update(schema.knowledgeBasePages)
       .set(updateData)
       .where(eq(schema.knowledgeBasePages.id, id))
       .returning();
-    
+
     return !!updatedPage;
   }
 
@@ -1160,6 +1335,9 @@ export class DatabaseStorage implements IStorage {
       .values({
         ...storyData,
         id,
+        githubCommits: (storyData.githubCommits as any) || [],
+        labels: (storyData.labels as any) || [],
+        screenshots: (storyData.screenshots as any) || [],
         createdAt: new Date(),
         updatedAt: new Date()
       })
@@ -1217,10 +1395,10 @@ export class DatabaseStorage implements IStorage {
     const defects = await db.select()
       .from(schema.defects)
       .where(eq(schema.defects.userStoryId, userStoryId));
-    
-    return defects.filter(d => 
-      d.status !== 'resolved' && 
-      d.status !== 'closed' && 
+
+    return defects.filter(d =>
+      d.status !== 'resolved' &&
+      d.status !== 'closed' &&
       d.status !== 'rejected'
     );
   }
@@ -1244,6 +1422,7 @@ export class DatabaseStorage implements IStorage {
       .insert(schema.defects)
       .values({
         ...defectData,
+        githubCommits: (defectData.githubCommits as any) || [],
         createdAt: new Date(),
         updatedAt: new Date(),
         resolvedAt: null
@@ -1523,7 +1702,7 @@ export class DatabaseStorage implements IStorage {
   async searchApplications(query: string): Promise<Application[]> {
     const applications = await db.select().from(schema.applications);
     const searchLower = query.toLowerCase();
-    return applications.filter(app => 
+    return applications.filter(app =>
       app.name.toLowerCase().includes(searchLower) ||
       (app.description && app.description.toLowerCase().includes(searchLower)) ||
       (app.owner && app.owner.toLowerCase().includes(searchLower)) ||
@@ -1536,6 +1715,14 @@ export class DatabaseStorage implements IStorage {
       .insert(schema.applications)
       .values({
         ...application,
+        tags: (application.tags as any) || [],
+        stakeholders: (application.stakeholders as any) || [],
+        businessCapabilities: (application.businessCapabilities as any) || [],
+        technologyStack: (application.technologyStack as any) || {},
+        integrations: (application.integrations as any) || [],
+        metrics: (application.metrics as any) || {},
+        costBreakdown: (application.costBreakdown as any) || {},
+        dependencies: (application.dependencies as any) || [],
         createdAt: new Date(),
         updatedAt: new Date()
       })
@@ -1544,10 +1731,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateApplication(id: string, updates: UpdateApplication): Promise<Application | undefined> {
+
     const [updated] = await db
       .update(schema.applications)
       .set({
         ...updates,
+        tags: updates.tags ? ((updates.tags as any) || []) : undefined,
+        stakeholders: updates.stakeholders ? ((updates.stakeholders as any) || []) : undefined,
+        businessCapabilities: updates.businessCapabilities ? ((updates.businessCapabilities as any) || []) : undefined,
+        technologyStack: updates.technologyStack ? ((updates.technologyStack as any) || {}) : undefined,
+        integrations: updates.integrations ? ((updates.integrations as any) || []) : undefined,
+        metrics: updates.metrics ? ((updates.metrics as any) || {}) : undefined,
+        costBreakdown: updates.costBreakdown ? ((updates.costBreakdown as any) || {}) : undefined,
+        dependencies: updates.dependencies ? ((updates.dependencies as any) || []) : undefined,
+        screenshots: updates.screenshots ? ((updates.screenshots as any) || []) : undefined, // Added casting for screenshots
         updatedAt: new Date()
       })
       .where(eq(schema.applications.id, id))
@@ -1561,7 +1758,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(schema.applications.id, id));
     return result.rowCount! > 0;
   }
-  
+
   // Jira Integration Methods
   async getJiraWebhookEventByIdempotency(idempotencyKey: string): Promise<any | undefined> {
     const [event] = await db
@@ -1571,7 +1768,7 @@ export class DatabaseStorage implements IStorage {
       .limit(1);
     return event || undefined;
   }
-  
+
   async createJiraWebhookEvent(event: any): Promise<string> {
     const [newEvent] = await db
       .insert(schema.jiraWebhookEvents)
@@ -1583,14 +1780,14 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return newEvent.id;
   }
-  
+
   async updateJiraWebhookEvent(id: string, updates: any): Promise<void> {
     await db
       .update(schema.jiraWebhookEvents)
       .set(updates)
       .where(eq(schema.jiraWebhookEvents.id, id));
   }
-  
+
   async getJiraMappingByArkhitektonId(arkhitektonId: string): Promise<any | undefined> {
     const [mapping] = await db
       .select()
@@ -1599,7 +1796,7 @@ export class DatabaseStorage implements IStorage {
       .limit(1);
     return mapping || undefined;
   }
-  
+
   async getJiraMappingByIssueKey(jiraIssueKey: string): Promise<any | undefined> {
     const [mapping] = await db
       .select()
@@ -1608,7 +1805,7 @@ export class DatabaseStorage implements IStorage {
       .limit(1);
     return mapping || undefined;
   }
-  
+
   async createJiraMapping(mapping: any): Promise<any> {
     const [newMapping] = await db
       .insert(schema.jiraIntegrationMappings)
@@ -1620,7 +1817,7 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return newMapping;
   }
-  
+
   async createJiraSyncLog(log: any): Promise<void> {
     await db
       .insert(schema.jiraSyncLogs)
@@ -1629,17 +1826,17 @@ export class DatabaseStorage implements IStorage {
         createdAt: new Date()
       });
   }
-  
+
   async getJiraSyncStats(): Promise<any> {
     // Get total mappings
     const mappings = await db.select().from(schema.jiraIntegrationMappings);
     const syncLogs = await db.select().from(schema.jiraSyncLogs);
-    
+
     const activeSyncs = mappings.filter(m => m.syncStatus === 'active').length;
     const errorSyncs = mappings.filter(m => m.syncStatus === 'error').length;
     const successfulSyncs = syncLogs.filter(l => l.status === 'success').length;
     const failedSyncs = syncLogs.filter(l => l.status === 'failed').length;
-    
+
     return {
       totalMappings: mappings.length,
       activeSyncs,

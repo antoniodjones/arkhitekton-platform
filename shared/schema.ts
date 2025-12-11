@@ -57,15 +57,15 @@ export const architecturalModels: any = pgTable("architectural_models", {
   domain: text("domain").notNull(), // 'software', 'data', 'infrastructure', 'integration', 'security', 'business'
   type: text("type").notNull(), // 'system', 'component', 'service', 'process', 'capability', 'custom'
   version: text("version").default("1.0.0"),
-  
+
   // Master state vs transition state
   state: text("state").notNull().default("master"), // 'master', 'transition', 'archived'
   parentModelId: uuid("parentModelId"), // For transition states
-  
+
   // Model ownership and governance
   ownerId: varchar("ownerId").notNull(),
   stakeholders: jsonb("stakeholders").$type<string[]>().default([]),
-  
+
   // Visual canvas data
   canvasData: jsonb("canvasData").$type<{
     objects: any[];
@@ -73,13 +73,13 @@ export const architecturalModels: any = pgTable("architectural_models", {
     viewport: any;
     layouts: any[];
   }>(),
-  
+
   // Documentation integration
   documentationPages: jsonb("documentationPages").$type<string[]>().default([]),
-  
+
   // Metrics and outcomes
   metrics: jsonb("metrics").$type<Record<string, any>>().default({}),
-  
+
   // External integrations
   externalRefs: jsonb("externalRefs").$type<{
     confluence?: string[];
@@ -87,7 +87,7 @@ export const architecturalModels: any = pgTable("architectural_models", {
     notion?: string[];
     custom?: Record<string, string>;
   }>().default({}),
-  
+
   // Lifecycle
   status: text("status").notNull().default("active"), // 'active', 'deprecated', 'retired'
   createdAt: timestamp("createdAt").defaultNow(),
@@ -99,12 +99,12 @@ export const architecturalObjects = pgTable("architectural_objects", {
   id: uuid("id").primaryKey().defaultRandom(),
   modelId: uuid("modelId").references(() => architecturalModels.id).notNull(),
   name: text("name").notNull(),
-  
+
   // Object classification
   objectType: text("objectType").notNull(), // 'standard', 'custom', 'derived'
   domain: text("domain").notNull(),
   category: text("category").notNull(),
-  
+
   // Visual representation
   visual: jsonb("visual").$type<{
     shape: any;
@@ -114,7 +114,7 @@ export const architecturalObjects = pgTable("architectural_objects", {
     ports: any[];
     annotations: any[];
   }>().notNull(),
-  
+
   // Architectural semantics
   semantics: jsonb("semantics").$type<{
     purpose: string;
@@ -127,7 +127,7 @@ export const architecturalObjects = pgTable("architectural_objects", {
     constraints: [],
     patterns: []
   }),
-  
+
   // Lifecycle tracking
   lifecycle: jsonb("lifecycle").$type<{
     state: string;
@@ -140,7 +140,7 @@ export const architecturalObjects = pgTable("architectural_objects", {
     decisions: [],
     changes: []
   }),
-  
+
   // Metrics and measurement
   metrics: jsonb("metrics").$type<{
     performance?: Record<string, number>;
@@ -150,7 +150,7 @@ export const architecturalObjects = pgTable("architectural_objects", {
     businessValue?: Record<string, number>;
     custom?: Record<string, any>;
   }>().default({}),
-  
+
   // Real-world implementation links
   implementation: jsonb("implementation").$type<{
     codeRepositories?: string[];
@@ -159,10 +159,10 @@ export const architecturalObjects = pgTable("architectural_objects", {
     dependencies?: string[];
     apis?: string[];
   }>().default({}),
-  
+
   // Custom metadata
   metadata: jsonb("metadata").$type<Record<string, any>>().default({}),
-  
+
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow()
 });
@@ -172,21 +172,21 @@ export const objectConnections = pgTable("object_connections", {
   id: uuid("id").primaryKey().defaultRandom(),
   sourceObjectId: uuid("sourceObjectId").references(() => architecturalObjects.id).notNull(),
   targetObjectId: uuid("targetObjectId").references(() => architecturalObjects.id).notNull(),
-  
+
   // Connection semantics
   relationshipType: text("relationshipType").notNull(), // 'depends_on', 'implements', 'calls', 'stores_in', 'deployed_on'
   direction: text("direction").notNull().default("directed"), // 'directed', 'bidirectional', 'undirected'
-  
+
   // Visual representation
   visual: jsonb("visual").$type<{
     path: any[];
     styling: any;
     labels: any[];
   }>(),
-  
+
   // Connection metadata
   properties: jsonb("properties").$type<Record<string, any>>().default({}),
-  
+
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow()
 });
@@ -194,21 +194,21 @@ export const objectConnections = pgTable("object_connections", {
 // Knowledge Base Pages - Simplified documentation system
 export const knowledgeBasePages = pgTable("knowledge_base_pages", {
   id: uuid("id").primaryKey().defaultRandom(),
-  
+
   // Essential fields only
   title: text("title").notNull(),
   slug: text("slug"), // Optional - will auto-generate
   content: text("content").notNull().default(""), // Simple text content
-  
+
   // Basic organization
   category: text("category").default("General"),
   status: text("status").default("draft"), // 'draft', 'published'
   tags: jsonb("tags").$type<string[]>().default([]),
-  
+
   // Optional hierarchy
   parentPageId: uuid("parentPageId"),
   order: integer("order").default(0),
-  
+
   // Timestamps
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow()
@@ -219,20 +219,20 @@ export const pageComments = pgTable("page_comments", {
   id: uuid("id").primaryKey().defaultRandom(),
   pageId: uuid("pageId").references(() => knowledgeBasePages.id).notNull(),
   parentCommentId: uuid("parentCommentId"), // For threaded comments
-  
+
   // Comment content
   content: text("content").notNull(),
   authorId: varchar("authorId").notNull(),
-  
+
   // Position in document (for inline comments)
   blockId: text("blockId"), // Which content block this comment is attached to
   position: integer("position"), // Character position within block
-  
+
   // Comment status
   isResolved: integer("isResolved").default(0), // 0 = open, 1 = resolved
   resolvedBy: varchar("resolvedBy"),
   resolvedAt: timestamp("resolvedAt"),
-  
+
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow()
 });
@@ -242,13 +242,13 @@ export const pageVersions = pgTable("page_versions", {
   id: uuid("id").primaryKey().defaultRandom(),
   pageId: uuid("pageId").references(() => knowledgeBasePages.id).notNull(),
   versionNumber: integer("versionNumber").notNull(),
-  
+
   // Version metadata
   title: text("title").notNull(),
   content: jsonb("content").notNull(),
   changeLog: text("changeLog"), // Summary of changes
   authorId: varchar("authorId").notNull(),
-  
+
   // Change tracking
   changes: jsonb("changes").$type<{
     type: 'create' | 'update' | 'delete';
@@ -256,7 +256,7 @@ export const pageVersions = pgTable("page_versions", {
     oldValue?: any;
     newValue?: any;
   }[]>().default([]),
-  
+
   createdAt: timestamp("createdAt").defaultNow()
 });
 
@@ -265,28 +265,28 @@ export const documentationPages: any = pgTable("documentation_pages", {
   id: uuid("id").primaryKey().defaultRandom(),
   modelId: uuid("modelId").references(() => architecturalModels.id),
   title: text("title").notNull(),
-  
+
   // Rich text content with embedded references
   content: jsonb("content").$type<{
     blocks: any[];
     embeddings: { type: string; id: string; position: number }[];
   }>().notNull(),
-  
+
   // Page metadata
   parentPageId: uuid("parentPageId"),
   order: integer("order").default(0),
-  
+
   // Collaboration
   authorId: varchar("authorId").notNull(),
   collaborators: jsonb("collaborators").$type<string[]>().default([]),
-  
+
   // External sync
   externalSync: jsonb("externalSync").$type<{
     confluence?: { spaceId: string; pageId: string; lastSync: string };
     sharepoint?: { siteId: string; listId: string; itemId: string; lastSync: string };
     notion?: { databaseId: string; pageId: string; lastSync: string };
   }>(),
-  
+
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow()
 });
@@ -296,12 +296,12 @@ export const modelVersions: any = pgTable("model_versions", {
   id: uuid("id").primaryKey().defaultRandom(),
   modelId: uuid("modelId").references(() => architecturalModels.id).notNull(),
   version: text("version").notNull(),
-  
+
   // Version metadata
   commitMessage: text("commitMessage"),
   authorId: varchar("authorId").notNull(),
   parentVersionId: uuid("parentVersionId"),
-  
+
   // Snapshot of model state
   modelSnapshot: jsonb("modelSnapshot").$type<{
     objects: any[];
@@ -309,7 +309,7 @@ export const modelVersions: any = pgTable("model_versions", {
     documentation: any[];
     metadata: any;
   }>().notNull(),
-  
+
   // Change tracking
   changes: jsonb("changes").$type<{
     added: string[];
@@ -317,7 +317,7 @@ export const modelVersions: any = pgTable("model_versions", {
     deleted: string[];
     summary: string;
   }>(),
-  
+
   createdAt: timestamp("createdAt").defaultNow()
 });
 
@@ -329,6 +329,12 @@ export const insertArchitecturalModelSchema = createInsertSchema(architecturalMo
 });
 
 export const insertArchitecturalObjectSchema = createInsertSchema(architecturalObjects).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertObjectConnectionSchema = createInsertSchema(objectConnections).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
@@ -387,17 +393,17 @@ export type InsertPageVersion = z.infer<typeof insertPageVersionSchema>;
 // Gamified Achievement System for Modeling Complexity
 export const achievements = pgTable("achievements", {
   id: uuid("id").primaryKey().defaultRandom(),
-  
+
   // Achievement definition
   name: text("name").notNull(),
   description: text("description").notNull(),
   category: text("category").notNull(), // 'complexity', 'collaboration', 'quality', 'consistency', 'innovation'
   tier: text("tier").notNull(), // 'bronze', 'silver', 'gold', 'platinum', 'diamond'
-  
+
   // Visual representation
   iconName: text("iconName").notNull(),
   color: text("color").notNull(),
-  
+
   // Scoring criteria
   criteria: jsonb("criteria").$type<{
     metric: string; // 'object_count', 'connection_density', 'semantic_depth', 'pattern_usage'
@@ -405,15 +411,15 @@ export const achievements = pgTable("achievements", {
     operator: 'gte' | 'lte' | 'eq'; // greater than equal, less than equal, equal
     weight: number; // scoring weight
   }[]>().notNull(),
-  
+
   // Points awarded
   basePoints: integer("basePoints").notNull(),
   bonusMultiplier: integer("bonusMultiplier").default(1),
-  
+
   // Progression requirements  
   prerequisites: jsonb("prerequisites").$type<string[]>().default([]), // Achievement IDs required first
   isHidden: integer("isHidden").default(0), // 0 = visible, 1 = hidden until unlocked
-  
+
   createdAt: timestamp("createdAt").defaultNow()
 });
 
@@ -422,20 +428,20 @@ export const userAchievements = pgTable("user_achievements", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: varchar("userId").notNull(),
   achievementId: uuid("achievementId").references(() => achievements.id).notNull(),
-  
+
   // Progress tracking
   currentProgress: integer("currentProgress").default(0),
   maxProgress: integer("maxProgress").notNull(),
   isUnlocked: integer("isUnlocked").default(0), // 0 = in progress, 1 = unlocked
-  
+
   // Achievement context
   modelId: uuid("modelId").references(() => architecturalModels.id), // Model that triggered achievement
   triggerData: jsonb("triggerData").$type<Record<string, any>>().default({}),
-  
+
   // Rewards
   pointsEarned: integer("pointsEarned").default(0),
   bonusEarned: integer("bonusEarned").default(0),
-  
+
   // Timestamps
   firstProgressAt: timestamp("firstProgressAt").defaultNow(),
   unlockedAt: timestamp("unlockedAt"),
@@ -447,13 +453,13 @@ export const userAchievements = pgTable("user_achievements", {
 export const userGameProfiles = pgTable("user_game_profiles", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: varchar("userId").notNull().unique(),
-  
+
   // Experience and progression
   totalPoints: integer("totalPoints").default(0),
   currentLevel: integer("currentLevel").default(1),
   experiencePoints: integer("experiencePoints").default(0),
   nextLevelThreshold: integer("nextLevelThreshold").default(100),
-  
+
   // Achievement statistics
   achievementsUnlocked: integer("achievementsUnlocked").default(0),
   bronzeCount: integer("bronzeCount").default(0),
@@ -461,7 +467,7 @@ export const userGameProfiles = pgTable("user_game_profiles", {
   goldCount: integer("goldCount").default(0),
   platinumCount: integer("platinumCount").default(0),
   diamondCount: integer("diamondCount").default(0),
-  
+
   // Modeling complexity metrics
   modelingStats: jsonb("modelingStats").$type<{
     totalModels: number;
@@ -482,16 +488,16 @@ export const userGameProfiles = pgTable("user_game_profiles", {
     consistencyScore: 0,
     collaborationScore: 0
   }),
-  
+
   // Streaks and engagement
   currentStreak: integer("currentStreak").default(0), // Days of consecutive modeling
   longestStreak: integer("longestStreak").default(0),
   lastActivityAt: timestamp("lastActivityAt").defaultNow(),
-  
+
   // Preferences
   celebrationEnabled: integer("celebrationEnabled").default(1), // 0 = disabled, 1 = enabled
   leaderboardVisible: integer("leaderboardVisible").default(1),
-  
+
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow()
 });
@@ -499,17 +505,17 @@ export const userGameProfiles = pgTable("user_game_profiles", {
 // Team leaderboards and competitions
 export const leaderboards = pgTable("leaderboards", {
   id: uuid("id").primaryKey().defaultRandom(),
-  
+
   // Leaderboard configuration
   name: text("name").notNull(),
   description: text("description"),
   type: text("type").notNull(), // 'global', 'team', 'department', 'time-period'
   scope: text("scope").notNull(), // 'points', 'achievements', 'complexity', 'collaboration'
-  
+
   // Time period (for time-based leaderboards)
   startDate: timestamp("startDate"),
   endDate: timestamp("endDate"),
-  
+
   // Participants and rankings
   rankings: jsonb("rankings").$type<{
     userId: string;
@@ -519,11 +525,11 @@ export const leaderboards = pgTable("leaderboards", {
     change: number; // +/- position change from previous period
     achievements: string[];
   }[]>().default([]),
-  
+
   // Configuration
   maxParticipants: integer("maxParticipants").default(100),
   isActive: integer("isActive").default(1),
-  
+
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow()
 });
@@ -572,17 +578,17 @@ export const userStories = pgTable("user_stories", {
   storyPoints: integer("story_points").notNull().default(3),
   status: text("status").notNull().default("backlog"), // 'backlog', 'sprint', 'in-progress', 'review', 'done'
   priority: text("priority").notNull().default("medium"), // 'low', 'medium', 'high'
-  
+
   // Team assignments
   assignee: text("assignee"), // Developer
   productManager: text("product_manager"), // Product Manager/Owner
   techLead: text("tech_lead"), // Tech Lead/Architect
-  
+
   // Story composition guidance
   feature: text("feature"),
   value: text("value"),
   requirement: text("requirement"),
-  
+
   // GitHub integration
   githubRepo: text("github_repo"),
   githubBranch: text("github_branch"),
@@ -595,7 +601,7 @@ export const userStories = pgTable("user_stories", {
     timestamp: string;
     url: string;
   }>>().default([]),
-  
+
   // Jira integration
   jiraIssueKey: text("jira_issue_key"), // PROJ-1234
   jiraIssueId: text("jira_issue_id"), // Numeric ID from Jira
@@ -603,15 +609,15 @@ export const userStories = pgTable("user_stories", {
   syncSource: text("sync_source"), // 'arkhitekton', 'jira', 'manual'
   syncStatus: text("sync_status"), // 'synced', 'pending', 'error', 'disabled'
   syncError: text("sync_error"), // Error message if sync failed
-  
+
   // Labels and metadata
   labels: jsonb("labels").$type<string[]>().default([]),
   screenshots: jsonb("screenshots").$type<string[]>().default([]), // URLs to uploaded images
-  
+
   // Traceability - Link stories to implementation and documentation
   relatedFiles: jsonb("related_files").$type<string[]>().default([]), // Files that implement this story
   documentationPageId: text("documentation_page_id"), // Link to knowledge base article
-  
+
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow()
 });
@@ -652,19 +658,19 @@ export type UpdateUserStory = z.infer<typeof updateUserStorySchema>;
 export const defects = pgTable("defects", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`), // DEF-XXXXXXX format
   userStoryId: text("user_story_id").references(() => userStories.id).notNull(), // Parent story
-  
+
   title: text("title").notNull(),
   description: text("description").notNull(),
-  
+
   // Classification
   severity: text("severity").notNull().default("medium"), // 'critical', 'high', 'medium', 'low'
   type: text("type").notNull().default("bug"), // 'bug', 'regression', 'performance', 'security', 'usability'
   status: text("status").notNull().default("open"), // 'open', 'in-progress', 'resolved', 'closed', 'rejected'
-  
+
   // Assignment
   discoveredBy: text("discovered_by"), // Who found the defect
   assignedTo: text("assigned_to"), // Who should fix it
-  
+
   // GitHub integration
   githubIssue: integer("github_issue"),
   githubCommits: jsonb("github_commits").$type<Array<{
@@ -673,18 +679,18 @@ export const defects = pgTable("defects", {
     author: string;
     timestamp: string;
   }>>().default([]),
-  
+
   // Jira integration
   jiraIssueKey: text("jira_issue_key"), // PROJ-1234
   jiraIssueId: text("jira_issue_id"),
   lastSyncedAt: timestamp("last_synced_at"),
   syncSource: text("sync_source"), // 'arkhitekton', 'jira', 'manual'
   syncStatus: text("sync_status"), // 'synced', 'pending', 'error', 'disabled'
-  
+
   // Resolution tracking
   rootCause: text("root_cause"), // Analysis of what caused the defect
   resolution: text("resolution"), // How it was fixed
-  
+
   // Timestamps
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -721,31 +727,31 @@ export const epics = pgTable("epics", {
   id: text("id").primaryKey(), // EPIC-XX format (1-6 for EA Value Streams)
   name: text("name").notNull(),
   description: text("description").default(""),
-  
+
   // EA Value Stream alignment
   valueStream: text("value_stream").notNull(), // 'strategy', 'design', 'governance', 'development', 'operations', 'knowledge'
   targetPersonas: jsonb("target_personas").$type<string[]>().default([]),
   coreCapabilities: jsonb("core_capabilities").$type<string[]>().default([]),
   keyFeatures: jsonb("key_features").$type<string[]>().default([]),
-  
+
   // Epic metadata
   status: text("status").notNull().default("planned"), // 'planned', 'in-progress', 'completed'
   priority: text("priority").notNull().default("medium"), // 'low', 'medium', 'high', 'critical'
-  
+
   // Ownership
   owner: text("owner"),
   stakeholders: jsonb("stakeholders").$type<string[]>().default([]),
-  
+
   // Planning
   startDate: text("start_date"),
   endDate: text("end_date"),
   targetQuarter: text("target_quarter"), // Q1 2025, Q2 2025, etc.
-  
+
   // Progress tracking (auto-calculated from stories)
   completionPercentage: integer("completion_percentage").default(0),
   totalStoryPoints: integer("total_story_points").default(0),
   completedStoryPoints: integer("completed_story_points").default(0),
-  
+
   // Goals and outcomes
   businessGoals: jsonb("business_goals").$type<string[]>().default([]),
   successMetrics: jsonb("success_metrics").$type<{
@@ -753,7 +759,7 @@ export const epics = pgTable("epics", {
     target: string;
     current: string;
   }[]>().default([]),
-  
+
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow()
 });
@@ -778,16 +784,16 @@ export type InsertEpic = z.infer<typeof insertEpicSchema>;
 // Developer Integration Channels - IDE, Code Editor, and Version Control Integrations
 export const integrationChannels = pgTable("integration_channels", {
   id: uuid("id").primaryKey().defaultRandom(),
-  
+
   // Tool identification
   toolId: text("toolId").notNull().unique(), // 'vscode', 'intellij', 'github', 'gitlab', 'bitbucket'
   name: text("name").notNull(),
   type: text("type").notNull(), // 'ide', 'editor', 'vcs', 'ci_cd', 'collaboration'
-  
+
   // Integration capabilities
   directionality: text("directionality").notNull(), // 'bidirectional', 'push_only', 'pull_only'
   capabilities: jsonb("capabilities").$type<string[]>().default([]), // ['model_sync', 'code_gen', 'reverse_eng', 'real_time']
-  
+
   // Connection configuration
   connectionConfig: jsonb("connectionConfig").$type<{
     apiEndpoint?: string;
@@ -796,12 +802,12 @@ export const integrationChannels = pgTable("integration_channels", {
     requiredScopes?: string[];
     syncFrequency?: 'real_time' | 'on_demand' | 'scheduled';
   }>().notNull(),
-  
+
   // Integration metadata
   version: text("version").notNull(),
   status: text("status").notNull().default("active"), // 'active', 'deprecated', 'beta'
   documentation: text("documentation"),
-  
+
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow()
 });
@@ -809,17 +815,17 @@ export const integrationChannels = pgTable("integration_channels", {
 // Object Sync Flows - Git-like state management for architectural objects
 export const objectSyncFlows = pgTable("object_sync_flows", {
   id: uuid("id").primaryKey().defaultRandom(),
-  
+
   // Flow identification
   name: text("name").notNull(),
   description: text("description"),
   integrationChannelId: uuid("integrationChannelId").references(() => integrationChannels.id).notNull(),
-  
+
   // Sync scope
   objectTypes: jsonb("objectTypes").$type<string[]>().default([]), // ['component', 'service', 'interface', 'data_model']
   sourceScope: text("sourceScope").notNull(), // 'workspace', 'model', 'object', 'repository'
   targetScope: text("targetScope").notNull(),
-  
+
   // Git-like state transitions
   stateTransitions: jsonb("stateTransitions").$type<{
     from: 'draft' | 'staged' | 'committed' | 'branched' | 'merged' | 'tagged';
@@ -827,7 +833,7 @@ export const objectSyncFlows = pgTable("object_sync_flows", {
     trigger: 'manual' | 'auto_save' | 'commit' | 'push' | 'merge' | 'review';
     actions: string[]; // ['validate', 'generate_code', 'update_docs', 'notify_team']
   }[]>().default([]),
-  
+
   // Conflict resolution
   conflictResolution: jsonb("conflictResolution").$type<{
     strategy: 'manual' | 'auto_merge' | 'source_wins' | 'target_wins' | 'crdt';
@@ -838,12 +844,12 @@ export const objectSyncFlows = pgTable("object_sync_flows", {
     mergePatterns: [],
     reviewRequired: true
   }),
-  
+
   // State tracking
   currentState: text("currentState").notNull().default("draft"), // Git-like state
   stateVersion: integer("stateVersion").default(1), // Optimistic concurrency control
   lastSyncAt: timestamp("lastSyncAt"),
-  
+
   // Sync metadata
   syncMetrics: jsonb("syncMetrics").$type<{
     successCount: number;
@@ -857,11 +863,11 @@ export const objectSyncFlows = pgTable("object_sync_flows", {
     avgSyncTime: 0,
     objectsProcessed: 0
   }),
-  
+
   // Configuration
   isActive: integer("isActive").default(1), // 0 = inactive, 1 = active
   syncTriggers: jsonb("syncTriggers").$type<string[]>().default([]), // ['on_save', 'on_commit', 'scheduled', 'webhook']
-  
+
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow()
 });
@@ -888,19 +894,19 @@ export type InsertObjectSyncFlow = z.infer<typeof insertObjectSyncFlowSchema>;
 // Application Settings - Encrypted configuration storage
 export const applicationSettings = pgTable("application_settings", {
   id: uuid("id").primaryKey().defaultRandom(),
-  
+
   // Setting identification
   key: text("key").notNull().unique(), // e.g., "github.token", "jira.api_key"
   value: text("value").notNull(), // Encrypted for sensitive fields
   category: text("category").notNull(), // 'github', 'jira', 'automation', 'preferences'
-  
+
   // Security and metadata
   isSensitive: integer("is_sensitive").notNull().default(1), // 1 = encrypt, 0 = plain text
   description: text("description"),
-  
+
   // Additional configuration
   metadata: jsonb("metadata").$type<Record<string, any>>().default({}),
-  
+
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow()
 });
@@ -917,15 +923,15 @@ export type InsertApplicationSetting = z.infer<typeof insertApplicationSettingSc
 // Applications - Application Portfolio Management (APM) / CMDB
 export const applications = pgTable("applications", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  
+
   // Basic Information
   name: text("name").notNull(),
   description: text("description"),
-  
+
   // Classification
   type: text("type").notNull().default("web_application"), // 'web_application', 'mobile_app', 'api_service', 'database', 'infrastructure', 'saas_tool', 'custom'
   category: text("category").notNull().default("business"), // 'business', 'technical', 'infrastructure', 'integration', 'data', 'security'
-  
+
   // Technology Stack
   technologyStack: jsonb("technology_stack").$type<{
     frontend?: string[];
@@ -934,22 +940,22 @@ export const applications = pgTable("applications", {
     infrastructure?: string[];
     thirdParty?: string[];
   }>().default({}),
-  
+
   // Ownership & Governance
   owner: text("owner"), // Primary owner/maintainer
   team: text("team"), // Owning team
   stakeholders: jsonb("stakeholders").$type<string[]>().default([]),
-  
+
   // Business Context
   businessCapabilities: jsonb("business_capabilities").$type<string[]>().default([]),
   criticality: text("criticality").notNull().default("medium"), // 'low', 'medium', 'high', 'critical'
   businessValue: text("business_value"), // Description of business value
-  
+
   // Technical Details
   hostingEnvironment: text("hosting_environment"), // 'on_premise', 'aws', 'azure', 'gcp', 'hybrid', 'multi_cloud'
   region: text("region"), // Geographic region/data center
   architecture: text("architecture"), // 'monolithic', 'microservices', 'serverless', 'event_driven'
-  
+
   // Integration & Dependencies
   integrations: jsonb("integrations").$type<Array<{
     name: string;
@@ -957,7 +963,7 @@ export const applications = pgTable("applications", {
     direction: 'inbound' | 'outbound' | 'bidirectional';
   }>>().default([]),
   dependencies: jsonb("dependencies").$type<string[]>().default([]), // Application IDs this app depends on
-  
+
   // Performance & Operational Metrics
   metrics: jsonb("metrics").$type<{
     uptime?: number;
@@ -966,7 +972,7 @@ export const applications = pgTable("applications", {
     throughput?: number;
     customMetrics?: Record<string, any>;
   }>().default({}),
-  
+
   // Cost Management
   costCenter: text("cost_center"),
   annualCost: integer("annual_cost"), // Annual cost in dollars
@@ -976,22 +982,22 @@ export const applications = pgTable("applications", {
     maintenance?: number;
     support?: number;
   }>().default({}),
-  
+
   // Lifecycle Management
   status: text("status").notNull().default("active"), // 'active', 'deprecated', 'retired', 'planned', 'development'
   version: text("version").default("1.0.0"),
   deployedDate: text("deployed_date"), // ISO date string
   retirementDate: text("retirement_date"), // Planned retirement date
-  
+
   // External References
   repositoryUrl: text("repository_url"),
   documentationUrl: text("documentation_url"),
   monitoringUrl: text("monitoring_url"),
-  
+
   // Metadata
   tags: jsonb("tags").$type<string[]>().default([]),
   notes: text("notes"), // Additional notes or context
-  
+
   // Timestamps
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow()
@@ -1022,22 +1028,22 @@ export type UpdateApplication = z.infer<typeof updateApplicationSchema>;
 // ID Mapping table - Links ARKHITEKTON entities to Jira issues
 export const jiraIntegrationMappings = pgTable("jira_integration_mappings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  
+
   // ARKHITEKTON entity
   arkhitektonId: varchar("arkhitekton_id").notNull(),
   arkhitektonType: varchar("arkhitekton_type").notNull(), // 'user_story', 'defect', 'epic'
-  
+
   // Jira entity
   jiraIssueKey: varchar("jira_issue_key").notNull(), // PROJ-1234
   jiraIssueId: varchar("jira_issue_id").notNull(), // 10001 (numeric ID)
   jiraIssueType: varchar("jira_issue_type").notNull(), // 'Story', 'Bug', 'Epic'
   jiraProjectKey: varchar("jira_project_key").notNull(), // PROJ
-  
+
   // Sync metadata
   syncDirection: varchar("sync_direction"), // 'to_jira', 'from_jira', 'bi_directional'
   lastSyncedAt: timestamp("last_synced_at").defaultNow(),
   syncStatus: varchar("sync_status").default("active"), // 'active', 'paused', 'error'
-  
+
   // Timestamps
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -1046,28 +1052,28 @@ export const jiraIntegrationMappings = pgTable("jira_integration_mappings", {
 // Sync audit logs - Track all sync operations for debugging and compliance
 export const jiraSyncLogs = pgTable("jira_sync_logs", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  
+
   // Mapping reference
   mappingId: varchar("mapping_id"),
-  
+
   // Sync details
   syncDirection: varchar("sync_direction").notNull(), // 'to_jira', 'from_jira'
   syncType: varchar("sync_type").notNull(), // 'create', 'update', 'delete'
   syncSource: varchar("sync_source").notNull(), // 'webhook', 'manual', 'scheduled'
-  
+
   // Payload
   requestPayload: jsonb("request_payload").$type<any>(),
   responsePayload: jsonb("response_payload").$type<any>(),
-  
+
   // Status
   status: varchar("status").notNull(), // 'success', 'failed', 'pending', 'retrying'
   errorMessage: text("error_message"),
   errorCode: varchar("error_code"),
-  
+
   // Performance
   durationMs: integer("duration_ms"),
   retryCount: integer("retry_count").default(0),
-  
+
   // Timestamps
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -1075,23 +1081,23 @@ export const jiraSyncLogs = pgTable("jira_sync_logs", {
 // Webhook events - Store incoming Jira webhooks for processing
 export const jiraWebhookEvents = pgTable("jira_webhook_events", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  
+
   // Webhook details
   webhookId: varchar("webhook_id"),
   eventType: varchar("event_type").notNull(), // 'issue:created', 'issue:updated', etc.
   jiraIssueKey: varchar("jira_issue_key").notNull(),
-  
+
   // Payload
   rawPayload: jsonb("raw_payload").$type<any>().notNull(),
-  
+
   // Processing
   processedAt: timestamp("processed_at"),
   processingStatus: varchar("processing_status").default("pending"), // 'pending', 'processed', 'failed', 'ignored'
   processingError: text("processing_error"),
-  
+
   // Idempotency
   idempotencyKey: varchar("idempotency_key").unique(),
-  
+
   // Timestamps
   receivedAt: timestamp("received_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),

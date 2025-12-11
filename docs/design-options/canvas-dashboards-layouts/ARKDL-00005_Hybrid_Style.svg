@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900">
+<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');</style>
+<rect x="0" y="0" width="1440" height="900" fill="#f9f9fa" />
+<rect x="0" y="0" width="1440" height="320" fill="#ffffff" stroke="#f1f5f9" stroke-width="1" />
+<text x="720" y="100" font-family="Inter, sans-serif" font-size="32" fill="#1e293b" font-weight="600" text-anchor="middle">What are you building today?</text>
+<rect x="420" y="140" width="600" height="64" fill="#ffffff" stroke="#f1f5f9" stroke-width="1" rx="32" />
+<rect x="420" y="144" width="600" height="64" fill="#000000" rx="32" opacity="0.05" />
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(444, 160) scale(1)" />
+<text x="484" y="177" font-family="Inter, sans-serif" font-size="16" fill="#94a3b8" font-weight="normal" text-anchor="start">Search diagrams, objects, or people...</text>
+<text x="100" y="400" font-family="Inter, sans-serif" font-size="20" fill="#1e293b" font-weight="600" text-anchor="start">Your Work</text>
+<rect x="100" y="440" width="300" height="200" fill="none" stroke="#cbd5e1" stroke-width="2" rx="16" opacity="1" />
+<path d="M12 4v16m8-8H4" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(235, 525) scale(1.25)" />
+<text x="250" y="560" font-family="Inter, sans-serif" font-size="16" fill="#64748b" font-weight="500" text-anchor="middle">Create new diagram</text>
+<rect x="440" y="440" width="300" height="200" fill="#ffffff" stroke="#f1f5f9" stroke-width="1" rx="16" />
+<rect x="440" y="440" width="300" height="120" fill="#f8fafc" rx="16" />
+<rect x="470" y="470" width="240" height="60" fill="#ffffff" rx="4" opacity="0.8" />
+<text x="460" y="590" font-family="Inter, sans-serif" font-size="16" fill="#0f172a" font-weight="600" text-anchor="start">Payer Platform</text>
+<circle cx="466" cy="615" r="4" fill="#60a5fa" />
+<text x="478" y="619" font-family="Inter, sans-serif" font-size="12" fill="#64748b" font-weight="normal" text-anchor="start">Updated recently</text>
+<rect x="780" y="440" width="300" height="200" fill="#ffffff" stroke="#f1f5f9" stroke-width="1" rx="16" />
+<rect x="780" y="440" width="300" height="120" fill="#f8fafc" rx="16" />
+<rect x="810" y="470" width="240" height="60" fill="#ffffff" rx="4" opacity="0.8" />
+<text x="800" y="590" font-family="Inter, sans-serif" font-size="16" fill="#0f172a" font-weight="600" text-anchor="start">Claims Processing</text>
+<circle cx="806" cy="615" r="4" fill="#6366f1" />
+<text x="818" y="619" font-family="Inter, sans-serif" font-size="12" fill="#64748b" font-weight="normal" text-anchor="start">Updated recently</text>
+<rect x="1120" y="440" width="300" height="200" fill="#ffffff" stroke="#f1f5f9" stroke-width="1" rx="16" />
+<rect x="1120" y="440" width="300" height="120" fill="#f8fafc" rx="16" />
+<rect x="1150" y="470" width="240" height="60" fill="#ffffff" rx="4" opacity="0.8" />
+<text x="1140" y="590" font-family="Inter, sans-serif" font-size="16" fill="#0f172a" font-weight="600" text-anchor="start">Identity Service</text>
+<circle cx="1146" cy="615" r="4" fill="#f97316" />
+<text x="1158" y="619" font-family="Inter, sans-serif" font-size="12" fill="#64748b" font-weight="normal" text-anchor="start">Updated recently</text>
+</svg>

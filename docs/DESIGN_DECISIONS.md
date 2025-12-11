@@ -126,6 +126,27 @@ Map legacy task categories to appropriate Epics:
 - GitHub Actions integration for story-to-commit traceability
 - Multi-agent AI development team architecture
 
+
+### DD-002: Deprecation of tldraw for Custom Canvas (December 8, 2025)
+
+**Context**: 
+Initial spikes (`spike-tldraw.tsx`) used `tldraw` SDK. While powerful, `tldraw`'s commercial licensing requires per-user fees that conflict with our "per-application" business model and open-core strategy.
+
+**Decision**: 
+Deprecate `tldraw` immediately and standardize on `react-konva` for the Graph/Canvas engine.
+
+**Rationale**:
+1.  **Licensing**: `react-konva` is MIT licensed, allowing unlimited redistribution.
+2.  **Control**: We need fine-grained control over "Data Binding" (where a shape *is* a database record). `tldraw`'s internal state management is optimized for whiteboarding, not structured modeling.
+3.  **Performance**: Direct integration with our internal React state management and `tanstack/react-query` is simplified without the `tldraw` store abstraction.
+
+**Consequences**:
+- We must build standard UI features (selection handles, zooming, minimap) from scratch.
+- `spike-tldraw.tsx` will be removed from the codebase.
+- The "Canvas" will be a strict "View" of the `architectural_objects` table, not a separate document store.
+
+**Status**: Accepted
+
 ### Deferred
 - None currently
 

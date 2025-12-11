@@ -21,6 +21,7 @@ import { EditTicketPage } from "@/pages/edit-ticket";
 import { ViewTicketPage } from "@/pages/view-ticket";
 import DesignOptionsPage from "@/pages/design-options";
 import DesignOptionDetailPage from "@/pages/design-option-detail";
+import DesignOptionPrototypePage from "@/pages/design-option-prototype";
 import PlanPage from "@/pages/plan";
 import ArkhitektonArchitecture from "@/pages/arkhitekton-architecture";
 import ArkhitektonArchitectureAWS from "@/pages/arkhitekton-architecture-aws";
@@ -36,16 +37,16 @@ import DrawioPOCPage from "@/pages/drawio-poc";
 import CanvasPOCPage from "@/pages/canvas-poc";
 import InstantCanvasPage from "@/pages/instant-canvas";
 import CanvasSimple from "@/pages/canvas-simple";
-import SpikeTldrawPage from "@/pages/spike-tldraw";
+
 
 // Redirect component for deprecated routes
 function Redirect({ to }: { to: string }) {
   const [, setLocation] = useLocation();
-  
+
   useEffect(() => {
     setLocation(to);
   }, [to, setLocation]);
-  
+
   return null;
 }
 
@@ -71,6 +72,7 @@ function Router() {
       <Route path="/tickets/:id" component={ViewTicketPage} />
       <Route path="/design-options" component={DesignOptionsPage} />
       <Route path="/design-options/:id" component={DesignOptionDetailPage} />
+      <Route path="/design-options/:id/prototype/:protoId" component={DesignOptionPrototypePage} />
       <Route path="/plan" component={PlanPage} />
       <Route path="/apm" component={APMPage} />
       <Route path="/cloud-icons" component={CloudIconsPage} />
@@ -78,7 +80,7 @@ function Router() {
       <Route path="/drawio-poc" component={DrawioPOCPage} />
       <Route path="/canvas-poc" component={CanvasPOCPage} />
       <Route path="/instant-canvas" component={InstantCanvasPage} />
-      <Route path="/spike/tldraw" component={SpikeTldrawPage} />
+
       <Route path="/settings" component={SettingsPage} />
       <Route path="/arkhitekton-architecture" component={ArkhitektonArchitecture} />
       <Route path="/arkhitekton-architecture/aws" component={ArkhitektonArchitectureAWS} />

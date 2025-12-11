@@ -19,7 +19,7 @@ function Option1Logo() {
         {/* Triangle approximation */}
         <div className="w-6 h-6 bg-gradient-to-br from-orange-400 to-amber-500 transform rotate-45 rounded-sm"></div>
       </div>
-      
+
       {/* Right side - Trailing smaller shapes */}
       <div className="absolute right-0 flex items-center space-x-1 opacity-60">
         <div className="w-4 h-4 bg-orange-400 rounded-full"></div>
@@ -50,7 +50,7 @@ function Option2Logo() {
           <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-1 h-4 bg-gradient-to-t from-orange-600 to-amber-300 rounded-full"></div>
         </div>
       </div>
-      
+
       {/* Right side - Flattening shapes */}
       <div className="absolute right-0 flex items-center space-x-1">
         <div className="w-5 h-3 bg-orange-400 rounded-lg"></div>
@@ -80,7 +80,7 @@ function Option3Logo() {
           <div className="absolute -bottom-1 -left-1 w-5 h-5 bg-gradient-to-br from-orange-600 to-orange-700 transform rotate-12 rounded-lg"></div>
         </div>
       </div>
-      
+
       {/* Right side - Progressive abstraction */}
       <div className="absolute right-0 flex items-center space-x-1">
         <div className="w-5 h-5 bg-gradient-to-br from-orange-400 to-amber-400 rounded-full opacity-80"></div>
@@ -104,10 +104,10 @@ function Option4Logo() {
         <div className="relative">
           {/* Main orange rounded square base */}
           <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl"></div>
-          
+
           {/* Center diamond shape */}
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-gradient-to-br from-orange-100 to-orange-200 transform rotate-45 rounded-sm"></div>
-          
+
           {/* Flame element positioned quarter way down from top, just above center */}
           <div className="absolute top-2 left-1/2 transform -translate-x-1/2">
             {/* Main flame body */}
@@ -119,7 +119,7 @@ function Option4Logo() {
           </div>
         </div>
       </div>
-      
+
       {/* Right side - Transitioning shapes */}
       <div className="absolute right-0 flex items-center space-x-1">
         <div className="w-5 h-5 bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg opacity-80"></div>
@@ -143,7 +143,7 @@ function Option5Logo() {
         <div className="relative">
           {/* Easel/Drawing board */}
           <div className="w-9 h-7 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 rounded-sm border border-slate-300 dark:border-slate-600"></div>
-          
+
           {/* Blueprint/Plans on easel */}
           <div className="absolute top-0.5 left-0.5 w-8 h-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 rounded-sm">
             {/* Blueprint lines */}
@@ -151,7 +151,7 @@ function Option5Logo() {
             <div className="absolute top-2 left-1 w-4 h-0.5 bg-blue-300 dark:bg-blue-600 rounded-full"></div>
             <div className="absolute top-3 left-1 w-5 h-0.5 bg-blue-300 dark:bg-blue-600 rounded-full"></div>
           </div>
-          
+
           {/* Architect figure */}
           <div className="absolute -bottom-1 -right-2">
             {/* Head */}
@@ -161,7 +161,7 @@ function Option5Logo() {
           </div>
         </div>
       </div>
-      
+
       {/* Right side - Transitioning elements */}
       <div className="absolute right-0 flex items-center space-x-1">
         <div className="w-5 h-4 bg-gradient-to-br from-blue-300 to-orange-400 rounded-lg opacity-80"></div>
@@ -186,7 +186,7 @@ function Option6Logo() {
           {/* Orange diamond box background */}
           <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl"></div>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-gradient-to-br from-orange-100 to-orange-200 transform rotate-45 rounded-sm"></div>
-          
+
           {/* Mini architect figure inside */}
           <div className="absolute top-2 left-2">
             {/* Simplified easel */}
@@ -195,7 +195,7 @@ function Option6Logo() {
             <div className="absolute top-0.5 left-0.5 w-3 h-0.5 bg-blue-400 rounded-full"></div>
             <div className="absolute top-1.5 left-0.5 w-2 h-0.5 bg-blue-400 rounded-full"></div>
           </div>
-          
+
           {/* Mini architect */}
           <div className="absolute bottom-2 right-2">
             <div className="w-1.5 h-1.5 bg-amber-300 rounded-full"></div>
@@ -203,7 +203,7 @@ function Option6Logo() {
           </div>
         </div>
       </div>
-      
+
       {/* Right side - Flowing transition */}
       <div className="absolute right-0 flex items-center space-x-1">
         <div className="w-5 h-5 bg-gradient-to-br from-orange-400 to-blue-400 rounded-lg opacity-80"></div>
@@ -227,7 +227,7 @@ function Option7Logo() {
         <div className="relative">
           {/* Modern drafting table */}
           <div className="w-9 h-6 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg transform -rotate-6"></div>
-          
+
           {/* Digital blueprint/screen effect */}
           <div className="absolute top-0.5 left-1 w-7 h-4 bg-gradient-to-br from-blue-100 to-orange-100 dark:from-blue-900 dark:to-orange-900 rounded transform -rotate-6 border border-orange-300">
             {/* Grid pattern */}
@@ -240,7 +240,7 @@ function Option7Logo() {
               <div className="bg-blue-400/40 rounded-sm"></div>
             </div>
           </div>
-          
+
           {/* Stylized architect icon */}
           <div className="absolute -bottom-0.5 -right-1">
             <div className="w-2 h-6 bg-gradient-to-b from-orange-400 to-orange-600 rounded-full"></div>
@@ -248,7 +248,7 @@ function Option7Logo() {
           </div>
         </div>
       </div>
-      
+
       {/* Right side - Digital transformation trail */}
       <div className="absolute right-0 flex items-center space-x-1">
         <div className="w-5 h-4 bg-gradient-to-br from-orange-400 to-blue-400 rounded-lg opacity-80 transform rotate-3"></div>
@@ -278,7 +278,7 @@ function DesignOptionsContent() {
     },
     {
       id: "color-palettes",
-      title: "Color Palette Options", 
+      title: "Color Palette Options",
       description: "Professional color schemes including Delta Airlines inspired American strength branding",
       category: "Color Design",
       priority: "Critical",
@@ -305,6 +305,16 @@ function DesignOptionsContent() {
       dateCreated: "2025-10-14",
       itemCount: 3,
       status: "Active"
+    },
+    {
+      id: "canvas-dashboard-layouts",
+      title: "Canvas Dashboard Layouts",
+      description: "Proposed landing page layouts inspired by industry leaders (Figma, Miro, Mural) to balance B2B complexity with B2C usability",
+      category: "UX Layout",
+      priority: "Critical",
+      dateCreated: "2025-12-09",
+      itemCount: 5,
+      status: "New"
     }
   ];
 
@@ -312,7 +322,7 @@ function DesignOptionsContent() {
     const date = new Date(dateStr);
     const now = new Date();
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
+
     if (diffInHours < 24) {
       return `${diffInHours} hours ago`;
     } else {
@@ -352,7 +362,7 @@ function DesignOptionsContent() {
       status: "Proposed"
     },
     {
-      id: "ARKDD-00002", 
+      id: "ARKDD-00002",
       dateProposed: "2025-09-02",
       title: "Architectural Building Blocks",
       description: "3D geometric forms (cube, cone, cylinder, pyramid) transforming into 2D shapes and dots. Represents the journey from complex architecture to documentation.",
@@ -420,73 +430,73 @@ function DesignOptionsContent() {
 
   return (
     <div className="h-full overflow-hidden flex flex-col">
-      <GovernanceHeader 
-        moduleTitle="Design Options" 
-        moduleIcon={Palette} 
+      <GovernanceHeader
+        moduleTitle="Design Options"
+        moduleIcon={Palette}
       />
-      
+
       <div className="flex-1 overflow-auto">
         <div className="max-w-7xl mx-auto px-6 py-8">
           {/* Design Categories Grid */}
           <div className="space-y-4">
-        {designCategories.map((category) => (
-          <Card 
-            key={category.id} 
-            className="group hover:shadow-md transition-all duration-200 cursor-pointer"
-            onDoubleClick={() => {
-              // Navigate to category details
-              window.location.href = `/design-options/${category.id}`;
-            }}
-            data-testid={`design-category-${category.id}`}
-          >
-            <CardHeader className="pb-4">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <CardTitle className="text-xl">{category.title}</CardTitle>
-                    <Badge variant="outline" className={getStatusColor(category.status)}>
-                      {category.status}
-                    </Badge>
-                    <Badge variant="outline" className={getPriorityColor(category.priority)}>
-                      {category.priority}
-                    </Badge>
+            {designCategories.map((category) => (
+              <Card
+                key={category.id}
+                className="group hover:shadow-md transition-all duration-200 cursor-pointer"
+                onDoubleClick={() => {
+                  // Navigate to category details
+                  window.location.href = `/design-options/${category.id}`;
+                }}
+                data-testid={`design-category-${category.id}`}
+              >
+                <CardHeader className="pb-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CardTitle className="text-xl">{category.title}</CardTitle>
+                        <Badge variant="outline" className={getStatusColor(category.status)}>
+                          {category.status}
+                        </Badge>
+                        <Badge variant="outline" className={getPriorityColor(category.priority)}>
+                          {category.priority}
+                        </Badge>
+                      </div>
+                      <CardDescription className="mb-3">
+                        {category.description}
+                      </CardDescription>
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <span>{getTimeAgo(category.dateCreated)}</span>
+                        <span>•</span>
+                        <span>{category.itemCount} options</span>
+                        <span>•</span>
+                        <Badge variant="secondary" className="text-xs">
+                          {category.id.toUpperCase()}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.location.href = `/design-options/${category.id}`;
+                        }}
+                        data-testid={`view-${category.id}`}
+                      >
+                        View Options
+                      </Button>
+                      <Button variant="ghost" size="sm">
+                        ⋯
+                      </Button>
+                    </div>
                   </div>
-                  <CardDescription className="mb-3">
-                    {category.description}
-                  </CardDescription>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span>{getTimeAgo(category.dateCreated)}</span>
-                    <span>•</span>
-                    <span>{category.itemCount} options</span>
-                    <span>•</span>
-                    <Badge variant="secondary" className="text-xs">
-                      {category.id.toUpperCase()}
-                    </Badge>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      window.location.href = `/design-options/${category.id}`;
-                    }}
-                    data-testid={`view-${category.id}`}
-                  >
-                    View Options
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    ⋯
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
-        ))}
+                </CardHeader>
+              </Card>
+            ))}
           </div>
-          
+
           <div className="mt-12 text-center">
             <p className="text-muted-foreground text-sm">
               Double-click a category or use the View Options button to see detailed design options
