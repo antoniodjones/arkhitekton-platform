@@ -1,10 +1,10 @@
-import { drizzle } from 'drizzle-orm/neon-http';
-import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 import { eq } from 'drizzle-orm';
 import * as schema from '../shared/schema';
 
-const sql = neon(process.env.DATABASE_URL!);
-const db = drizzle(sql, { schema });
+const pool = new Pool({ connectionString: process.env.DATABASE_URL! });
+const db = drizzle(pool, { schema });
 
 async function fixAgentStories() {
   console.log('🔧 Fixing Multi-Agent AI System stories...\n');

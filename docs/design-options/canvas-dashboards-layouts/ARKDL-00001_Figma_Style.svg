@@ -1,35 +1,96 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900">
-<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');</style>
-<rect x="0" y="0" width="1440" height="900" fill="#fcfcfc" />
-<rect x="0" y="0" width="260" height="900" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" />
-<rect x="16" y="16" width="24" height="24" fill="#000000" rx="4" />
-<text x="23" y="33" font-family="Inter, sans-serif" font-size="14" fill="#ffffff" font-weight="bold" text-anchor="middle">A</text>
-<text x="52" y="33" font-family="Inter, sans-serif" font-size="14" fill="#0f172a" font-weight="bold" text-anchor="start">Antonio's Team</text>
-<path d="M6 9l6 6 6-6" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(220, 20) scale(0.6666666666666666)" />
-<rect x="12" y="60" width="236" height="32" fill="#eff6ff" rx="4" />
-<text x="48" y="80" font-family="Inter, sans-serif" font-size="14" fill="#2563eb" font-weight="500" text-anchor="start">Recents</text>
-<path d="M3 3h18v18H3V3zm18 0H3v18h18V3z M5 5h5v5H5V5zm7 0h7v5h-7V5zm0 7h7v7h-7v-7zM5 12h5v7H5v-7z" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(24, 68) scale(0.6666666666666666)" />
-<text x="48" y="112" font-family="Inter, sans-serif" font-size="14" fill="#475569" font-weight="normal" text-anchor="start">Drafts</text>
-<path d="M3 3h18v18H3V3zm18 0H3v18h18V3z M5 5h5v5H5V5zm7 0h7v5h-7V5zm0 7h7v7h-7v-7zM5 12h5v7H5v-7z" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(24, 100) scale(0.6666666666666666)" />
-<text x="300" y="50" font-family="Inter, sans-serif" font-size="20" fill="#0f172a" font-weight="500" text-anchor="start">Recently viewed</text>
-<rect x="300" y="80" width="260" height="200" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1" rx="8" />
-<rect x="320" y="100" width="220" height="120" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" rx="4" opacity="0.8" />
-<path d="M3 3h18v18H3V3zm18 0H3v18h18V3z M5 5h5v5H5V5zm7 0h7v5h-7V5zm0 7h7v7h-7v-7zM5 12h5v7H5v-7z" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(418, 150) scale(1)" />
-<text x="300" y="300" font-family="Inter, sans-serif" font-size="14" fill="#0f172a" font-weight="500" text-anchor="start">Payer Platform Architecture</text>
-<text x="300" y="318" font-family="Inter, sans-serif" font-size="12" fill="#64748b" font-weight="normal" text-anchor="start">2 mins ago</text>
-<rect x="580" y="80" width="260" height="200" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1" rx="8" />
-<rect x="600" y="100" width="220" height="120" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" rx="4" opacity="0.8" />
-<path d="M3 3h18v18H3V3zm18 0H3v18h18V3z M5 5h5v5H5V5zm7 0h7v5h-7V5zm0 7h7v7h-7v-7zM5 12h5v7H5v-7z" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(698, 150) scale(1)" />
-<text x="580" y="300" font-family="Inter, sans-serif" font-size="14" fill="#0f172a" font-weight="500" text-anchor="start">Claims Processing Flow</text>
-<text x="580" y="318" font-family="Inter, sans-serif" font-size="12" fill="#64748b" font-weight="normal" text-anchor="start">2 mins ago</text>
-<rect x="860" y="80" width="260" height="200" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1" rx="8" />
-<rect x="880" y="100" width="220" height="120" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" rx="4" opacity="0.8" />
-<path d="M3 3h18v18H3V3zm18 0H3v18h18V3z M5 5h5v5H5V5zm7 0h7v5h-7V5zm0 7h7v7h-7v-7zM5 12h5v7H5v-7z" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(978, 150) scale(1)" />
-<text x="860" y="300" font-family="Inter, sans-serif" font-size="14" fill="#0f172a" font-weight="500" text-anchor="start">Identity Management</text>
-<text x="860" y="318" font-family="Inter, sans-serif" font-size="12" fill="#64748b" font-weight="normal" text-anchor="start">2 mins ago</text>
-<rect x="1140" y="80" width="260" height="200" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1" rx="8" />
-<rect x="1160" y="100" width="220" height="120" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" rx="4" opacity="0.8" />
-<path d="M3 3h18v18H3V3zm18 0H3v18h18V3z M5 5h5v5H5V5zm7 0h7v5h-7V5zm0 7h7v7h-7v-7zM5 12h5v7H5v-7z" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(1258, 150) scale(1)" />
-<text x="1140" y="300" font-family="Inter, sans-serif" font-size="14" fill="#0f172a" font-weight="500" text-anchor="start">AWS Infrastructure</text>
-<text x="1140" y="318" font-family="Inter, sans-serif" font-size="12" fill="#64748b" font-weight="normal" text-anchor="start">2 mins ago</text>
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif; }
+  </style>
+  <!-- Background -->
+  <rect x="0" y="0" width="1440" height="900" fill="#fcfcfc"/>
+  
+  <!-- Sidebar -->
+  <rect x="0" y="0" width="256" height="900" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+  
+  <!-- Sidebar Header -->
+  <rect x="16" y="16" width="24" height="24" fill="#000000" rx="4"/>
+  <text x="23" y="33" font-family="Inter, sans-serif" font-size="12" fill="#ffffff" font-weight="bold" text-anchor="middle">A</text>
+  <text x="48" y="33" font-family="Inter, sans-serif" font-size="14" fill="#0f172a" font-weight="bold" text-anchor="start">Antonio's Team</text>
+  <path d="M6 9l6 6 6-6" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(220, 20) scale(0.8)"/>
+  
+  <!-- Recents Menu Item -->
+  <rect x="8" y="56" width="240" height="32" fill="#eff6ff" rx="6"/>
+  <path d="M12 4v16m8-8H4" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(24, 68) scale(0.8)"/>
+  <text x="48" y="80" font-family="Inter, sans-serif" font-size="14" fill="#2563eb" font-weight="500" text-anchor="start">Recents</text>
+  
+  <!-- Drafts Menu Item -->
+  <text x="48" y="112" font-family="Inter, sans-serif" font-size="14" fill="#475569" font-weight="normal" text-anchor="start">Drafts</text>
+  <path d="M3 3h18v18H3V3zm18 0H3v18h18V3z M5 5h5v5H5V5zm7 0h7v5h-7V5zm0 7h7v7h-7v-7zM5 12h5v7H5v-7z" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(24, 100) scale(0.8)"/>
+  
+  <!-- Community Menu Item -->
+  <text x="48" y="144" font-family="Inter, sans-serif" font-size="14" fill="#475569" font-weight="normal" text-anchor="start">Community</text>
+  <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(24, 132) scale(0.8)"/>
+  
+  <!-- Teams Section -->
+  <text x="16" y="200" font-family="Inter, sans-serif" font-size="11" fill="#94a3b8" font-weight="600" text-anchor="start" letter-spacing="0.05em">TEAMS</text>
+  
+  <!-- Team Items -->
+  <circle cx="28" cy="220" r="4" fill="#a78bfa"/>
+  <text x="40" y="225" font-family="Inter, sans-serif" font-size="14" fill="#475569" font-weight="normal" text-anchor="start">Arkhitekton Core</text>
+  
+  <circle cx="28" cy="252" r="4" fill="#4ade80"/>
+  <text x="40" y="257" font-family="Inter, sans-serif" font-size="14" fill="#475569" font-weight="normal" text-anchor="start">Payer Platform</text>
+  
+  <circle cx="28" cy="284" r="4" fill="#60a5fa"/>
+  <text x="40" y="289" font-family="Inter, sans-serif" font-size="14" fill="#475569" font-weight="normal" text-anchor="start">Clinical Data</text>
+  
+  <circle cx="28" cy="316" r="4" fill="#fb923c"/>
+  <text x="40" y="321" font-family="Inter, sans-serif" font-size="14" fill="#475569" font-weight="normal" text-anchor="start">Member Experience</text>
+  
+  <!-- Main Content Area -->
+  <text x="280" y="50" font-family="Inter, sans-serif" font-size="20" fill="#0f172a" font-weight="500" text-anchor="start">Recently viewed</text>
+  
+  <!-- File Cards Grid (4 columns) -->
+  <!-- Card 1 -->
+  <rect x="280" y="80" width="260" height="195" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1" rx="8"/>
+  <rect x="300" y="100" width="220" height="120" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" rx="4" opacity="0.8"/>
+  <path d="M3 3h18v18H3V3zm18 0H3v18h18V3z M5 5h5v5H5V5zm7 0h7v5h-7V5zm0 7h7v7h-7v-7zM5 12h5v7H5v-7z" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(390, 150) scale(1.2)"/>
+  <text x="300" y="240" font-family="Inter, sans-serif" font-size="14" fill="#0f172a" font-weight="500" text-anchor="start">Payer Platform Architecture</text>
+  <text x="300" y="258" font-family="Inter, sans-serif" font-size="12" fill="#64748b" font-weight="normal" text-anchor="start">2 mins ago</text>
+  
+  <!-- Card 2 -->
+  <rect x="560" y="80" width="260" height="195" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1" rx="8"/>
+  <rect x="580" y="100" width="220" height="120" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" rx="4" opacity="0.8"/>
+  <path d="M3 3h18v18H3V3zm18 0H3v18h18V3z M5 5h5v5H5V5zm7 0h7v5h-7V5zm0 7h7v7h-7v-7zM5 12h5v7H5v-7z" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(670, 150) scale(1.2)"/>
+  <text x="560" y="240" font-family="Inter, sans-serif" font-size="14" fill="#0f172a" font-weight="500" text-anchor="start">Claims Processing Flow</text>
+  <text x="560" y="258" font-family="Inter, sans-serif" font-size="12" fill="#64748b" font-weight="normal" text-anchor="start">2 hours ago</text>
+  
+  <!-- Card 3 -->
+  <rect x="840" y="80" width="260" height="195" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1" rx="8"/>
+  <rect x="860" y="100" width="220" height="120" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" rx="4" opacity="0.8"/>
+  <path d="M3 3h18v18H3V3zm18 0H3v18h18V3z M5 5h5v5H5V5zm7 0h7v5h-7V5zm0 7h7v7h-7v-7zM5 12h5v7H5v-7z" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(970, 150) scale(1.2)"/>
+  <text x="840" y="240" font-family="Inter, sans-serif" font-size="14" fill="#0f172a" font-weight="500" text-anchor="start">Identity Management</text>
+  <text x="840" y="258" font-family="Inter, sans-serif" font-size="12" fill="#64748b" font-weight="normal" text-anchor="start">yesterday</text>
+  
+  <!-- Card 4 -->
+  <rect x="1120" y="80" width="260" height="195" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1" rx="8"/>
+  <rect x="1140" y="100" width="220" height="120" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" rx="4" opacity="0.8"/>
+  <path d="M3 3h18v18H3V3zm18 0H3v18h18V3z M5 5h5v5H5V5zm7 0h7v5h-7V5zm0 7h7v7h-7v-7zM5 12h5v7H5v-7z" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(1250, 150) scale(1.2)"/>
+  <text x="1120" y="240" font-family="Inter, sans-serif" font-size="14" fill="#0f172a" font-weight="500" text-anchor="start">AWS Infrastructure</text>
+  <text x="1120" y="258" font-family="Inter, sans-serif" font-size="12" fill="#64748b" font-weight="normal" text-anchor="start">2 days ago</text>
+  
+  <!-- Row 2 - Card 5 -->
+  <rect x="280" y="300" width="260" height="195" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1" rx="8"/>
+  <rect x="300" y="320" width="220" height="120" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" rx="4" opacity="0.8"/>
+  <path d="M3 3h18v18H3V3zm18 0H3v18h18V3z M5 5h5v5H5V5zm7 0h7v5h-7V5zm0 7h7v7h-7v-7zM5 12h5v7H5v-7z" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(390, 370) scale(1.2)"/>
+  <text x="280" y="460" font-family="Inter, sans-serif" font-size="14" fill="#0f172a" font-weight="500" text-anchor="start">Member Portal UX</text>
+  <text x="280" y="478" font-family="Inter, sans-serif" font-size="12" fill="#64748b" font-weight="normal" text-anchor="start">3 days ago</text>
+  
+  <!-- Row 2 - Card 6 -->
+  <rect x="560" y="300" width="260" height="195" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1" rx="8"/>
+  <rect x="580" y="320" width="220" height="120" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" rx="4" opacity="0.8"/>
+  <path d="M3 3h18v18H3V3zm18 0H3v18h18V3z M5 5h5v5H5V5zm7 0h7v5h-7V5zm0 7h7v7h-7v-7zM5 12h5v7H5v-7z" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(670, 370) scale(1.2)"/>
+  <text x="560" y="460" font-family="Inter, sans-serif" font-size="14" fill="#0f172a" font-weight="500" text-anchor="start">Legacy System Migration</text>
+  <text x="560" y="478" font-family="Inter, sans-serif" font-size="12" fill="#64748b" font-weight="normal" text-anchor="start">1 week ago</text>
+  
+  <!-- New File Card -->
+  <rect x="840" y="300" width="260" height="195" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="8,4" rx="8"/>
+  <path d="M12 4v16m8-8H4" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(960, 380) scale(1.5)"/>
+  <text x="970" y="400" font-family="Inter, sans-serif" font-size="14" fill="#475569" font-weight="500" text-anchor="middle">New Design File</text>
 </svg>

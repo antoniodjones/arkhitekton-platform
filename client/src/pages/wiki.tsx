@@ -762,7 +762,7 @@ Creates a distinctive, professional identity that architects associate with crea
                           <li><strong>Express.js</strong>: Fast, minimalist web framework</li>
                           <li><strong>TypeScript ESM</strong>: Type-safe server code</li>
                           <li><strong>Drizzle ORM</strong>: Type-safe database layer</li>
-                          <li><strong>PostgreSQL (Neon)</strong>: Serverless database</li>
+                          <li><strong>PostgreSQL (GCP Cloud SQL)</strong>: Managed database</li>
                           <li><strong>Google Cloud Storage</strong>: Object storage for assets</li>
                         </ul>
                       </div>

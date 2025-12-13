@@ -1,23 +1,87 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900">
-<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');</style>
-<rect x="0" y="0" width="1440" height="900" fill="#fdfdfd" />
-<rect x="0" y="0" width="1440" height="64" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" />
-<text x="24" y="40" font-family="Inter, sans-serif" font-size="18" fill="#db2777" font-weight="bold" text-anchor="start">Arkhitekton</text>
-<text x="140" y="38" font-family="Inter, sans-serif" font-size="14" fill="#0f172a" font-weight="500" text-anchor="start">Home</text>
-<text x="200" y="38" font-family="Inter, sans-serif" font-size="14" fill="#475569" font-weight="500" text-anchor="start">Templates</text>
-<rect x="1040" y="16" width="250" height="32" fill="#f1f5f9" rx="8" />
-<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(1050, 20) scale(0.6666666666666666)" />
-<text x="1080" y="37" font-family="Inter, sans-serif" font-size="14" fill="#94a3b8" font-weight="normal" text-anchor="start">Search murals...</text>
-<rect x="1310" y="16" width="100" height="32" fill="#db2777" rx="6" />
-<text x="1360" y="37" font-family="Inter, sans-serif" font-size="13" fill="#ffffff" font-weight="500" text-anchor="middle">+ New mural</text>
-<text x="60" y="140" font-family="Inter, sans-serif" font-size="32" fill="#1e293b" font-weight="300" text-anchor="start">Good morning, Antonio</text>
-<rect x="60" y="200" width="200" height="120" fill="#fef9c3" rx="8" />
-<path d="M3 3h18v18H3V3zm18 0H3v18h18V3z M5 5h5v5H5V5zm7 0h7v5h-7V5zm0 7h7v7h-7v-7zM5 12h5v7H5v-7z" fill="none" stroke="#1e293b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(80, 220) scale(1)" />
-<text x="80" y="300" font-family="Inter, sans-serif" font-size="16" fill="#1e293b" font-weight="600" text-anchor="start">Engineering</text>
-<rect x="280" y="200" width="200" height="120" fill="#dcfce7" rx="8" />
-<path d="M3 3h7v7H3V3zm11 0h7v7h-7V3zm0 11h7v7h-7v-7zM3 14h7v7H3v-7z" fill="none" stroke="#1e293b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(300, 220) scale(1)" />
-<text x="300" y="300" font-family="Inter, sans-serif" font-size="16" fill="#1e293b" font-weight="600" text-anchor="start">Strategy</text>
-<rect x="500" y="200" width="200" height="120" fill="#f3e8ff" rx="8" />
-<path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" fill="none" stroke="#1e293b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(520, 220) scale(1)" />
-<text x="520" y="300" font-family="Inter, sans-serif" font-size="16" fill="#1e293b" font-weight="600" text-anchor="start">Design</text>
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif; }
+  </style>
+  <!-- Background -->
+  <rect x="0" y="0" width="1440" height="900" fill="#fdfdfd"/>
+  
+  <!-- Header Bar -->
+  <rect x="0" y="0" width="1440" height="64" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+  
+  <!-- Logo -->
+  <text x="24" y="40" font-family="Inter, sans-serif" font-size="18" fill="#db2777" font-weight="bold" text-anchor="start" letter-spacing="-0.02em">Arkhitekton</text>
+  
+  <!-- Navigation -->
+  <text x="140" y="38" font-family="Inter, sans-serif" font-size="14" fill="#0f172a" font-weight="500" text-anchor="start">Home</text>
+  <text x="200" y="38" font-family="Inter, sans-serif" font-size="14" fill="#475569" font-weight="500" text-anchor="start">Learning</text>
+  <text x="280" y="38" font-family="Inter, sans-serif" font-size="14" fill="#475569" font-weight="500" text-anchor="start">Templates</text>
+  
+  <!-- Search Bar -->
+  <rect x="1040" y="16" width="250" height="32" fill="#f1f5f9" rx="8"/>
+  <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(1050, 20) scale(0.7)"/>
+  <text x="1080" y="37" font-family="Inter, sans-serif" font-size="14" fill="#94a3b8" font-weight="normal" text-anchor="start">Search murals...</text>
+  
+  <!-- New Mural Button -->
+  <rect x="1310" y="16" width="100" height="32" fill="#db2777" rx="6"/>
+  <text x="1360" y="37" font-family="Inter, sans-serif" font-size="13" fill="#ffffff" font-weight="500" text-anchor="middle">+ New mural</text>
+  
+  <!-- Avatar -->
+  <circle cx="1420" cy="32" r="16" fill="#e2e8f0"/>
+  <text x="1420" y="37" font-family="Inter, sans-serif" font-size="12" fill="#475569" font-weight="500" text-anchor="middle">AJ</text>
+  
+  <!-- Main Content -->
+  <text x="60" y="140" font-family="Inter, sans-serif" font-size="32" fill="#1e293b" font-weight="300" text-anchor="start">Good morning, Antonio</text>
+  <text x="60" y="170" font-family="Inter, sans-serif" font-size="14" fill="#64748b" font-weight="normal" text-anchor="start">Ready to solve the next big problem?</text>
+  
+  <!-- Templates Section -->
+  <text x="60" y="240" font-family="Inter, sans-serif" font-size="18" fill="#1e293b" font-weight="500" text-anchor="start">Get ideas and strategies for your role</text>
+  <text x="500" y="240" font-family="Inter, sans-serif" font-size="14" fill="#db2777" font-weight="normal" text-anchor="start">View all templates</text>
+  
+  <!-- Template Cards Row -->
+  <!-- Engineering -->
+  <rect x="60" y="260" width="192" height="128" fill="#fef9c3" rx="8"/>
+  <text x="156" y="310" font-family="Inter, sans-serif" font-size="24" fill="#1e293b" font-weight="normal" text-anchor="middle">🛠️</text>
+  <text x="156" y="360" font-family="Inter, sans-serif" font-size="16" fill="#1e293b" font-weight="600" text-anchor="middle">Engineering</text>
+  
+  <!-- Strategy -->
+  <rect x="272" y="260" width="192" height="128" fill="#dcfce7" rx="8"/>
+  <text x="368" y="310" font-family="Inter, sans-serif" font-size="24" fill="#1e293b" font-weight="normal" text-anchor="middle">🎯</text>
+  <text x="368" y="360" font-family="Inter, sans-serif" font-size="16" fill="#1e293b" font-weight="600" text-anchor="middle">Strategy</text>
+  
+  <!-- Design -->
+  <rect x="484" y="260" width="192" height="128" fill="#f3e8ff" rx="8"/>
+  <text x="580" y="310" font-family="Inter, sans-serif" font-size="24" fill="#1e293b" font-weight="normal" text-anchor="middle">🎨</text>
+  <text x="580" y="360" font-family="Inter, sans-serif" font-size="16" fill="#1e293b" font-weight="600" text-anchor="middle">Design</text>
+  
+  <!-- Product -->
+  <rect x="696" y="260" width="192" height="128" fill="#fed7aa" rx="8"/>
+  <text x="792" y="310" font-family="Inter, sans-serif" font-size="24" fill="#1e293b" font-weight="normal" text-anchor="middle">📦</text>
+  <text x="792" y="360" font-family="Inter, sans-serif" font-size="16" fill="#1e293b" font-weight="600" text-anchor="middle">Product</text>
+  
+  <!-- Research -->
+  <rect x="908" y="260" width="192" height="128" fill="#dbeafe" rx="8"/>
+  <text x="1004" y="310" font-family="Inter, sans-serif" font-size="24" fill="#1e293b" font-weight="normal" text-anchor="middle">🔬</text>
+  <text x="1004" y="360" font-family="Inter, sans-serif" font-size="16" fill="#1e293b" font-weight="600" text-anchor="middle">Research</text>
+  
+  <!-- Recently Opened Section -->
+  <text x="60" y="480" font-family="Inter, sans-serif" font-size="18" fill="#1e293b" font-weight="500" text-anchor="start">Recently opened murals</text>
+  
+  <!-- Recent Mural Cards -->
+  <!-- Card 1 -->
+  <rect x="60" y="500" width="400" height="80" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" rx="8"/>
+  <rect x="80" y="520" width="64" height="48" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1" rx="4"/>
+  <text x="160" y="535" font-family="Inter, sans-serif" font-size="14" fill="#0f172a" font-weight="500" text-anchor="start">Payer Platform Architecture</text>
+  <text x="160" y="555" font-family="Inter, sans-serif" font-size="12" fill="#64748b" font-weight="normal" text-anchor="start">Edited 2 mins ago</text>
+  
+  <!-- Card 2 -->
+  <rect x="480" y="500" width="400" height="80" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" rx="8"/>
+  <rect x="500" y="520" width="64" height="48" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1" rx="4"/>
+  <text x="580" y="535" font-family="Inter, sans-serif" font-size="14" fill="#0f172a" font-weight="500" text-anchor="start">Claims Processing Flow</text>
+  <text x="580" y="555" font-family="Inter, sans-serif" font-size="12" fill="#64748b" font-weight="normal" text-anchor="start">Edited 2 hours ago</text>
+  
+  <!-- Card 3 -->
+  <rect x="900" y="500" width="400" height="80" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" rx="8"/>
+  <rect x="920" y="520" width="64" height="48" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1" rx="4"/>
+  <text x="1000" y="535" font-family="Inter, sans-serif" font-size="14" fill="#0f172a" font-weight="500" text-anchor="start">Identity Management</text>
+  <text x="1000" y="555" font-family="Inter, sans-serif" font-size="12" fill="#64748b" font-weight="normal" text-anchor="start">Edited yesterday</text>
 </svg>

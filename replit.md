@@ -66,7 +66,7 @@ The application features a sophisticated, elegant design. The frontend uses Reac
 ## Data Management
 - **TanStack Query**: Server state management.
 - **Drizzle ORM**: Type-safe PostgreSQL ORM.
-- **Neon Database**: Serverless PostgreSQL provider.
+- **GCP Cloud SQL**: Managed PostgreSQL database.
 
 ## Development Tools
 - **Vite**: Frontend build tool.
