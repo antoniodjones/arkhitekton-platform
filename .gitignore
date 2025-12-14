@@ -58,4 +58,5 @@ vite.config.ts.*
 # Replit specific
 .replit
 replit.nix
-.config/cloud-sql-proxy
+.config/
+cloud-sql-proxy
