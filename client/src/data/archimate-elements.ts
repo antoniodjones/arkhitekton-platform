@@ -2508,6 +2508,20 @@ export const archimateElements: ArchimateElement[] = [
     relationships: ['API Gateway', 'Service Mesh', 'Container']
   },
   {
+    id: 'microservice-container',
+    name: 'Containerized Microservice',
+    type: 'structural',
+    category: 'application',
+    framework: 'patterns',
+    vendor: 'ARKHITEKTON',
+    description: 'A microservice packaged in a container, exposing REST/gRPC endpoints.',
+    usageGuidelines: 'Use for representing containerized services in microservice architectures with clear service boundaries.',
+    iconName: 'PackageOpen',
+    color: 'hsl(217 91% 60%)', // Blue like the image
+    shape: 'container-3d',
+    relationships: ['API Gateway', 'Service Mesh', 'Container Registry', 'REST API']
+  },
+  {
     id: 'container',
     name: 'Container',
     type: 'structural',

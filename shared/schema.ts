@@ -722,6 +722,72 @@ export type Defect = typeof defects.$inferSelect;
 export type InsertDefect = z.infer<typeof insertDefectSchema>;
 export type UpdateDefect = z.infer<typeof updateDefectSchema>;
 
+// ============================================================
+// CODE CHANGES - Links PRs, Commits, Branches to Work Items
+// ============================================================
+
+export const codeChanges = pgTable("code_changes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  
+  // Link to work items (polymorphic - either user story or defect)
+  entityType: text("entity_type").notNull(), // 'user_story', 'defect', 'epic'
+  entityId: text("entity_id").notNull(), // US-XXXXXXX or DEF-XXXXXXX or EPIC-XX
+  
+  // Change type
+  changeType: text("change_type").notNull(), // 'pull_request', 'commit', 'branch'
+  
+  // GitHub/Git metadata
+  provider: text("provider").notNull().default("github"), // 'github', 'gitlab', 'bitbucket', 'azure_devops'
+  repository: text("repository").notNull(), // owner/repo format
+  
+  // For Pull Requests
+  prNumber: integer("pr_number"),
+  prTitle: text("pr_title"),
+  prState: text("pr_state"), // 'open', 'closed', 'merged', 'draft'
+  prUrl: text("pr_url"),
+  prBaseBranch: text("pr_base_branch"), // target branch (e.g., 'main')
+  prHeadBranch: text("pr_head_branch"), // source branch (e.g., 'feature/US-001')
+  prMergedAt: timestamp("pr_merged_at"),
+  prMergedBy: text("pr_merged_by"),
+  
+  // For Commits
+  commitSha: text("commit_sha"),
+  commitMessage: text("commit_message"),
+  commitUrl: text("commit_url"),
+  
+  // For Branches
+  branchName: text("branch_name"),
+  branchUrl: text("branch_url"),
+  
+  // Author info
+  authorUsername: text("author_username"),
+  authorEmail: text("author_email"),
+  authorAvatarUrl: text("author_avatar_url"),
+  
+  // Timestamps
+  eventTimestamp: timestamp("event_timestamp").notNull(), // When the PR/commit/branch was created
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  
+  // Sync metadata
+  syncSource: text("sync_source").default("manual"), // 'webhook', 'manual', 'api_poll'
+  externalId: text("external_id"), // GitHub's internal ID for deduplication
+});
+
+export const insertCodeChangeSchema = createInsertSchema(codeChanges).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  entityType: z.enum(['user_story', 'defect', 'epic']),
+  changeType: z.enum(['pull_request', 'commit', 'branch']),
+  provider: z.enum(['github', 'gitlab', 'bitbucket', 'azure_devops']).default('github'),
+  prState: z.enum(['open', 'closed', 'merged', 'draft']).optional().nullable(),
+});
+
+export type CodeChange = typeof codeChanges.$inferSelect;
+export type InsertCodeChange = z.infer<typeof insertCodeChangeSchema>;
+
 // Epics - Enterprise Architecture Value Stream Epics
 export const epics = pgTable("epics", {
   id: text("id").primaryKey(), // EPIC-XX format (1-6 for EA Value Streams)
@@ -1128,3 +1194,167 @@ export type JiraSyncLog = typeof jiraSyncLogs.$inferSelect;
 export type InsertJiraSyncLog = z.infer<typeof insertJiraSyncLogSchema>;
 export type JiraWebhookEvent = typeof jiraWebhookEvents.$inferSelect;
 export type InsertJiraWebhookEvent = z.infer<typeof insertJiraWebhookEventSchema>;
+
+// ============================================================
+// WIKI KNOWLEDGE CORE - Phase 1 Foundation
+// ============================================================
+
+// Wiki Pages - Core content pages with hierarchical organization
+export const wikiPages = pgTable("wiki_pages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Basic Information
+  title: text("title").notNull(),
+  content: jsonb("content").$type<any>().notNull(), // TipTap JSON format
+  
+  // Hierarchical Organization
+  parentId: varchar("parent_id"), // References another wiki page for tree structure
+  path: text("path"), // Full path like /Architecture/Payment/Stripe for breadcrumbs
+  sortOrder: integer("sort_order").default(0), // Order within parent
+  
+  // Categorization & Templates
+  category: text("category"), // 'Governance', 'Standards', 'Procedures', 'Templates', 'Best Practices', 'Architecture Patterns'
+  subcategory: text("subcategory"),
+  template: text("template"), // 'ADR', 'Design', 'Requirement', 'Meeting', 'RFC', null for custom
+  
+  // Status & Workflow
+  status: text("status").notNull().default("draft"), // 'draft', 'published', 'under_review', 'archived'
+  
+  // Ownership & Collaboration
+  createdBy: varchar("created_by").notNull(),
+  updatedBy: varchar("updated_by"),
+  contributors: jsonb("contributors").$type<string[]>().default([]),
+  
+  // Engagement Metrics
+  views: integer("views").default(0),
+  likes: integer("likes").default(0),
+  
+  // Metadata & Tagging
+  tags: jsonb("tags").$type<string[]>().default([]),
+  metadata: jsonb("metadata").$type<Record<string, any>>().default({}),
+  
+  // External Links
+  relatedPageIds: jsonb("related_page_ids").$type<string[]>().default([]), // Links to other wiki pages
+  linkedDecisionIds: jsonb("linked_decision_ids").$type<string[]>().default([]), // ADR references
+  linkedCapabilityIds: jsonb("linked_capability_ids").$type<string[]>().default([]), // Business capabilities
+  attachments: jsonb("attachments").$type<Array<{
+    name: string;
+    url: string;
+    size?: number;
+    type?: string;
+  }>>().default([]),
+  
+  // Versioning (basic for Phase 1, full version history in Phase 4)
+  version: text("version").default("1.0"),
+  
+  // Project/Workspace Association
+  projectId: varchar("project_id"), // Optional project association
+  
+  // Full-text search optimization
+  searchVector: text("search_vector"), // PostgreSQL tsvector for full-text search
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  publishedAt: timestamp("published_at"),
+  archivedAt: timestamp("archived_at"),
+});
+
+// Entity Mentions - Track all @mentions for semantic linking and backlinks
+export const entityMentions = pgTable("entity_mentions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Page Reference
+  pageId: varchar("page_id").references(() => wikiPages.id, { onDelete: 'cascade' }).notNull(),
+  
+  // Entity Reference (cross-module)
+  entityType: text("entity_type").notNull(), // 'user_story', 'epic', 'component', 'diagram', 'page', 'requirement', 'adr', 'user', 'application'
+  entityId: varchar("entity_id").notNull(), // ID of the mentioned entity
+  
+  // Display & Position
+  text: text("text").notNull(), // Display text of the mention (e.g., "PaymentService")
+  position: integer("position").notNull(), // Character offset in the TipTap document
+  
+  // Status Tracking (for status-aware mentions)
+  entityStatus: text("entity_status"), // Cached status of the entity (active, deprecated, sunset)
+  lastCheckedAt: timestamp("last_checked_at").defaultNow(), // When status was last updated
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Wiki Pages validation schemas
+export const insertWikiPageSchema = createInsertSchema(wikiPages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  publishedAt: true,
+  archivedAt: true,
+}).extend({
+  title: z.string().min(1, "Page title is required").max(255, "Title must be less than 255 characters"),
+  content: z.any(), // TipTap JSON content
+  status: z.enum(['draft', 'published', 'under_review', 'archived']).default('draft'),
+  category: z.string().optional(),
+  template: z.enum(['ADR', 'Design', 'Requirement', 'Meeting', 'RFC', 'Business_Case', 'Runbook', 'Onboarding']).optional().nullable(),
+});
+
+export const updateWikiPageSchema = insertWikiPageSchema.partial();
+
+// Entity types supported for @mentions across the platform
+export const MENTIONABLE_ENTITY_TYPES = [
+  // Plan Module
+  'user_story',      // User stories from Plan
+  'epic',            // Epics from Plan
+  'defect',          // Defects from Quality Center
+  
+  // Design Studio Module
+  'model',           // Architectural models (canvas diagrams)
+  'object',          // Architectural objects within models
+  'element',         // Architecture elements (shape library)
+  
+  // Wiki Module
+  'page',            // Wiki pages
+  'requirement',     // Requirements (wiki pages with template=Requirement)
+  'adr',             // Architecture Decision Records
+  
+  // APM/CMDB Module
+  'application',     // Applications from portfolio
+  
+  // Governance Module
+  'capability',      // Business capabilities
+  'decision',        // Decisions (alias for ADR)
+  
+  // People & Teams
+  'user',            // System users
+  'team',            // Teams (future)
+  
+  // Legacy (for backward compatibility)
+  'component',       // Alias for 'object'
+  'diagram',         // Alias for 'model'
+] as const;
+
+export type MentionableEntityType = typeof MENTIONABLE_ENTITY_TYPES[number];
+
+export const insertEntityMentionSchema = createInsertSchema(entityMentions).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  entityType: z.enum(MENTIONABLE_ENTITY_TYPES),
+  entityId: z.string().min(1, "Entity ID is required"),
+  text: z.string().min(1, "Mention text is required"),
+  position: z.number().int().min(0),
+});
+
+// Wiki types
+export type WikiPage = typeof wikiPages.$inferSelect;
+export type InsertWikiPage = z.infer<typeof insertWikiPageSchema>;
+export type UpdateWikiPage = z.infer<typeof updateWikiPageSchema>;
+export type EntityMention = typeof entityMentions.$inferSelect;
+export type InsertEntityMention = z.infer<typeof insertEntityMentionSchema>;
+
+// ============================================================
+// KNOWLEDGE BASE (Legacy - to be migrated to Wiki)
+// ============================================================
+
+// Keeping existing KnowledgeBasePage for backward compatibility
+// Will migrate to wikiPages in future sprint

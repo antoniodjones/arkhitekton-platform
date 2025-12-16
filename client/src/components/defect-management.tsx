@@ -8,8 +8,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Bug, CheckCircle2, Clock, Plus, X, XCircle } from 'lucide-react';
+import { AlertCircle, Bug, CheckCircle2, Clock, Plus, X, XCircle, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Link } from 'wouter';
+import { CodeChangesBadge } from '@/components/code-changes/code-changes-badge';
 
 interface Defect {
   id: string;
@@ -19,7 +21,7 @@ interface Defect {
   severity: 'critical' | 'high' | 'medium' | 'low';
   type: 'bug' | 'regression' | 'performance' | 'security' | 'usability';
   status: 'open' | 'in-progress' | 'resolved' | 'closed' | 'rejected';
-  reportedBy: string | null;
+  discoveredBy: string | null;
   assignedTo: string | null;
   rootCause: string | null;
   resolution: string | null;
@@ -40,7 +42,7 @@ export function DefectManagement({ userStoryId, userStoryTitle }: DefectManageme
     description: '',
     severity: 'medium' as Defect['severity'],
     type: 'bug' as Defect['type'],
-    reportedBy: '',
+    discoveredBy: '',
   });
 
   // Fetch defects for this story
@@ -69,13 +71,13 @@ export function DefectManagement({ userStoryId, userStoryTitle }: DefectManageme
         description: 'The defect has been logged successfully.',
       });
       setIsCreateDialogOpen(false);
-      setNewDefect({
-        title: '',
-        description: '',
-        severity: 'medium',
-        type: 'bug',
-        reportedBy: '',
-      });
+        setNewDefect({
+          title: '',
+          description: '',
+          severity: 'medium',
+          type: 'bug',
+          discoveredBy: '',
+        });
     },
     onError: () => {
       toast({
@@ -157,22 +159,29 @@ export function DefectManagement({ userStoryId, userStoryTitle }: DefectManageme
   return (
     <div className="space-y-4 border rounded-lg p-4 bg-amber-50 dark:bg-amber-950/10">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Bug className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-          <h4 className="font-semibold text-amber-900 dark:text-amber-100">Defects & Issues</h4>
-          {openDefects.length > 0 && (
-            <Badge variant="destructive" className="ml-2">
-              {openDefects.length} Open
-            </Badge>
-          )}
-        </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" variant="outline" data-testid="button-create-defect">
-              <Plus className="w-4 h-4 mr-2" />
-              Log Defect
-            </Button>
-          </DialogTrigger>
+          <div className="flex items-center gap-2">
+              <Bug className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              <h4 className="font-semibold text-amber-900 dark:text-amber-100">Defects & Issues</h4>
+              {openDefects.length > 0 && (
+                <Badge variant="destructive" className="ml-2">
+                  {openDefects.length} Open
+                </Badge>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Link href="/defects">
+                <Button size="sm" variant="ghost" data-testid="button-view-all-defects">
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Quality Center
+                </Button>
+              </Link>
+              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" variant="default" data-testid="button-create-defect" className="bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Log Defect
+                  </Button>
+                </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Log New Defect</DialogTitle>
@@ -237,16 +246,16 @@ export function DefectManagement({ userStoryId, userStoryTitle }: DefectManageme
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="defect-reported-by">Reported By</Label>
-                <Input
-                  id="defect-reported-by"
-                  value={newDefect.reportedBy}
-                  onChange={(e) => setNewDefect({ ...newDefect, reportedBy: e.target.value })}
-                  placeholder="Your name or email"
-                  data-testid="input-defect-reported-by"
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="defect-discovered-by">Discovered By</Label>
+                    <Input
+                      id="defect-discovered-by"
+                      value={newDefect.discoveredBy}
+                      onChange={(e) => setNewDefect({ ...newDefect, discoveredBy: e.target.value })}
+                      placeholder="Your name or email"
+                      data-testid="input-defect-discovered-by"
+                    />
+                  </div>
 
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)} data-testid="button-cancel-defect">
@@ -260,6 +269,7 @@ export function DefectManagement({ userStoryId, userStoryTitle }: DefectManageme
           </DialogContent>
         </Dialog>
       </div>
+    </div>
 
       {isLoading ? (
         <p className="text-sm text-muted-foreground">Loading defects...</p>
@@ -278,13 +288,14 @@ export function DefectManagement({ userStoryId, userStoryTitle }: DefectManageme
                         <h6 className="font-medium text-sm">{defect.title}</h6>
                       </div>
                       <p className="text-xs text-muted-foreground mt-1">{defect.description}</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        {getSeverityBadge(defect.severity)}
-                        <Badge variant="outline">{defect.type}</Badge>
-                        {defect.reportedBy && (
-                          <span className="text-xs text-muted-foreground">by {defect.reportedBy}</span>
-                        )}
-                      </div>
+                          <div className="flex items-center gap-2 mt-2">
+                            {getSeverityBadge(defect.severity)}
+                            <Badge variant="outline">{defect.type}</Badge>
+                            <CodeChangesBadge entityType="defect" entityId={defect.id} />
+                            {defect.discoveredBy && (
+                              <span className="text-xs text-muted-foreground">by {defect.discoveredBy}</span>
+                            )}
+                          </div>
                     </div>
                     <div className="flex gap-1">
                       <Select value={defect.status} onValueChange={(value) => updateDefectMutation.mutate({ id: defect.id, status: value as Defect['status'] })}>
@@ -321,6 +332,7 @@ export function DefectManagement({ userStoryId, userStoryTitle }: DefectManageme
                         {getSeverityBadge(defect.severity)}
                         <Badge variant="outline">{defect.type}</Badge>
                         <Badge variant="secondary">{defect.status}</Badge>
+                        <CodeChangesBadge entityType="defect" entityId={defect.id} compact />
                       </div>
                     </div>
                   </div>
@@ -353,7 +365,7 @@ export function DefectManagement({ userStoryId, userStoryTitle }: DefectManageme
   );
 }
 
-// Defect Badge for Story Cards
+// Defect Badge for Story Cards - Now clickable and routes to Quality Center
 export function DefectBadge({ userStoryId }: { userStoryId: string }) {
   const { data: defects } = useQuery<Defect[]>({
     queryKey: ['/api/user-stories', userStoryId, 'defects'],
@@ -371,11 +383,17 @@ export function DefectBadge({ userStoryId }: { userStoryId: string }) {
   if (openDefects.length === 0) return null;
 
   return (
-    <Badge variant="destructive" className="gap-1" data-testid={`badge-defects-${userStoryId}`}>
-      <Bug className="w-3 h-3" />
-      {criticalCount > 0 && <span className="font-bold">{criticalCount}C</span>}
-      {highCount > 0 && <span>{highCount}H</span>}
-      {criticalCount === 0 && highCount === 0 && <span>{openDefects.length}</span>}
-    </Badge>
+    <Link href={`/defects?storyId=${userStoryId}`}>
+      <Badge 
+        variant="destructive" 
+        className="gap-1 cursor-pointer hover:bg-red-700 transition-colors" 
+        data-testid={`badge-defects-${userStoryId}`}
+      >
+        <Bug className="w-3 h-3" />
+        {criticalCount > 0 && <span className="font-bold">{criticalCount}C</span>}
+        {highCount > 0 && <span>{highCount}H</span>}
+        {criticalCount === 0 && highCount === 0 && <span>{openDefects.length}</span>}
+      </Badge>
+    </Link>
   );
 }

@@ -23,6 +23,8 @@ import DesignOptionsPage from "@/pages/design-options";
 import DesignOptionDetailPage from "@/pages/design-option-detail";
 import DesignOptionPrototypePage from "@/pages/design-option-prototype";
 import PlanPage from "@/pages/plan";
+import QualityDefectsPage from "@/pages/quality-defects";
+import QualityDefectDetailPage from "@/pages/quality-defect-detail";
 import ArkhitektonArchitecture from "@/pages/arkhitekton-architecture";
 import ArkhitektonArchitectureAWS from "@/pages/arkhitekton-architecture-aws";
 import ArkhitektonArchitectureAzure from "@/pages/arkhitekton-architecture-azure";
@@ -37,6 +39,7 @@ import DrawioPOCPage from "@/pages/drawio-poc";
 import CanvasPOCPage from "@/pages/canvas-poc";
 import InstantCanvasPage from "@/pages/instant-canvas";
 import CanvasSimple from "@/pages/canvas-simple";
+import WikiV2Page from "@/pages/wiki-v2";
 
 
 // Redirect component for deprecated routes
@@ -66,6 +69,8 @@ function Router() {
       <Route path="/portfolio" component={PortfolioPage} />
       <Route path="/workflows" component={WorkflowsPage} />
       <Route path="/wiki" component={WikiPage} />
+      <Route path="/wiki-v2" component={WikiV2Page} />
+      <Route path="/wiki-v2/:id" component={WikiV2Page} />
       <Route path="/tickets" component={TicketsPage} />
       <Route path="/tickets/new" component={CreateTicketPage} />
       <Route path="/tickets/:id/edit" component={EditTicketPage} />
@@ -74,6 +79,8 @@ function Router() {
       <Route path="/design-options/:id" component={DesignOptionDetailPage} />
       <Route path="/design-options/:id/prototype/:protoId" component={DesignOptionPrototypePage} />
       <Route path="/plan" component={PlanPage} />
+      <Route path="/defects" component={QualityDefectsPage} />
+      <Route path="/defects/:id" component={QualityDefectDetailPage} />
       <Route path="/apm" component={APMPage} />
       <Route path="/cloud-icons" component={CloudIconsPage} />
       <Route path="/gcp-icons">{() => <Redirect to="/cloud-icons" />}</Route>

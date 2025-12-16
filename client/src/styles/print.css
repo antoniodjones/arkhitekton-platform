@@ -1,0 +1,222 @@
+/* Print-specific styles matching PDF template design */
+@media print {
+  /* Hide all UI chrome and navigation */
+  header,
+  nav,
+  button,
+  .no-print,
+  [data-radix-dialog-overlay],
+  [role="dialog"] > div:first-child,
+  .flex.justify-between.items-center.pt-4 {
+    display: none !important;
+  }
+
+  /* Show only the story content */
+  body {
+    margin: 0;
+    padding: 0;
+    background: white;
+    color: #000;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  /* Print container */
+  .print-story-content {
+    display: block !important;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    page-break-after: always;
+  }
+
+  /* Story Header - Orange bar with Story Name | ID | Feature */
+  .print-story-header {
+    background: #ea580c !important;
+    color: white !important;
+    padding: 12px 20px;
+    margin: 0 0 20px 0;
+    font-size: 12pt;
+    font-weight: bold;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Story Title Section */
+  .print-story-title {
+    font-size: 14pt;
+    font-weight: bold;
+    color: #ea580c;
+    margin: 20px 0 10px 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print-story-text {
+    font-size: 11pt;
+    line-height: 1.6;
+    color: #1f2937;
+    margin: 8px 0;
+  }
+
+  /* Metadata Grid */
+  .print-metadata-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    background: #f9fafb;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print-metadata-item {
+    font-size: 9pt;
+  }
+
+  .print-metadata-label {
+    color: #6b7280;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .print-metadata-value {
+    color: #1f2937;
+    font-weight: normal;
+  }
+
+  /* Story Composition Section */
+  .print-composition-section {
+    margin: 15px 0;
+    padding: 12px;
+    background: #eff6ff;
+    border-radius: 6px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print-composition-title {
+    font-size: 12pt;
+    font-weight: bold;
+    color: #ea580c;
+    margin-bottom: 10px;
+  }
+
+  .print-composition-item {
+    font-size: 9pt;
+    margin: 5px 0;
+  }
+
+  .print-composition-label {
+    color: #6b7280;
+    font-weight: 600;
+  }
+
+  /* Section Headers */
+  .print-section-header {
+    font-size: 12pt;
+    font-weight: bold;
+    color: #ea580c;
+    margin: 20px 0 10px 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Acceptance Criteria Code Block */
+  .print-acceptance-criteria {
+    background: #f5f7fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 12px;
+    margin: 10px 0;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 9pt;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: #374151;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Labels/Tags */
+  .print-labels {
+    margin: 15px 0;
+  }
+
+  .print-label-tag {
+    display: inline-block;
+    background: #f3f4f6;
+    color: #4b5563;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 8pt;
+    margin-right: 8px;
+    margin-bottom: 5px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Footer */
+  .print-footer {
+    position: fixed;
+    bottom: 10mm;
+    left: 20mm;
+    right: 20mm;
+    font-size: 8pt;
+    color: #6b7280;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 5px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* Page breaks */
+  .page-break {
+    page-break-before: always;
+  }
+
+  /* Ensure proper margins */
+  @page {
+    margin: 20mm;
+    size: A4 portrait;
+  }
+
+  /* Prevent awkward breaks */
+  h1, h2, h3, h4, h5, h6,
+  .print-section-header,
+  .print-story-title {
+    page-break-after: avoid;
+  }
+
+  .print-metadata-grid,
+  .print-composition-section,
+  .print-acceptance-criteria {
+    page-break-inside: avoid;
+  }
+
+  /* Hide dialog-specific elements but show content */
+  [role="dialog"] {
+    position: static !important;
+    max-height: none !important;
+    overflow: visible !important;
+    background: white !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Ensure proper color printing */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* Non-print styling for the print container (hidden by default) */
+.print-story-content {
+  display: none;
+}
+

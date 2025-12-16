@@ -29,7 +29,12 @@ import {
   insertArchitecturalObjectSchema,
   insertObjectConnectionSchema,
   type InsertArchitecturalModel,
-  type InsertArchitecturalObject
+  type InsertArchitecturalObject,
+  insertWikiPageSchema,
+  updateWikiPageSchema,
+  insertEntityMentionSchema,
+  type WikiPage,
+  type EntityMention
 } from "@shared/schema";
 import Anthropic from '@anthropic-ai/sdk';
 import { encrypt, decrypt, isEncrypted } from './encryption';
@@ -1050,6 +1055,255 @@ Keep response concise but comprehensive.`;
     } catch (error) {
       console.error('Error linking commit:', error);
       res.status(500).json({ error: 'Failed to link commit' });
+    }
+  });
+
+  // ============================================================================
+  // CODE CHANGES API - Link PRs, Commits, Branches to Work Items
+  // ============================================================================
+
+  // GET /api/code-changes/:entityType/:entityId - Get all code changes for an entity
+  app.get('/api/code-changes/:entityType/:entityId', async (req, res) => {
+    try {
+      const { entityType, entityId } = req.params;
+      const changes = await storage.getCodeChangesByEntity(entityType, entityId);
+      res.json({ data: changes });
+    } catch (error) {
+      console.error('Error fetching code changes:', error);
+      res.status(500).json({ error: 'Failed to fetch code changes' });
+    }
+  });
+
+  // GET /api/code-changes/recent - Get recent code changes across all entities
+  app.get('/api/code-changes/recent', async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 20;
+      const changes = await storage.getRecentCodeChanges(limit);
+      res.json({ data: changes });
+    } catch (error) {
+      console.error('Error fetching recent code changes:', error);
+      res.status(500).json({ error: 'Failed to fetch recent code changes' });
+    }
+  });
+
+  // POST /api/code-changes - Create a new code change link
+  app.post('/api/code-changes', async (req, res) => {
+    try {
+      const { entityType, entityId, changeType, provider, repository, ...details } = req.body;
+
+      if (!entityType || !entityId || !changeType || !repository) {
+        return res.status(400).json({ 
+          error: 'entityType, entityId, changeType, and repository are required' 
+        });
+      }
+
+      // Check for duplicates using externalId
+      if (details.externalId) {
+        const existing = await storage.getCodeChangeByExternalId(details.externalId);
+        if (existing) {
+          // Update existing record instead of creating duplicate
+          const updated = await storage.updateCodeChange(existing.id, {
+            ...details,
+            eventTimestamp: details.eventTimestamp ? new Date(details.eventTimestamp) : new Date(),
+          });
+          return res.json({ data: updated, updated: true });
+        }
+      }
+
+      const change = await storage.createCodeChange({
+        entityType,
+        entityId,
+        changeType,
+        provider: provider || 'github',
+        repository,
+        eventTimestamp: details.eventTimestamp ? new Date(details.eventTimestamp) : new Date(),
+        ...details,
+      });
+
+      res.status(201).json({ data: change });
+    } catch (error) {
+      console.error('Error creating code change:', error);
+      res.status(500).json({ error: 'Failed to create code change' });
+    }
+  });
+
+  // PUT /api/code-changes/:id - Update a code change (e.g., PR merged)
+  app.put('/api/code-changes/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+
+      const updated = await storage.updateCodeChange(id, updates);
+      if (!updated) {
+        return res.status(404).json({ error: 'Code change not found' });
+      }
+
+      res.json({ data: updated });
+    } catch (error) {
+      console.error('Error updating code change:', error);
+      res.status(500).json({ error: 'Failed to update code change' });
+    }
+  });
+
+  // DELETE /api/code-changes/:id - Delete a code change
+  app.delete('/api/code-changes/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteCodeChange(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting code change:', error);
+      res.status(500).json({ error: 'Failed to delete code change' });
+    }
+  });
+
+  // POST /api/webhooks/github - Handle GitHub webhook events
+  app.post('/api/webhooks/github', async (req, res) => {
+    try {
+      const event = req.headers['x-github-event'] as string;
+      const payload = req.body;
+
+      console.log(`📬 GitHub webhook received: ${event}`);
+
+      // Extract story ID from branch name, PR title, or commit message
+      const extractStoryId = (text: string): string | null => {
+        const match = text?.match(/US-[A-Z0-9]{7}|DEF-[A-Z0-9-]+|EPIC-\d+/i);
+        return match ? match[0].toUpperCase() : null;
+      };
+
+      const repository = payload.repository?.full_name;
+
+      switch (event) {
+        case 'push': {
+          // Handle commit push
+          const commits = payload.commits || [];
+          for (const commit of commits) {
+            const storyId = extractStoryId(commit.message);
+            if (storyId) {
+              const entityType = storyId.startsWith('US-') ? 'user_story' 
+                : storyId.startsWith('DEF-') ? 'defect' 
+                : 'epic';
+
+              await storage.createCodeChange({
+                entityType,
+                entityId: storyId,
+                changeType: 'commit',
+                provider: 'github',
+                repository,
+                commitSha: commit.id,
+                commitMessage: commit.message,
+                commitUrl: commit.url,
+                authorUsername: commit.author?.username,
+                authorEmail: commit.author?.email,
+                eventTimestamp: new Date(commit.timestamp),
+                externalId: `commit:${commit.id}`,
+                syncSource: 'webhook',
+              });
+            }
+          }
+          break;
+        }
+
+        case 'pull_request': {
+          const pr = payload.pull_request;
+          const action = payload.action;
+          const storyId = extractStoryId(pr.title) || extractStoryId(pr.head?.ref);
+
+          if (storyId) {
+            const entityType = storyId.startsWith('US-') ? 'user_story' 
+              : storyId.startsWith('DEF-') ? 'defect' 
+              : 'epic';
+
+            const prState = action === 'closed' && pr.merged ? 'merged'
+              : pr.draft ? 'draft'
+              : pr.state;
+
+            const existing = await storage.getCodeChangeByExternalId(`pr:${pr.id}`);
+
+            if (existing) {
+              await storage.updateCodeChange(existing.id, {
+                prState,
+                prMergedAt: pr.merged_at ? new Date(pr.merged_at) : null,
+                prMergedBy: pr.merged_by?.login,
+              });
+            } else {
+              await storage.createCodeChange({
+                entityType,
+                entityId: storyId,
+                changeType: 'pull_request',
+                provider: 'github',
+                repository,
+                prNumber: pr.number,
+                prTitle: pr.title,
+                prState,
+                prUrl: pr.html_url,
+                prBaseBranch: pr.base?.ref,
+                prHeadBranch: pr.head?.ref,
+                authorUsername: pr.user?.login,
+                authorAvatarUrl: pr.user?.avatar_url,
+                eventTimestamp: new Date(pr.created_at),
+                externalId: `pr:${pr.id}`,
+                syncSource: 'webhook',
+              });
+            }
+
+            // Update story status based on PR state
+            if (entityType === 'user_story') {
+              const story = await storage.getUserStory(storyId);
+              if (story) {
+                if (action === 'opened' && story.status === 'in-progress') {
+                  await storage.updateUserStory(storyId, { status: 'review' });
+                } else if (prState === 'merged' && story.status === 'review') {
+                  await storage.updateUserStory(storyId, { status: 'done' });
+                }
+              }
+            }
+          }
+          break;
+        }
+
+        case 'create': {
+          // Handle branch creation
+          if (payload.ref_type === 'branch') {
+            const branchName = payload.ref;
+            const storyId = extractStoryId(branchName);
+
+            if (storyId) {
+              const entityType = storyId.startsWith('US-') ? 'user_story' 
+                : storyId.startsWith('DEF-') ? 'defect' 
+                : 'epic';
+
+              await storage.createCodeChange({
+                entityType,
+                entityId: storyId,
+                changeType: 'branch',
+                provider: 'github',
+                repository,
+                branchName,
+                branchUrl: `https://github.com/${repository}/tree/${branchName}`,
+                authorUsername: payload.sender?.login,
+                eventTimestamp: new Date(),
+                externalId: `branch:${repository}:${branchName}`,
+                syncSource: 'webhook',
+              });
+
+              // Update story status to in-progress
+              if (entityType === 'user_story') {
+                const story = await storage.getUserStory(storyId);
+                if (story && story.status === 'backlog') {
+                  await storage.updateUserStory(storyId, { status: 'in-progress' });
+                }
+              }
+            }
+          }
+          break;
+        }
+      }
+
+      res.json({ success: true, event });
+    } catch (error) {
+      console.error('Error processing GitHub webhook:', error);
+      res.status(500).json({ error: 'Failed to process webhook' });
     }
   });
 
@@ -2088,9 +2342,6 @@ Keep response concise but comprehensive.`;
     }
   });
 
-  return httpServer;
-}
-
 // ============================================================================
 // Jira Webhook Processing - Async background processing
 // ============================================================================
@@ -2252,4 +2503,507 @@ function mapJiraPriorityToArkhitekton(jiraPriority: string | undefined): string 
     'Lowest': 'low'
   };
   return mapping[jiraPriority] || 'medium';
+}
+
+  // ============================================================================
+  // WIKI KNOWLEDGE CORE API - Phase 1 Foundation
+  // Stories: US-WIKI-001 through US-WIKI-010 (CRUD operations)
+  // ============================================================================
+
+  // GET /api/wiki - List all wiki pages
+  app.get("/api/wiki", async (req, res) => {
+    try {
+      const { category, status, search } = req.query;
+
+      let pages: WikiPage[];
+
+      if (search && typeof search === 'string') {
+        pages = await storage.searchWikiPages(search);
+      } else if (category && typeof category === 'string') {
+        pages = await storage.getWikiPagesByCategory(category);
+      } else if (status && typeof status === 'string') {
+        pages = await storage.getWikiPagesByStatus(status);
+      } else {
+        pages = await storage.getAllWikiPages();
+      }
+
+      res.json({ data: pages });
+    } catch (error) {
+      console.error("Error fetching wiki pages:", error);
+      res.status(500).json({ error: "Failed to fetch wiki pages" });
+    }
+  });
+
+  // GET /api/wiki/tree - Get tree structure (root pages)
+  app.get("/api/wiki/tree", async (req, res) => {
+    try {
+      const rootPages = await storage.getRootWikiPages();
+      res.json({ data: rootPages });
+    } catch (error) {
+      console.error("Error fetching wiki tree:", error);
+      res.status(500).json({ error: "Failed to fetch wiki tree" });
+    }
+  });
+
+  // GET /api/wiki/:id - Get a specific wiki page
+  app.get("/api/wiki/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const page = await storage.getWikiPage(id);
+
+      if (!page) {
+        return res.status(404).json({ error: "Wiki page not found" });
+      }
+
+      // Increment view count
+      await storage.incrementWikiPageViews(id);
+
+      res.json({ data: page });
+    } catch (error) {
+      console.error("Error fetching wiki page:", error);
+      res.status(500).json({ error: "Failed to fetch wiki page" });
+    }
+  });
+
+  // GET /api/wiki/:id/children - Get child pages
+  app.get("/api/wiki/:id/children", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const children = await storage.getChildWikiPages(id);
+      res.json({ data: children });
+    } catch (error) {
+      console.error("Error fetching child pages:", error);
+      res.status(500).json({ error: "Failed to fetch child pages" });
+    }
+  });
+
+  // POST /api/wiki - Create a new wiki page
+  app.post("/api/wiki", async (req, res) => {
+    try {
+      const validatedData = insertWikiPageSchema.parse(req.body);
+      const page = await storage.createWikiPage(validatedData);
+      res.status(201).json({ data: page });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid wiki page data", details: error.errors });
+      }
+      console.error("Error creating wiki page:", error);
+      res.status(500).json({ error: "Failed to create wiki page" });
+    }
+  });
+
+  // PUT /api/wiki/:id - Update a wiki page
+  app.put("/api/wiki/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedData = updateWikiPageSchema.parse(req.body);
+      const page = await storage.updateWikiPage(id, validatedData);
+
+      if (!page) {
+        return res.status(404).json({ error: "Wiki page not found" });
+      }
+
+      res.json({ data: page });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid wiki page data", details: error.errors });
+      }
+      console.error("Error updating wiki page:", error);
+      res.status(500).json({ error: "Failed to update wiki page" });
+    }
+  });
+
+  // DELETE /api/wiki/:id - Delete a wiki page
+  app.delete("/api/wiki/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteWikiPage(id);
+
+      if (!success) {
+        return res.status(404).json({ error: "Wiki page not found" });
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting wiki page:", error);
+      res.status(500).json({ error: "Failed to delete wiki page" });
+    }
+  });
+
+  // POST /api/wiki/:id/duplicate - Duplicate a wiki page
+  app.post("/api/wiki/:id/duplicate", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const duplicate = await storage.duplicateWikiPage(id);
+
+      if (!duplicate) {
+        return res.status(404).json({ error: "Wiki page not found" });
+      }
+
+      res.status(201).json({ data: duplicate });
+    } catch (error) {
+      console.error("Error duplicating wiki page:", error);
+      res.status(500).json({ error: "Failed to duplicate wiki page" });
+    }
+  });
+
+  // PUT /api/wiki/:id/move - Move a wiki page in the tree
+  app.put("/api/wiki/:id/move", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { parentId, sortOrder } = req.body;
+
+      const success = await storage.moveWikiPage(id, parentId, sortOrder);
+
+      if (!success) {
+        return res.status(404).json({ error: "Wiki page not found" });
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error moving wiki page:", error);
+      res.status(500).json({ error: "Failed to move wiki page" });
+    }
+  });
+
+  // GET /api/wiki/search - Full-text search (enhanced version)
+  app.get("/api/wiki/search", async (req, res) => {
+    try {
+      const { q } = req.query;
+
+      if (!q || typeof q !== 'string') {
+        return res.status(400).json({ error: "Search query is required" });
+      }
+
+      const pages = await storage.searchWikiPages(q);
+      res.json({ data: pages, query: q, count: pages.length });
+    } catch (error) {
+      console.error("Error searching wiki pages:", error);
+      res.status(500).json({ error: "Failed to search wiki pages" });
+    }
+  });
+
+  // ============================================================================
+  // ENTITY MENTIONS API - Phase 2 Semantic Linking (Prep)
+  // ============================================================================
+
+  // GET /api/wiki/:id/mentions - Get all mentions in a page
+  app.get("/api/wiki/:id/mentions", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const mentions = await storage.getEntityMentionsByPage(id);
+      res.json({ data: mentions });
+    } catch (error) {
+      console.error("Error fetching mentions:", error);
+      res.status(500).json({ error: "Failed to fetch mentions" });
+    }
+  });
+
+  // GET /api/wiki/:id/backlinks - Get all pages that mention this entity
+  app.get("/api/wiki/backlinks/:entityType/:entityId", async (req, res) => {
+    try {
+      const { entityType, entityId } = req.params;
+      const mentions = await storage.getEntityMentionsByEntity(entityType, entityId);
+      
+      // Enrich mentions with page details
+      const enrichedBacklinks = await Promise.all(
+        mentions.map(async (mention) => {
+          const page = await storage.getWikiPage(mention.pageId);
+          return {
+            pageId: mention.pageId,
+            pageTitle: page?.title || 'Unknown Page',
+            pageCategory: page?.category || null,
+            mentionText: mention.text,
+            createdAt: mention.createdAt,
+          };
+        })
+      );
+      
+      // Remove duplicates (same page can have multiple mentions)
+      const uniqueBacklinks = enrichedBacklinks.reduce((acc, backlink) => {
+        if (!acc.find(b => b.pageId === backlink.pageId)) {
+          acc.push(backlink);
+        }
+        return acc;
+      }, [] as typeof enrichedBacklinks);
+      
+      res.json({ data: uniqueBacklinks });
+    } catch (error) {
+      console.error("Error fetching backlinks:", error);
+      res.status(500).json({ error: "Failed to fetch backlinks" });
+    }
+  });
+
+  // POST /api/wiki/mentions - Create entity mention
+  app.post("/api/wiki/mentions", async (req, res) => {
+    try {
+      const validatedData = insertEntityMentionSchema.parse(req.body);
+      const mention = await storage.createEntityMention(validatedData);
+      res.status(201).json({ data: mention });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid mention data", details: error.errors });
+      }
+      console.error("Error creating mention:", error);
+      res.status(500).json({ error: "Failed to create mention" });
+    }
+  });
+
+  // ============================================================================
+  // UNIFIED ENTITY SEARCH API - Platform-wide @mentions
+  // Story: US-WIKI-070 (Unified Entity Search API for @mentions)
+  // ============================================================================
+
+  // GET /api/entities/search - Search across all entity types for @mentions
+  app.get("/api/entities/search", async (req, res) => {
+    try {
+      const { q, type, limit = '5' } = req.query;
+      
+      if (!q || typeof q !== 'string' || q.length < 1) {
+        return res.status(400).json({ error: "Search query 'q' is required" });
+      }
+
+      const searchLimit = Math.min(parseInt(limit as string) || 5, 20);
+      const query = q.toLowerCase();
+      const results: any[] = [];
+
+      // Helper to add results with entity metadata
+      const addResults = (items: any[], entityType: string, getUrl: (item: any) => string) => {
+        const filtered = items
+          .filter(item => {
+            const searchFields = [
+              item.title,
+              item.name,
+              item.id,
+              item.description
+            ].filter(Boolean).join(' ').toLowerCase();
+            return searchFields.includes(query);
+          })
+          .slice(0, searchLimit)
+          .map(item => ({
+            id: item.id,
+            entityType,
+            title: item.title || item.name,
+            status: item.status || 'active',
+            url: getUrl(item),
+            metadata: {
+              description: item.description?.substring(0, 100),
+              createdAt: item.createdAt,
+              updatedAt: item.updatedAt,
+              ...getEntityMetadata(item, entityType)
+            }
+          }));
+        results.push(...filtered);
+      };
+
+      // Helper to get entity-specific metadata
+      const getEntityMetadata = (item: any, entityType: string) => {
+        switch (entityType) {
+          case 'user_story':
+            return { 
+              storyPoints: item.storyPoints, 
+              priority: item.priority,
+              epicId: item.epicId,
+              assignee: item.assignee
+            };
+          case 'epic':
+            return { 
+              valueStream: item.valueStream,
+              priority: item.priority
+            };
+          case 'defect':
+            return { 
+              severity: item.severity, 
+              type: item.type,
+              assignedTo: item.assignedTo
+            };
+          case 'model':
+            return { 
+              domain: item.domain, 
+              type: item.type,
+              state: item.state
+            };
+          case 'application':
+            return { 
+              type: item.type,
+              criticality: item.criticality,
+              owner: item.owner
+            };
+          case 'page':
+            return { 
+              category: item.category,
+              template: item.template,
+              views: item.views
+            };
+          case 'object':
+          case 'component':
+            return { 
+              type: item.type,
+              modelId: item.modelId,
+              layer: item.layer
+            };
+          case 'capability':
+            return { 
+              level: item.level,
+              domain: item.domain,
+              parentId: item.parentId
+            };
+          case 'element':
+            return { 
+              type: item.type,
+              category: item.category,
+              layer: item.layer
+            };
+          default:
+            return {};
+        }
+      };
+
+      // Search User Stories
+      if (!type || type === 'user_story') {
+        const stories = await storage.getAllUserStories();
+        addResults(stories, 'user_story', (s) => `/plan?storyId=${s.id}`);
+      }
+
+      // Search Epics
+      if (!type || type === 'epic') {
+        const epics = await storage.getAllEpics();
+        addResults(epics, 'epic', (e) => `/plan?epicId=${e.id}`);
+      }
+
+      // Search Defects
+      if (!type || type === 'defect') {
+        const defects = await storage.getAllDefects();
+        addResults(defects, 'defect', (d) => `/defects/${d.id}`);
+      }
+
+      // Search Applications
+      if (!type || type === 'application') {
+        const apps = await storage.getAllApplications();
+        addResults(apps, 'application', (a) => `/apm?appId=${a.id}`);
+      }
+
+      // Search Wiki Pages
+      if (!type || type === 'page') {
+        const pages = await storage.getAllWikiPages();
+        addResults(pages, 'page', (p) => `/wiki-v2/${p.id}`);
+      }
+
+      // Search Architectural Models
+      if (!type || type === 'model' || type === 'diagram') {
+        const models = await storage.getArchitecturalModels();
+        addResults(models, 'model', (m) => `/studio/canvas?modelId=${m.id}`);
+      }
+
+      // Search Architectural Objects (Components)
+      if (!type || type === 'object' || type === 'component') {
+        const objects = await storage.getArchitecturalObjects();
+        addResults(objects, 'object', (o) => `/studio/canvas?objectId=${o.id}`);
+      }
+
+      // Search Business Capabilities
+      if (!type || type === 'capability') {
+        const capabilities = await storage.getBusinessCapabilities();
+        addResults(capabilities, 'capability', (c) => `/capabilities?id=${c.id}`);
+      }
+
+      // Search Architecture Elements
+      if (!type || type === 'element') {
+        const elements = await storage.getArchitectureElements();
+        addResults(elements, 'element', (e) => `/elements?id=${e.id}`);
+      }
+
+      // Group results by entity type
+      const grouped: Record<string, any[]> = {};
+      results.forEach(r => {
+        if (!grouped[r.entityType]) grouped[r.entityType] = [];
+        grouped[r.entityType].push(r);
+      });
+
+      res.json({
+        query: q,
+        totalResults: results.length,
+        results: results.slice(0, searchLimit * 6), // Limit total results
+        grouped,
+      });
+    } catch (error) {
+      console.error("Error searching entities:", error);
+      res.status(500).json({ error: "Failed to search entities" });
+    }
+  });
+
+  // GET /api/entities/:type/:id - Get entity details for preview card
+  app.get("/api/entities/:type/:id", async (req, res) => {
+    try {
+      const { type, id } = req.params;
+      let entity: any = null;
+      let url: string = '';
+
+      switch (type) {
+        case 'user_story':
+          entity = await storage.getUserStory(id);
+          url = `/plan?storyId=${id}`;
+          break;
+        case 'epic':
+          entity = await storage.getEpic(id);
+          url = `/plan?epicId=${id}`;
+          break;
+        case 'defect':
+          entity = await storage.getDefect(id);
+          url = `/defects/${id}`;
+          break;
+        case 'application':
+          entity = await storage.getApplication(id);
+          url = `/apm?appId=${id}`;
+          break;
+        case 'page':
+          entity = await storage.getWikiPage(id);
+          url = `/wiki-v2/${id}`;
+          break;
+        case 'model':
+        case 'diagram':
+          entity = await storage.getArchitecturalModel(id);
+          url = `/studio/canvas?modelId=${id}`;
+          break;
+        case 'object':
+        case 'component':
+          entity = await storage.getArchitecturalObject(id);
+          url = `/studio/canvas?objectId=${id}`;
+          break;
+        case 'capability':
+          entity = await storage.getBusinessCapability(id);
+          url = `/capabilities?id=${id}`;
+          break;
+        case 'element':
+          entity = await storage.getArchitectureElement(id);
+          url = `/elements?id=${id}`;
+          break;
+        default:
+          return res.status(400).json({ error: `Unknown entity type: ${type}` });
+      }
+
+      if (!entity) {
+        return res.status(404).json({ error: "Entity not found" });
+      }
+
+      res.json({
+        id: entity.id,
+        entityType: type,
+        title: entity.title || entity.name,
+        description: entity.description,
+        status: entity.status || 'active',
+        url,
+        metadata: entity,
+      });
+    } catch (error) {
+      console.error("Error fetching entity:", error);
+      res.status(500).json({ error: "Failed to fetch entity" });
+    }
+  });
+
+  // ============================================================================
+  // END ENTITY SEARCH API
+  // ============================================================================
+
+  return httpServer;
 }

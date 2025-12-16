@@ -30,7 +30,8 @@ import {
   Presentation,
   Palette,
   Database,
-  Plug
+  Plug,
+  Bug
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -150,6 +151,13 @@ const navigationItems: NavigationItem[] = [
     description: 'Development roadmap and task tracking'
   },
   {
+    id: 'defects',
+    label: 'Quality Center',
+    href: '/defects',
+    icon: Bug,
+    description: 'Defect tracking and quality management'
+  },
+  {
     id: 'pitch-deck',
     label: 'VC Pitch Deck',
     href: '/pitch-deck',
@@ -159,10 +167,11 @@ const navigationItems: NavigationItem[] = [
   },
   {
     id: 'wiki',
-    label: 'Knowledge Base',
-    href: '/wiki',
+    label: 'Knowledge Core',
+    href: '/wiki-v2',
     icon: BookOpen,
-    description: 'Documentation and knowledge repository'
+    description: 'Documentation and knowledge repository',
+    badge: 'New'
   }
 ];
 

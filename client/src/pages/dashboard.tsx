@@ -22,7 +22,8 @@ import {
   Workflow,
   Sparkles,
   Zap,
-  Package
+  Package,
+  Bug
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/app-layout';
 
@@ -188,6 +189,13 @@ function DashboardContent() {
       icon: Shield,
       color: palette.accent,
       href: "/governance"
+    },
+    {
+      title: "Quality Center",
+      description: "Track defects and quality issues",
+      icon: Bug,
+      color: palette.accent,
+      href: "/defects"
     },
     {
       title: "Innovation Portfolio",

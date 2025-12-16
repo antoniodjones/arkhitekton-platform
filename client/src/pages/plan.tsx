@@ -39,6 +39,7 @@ import {
   Plus,
   Printer,
   Upload,
+  Download,
   Image,
   Code2,
   FileText,
@@ -57,6 +58,8 @@ import { GovernanceHeader } from '@/components/layout/governance-header';
 import { SimpleFileUploader } from '@/components/SimpleFileUploader';
 import { AppLayout } from '@/components/layout/app-layout';
 import { DefectManagement, DefectBadge } from '@/components/defect-management';
+import { CodeChangesBadge } from '@/components/code-changes/code-changes-badge';
+import { exportStoryToPDF } from '@/lib/pdf-export';
 import { 
   DndContext,
   closestCenter,
@@ -1603,6 +1606,7 @@ Then [expected outcome]`,
                           </Badge>
                         )}
                         <DefectBadge userStoryId={story.id} />
+                        <CodeChangesBadge entityType="user_story" entityId={story.id} />
                         {story.epicId && (() => {
                           const epic = epics.find(e => e.id === story.epicId);
                           return epic ? (
@@ -2321,17 +2325,32 @@ Scenario: [scenario name]
 
               {/* Action Buttons */}
               <div className="flex justify-between items-center pt-4">
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    // Print as PDF with Technical Documentation format
-                    window.print();
-                  }} 
-                  data-testid="button-print-story"
-                >
-                  <Printer className="w-4 h-4 mr-2" />
-                  Print as PDF
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      if (editingStory) {
+                        const epic = epics.find(e => e.id === editingStory.epicId);
+                        exportStoryToPDF({ story: editingStory, epic });
+                      }
+                    }} 
+                    data-testid="button-export-pdf"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Export to PDF
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      // Print with formatted layout
+                      window.print();
+                    }} 
+                    data-testid="button-print-story"
+                  >
+                    <Printer className="w-4 h-4 mr-2" />
+                    Print Story
+                  </Button>
+                </div>
                 <div className="flex gap-2">
                   <Button variant="outline" onClick={() => setIsStoryDialogOpen(false)} data-testid="button-cancel-story">
                     Cancel
@@ -2343,6 +2362,108 @@ Scenario: [scenario name]
                   }} data-testid="button-save-story">
                     Save Story
                   </Button>
+                </div>
+              </div>
+
+              {/* Print-Only Content (Hidden on Screen, Visible when Printing) */}
+              <div className="print-story-content">
+                {/* Header: Story Name | Story ID | Feature */}
+                <div className="print-story-header">
+                  {editingStory.title.substring(0, 80)}{editingStory.title.length > 80 ? '...' : ''} | {editingStory.id} | {editingStory.feature || 'General'}
+                </div>
+
+                {/* Story Title */}
+                <div className="print-story-title">User Story</div>
+                <div className="print-story-text">{editingStory.title}</div>
+
+                {/* Metadata Grid */}
+                <div className="print-metadata-grid">
+                  <div className="print-metadata-item">
+                    <span className="print-metadata-label">Status:</span>
+                    <span className="print-metadata-value">{editingStory.status.toUpperCase()}</span>
+                  </div>
+                  <div className="print-metadata-item">
+                    <span className="print-metadata-label">Story Points:</span>
+                    <span className="print-metadata-value">{editingStory.storyPoints}</span>
+                  </div>
+                  <div className="print-metadata-item">
+                    <span className="print-metadata-label">Product Manager:</span>
+                    <span className="print-metadata-value">{editingStory.productManager || 'Unassigned'}</span>
+                  </div>
+                  <div className="print-metadata-item">
+                    <span className="print-metadata-label">Priority:</span>
+                    <span className="print-metadata-value">{editingStory.priority.toUpperCase()}</span>
+                  </div>
+                  <div className="print-metadata-item">
+                    <span className="print-metadata-label">Assignee:</span>
+                    <span className="print-metadata-value">{editingStory.assignee || 'Unassigned'}</span>
+                  </div>
+                  <div className="print-metadata-item">
+                    <span className="print-metadata-label">Tech Lead:</span>
+                    <span className="print-metadata-value">{editingStory.techLead || 'Unassigned'}</span>
+                  </div>
+                </div>
+
+                {/* Story Composition */}
+                {(editingStory.feature || editingStory.value || editingStory.requirement) && (
+                  <div className="print-composition-section">
+                    <div className="print-composition-title">Story Composition</div>
+                    {editingStory.feature && (
+                      <div className="print-composition-item">
+                        <span className="print-composition-label">Feature:</span> {editingStory.feature}
+                      </div>
+                    )}
+                    {editingStory.value && (
+                      <div className="print-composition-item">
+                        <span className="print-composition-label">Value:</span> {editingStory.value}
+                      </div>
+                    )}
+                    {editingStory.requirement && (
+                      <div className="print-composition-item">
+                        <span className="print-composition-label">Requirement:</span> {editingStory.requirement}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Description */}
+                {editingStory.description && (
+                  <>
+                    <div className="print-section-header">Description</div>
+                    <div className="print-story-text">{editingStory.description}</div>
+                  </>
+                )}
+
+                {/* Acceptance Criteria */}
+                <div className="print-section-header">Acceptance Criteria (Gherkin)</div>
+                <div className="print-acceptance-criteria">{editingStory.acceptanceCriteria}</div>
+
+                {/* Labels */}
+                {editingStory.labels && editingStory.labels.length > 0 && (
+                  <>
+                    <div className="print-section-header">Labels</div>
+                    <div className="print-labels">
+                      {editingStory.labels.map((label, index) => (
+                        <span key={index} className="print-label-tag">#{label}</span>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {/* Epic Info */}
+                {editingStory.epicId && (
+                  <>
+                    <div className="print-section-header">Epic</div>
+                    <div className="print-story-text">
+                      {epics.find(e => e.id === editingStory.epicId)?.name || editingStory.epicId}
+                    </div>
+                  </>
+                )}
+
+                {/* Footer */}
+                <div className="print-footer">
+                  <div>Generated on {new Date().toLocaleDateString()} at {new Date().toLocaleTimeString()}</div>
+                  <div>Page 1</div>
                 </div>
               </div>
             </div>

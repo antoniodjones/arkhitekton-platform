@@ -26,11 +26,18 @@ import {
   type InsertArchitecturalModel,
   type ArchitecturalObject,
   type InsertArchitecturalObject,
-  type ObjectConnection
+  type ObjectConnection,
+  type WikiPage,
+  type InsertWikiPage,
+  type UpdateWikiPage,
+  type EntityMention,
+  type InsertEntityMention,
+  type CodeChange,
+  type InsertCodeChange
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
-import { eq, isNull } from "drizzle-orm";
+import { eq, isNull, and, desc } from "drizzle-orm";
 import * as schema from "@shared/schema";
 
 export interface IStorage {
@@ -140,6 +147,37 @@ export interface IStorage {
   createJiraSyncLog(log: any): Promise<void>;
 
   getJiraSyncStats(): Promise<any>;
+
+  // Wiki Pages - Knowledge Core
+  getAllWikiPages(): Promise<WikiPage[]>;
+  getRootWikiPages(): Promise<WikiPage[]>;
+  getChildWikiPages(parentId: string): Promise<WikiPage[]>;
+  getWikiPage(id: string): Promise<WikiPage | undefined>;
+  getWikiPagesByCategory(category: string): Promise<WikiPage[]>;
+  getWikiPagesByStatus(status: string): Promise<WikiPage[]>;
+  searchWikiPages(query: string): Promise<WikiPage[]>;
+  createWikiPage(page: InsertWikiPage): Promise<WikiPage>;
+  updateWikiPage(id: string, updates: UpdateWikiPage): Promise<WikiPage | undefined>;
+  deleteWikiPage(id: string): Promise<boolean>;
+  duplicateWikiPage(id: string): Promise<WikiPage | undefined>;
+  moveWikiPage(id: string, newParentId: string | null, newSortOrder?: number): Promise<boolean>;
+  incrementWikiPageViews(id: string): Promise<void>;
+
+  // Entity Mentions - Semantic Linking
+  getEntityMentionsByPage(pageId: string): Promise<EntityMention[]>;
+  getEntityMentionsByEntity(entityType: string, entityId: string): Promise<EntityMention[]>;
+  createEntityMention(mention: InsertEntityMention): Promise<EntityMention>;
+  updateEntityMentionStatus(entityType: string, entityId: string, newStatus: string): Promise<void>;
+  deleteEntityMentionsByPage(pageId: string): Promise<void>;
+
+  // Code Changes - Link PRs, Commits, Branches to Work Items
+  getCodeChangesByEntity(entityType: string, entityId: string): Promise<CodeChange[]>;
+  getCodeChangesByRepository(repository: string): Promise<CodeChange[]>;
+  getCodeChangeByExternalId(externalId: string): Promise<CodeChange | undefined>;
+  createCodeChange(change: InsertCodeChange): Promise<CodeChange>;
+  updateCodeChange(id: string, updates: Partial<CodeChange>): Promise<CodeChange | undefined>;
+  deleteCodeChange(id: string): Promise<boolean>;
+  getRecentCodeChanges(limit?: number): Promise<CodeChange[]>;
 
   // Architectural Models
   getArchitecturalModels(): Promise<ArchitecturalModel[]>;
@@ -1846,6 +1884,256 @@ export class DatabaseStorage implements IStorage {
       failedSyncs,
       successRate: syncLogs.length > 0 ? (successfulSyncs / syncLogs.length * 100).toFixed(2) + '%' : '0%'
     };
+  }
+
+  // ============================================================
+  // WIKI PAGES - Knowledge Core (Phase 1)
+  // ============================================================
+
+  async getAllWikiPages(): Promise<WikiPage[]> {
+    const pages = await db.select().from(schema.wikiPages);
+    return pages;
+  }
+
+  async getRootWikiPages(): Promise<WikiPage[]> {
+    const pages = await db
+      .select()
+      .from(schema.wikiPages)
+      .where(isNull(schema.wikiPages.parentId))
+      .orderBy(schema.wikiPages.sortOrder);
+    return pages;
+  }
+
+  async getChildWikiPages(parentId: string): Promise<WikiPage[]> {
+    const pages = await db
+      .select()
+      .from(schema.wikiPages)
+      .where(eq(schema.wikiPages.parentId, parentId))
+      .orderBy(schema.wikiPages.sortOrder);
+    return pages;
+  }
+
+  async getWikiPage(id: string): Promise<WikiPage | undefined> {
+    const [page] = await db
+      .select()
+      .from(schema.wikiPages)
+      .where(eq(schema.wikiPages.id, id));
+    return page || undefined;
+  }
+
+  async getWikiPagesByCategory(category: string): Promise<WikiPage[]> {
+    const pages = await db
+      .select()
+      .from(schema.wikiPages)
+      .where(eq(schema.wikiPages.category, category));
+    return pages;
+  }
+
+  async getWikiPagesByStatus(status: string): Promise<WikiPage[]> {
+    const pages = await db
+      .select()
+      .from(schema.wikiPages)
+      .where(eq(schema.wikiPages.status, status));
+    return pages;
+  }
+
+  async searchWikiPages(query: string): Promise<WikiPage[]> {
+    // Basic search implementation - will be enhanced with full-text search in Phase 1
+    const pages = await db.select().from(schema.wikiPages);
+    const lowercaseQuery = query.toLowerCase();
+    
+    return pages.filter(page => 
+      page.title.toLowerCase().includes(lowercaseQuery) ||
+      (page.tags && page.tags.some((tag: string) => tag.toLowerCase().includes(lowercaseQuery)))
+    );
+  }
+
+  async createWikiPage(pageData: InsertWikiPage): Promise<WikiPage> {
+    const [page] = await db
+      .insert(schema.wikiPages)
+      .values({
+        ...pageData,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning();
+    return page;
+  }
+
+  async updateWikiPage(id: string, updates: UpdateWikiPage): Promise<WikiPage | undefined> {
+    const [page] = await db
+      .update(schema.wikiPages)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.wikiPages.id, id))
+      .returning();
+    return page || undefined;
+  }
+
+  async deleteWikiPage(id: string): Promise<boolean> {
+    const result = await db
+      .delete(schema.wikiPages)
+      .where(eq(schema.wikiPages.id, id));
+    return true;
+  }
+
+  async duplicateWikiPage(id: string): Promise<WikiPage | undefined> {
+    const original = await this.getWikiPage(id);
+    if (!original) return undefined;
+
+    const duplicate: InsertWikiPage = {
+      title: `${original.title} (Copy)`,
+      content: original.content,
+      parentId: original.parentId,
+      category: original.category,
+      subcategory: original.subcategory,
+      template: original.template,
+      status: 'draft', // Always start as draft
+      createdBy: original.createdBy,
+      tags: original.tags,
+      metadata: original.metadata,
+    };
+
+    return this.createWikiPage(duplicate);
+  }
+
+  async moveWikiPage(id: string, newParentId: string | null, newSortOrder?: number): Promise<boolean> {
+    const updates: any = { parentId: newParentId };
+    if (newSortOrder !== undefined) {
+      updates.sortOrder = newSortOrder;
+    }
+    
+    const result = await this.updateWikiPage(id, updates);
+    return !!result;
+  }
+
+  async incrementWikiPageViews(id: string): Promise<void> {
+    const page = await this.getWikiPage(id);
+    if (page) {
+      await db
+        .update(schema.wikiPages)
+        .set({ views: (page.views || 0) + 1 })
+        .where(eq(schema.wikiPages.id, id));
+    }
+  }
+
+  // ============================================================
+  // ENTITY MENTIONS - Semantic Linking (Phase 2 prep)
+  // ============================================================
+
+  async getEntityMentionsByPage(pageId: string): Promise<EntityMention[]> {
+    const mentions = await db
+      .select()
+      .from(schema.entityMentions)
+      .where(eq(schema.entityMentions.pageId, pageId));
+    return mentions;
+  }
+
+  async getEntityMentionsByEntity(entityType: string, entityId: string): Promise<EntityMention[]> {
+    const mentions = await db
+      .select()
+      .from(schema.entityMentions)
+      .where(eq(schema.entityMentions.entityType, entityType))
+      .where(eq(schema.entityMentions.entityId, entityId));
+    return mentions;
+  }
+
+  async createEntityMention(mentionData: InsertEntityMention): Promise<EntityMention> {
+    const [mention] = await db
+      .insert(schema.entityMentions)
+      .values({
+        ...mentionData,
+        createdAt: new Date(),
+      })
+      .returning();
+    return mention;
+  }
+
+  async updateEntityMentionStatus(entityType: string, entityId: string, newStatus: string): Promise<void> {
+    await db
+      .update(schema.entityMentions)
+      .set({
+        entityStatus: newStatus,
+        lastCheckedAt: new Date(),
+      })
+      .where(eq(schema.entityMentions.entityType, entityType))
+      .where(eq(schema.entityMentions.entityId, entityId));
+  }
+
+  async deleteEntityMentionsByPage(pageId: string): Promise<void> {
+    await db
+      .delete(schema.entityMentions)
+      .where(eq(schema.entityMentions.pageId, pageId));
+  }
+
+  // ============================================================
+  // CODE CHANGES - Link PRs, Commits, Branches to Work Items
+  // ============================================================
+
+  async getCodeChangesByEntity(entityType: string, entityId: string): Promise<CodeChange[]> {
+    const changes = await db
+      .select()
+      .from(schema.codeChanges)
+      .where(
+        and(
+          eq(schema.codeChanges.entityType, entityType),
+          eq(schema.codeChanges.entityId, entityId)
+        )
+      )
+      .orderBy(desc(schema.codeChanges.eventTimestamp));
+    return changes;
+  }
+
+  async getCodeChangesByRepository(repository: string): Promise<CodeChange[]> {
+    const changes = await db
+      .select()
+      .from(schema.codeChanges)
+      .where(eq(schema.codeChanges.repository, repository))
+      .orderBy(desc(schema.codeChanges.eventTimestamp));
+    return changes;
+  }
+
+  async getCodeChangeByExternalId(externalId: string): Promise<CodeChange | undefined> {
+    const [change] = await db
+      .select()
+      .from(schema.codeChanges)
+      .where(eq(schema.codeChanges.externalId, externalId));
+    return change;
+  }
+
+  async createCodeChange(change: InsertCodeChange): Promise<CodeChange> {
+    const [newChange] = await db
+      .insert(schema.codeChanges)
+      .values(change)
+      .returning();
+    return newChange;
+  }
+
+  async updateCodeChange(id: string, updates: Partial<CodeChange>): Promise<CodeChange | undefined> {
+    const [updatedChange] = await db
+      .update(schema.codeChanges)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(schema.codeChanges.id, id))
+      .returning();
+    return updatedChange;
+  }
+
+  async deleteCodeChange(id: string): Promise<boolean> {
+    const result = await db
+      .delete(schema.codeChanges)
+      .where(eq(schema.codeChanges.id, id));
+    return true;
+  }
+
+  async getRecentCodeChanges(limit: number = 20): Promise<CodeChange[]> {
+    const changes = await db
+      .select()
+      .from(schema.codeChanges)
+      .orderBy(desc(schema.codeChanges.eventTimestamp))
+      .limit(limit);
+    return changes;
   }
 }
 
