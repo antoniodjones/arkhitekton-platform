@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Link, useLocation, useRoute } from 'wouter';
 import { AppLayout } from '@/components/layout/app-layout';
@@ -80,12 +80,17 @@ export default function QualityDefectDetailPage() {
       const response = await fetch(`/api/defects/${defectId}`);
       if (!response.ok) throw new Error('Failed to fetch defect');
       const result = await response.json();
-      const data = result.data || result; // Handle both {data: defect} and defect directly
-      setFormData(data);
-      return data;
+      return result.data || result; // Handle both {data: defect} and defect directly
     },
     enabled: defectId !== 'new',
   });
+
+  // Update form data when defect is loaded
+  useEffect(() => {
+    if (defect) {
+      setFormData(defect);
+    }
+  }, [defect]);
 
   // Fetch user story
   const { data: story } = useQuery<UserStory>({
