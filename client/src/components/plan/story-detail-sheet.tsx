@@ -78,6 +78,10 @@ interface Story {
   enhances?: string[];
   enhancementType?: string;
   rationale?: string;
+  // Planning Date Fields
+  targetDate?: string;
+  startedAt?: string;
+  completedAt?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -767,6 +771,82 @@ export function StoryDetailSheet({ storyId, open, onOpenChange }: StoryDetailShe
                     ) : (
                       <p className="text-sm">{story.techLead || <span className="text-muted-foreground">Not assigned</span>}</p>
                     )}
+                  </div>
+                </div>
+
+                {/* Planning Dates */}
+                <div className="space-y-4 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-100 dark:border-green-900">
+                  <Label className="text-xs font-medium text-green-700 dark:text-green-300 flex items-center gap-2">
+                    <Calendar className="w-3 h-3" />
+                    Planning Timeline
+                  </Label>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">Target Date</Label>
+                      {isEditing ? (
+                        <Input
+                          type="date"
+                          value={editedStory.targetDate ? new Date(editedStory.targetDate).toISOString().split('T')[0] : ''}
+                          onChange={(e) => setEditedStory({ 
+                            ...editedStory, 
+                            targetDate: e.target.value ? new Date(e.target.value).toISOString() : undefined 
+                          })}
+                          className="text-sm"
+                        />
+                      ) : (
+                        <p className="text-sm">
+                          {story.targetDate 
+                            ? new Date(story.targetDate).toLocaleDateString()
+                            : <span className="text-muted-foreground italic">Not set</span>
+                          }
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">Started</Label>
+                      {isEditing ? (
+                        <Input
+                          type="date"
+                          value={editedStory.startedAt ? new Date(editedStory.startedAt).toISOString().split('T')[0] : ''}
+                          onChange={(e) => setEditedStory({ 
+                            ...editedStory, 
+                            startedAt: e.target.value ? new Date(e.target.value).toISOString() : undefined 
+                          })}
+                          className="text-sm"
+                        />
+                      ) : (
+                        <p className="text-sm">
+                          {story.startedAt 
+                            ? new Date(story.startedAt).toLocaleDateString()
+                            : <span className="text-muted-foreground italic">Not started</span>
+                          }
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">Completed</Label>
+                      {isEditing ? (
+                        <Input
+                          type="date"
+                          value={editedStory.completedAt ? new Date(editedStory.completedAt).toISOString().split('T')[0] : ''}
+                          onChange={(e) => setEditedStory({ 
+                            ...editedStory, 
+                            completedAt: e.target.value ? new Date(e.target.value).toISOString() : undefined 
+                          })}
+                          className="text-sm"
+                        />
+                      ) : (
+                        <p className="text-sm">
+                          {story.completedAt 
+                            ? new Date(story.completedAt).toLocaleDateString()
+                            : <span className="text-muted-foreground italic">Not completed</span>
+                          }
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
 

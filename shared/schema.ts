@@ -659,6 +659,11 @@ export const userStories = pgTable("user_stories", {
   enhancementType: text("enhancement_type"), // Feature Evolution, Bug Fix, UX Improvement, etc.
   rationale: text("rationale"), // Business justification for the enhancement
 
+  // Planning Date Fields (US-8KE9R60)
+  targetDate: timestamp("target_date"), // When should this be done
+  startedAt: timestamp("started_at"), // When work actually began
+  completedAt: timestamp("completed_at"), // When story was marked done
+
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow()
 });
@@ -849,10 +854,14 @@ export const epics = pgTable("epics", {
   owner: text("owner"),
   stakeholders: jsonb("stakeholders").$type<string[]>().default([]),
 
-  // Planning
-  startDate: text("start_date"),
-  endDate: text("end_date"),
+  // Planning (Target/Planned dates)
+  startDate: text("start_date"), // Planned start (text for flexibility: "2025-Q1", "2025-01-15")
+  endDate: text("end_date"), // Planned end
   targetQuarter: text("target_quarter"), // Q1 2025, Q2 2025, etc.
+
+  // Actual dates (US-8KE9R60) - auto-populated from stories
+  actualStartDate: timestamp("actual_start_date"), // When first story started
+  actualEndDate: timestamp("actual_end_date"), // When last story completed
 
   // Progress tracking (auto-calculated from stories)
   completionPercentage: integer("completion_percentage").default(0),
