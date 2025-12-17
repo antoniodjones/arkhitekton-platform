@@ -135,6 +135,7 @@ export default function WikiV2Page() {
   const [draftStatus, setDraftStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
   const [showDraftRestore, setShowDraftRestore] = useState(false);
   const [pendingDraft, setPendingDraft] = useState<any>(null);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const lastSavedContent = useRef<any>(null);
   const currentContentRef = useRef<any>(null);
 
@@ -465,6 +466,44 @@ export default function WikiV2Page() {
       createdBy: 'system', // Will be replaced with actual user
     });
   }, [newPage, createParentId, createPageMutation]);
+
+  // Keyboard shortcuts listener (US-WIKI-006)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Cmd+/ or Ctrl+/ - Show shortcuts reference
+      if ((event.metaKey || event.ctrlKey) && event.key === '/') {
+        event.preventDefault();
+        setShowShortcuts(true);
+      }
+      // Cmd+S or Ctrl+S - Save (when editing)
+      if ((event.metaKey || event.ctrlKey) && event.key === 's') {
+        event.preventDefault();
+        if (isEditing && selectedPage) {
+          handleSave();
+        }
+      }
+      // Cmd+E or Ctrl+E - Toggle edit mode
+      if ((event.metaKey || event.ctrlKey) && event.key === 'e') {
+        event.preventDefault();
+        if (selectedPage) {
+          setIsEditing(!isEditing);
+        }
+      }
+      // Escape - Cancel edit or close search
+      if (event.key === 'Escape') {
+        if (searchQuery) {
+          setSearchQuery('');
+          setDebouncedSearchQuery('');
+        } else if (isEditing) {
+          setIsEditing(false);
+          setDraftStatus('saved');
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isEditing, selectedPage, handleSave, searchQuery]);
 
   // Effect to handle mention hover and click events in the editor
   useEffect(() => {
@@ -873,6 +912,104 @@ export default function WikiV2Page() {
                 disabled={!newPage.title || createPageMutation.isPending}
               >
                 {createPageMutation.isPending ? 'Creating...' : 'Create Page'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Keyboard Shortcuts Dialog (US-WIKI-006) */}
+        <Dialog open={showShortcuts} onOpenChange={setShowShortcuts}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                ⌨️ Keyboard Shortcuts
+              </DialogTitle>
+              <DialogDescription>
+                Quick reference for all available keyboard shortcuts
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="space-y-3">
+                <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Navigation</h4>
+                <div className="grid gap-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Show shortcuts</span>
+                    <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">⌘/</kbd>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Search pages</span>
+                    <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">⌘K</kbd>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Close/Cancel</span>
+                    <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">Esc</kbd>
+                  </div>
+                </div>
+              </div>
+              
+              <Separator />
+              
+              <div className="space-y-3">
+                <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Editing</h4>
+                <div className="grid gap-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Toggle edit mode</span>
+                    <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">⌘E</kbd>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Save changes</span>
+                    <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">⌘S</kbd>
+                  </div>
+                </div>
+              </div>
+              
+              <Separator />
+              
+              <div className="space-y-3">
+                <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Editor Formatting</h4>
+                <div className="grid gap-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Bold</span>
+                    <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">⌘B</kbd>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Italic</span>
+                    <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">⌘I</kbd>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Underline</span>
+                    <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">⌘U</kbd>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Code</span>
+                    <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">⌘E</kbd>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Link</span>
+                    <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">⌘K</kbd>
+                  </div>
+                </div>
+              </div>
+              
+              <Separator />
+              
+              <div className="space-y-3">
+                <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Mentions & Special</h4>
+                <div className="grid gap-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Insert @mention</span>
+                    <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">@</kbd>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Slash commands</span>
+                    <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">/</kbd>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowShortcuts(false)}>
+                Close
               </Button>
             </DialogFooter>
           </DialogContent>
