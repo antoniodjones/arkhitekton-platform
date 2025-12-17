@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useDebouncedValue } from '@/hooks/use-debounce';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { 
@@ -68,10 +69,18 @@ export default function PlanStories() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
+  
+  // Debounce search to avoid too many API calls
+  const debouncedSearch = useDebouncedValue(search, 300);
+  
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, statusFilter, priorityFilter]);
 
-  // Fetch stories
+  // Fetch stories with server-side search and filtering
   const { data: storiesResponse, isLoading } = useQuery<{ items: Story[]; total: number; totalPages: number }>({
-    queryKey: [`/api/user-stories?page=${page}&pageSize=${pageSize}`],
+    queryKey: [`/api/user-stories?page=${page}&pageSize=${pageSize}${debouncedSearch ? `&search=${encodeURIComponent(debouncedSearch)}` : ''}${statusFilter !== 'all' ? `&status=${statusFilter}` : ''}${priorityFilter !== 'all' ? `&priority=${priorityFilter}` : ''}`],
   });
 
   // Fetch epics
@@ -83,14 +92,6 @@ export default function PlanStories() {
   const total = storiesResponse?.total || 0;
   const totalPages = storiesResponse?.totalPages || 1;
   const epics = epicsResponse?.data || [];
-
-  // Filter stories
-  const filteredStories = stories.filter(story => {
-    if (statusFilter !== 'all' && story.status !== statusFilter) return false;
-    if (priorityFilter !== 'all' && story.priority !== priorityFilter) return false;
-    if (search && !story.title.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
 
   return (
     <div className="space-y-4">
@@ -169,14 +170,14 @@ export default function PlanStories() {
                   Loading stories...
                 </td>
               </tr>
-            ) : filteredStories.length === 0 ? (
+            ) : stories.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
                   No stories found
                 </td>
               </tr>
             ) : (
-              filteredStories.map((story) => (
+              stories.map((story) => (
                 <tr 
                   key={story.id} 
                   className="hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer"

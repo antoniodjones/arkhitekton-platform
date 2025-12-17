@@ -365,7 +365,7 @@ Keep response concise but comprehensive.`;
   // Get all user stories with enterprise pagination and sorting
   app.get("/api/user-stories", async (req, res) => {
     try {
-      const { assignee, epicId, search, page = '1', pageSize = '25', sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+      const { assignee, epicId, search, status, priority, page = '1', pageSize = '25', sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
 
       // Validate pagination parameters
       const parsedPage = Math.max(parseInt(page as string) || 1, 1);
@@ -408,6 +408,16 @@ Keep response concise but comprehensive.`;
           (story.description && story.description.toLowerCase().includes(searchLower)) ||
           (story.acceptanceCriteria && story.acceptanceCriteria.toLowerCase().includes(searchLower))
         );
+      }
+
+      // Apply status filter
+      if (status && typeof status === 'string' && status.trim().length > 0) {
+        stories = stories.filter(story => story.status === status);
+      }
+
+      // Apply priority filter
+      if (priority && typeof priority === 'string' && priority.trim().length > 0) {
+        stories = stories.filter(story => story.priority === priority);
       }
 
       // Apply sorting
