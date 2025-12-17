@@ -111,6 +111,126 @@ ArchLens operates in three phases, scaling from simple data tracking to complex 
 
 ---
 
+### EPIC-17: Change Attribution & Audit (Phase 1)
+**Goal:** Know who changed what, when, and why.
+
+#### Feature 17.1: Attribution Dashboard
+
+**US-LENS-020: ArchLens Panel (Sidebar)**
+*   **Points:** 5
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given I am viewing any entity (Story, Wiki Page, Component)
+    When I open the ArchLens panel
+    Then I should see:
+      | Section | Content |
+      | History | Timeline of changes with avatars |
+      | Links | Related entities (bidirectional) |
+      | Impact | Downstream dependencies |
+    ```
+
+**US-LENS-021: Change Timeline**
+*   **Points:** 8
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given I am viewing the ArchLens panel for a User Story
+    Then I should see a timeline:
+      | Time | Actor | Event | Details |
+      | 2h ago | Alice | Status Changed | In Progress → Done |
+      | 1d ago | Bob | PR Merged | PR #45: "Implement payment flow" |
+      | 3d ago | Alice | Created | Initial story creation |
+    
+    When I click on an event
+    Then I see expanded details (PR diff, field changes, etc.)
+    ```
+
+**US-LENS-022: Entity Relationship Graph**
+*   **Points:** 8
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given I am viewing a Component in the ArchLens panel
+    When I click "View Relationships"
+    Then I see a mini-graph showing:
+      - Upstream: Requirements that define this component
+      - Downstream: Stories that implement this component
+      - Peers: Components in the same domain
+    
+    And clicking any node navigates to that entity
+    ```
+
+**US-LENS-023: Impact Analysis**
+*   **Points:** 13
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given I am planning to deprecate a Component
+    When I click "Analyze Impact"
+    Then the system should show:
+      | Category | Count | Details |
+      | Wiki Pages | 3 | List of pages mentioning this component |
+      | User Stories | 5 | Stories linked to this component |
+      | Diagrams | 2 | Diagrams containing this component |
+      | Requirements | 1 | Requirements satisfied by this component |
+    
+    And I can export this impact report
+    ```
+
+**US-LENS-024: Audit Trail Export**
+*   **Points:** 5
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given I need to generate a compliance report
+    When I export the ArchLens audit trail
+    Then I receive a CSV with:
+      | Timestamp | Actor | Entity Type | Entity ID | Event Type | Details |
+    
+    And I can filter by:
+      - Date range
+      - Actor
+      - Entity type
+      - Event type
+    ```
+
+---
+
+### EPIC-18: Smart Automation (Phase 2)
+
+**US-LENS-030: Auto-Status from Code Activity**
+*   **Points:** 8
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given a User Story is in "Backlog"
+    When a branch matching `feat/US-{id}` or `feature/US-{id}` is pushed
+    Then the Story status auto-changes to "In Progress"
+    And the ArchLens timeline shows "Auto-moved by branch creation"
+    
+    Given a PR mentioning "Closes US-{id}" is merged
+    When the merge completes
+    Then the Story status auto-changes to "Review"
+    And the completedAt timestamp is set
+    ```
+
+**US-LENS-031: Stale Detection**
+*   **Points:** 5
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given a Story has been "In Progress" for 14+ days
+    And there have been no commits in 7 days
+    Then the Story card shows a "⚠️ Stale" indicator
+    And the ArchLens panel shows "No activity detected since {date}"
+    ```
+
+**US-LENS-032: Unlinked Change Detection**
+*   **Points:** 5
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given a PR is created without a Story ID in the title or description
+    Then the PR is flagged as "Unlinked Work"
+    And a report in the ArchLens dashboard shows all unlinked PRs
+    And the team lead can retroactively link them
+    ```
+
+---
+
 ## 4. Technical Architecture
 
 ### The "Lens Service"

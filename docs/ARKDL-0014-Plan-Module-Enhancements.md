@@ -131,6 +131,72 @@ The Plan module currently relies on a foundational "Task Management" (TM) implem
     And I should be able to convert a card into a User Story (Action Item) with one click
     ```
 
+#### US-PLAN-302: Retro Session Management
+*   **Type:** New Feature
+*   **Epic:** EPIC-13
+*   **Points:** 5
+*   **Description:**
+    Create and manage retrospective sessions tied to sprints.
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given I am a Scrum Master
+    When I click "New Retro" from the Sprint view
+    Then a Retro session should be created with:
+      | Field | Value |
+      | Sprint | Auto-linked to current sprint |
+      | Status | Draft |
+      | Participants | Auto-added from sprint team |
+    
+    Given I am managing a Retro
+    When I click "Start Session"
+    Then the status changes to "In Progress"
+    And the timer starts (configurable: 30/45/60 min)
+    And participants see the live board
+    
+    When I click "End Session"
+    Then voting is disabled
+    And Action Items can be finalized
+    And the session is archived
+    ```
+
+#### US-PLAN-303: Retro Voting & Grouping
+*   **Type:** New Feature
+*   **Epic:** EPIC-13
+*   **Points:** 5
+*   **Description:**
+    Upvote retro cards and group related items.
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given I am in an active Retro session
+    When I click the upvote button on a card
+    Then my vote is added (max 3 votes per person)
+    And the vote count is visible to all
+    
+    Given I am the facilitator
+    When I drag one card onto another
+    Then they should merge into a group
+    And the group shows total votes
+    And the group can have a custom label
+    ```
+
+#### US-PLAN-304: Convert Retro Action to Story
+*   **Type:** New Feature
+*   **Epic:** EPIC-13
+*   **Points:** 3
+*   **Description:**
+    One-click conversion of action items to user stories.
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given I am viewing an Action Item card
+    When I click "Create Story"
+    Then a new User Story is created with:
+      - Title: Action item text
+      - Description: "From Retro: {Sprint Name}"
+      - Labels: ["retro-action"]
+      - Status: Backlog
+    And the Action Item shows a link to the story
+    ```
+
 #### US-PLAN-401: Poker Planning Session
 *   **Type:** New Feature
 *   **Epic:** EPIC-14
@@ -147,6 +213,94 @@ The Plan module currently relies on a foundational "Task Management" (TM) implem
     When the moderator reveals votes
     Then all values should be displayed
     And the system should suggest the Consensus Score
+    ```
+
+#### US-PLAN-402: Poker Session Management
+*   **Type:** New Feature
+*   **Epic:** EPIC-14
+*   **Points:** 5
+*   **Description:**
+    Create and manage planning poker sessions.
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given I am a Product Owner or Scrum Master
+    When I click "New Poker Session"
+    Then I should provide:
+      | Field | Type |
+      | Session Name | Text (e.g., "Sprint 12 Planning") |
+      | Stories to Estimate | Multi-select from Backlog |
+      | Participants | Multi-select from team |
+      | Card Deck | Dropdown: Fibonacci, T-Shirt, Powers of 2 |
+    
+    Given I start a Poker session
+    Then all participants see the first unestimated story
+    And they can read the story details
+    And they see the card deck to vote
+    ```
+
+#### US-PLAN-403: Poker Deck Options
+*   **Type:** New Feature
+*   **Epic:** EPIC-14
+*   **Points:** 3
+*   **Description:**
+    Support multiple estimation scales.
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given I am configuring a Poker session
+    Then I can choose from:
+      | Deck | Values |
+      | Fibonacci | 0, 1, 2, 3, 5, 8, 13, 21, ?, ☕ |
+      | T-Shirt | XS, S, M, L, XL, XXL, ?, ☕ |
+      | Powers of 2 | 0, 1, 2, 4, 8, 16, 32, ?, ☕ |
+      | Linear | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, ?, ☕ |
+    
+    And "?" means "Need more info"
+    And "☕" means "Need a break"
+    ```
+
+#### US-PLAN-404: Poker Vote Reveal & Consensus
+*   **Type:** New Feature
+*   **Epic:** EPIC-14
+*   **Points:** 5
+*   **Description:**
+    Reveal votes simultaneously and calculate consensus.
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given all participants have voted
+    When the moderator clicks "Reveal"
+    Then all votes are shown with participant avatars
+    And the system displays:
+      - Average: e.g., "4.2"
+      - Mode: e.g., "5 (3 votes)"
+      - Spread: "High" if range > 5 points
+    
+    Given there is high spread
+    Then the system prompts: "Discuss high/low outliers"
+    And allows re-vote after discussion
+    
+    Given consensus is reached
+    When moderator clicks "Accept"
+    Then the story's Story Points field is updated
+    And the session moves to the next story
+    ```
+
+#### US-PLAN-405: Poker Session History
+*   **Type:** New Feature
+*   **Epic:** EPIC-14
+*   **Points:** 3
+*   **Description:**
+    View estimation history for velocity analysis.
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given I am viewing a completed Poker session
+    Then I should see:
+      | Story ID | Final Estimate | Initial Average | Re-votes |
+      | US-101 | 5 | 4.2 | 1 |
+      | US-102 | 8 | 8.0 | 0 |
+    
+    Given I am viewing a Story
+    Then I should see its estimation history:
+      "Estimated in Session 'Sprint 12 Planning': 5 pts (consensus after 1 re-vote)"
     ```
 
 ---
