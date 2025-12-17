@@ -23,6 +23,11 @@ import DesignOptionsPage from "@/pages/design-options";
 import DesignOptionDetailPage from "@/pages/design-option-detail";
 import DesignOptionPrototypePage from "@/pages/design-option-prototype";
 import PlanPage from "@/pages/plan";
+import { PlanLayout } from "@/components/plan/plan-layout";
+import PlanDashboard from "@/pages/plan/dashboard";
+import PlanBacklog from "@/pages/plan/backlog";
+import PlanBoard from "@/pages/plan/board";
+import PlanStories from "@/pages/plan/stories";
 import QualityDefectsPage from "@/pages/quality-defects";
 import QualityDefectDetailPage from "@/pages/quality-defect-detail";
 import ArkhitektonArchitecture from "@/pages/arkhitekton-architecture";
@@ -78,7 +83,37 @@ function Router() {
       <Route path="/design-options" component={DesignOptionsPage} />
       <Route path="/design-options/:id" component={DesignOptionDetailPage} />
       <Route path="/design-options/:id/prototype/:protoId" component={DesignOptionPrototypePage} />
-      <Route path="/plan" component={PlanPage} />
+      {/* Plan Module Routes */}
+      <Route path="/plan">{() => <Redirect to="/plan/dashboard" />}</Route>
+      <Route path="/plan/dashboard">
+        {() => (
+          <PlanLayout>
+            <PlanDashboard />
+          </PlanLayout>
+        )}
+      </Route>
+      <Route path="/plan/backlog">
+        {() => (
+          <PlanLayout>
+            <PlanBacklog />
+          </PlanLayout>
+        )}
+      </Route>
+      <Route path="/plan/board">
+        {() => (
+          <PlanLayout>
+            <PlanBoard />
+          </PlanLayout>
+        )}
+      </Route>
+      <Route path="/plan/stories">
+        {() => (
+          <PlanLayout>
+            <PlanStories />
+          </PlanLayout>
+        )}
+      </Route>
+      <Route path="/plan-legacy" component={PlanPage} />
       <Route path="/defects" component={QualityDefectsPage} />
       <Route path="/defects/:id" component={QualityDefectDetailPage} />
       <Route path="/apm" component={APMPage} />
