@@ -129,6 +129,7 @@ export default function WikiV2Page() {
     status: 'draft',
   });
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [pageToDelete, setPageToDelete] = useState<WikiPage | null>(null);
   const [draftStatus, setDraftStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
@@ -196,6 +197,27 @@ export default function WikiV2Page() {
       const result = await response.json();
       return result.data as WikiPage[];
     },
+  });
+
+  // Debounce search query (US-WIKI-005)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Full-text search query (US-WIKI-005)
+  const { data: searchResults, isLoading: isSearching } = useQuery({
+    queryKey: ['/api/wiki/search', debouncedSearchQuery],
+    queryFn: async () => {
+      if (!debouncedSearchQuery.trim()) return null;
+      const response = await fetch(`/api/wiki/search?q=${encodeURIComponent(debouncedSearchQuery)}`);
+      if (!response.ok) throw new Error('Failed to search');
+      const result = await response.json();
+      return result.data as WikiPage[];
+    },
+    enabled: !!debouncedSearchQuery.trim(),
   });
 
   const getBreadcrumbs = useCallback((page: WikiPage | null): { id: string; title: string }[] => {
@@ -514,6 +536,47 @@ export default function WikiV2Page() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-64 pl-9"
               />
+              {/* Search Results Dropdown (US-WIKI-005) */}
+              {debouncedSearchQuery.trim() && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-background border rounded-md shadow-lg z-50 max-h-80 overflow-auto">
+                  {isSearching ? (
+                    <div className="p-4 text-center text-muted-foreground">
+                      <span className="animate-pulse">Searching...</span>
+                    </div>
+                  ) : searchResults && searchResults.length > 0 ? (
+                    <div className="py-1">
+                      <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground border-b">
+                        {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for "{debouncedSearchQuery}"
+                      </div>
+                      {searchResults.map((page) => (
+                        <button
+                          key={page.id}
+                          onClick={() => {
+                            setLocation(`/wiki-v2/${page.id}`);
+                            setSearchQuery('');
+                            setDebouncedSearchQuery('');
+                          }}
+                          className="w-full px-3 py-2 text-left hover:bg-muted flex items-center gap-2 transition-colors"
+                        >
+                          <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                          <div className="min-w-0">
+                            <div className="font-medium truncate">{page.title}</div>
+                            {page.category && (
+                              <div className="text-xs text-muted-foreground truncate">
+                                {page.category}
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-4 text-center text-muted-foreground">
+                      No pages found for "{debouncedSearchQuery}"
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <Button onClick={() => handleCreatePage()} size="sm">
               <Plus className="h-4 w-4 mr-1" />
