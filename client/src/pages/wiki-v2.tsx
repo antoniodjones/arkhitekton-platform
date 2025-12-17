@@ -132,6 +132,8 @@ export default function WikiV2Page() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [pageToDelete, setPageToDelete] = useState<WikiPage | null>(null);
   const [draftStatus, setDraftStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
+  const [showDraftRestore, setShowDraftRestore] = useState(false);
+  const [pendingDraft, setPendingDraft] = useState<any>(null);
   const lastSavedContent = useRef<any>(null);
   const currentContentRef = useRef<any>(null);
 
@@ -151,7 +153,20 @@ export default function WikiV2Page() {
     enabled: !!pageId,
   });
 
-  // Update selected page when URL changes
+  // Fetch draft for current page (US-WIKI-002)
+  const { data: draftData } = useQuery({
+    queryKey: ['/api/wiki', pageId, 'draft'],
+    queryFn: async () => {
+      if (!pageId) return null;
+      const response = await fetch(`/api/wiki/${pageId}/draft`);
+      if (!response.ok) return null;
+      const result = await response.json();
+      return result.draft;
+    },
+    enabled: !!pageId,
+  });
+
+  // Update selected page when URL changes and check for draft
   useEffect(() => {
     if (currentPage) {
       setSelectedPage(currentPage);
@@ -159,8 +174,18 @@ export default function WikiV2Page() {
       setEditedContent(currentPage.content);
       lastSavedContent.current = currentPage.content;
       currentContentRef.current = currentPage.content;
+      
+      // Check if there's a draft that differs from saved content (US-WIKI-002)
+      if (draftData) {
+        const savedContentStr = JSON.stringify(currentPage.content);
+        const draftContentStr = JSON.stringify(draftData);
+        if (savedContentStr !== draftContentStr) {
+          setPendingDraft(draftData);
+          setShowDraftRestore(true);
+        }
+      }
     }
-  }, [currentPage]);
+  }, [currentPage, draftData]);
 
   // Build breadcrumb trail
   const { data: allPages } = useQuery({
@@ -375,6 +400,38 @@ export default function WikiV2Page() {
     duplicatePageMutation.mutate(page.id);
   }, [duplicatePageMutation]);
 
+  // Restore draft handler (US-WIKI-002)
+  const handleRestoreDraft = useCallback(() => {
+    if (pendingDraft && selectedPage) {
+      setEditedContent(pendingDraft);
+      currentContentRef.current = pendingDraft;
+      setIsEditing(true);
+      setDraftStatus('unsaved');
+      setShowDraftRestore(false);
+      setPendingDraft(null);
+      toast({ title: 'Draft restored', description: 'Your unsaved changes have been restored.' });
+    }
+  }, [pendingDraft, selectedPage, toast]);
+
+  // Discard draft handler (US-WIKI-002)
+  const handleDiscardDraft = useCallback(async () => {
+    if (selectedPage) {
+      // Clear the draft from the server
+      try {
+        await fetch(`/api/wiki/${selectedPage.id}/draft`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: null }),
+        });
+      } catch (error) {
+        console.error('Failed to clear draft:', error);
+      }
+      setShowDraftRestore(false);
+      setPendingDraft(null);
+      toast({ title: 'Draft discarded', description: 'The unsaved draft has been removed.' });
+    }
+  }, [selectedPage, toast]);
+
   const handleCreateSubmit = useCallback(() => {
     createPageMutation.mutate({
       title: newPage.title,
@@ -503,6 +560,46 @@ export default function WikiV2Page() {
                 </div>
               ) : selectedPage ? (
                 <div className="p-6 max-w-4xl mx-auto">
+                  {/* Draft Restore Banner (US-WIKI-002) */}
+                  {showDraftRestore && pendingDraft && (
+                    <div className="mb-6 p-4 rounded-lg border-2 border-amber-300 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-700">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-amber-100 dark:bg-amber-900/50 rounded-full">
+                            <Archive className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-amber-800 dark:text-amber-200">
+                              Unsaved draft found
+                            </h4>
+                            <p className="text-sm text-amber-700 dark:text-amber-300">
+                              You have an auto-saved draft from a previous session. Would you like to restore it?
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={handleDiscardDraft}
+                            className="border-amber-300 text-amber-700 hover:bg-amber-100"
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            Discard
+                          </Button>
+                          <Button 
+                            size="sm"
+                            onClick={handleRestoreDraft}
+                            className="bg-amber-600 hover:bg-amber-700 text-white"
+                          >
+                            <Check className="h-4 w-4 mr-1" />
+                            Restore Draft
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
                   {/* Page Header */}
                   <div className="mb-6">
                     <div className="flex items-start justify-between mb-2">
