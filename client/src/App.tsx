@@ -34,6 +34,7 @@ import QualityDashboard from "@/pages/quality/dashboard";
 import QualityDefectsPage from "@/pages/quality/defects";
 import QualityDefectDetailPage from "@/pages/quality/defect-detail";
 import QualityTestPlanPage from "@/pages/quality/test-plan";
+import QualityReportsPage from "@/pages/quality/reports";
 import ArkhitektonArchitecture from "@/pages/arkhitekton-architecture";
 import ArkhitektonArchitectureAWS from "@/pages/arkhitekton-architecture-aws";
 import ArkhitektonArchitectureAzure from "@/pages/arkhitekton-architecture-azure";
@@ -127,6 +128,7 @@ function Router() {
       <Route path="/quality/defects" component={QualityDefectsPage} />
       <Route path="/quality/defects/:id" component={QualityDefectDetailPage} />
       <Route path="/quality/test-plan" component={QualityTestPlanPage} />
+      <Route path="/quality/reports" component={QualityReportsPage} />
       {/* Legacy defects route - redirect to Quality Center */}
       <Route path="/defects">{() => <Redirect to="/quality/defects" />}</Route>
       <Route path="/defects/:id">{({ id }) => <Redirect to={`/quality/defects/${id}`} />}</Route>

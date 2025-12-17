@@ -18,7 +18,7 @@ const tabs = [
   { id: 'dashboard', label: 'Dashboard', href: '/quality/dashboard', icon: LayoutDashboard },
   { id: 'defects', label: 'Defects', href: '/quality/defects', icon: Bug },
   { id: 'test-plan', label: 'Test Plan', href: '/quality/test-plan', icon: TestTube2 },
-  { id: 'reports', label: 'Reports', href: '/quality/reports', icon: FileBarChart, disabled: true },
+  { id: 'reports', label: 'Reports', href: '/quality/reports', icon: FileBarChart },
 ];
 
 export function QualityLayout({ children }: QualityLayoutProps) {
