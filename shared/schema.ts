@@ -777,6 +777,147 @@ export type InsertDefect = z.infer<typeof insertDefectSchema>;
 export type UpdateDefect = z.infer<typeof updateDefectSchema>;
 
 // ============================================================
+// TEST MANAGEMENT - Test Suites, Cases, Runs, Results
+// ============================================================
+
+// Test Suites - Hierarchical organization of test cases
+export const testSuites = pgTable("test_suites", {
+  id: text("id").primaryKey(), // TS-XXX format
+  name: text("name").notNull(),
+  description: text("description"),
+  parentSuiteId: text("parent_suite_id").references((): any => testSuites.id, { onDelete: 'cascade' }),
+  module: text("module"), // plan, wiki, quality, design
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Test Cases - Individual test scenarios with steps
+export const testCases = pgTable("test_cases", {
+  id: text("id").primaryKey(), // TC-XXX-## format
+  suiteId: text("suite_id").references(() => testSuites.id, { onDelete: 'cascade' }).notNull(),
+  title: text("title").notNull(),
+  preconditions: text("preconditions"),
+  steps: jsonb("steps").$type<Array<{
+    step: string;
+    expected: string;
+  }>>().notNull().default([]),
+  priority: text("priority").notNull().default("medium"), // critical, high, medium, low
+  testType: text("test_type").notNull().default("functional"), // functional, regression, smoke, integration, e2e, manual
+  tags: jsonb("tags").$type<string[]>().default([]),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Test Case to Story Links - Traceability junction table
+export const testCaseStories = pgTable("test_case_stories", {
+  testCaseId: text("test_case_id").references(() => testCases.id, { onDelete: 'cascade' }).notNull(),
+  storyId: text("story_id").references(() => userStories.id, { onDelete: 'cascade' }).notNull(),
+}, (table) => ({
+  pk: { primaryKey: table.testCaseId, table.storyId },
+}));
+
+// Test Runs - Execution sessions for test suites
+export const testRuns = pgTable("test_runs", {
+  id: text("id").primaryKey(), // TR-XXX format
+  suiteId: text("suite_id").references(() => testSuites.id, { onDelete: 'cascade' }).notNull(),
+  name: text("name").notNull(),
+  assignedTo: text("assigned_to"),
+  environment: text("environment").default("staging"), // local, staging, production
+  status: text("status").notNull().default("in-progress"), // in-progress, completed, cancelled
+  startedAt: timestamp("started_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Test Results - Individual test case execution records
+export const testResults = pgTable("test_results", {
+  id: text("id").primaryKey(),
+  runId: text("run_id").references(() => testRuns.id, { onDelete: 'cascade' }).notNull(),
+  caseId: text("case_id").references(() => testCases.id).notNull(),
+  status: text("status").notNull().default("not-run"), // passed, failed, blocked, skipped, not-run
+  notes: text("notes"),
+  screenshotUrl: text("screenshot_url"),
+  executedBy: text("executed_by"),
+  executedAt: timestamp("executed_at"),
+  durationMs: integer("duration_ms"), // Test execution time in milliseconds
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Test Result Defects - Link failed tests to defects
+export const testResultDefects = pgTable("test_result_defects", {
+  resultId: text("result_id").references(() => testResults.id, { onDelete: 'cascade' }).notNull(),
+  defectId: varchar("defect_id").references(() => defects.id, { onDelete: 'cascade' }).notNull(),
+}, (table) => ({
+  pk: { primaryKey: table.resultId, table.defectId },
+}));
+
+// Test Suite validation schemas
+export const insertTestSuiteSchema = createInsertSchema(testSuites).omit({
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  module: z.enum(['plan', 'wiki', 'quality', 'design', 'canvas', 'agent']).optional().nullable(),
+});
+
+export const updateTestSuiteSchema = insertTestSuiteSchema.partial();
+
+// Test Case validation schemas
+export const insertTestCaseSchema = createInsertSchema(testCases).omit({
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  priority: z.enum(['critical', 'high', 'medium', 'low']).default('medium'),
+  testType: z.enum(['functional', 'regression', 'smoke', 'integration', 'e2e', 'manual']).default('functional'),
+  steps: z.array(z.object({
+    step: z.string().min(1),
+    expected: z.string().min(1),
+  })).min(1, "At least one test step is required"),
+});
+
+export const updateTestCaseSchema = insertTestCaseSchema.partial();
+
+// Test Run validation schemas
+export const insertTestRunSchema = createInsertSchema(testRuns).omit({
+  id: true,
+  createdAt: true,
+  startedAt: true,
+  completedAt: true,
+}).extend({
+  environment: z.enum(['local', 'staging', 'production']).default('staging'),
+  status: z.enum(['in-progress', 'completed', 'cancelled']).default('in-progress'),
+});
+
+export const updateTestRunSchema = insertTestRunSchema.partial();
+
+// Test Result validation schemas
+export const insertTestResultSchema = createInsertSchema(testResults).omit({
+  id: true,
+  createdAt: true,
+  executedAt: true,
+}).extend({
+  status: z.enum(['passed', 'failed', 'blocked', 'skipped', 'not-run']).default('not-run'),
+});
+
+export const updateTestResultSchema = insertTestResultSchema.partial();
+
+// Type exports
+export type TestSuite = typeof testSuites.$inferSelect;
+export type InsertTestSuite = z.infer<typeof insertTestSuiteSchema>;
+export type UpdateTestSuite = z.infer<typeof updateTestSuiteSchema>;
+
+export type TestCase = typeof testCases.$inferSelect;
+export type InsertTestCase = z.infer<typeof insertTestCaseSchema>;
+export type UpdateTestCase = z.infer<typeof updateTestCaseSchema>;
+
+export type TestRun = typeof testRuns.$inferSelect;
+export type InsertTestRun = z.infer<typeof insertTestRunSchema>;
+export type UpdateTestRun = z.infer<typeof updateTestRunSchema>;
+
+export type TestResult = typeof testResults.$inferSelect;
+export type InsertTestResult = z.infer<typeof insertTestResultSchema>;
+export type UpdateTestResult = z.infer<typeof updateTestResultSchema>;
+
+// ============================================================
 // CODE CHANGES - Links PRs, Commits, Branches to Work Items
 // ============================================================
 

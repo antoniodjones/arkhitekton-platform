@@ -11,6 +11,14 @@ import {
   type InsertUserStory,
   type Defect,
   type InsertDefect,
+  type TestSuite,
+  type InsertTestSuite,
+  type TestCase,
+  type InsertTestCase,
+  type TestRun,
+  type InsertTestRun,
+  type TestResult,
+  type InsertTestResult,
   type Epic,
   type InsertEpic,
   type Sprint,
@@ -90,6 +98,42 @@ export interface IStorage {
   updateDefect(id: string, updates: Partial<Defect>): Promise<Defect | undefined>;
   resolveDefect(id: string, resolution: string, rootCause?: string): Promise<Defect | undefined>;
   deleteDefect(id: string): Promise<boolean>;
+
+  // Test Management - Test Suites, Cases, Runs, Results
+  getAllTestSuites(): Promise<TestSuite[]>;
+  getTestSuite(id: string): Promise<TestSuite | undefined>;
+  getTestSuitesByModule(module: string): Promise<TestSuite[]>;
+  getChildTestSuites(parentId: string): Promise<TestSuite[]>;
+  createTestSuite(suite: InsertTestSuite): Promise<TestSuite>;
+  updateTestSuite(id: string, updates: Partial<TestSuite>): Promise<TestSuite | undefined>;
+  deleteTestSuite(id: string): Promise<boolean>;
+
+  getAllTestCases(): Promise<TestCase[]>;
+  getTestCase(id: string): Promise<TestCase | undefined>;
+  getTestCasesBySuite(suiteId: string): Promise<TestCase[]>;
+  getTestCasesByStory(storyId: string): Promise<TestCase[]>;
+  createTestCase(testCase: InsertTestCase): Promise<TestCase>;
+  updateTestCase(id: string, updates: Partial<TestCase>): Promise<TestCase | undefined>;
+  deleteTestCase(id: string): Promise<boolean>;
+  linkTestCaseToStory(testCaseId: string, storyId: string): Promise<boolean>;
+  unlinkTestCaseFromStory(testCaseId: string, storyId: string): Promise<boolean>;
+
+  getAllTestRuns(): Promise<TestRun[]>;
+  getTestRun(id: string): Promise<TestRun | undefined>;
+  getTestRunsBySuite(suiteId: string): Promise<TestRun[]>;
+  createTestRun(testRun: InsertTestRun): Promise<TestRun>;
+  updateTestRun(id: string, updates: Partial<TestRun>): Promise<TestRun | undefined>;
+  completeTestRun(id: string): Promise<TestRun | undefined>;
+  deleteTestRun(id: string): Promise<boolean>;
+
+  getAllTestResults(): Promise<TestResult[]>;
+  getTestResult(id: string): Promise<TestResult | undefined>;
+  getTestResultsByRun(runId: string): Promise<TestResult[]>;
+  getTestResultsByCase(caseId: string): Promise<TestResult[]>;
+  createTestResult(result: InsertTestResult): Promise<TestResult>;
+  updateTestResult(id: string, updates: Partial<TestResult>): Promise<TestResult | undefined>;
+  deleteTestResult(id: string): Promise<boolean>;
+  linkTestResultToDefect(resultId: string, defectId: string): Promise<boolean>;
 
   // Epics - Enterprise Architecture Value Streams
   getAllEpics(): Promise<Epic[]>;
@@ -242,6 +286,10 @@ export class MemStorage implements IStorage {
   private knowledgeBasePages: Map<string, KnowledgeBasePage>;
   private userStories: Map<string, UserStory>;
   private defects: Map<string, Defect>;
+  private testSuites: Map<string, TestSuite>;
+  private testCases: Map<string, TestCase>;
+  private testRuns: Map<string, TestRun>;
+  private testResults: Map<string, TestResult>;
   private epics: Map<string, Epic>;
   private integrationChannels: Map<string, IntegrationChannel>;
   private objectSyncFlows: Map<string, ObjectSyncFlow>;
@@ -260,6 +308,10 @@ export class MemStorage implements IStorage {
     this.applicationSettings = new Map();
     this.userStories = new Map();
     this.defects = new Map();
+    this.testSuites = new Map();
+    this.testCases = new Map();
+    this.testRuns = new Map();
+    this.testResults = new Map();
     this.epics = new Map();
     this.integrationChannels = new Map();
     this.objectSyncFlows = new Map();
@@ -676,6 +728,181 @@ export class MemStorage implements IStorage {
 
   async deleteDefect(id: string): Promise<boolean> {
     return this.defects.delete(id);
+  }
+
+  // Test Management - Stub implementations (not persisted in memory)
+  async getAllTestSuites(): Promise<TestSuite[]> {
+    return Array.from(this.testSuites.values());
+  }
+
+  async getTestSuite(id: string): Promise<TestSuite | undefined> {
+    return this.testSuites.get(id);
+  }
+
+  async getTestSuitesByModule(module: string): Promise<TestSuite[]> {
+    return Array.from(this.testSuites.values()).filter(s => s.module === module);
+  }
+
+  async getChildTestSuites(parentId: string): Promise<TestSuite[]> {
+    return Array.from(this.testSuites.values()).filter(s => s.parentSuiteId === parentId);
+  }
+
+  async createTestSuite(suite: InsertTestSuite): Promise<TestSuite> {
+    const id = `TS-${String(this.testSuites.size + 1).padStart(3, '0')}`;
+    const newSuite: TestSuite = {
+      ...suite,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    } as TestSuite;
+    this.testSuites.set(id, newSuite);
+    return newSuite;
+  }
+
+  async updateTestSuite(id: string, updates: Partial<TestSuite>): Promise<TestSuite | undefined> {
+    const suite = this.testSuites.get(id);
+    if (!suite) return undefined;
+    const updated = { ...suite, ...updates, updatedAt: new Date() };
+    this.testSuites.set(id, updated);
+    return updated;
+  }
+
+  async deleteTestSuite(id: string): Promise<boolean> {
+    return this.testSuites.delete(id);
+  }
+
+  async getAllTestCases(): Promise<TestCase[]> {
+    return Array.from(this.testCases.values());
+  }
+
+  async getTestCase(id: string): Promise<TestCase | undefined> {
+    return this.testCases.get(id);
+  }
+
+  async getTestCasesBySuite(suiteId: string): Promise<TestCase[]> {
+    return Array.from(this.testCases.values()).filter(c => c.suiteId === suiteId);
+  }
+
+  async getTestCasesByStory(storyId: string): Promise<TestCase[]> {
+    // Note: MemStorage doesn't support junction table queries
+    return [];
+  }
+
+  async createTestCase(testCase: InsertTestCase): Promise<TestCase> {
+    const existingCasesInSuite = await this.getTestCasesBySuite(testCase.suiteId);
+    const id = `${testCase.suiteId}-${String(existingCasesInSuite.length + 1).padStart(2, '0')}`;
+    const newCase: TestCase = {
+      ...testCase,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    } as TestCase;
+    this.testCases.set(id, newCase);
+    return newCase;
+  }
+
+  async updateTestCase(id: string, updates: Partial<TestCase>): Promise<TestCase | undefined> {
+    const testCase = this.testCases.get(id);
+    if (!testCase) return undefined;
+    const updated = { ...testCase, ...updates, updatedAt: new Date() };
+    this.testCases.set(id, updated);
+    return updated;
+  }
+
+  async deleteTestCase(id: string): Promise<boolean> {
+    return this.testCases.delete(id);
+  }
+
+  async linkTestCaseToStory(testCaseId: string, storyId: string): Promise<boolean> {
+    // MemStorage doesn't persist junction table data
+    return true;
+  }
+
+  async unlinkTestCaseFromStory(testCaseId: string, storyId: string): Promise<boolean> {
+    return true;
+  }
+
+  async getAllTestRuns(): Promise<TestRun[]> {
+    return Array.from(this.testRuns.values());
+  }
+
+  async getTestRun(id: string): Promise<TestRun | undefined> {
+    return this.testRuns.get(id);
+  }
+
+  async getTestRunsBySuite(suiteId: string): Promise<TestRun[]> {
+    return Array.from(this.testRuns.values()).filter(r => r.suiteId === suiteId);
+  }
+
+  async createTestRun(testRun: InsertTestRun): Promise<TestRun> {
+    const id = `TR-${String(this.testRuns.size + 1).padStart(3, '0')}`;
+    const newRun: TestRun = {
+      ...testRun,
+      id,
+      startedAt: new Date(),
+      createdAt: new Date()
+    } as TestRun;
+    this.testRuns.set(id, newRun);
+    return newRun;
+  }
+
+  async updateTestRun(id: string, updates: Partial<TestRun>): Promise<TestRun | undefined> {
+    const run = this.testRuns.get(id);
+    if (!run) return undefined;
+    const updated = { ...run, ...updates };
+    this.testRuns.set(id, updated);
+    return updated;
+  }
+
+  async completeTestRun(id: string): Promise<TestRun | undefined> {
+    return this.updateTestRun(id, { status: 'completed', completedAt: new Date() });
+  }
+
+  async deleteTestRun(id: string): Promise<boolean> {
+    return this.testRuns.delete(id);
+  }
+
+  async getAllTestResults(): Promise<TestResult[]> {
+    return Array.from(this.testResults.values());
+  }
+
+  async getTestResult(id: string): Promise<TestResult | undefined> {
+    return this.testResults.get(id);
+  }
+
+  async getTestResultsByRun(runId: string): Promise<TestResult[]> {
+    return Array.from(this.testResults.values()).filter(r => r.runId === runId);
+  }
+
+  async getTestResultsByCase(caseId: string): Promise<TestResult[]> {
+    return Array.from(this.testResults.values()).filter(r => r.caseId === caseId);
+  }
+
+  async createTestResult(result: InsertTestResult): Promise<TestResult> {
+    const id = crypto.randomUUID();
+    const newResult: TestResult = {
+      ...result,
+      id,
+      createdAt: new Date()
+    } as TestResult;
+    this.testResults.set(id, newResult);
+    return newResult;
+  }
+
+  async updateTestResult(id: string, updates: Partial<TestResult>): Promise<TestResult | undefined> {
+    const result = this.testResults.get(id);
+    if (!result) return undefined;
+    const updated = { ...result, ...updates };
+    this.testResults.set(id, updated);
+    return updated;
+  }
+
+  async deleteTestResult(id: string): Promise<boolean> {
+    return this.testResults.delete(id);
+  }
+
+  async linkTestResultToDefect(resultId: string, defectId: string): Promise<boolean> {
+    return true;
   }
 
   // Epic CRUD Operations
@@ -1590,6 +1817,269 @@ export class DatabaseStorage implements IStorage {
       .delete(schema.defects)
       .where(eq(schema.defects.id, id));
     return result.rowCount! > 0;
+  }
+
+  // Test Suite CRUD Operations
+  async getAllTestSuites(): Promise<TestSuite[]> {
+    const suites = await db.select().from(schema.testSuites);
+    return suites;
+  }
+
+  async getTestSuite(id: string): Promise<TestSuite | undefined> {
+    const [suite] = await db.select()
+      .from(schema.testSuites)
+      .where(eq(schema.testSuites.id, id));
+    return suite || undefined;
+  }
+
+  async getTestSuitesByModule(module: string): Promise<TestSuite[]> {
+    const suites = await db.select()
+      .from(schema.testSuites)
+      .where(eq(schema.testSuites.module, module));
+    return suites;
+  }
+
+  async getChildTestSuites(parentId: string): Promise<TestSuite[]> {
+    const suites = await db.select()
+      .from(schema.testSuites)
+      .where(eq(schema.testSuites.parentSuiteId, parentId));
+    return suites;
+  }
+
+  async createTestSuite(suite: InsertTestSuite): Promise<TestSuite> {
+    // Generate ID: TS-001, TS-002, etc.
+    const existingSuites = await this.getAllTestSuites();
+    const nextNum = existingSuites.length + 1;
+    const id = `TS-${String(nextNum).padStart(3, '0')}`;
+
+    const [newSuite] = await db
+      .insert(schema.testSuites)
+      .values({ ...suite, id })
+      .returning();
+    return newSuite!;
+  }
+
+  async updateTestSuite(id: string, updates: Partial<TestSuite>): Promise<TestSuite | undefined> {
+    const [suite] = await db
+      .update(schema.testSuites)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(schema.testSuites.id, id))
+      .returning();
+    return suite || undefined;
+  }
+
+  async deleteTestSuite(id: string): Promise<boolean> {
+    const result = await db
+      .delete(schema.testSuites)
+      .where(eq(schema.testSuites.id, id));
+    return result.rowCount! > 0;
+  }
+
+  // Test Case CRUD Operations
+  async getAllTestCases(): Promise<TestCase[]> {
+    const cases = await db.select().from(schema.testCases);
+    return cases;
+  }
+
+  async getTestCase(id: string): Promise<TestCase | undefined> {
+    const [testCase] = await db.select()
+      .from(schema.testCases)
+      .where(eq(schema.testCases.id, id));
+    return testCase || undefined;
+  }
+
+  async getTestCasesBySuite(suiteId: string): Promise<TestCase[]> {
+    const cases = await db.select()
+      .from(schema.testCases)
+      .where(eq(schema.testCases.suiteId, suiteId));
+    return cases;
+  }
+
+  async getTestCasesByStory(storyId: string): Promise<TestCase[]> {
+    const cases = await db
+      .select({ testCases: schema.testCases })
+      .from(schema.testCases)
+      .innerJoin(schema.testCaseStories, eq(schema.testCases.id, schema.testCaseStories.testCaseId))
+      .where(eq(schema.testCaseStories.storyId, storyId));
+    return cases.map(c => c.testCases);
+  }
+
+  async createTestCase(testCase: InsertTestCase): Promise<TestCase> {
+    // Generate ID: TC-XXX-01, TC-XXX-02, etc.
+    const existingCasesInSuite = await this.getTestCasesBySuite(testCase.suiteId);
+    const nextNum = existingCasesInSuite.length + 1;
+    const id = `${testCase.suiteId}-${String(nextNum).padStart(2, '0')}`;
+
+    const [newCase] = await db
+      .insert(schema.testCases)
+      .values({ ...testCase, id })
+      .returning();
+    return newCase!;
+  }
+
+  async updateTestCase(id: string, updates: Partial<TestCase>): Promise<TestCase | undefined> {
+    const [testCase] = await db
+      .update(schema.testCases)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(schema.testCases.id, id))
+      .returning();
+    return testCase || undefined;
+  }
+
+  async deleteTestCase(id: string): Promise<boolean> {
+    const result = await db
+      .delete(schema.testCases)
+      .where(eq(schema.testCases.id, id));
+    return result.rowCount! > 0;
+  }
+
+  async linkTestCaseToStory(testCaseId: string, storyId: string): Promise<boolean> {
+    try {
+      await db.insert(schema.testCaseStories)
+        .values({ testCaseId, storyId });
+      return true;
+    } catch (error) {
+      return false; // Already exists or invalid IDs
+    }
+  }
+
+  async unlinkTestCaseFromStory(testCaseId: string, storyId: string): Promise<boolean> {
+    const result = await db
+      .delete(schema.testCaseStories)
+      .where(
+        and(
+          eq(schema.testCaseStories.testCaseId, testCaseId),
+          eq(schema.testCaseStories.storyId, storyId)
+        )
+      );
+    return result.rowCount! > 0;
+  }
+
+  // Test Run CRUD Operations
+  async getAllTestRuns(): Promise<TestRun[]> {
+    const runs = await db.select().from(schema.testRuns);
+    return runs;
+  }
+
+  async getTestRun(id: string): Promise<TestRun | undefined> {
+    const [run] = await db.select()
+      .from(schema.testRuns)
+      .where(eq(schema.testRuns.id, id));
+    return run || undefined;
+  }
+
+  async getTestRunsBySuite(suiteId: string): Promise<TestRun[]> {
+    const runs = await db.select()
+      .from(schema.testRuns)
+      .where(eq(schema.testRuns.suiteId, suiteId))
+      .orderBy(desc(schema.testRuns.startedAt));
+    return runs;
+  }
+
+  async createTestRun(testRun: InsertTestRun): Promise<TestRun> {
+    // Generate ID: TR-001, TR-002, etc.
+    const existingRuns = await this.getAllTestRuns();
+    const nextNum = existingRuns.length + 1;
+    const id = `TR-${String(nextNum).padStart(3, '0')}`;
+
+    const [newRun] = await db
+      .insert(schema.testRuns)
+      .values({ ...testRun, id })
+      .returning();
+    return newRun!;
+  }
+
+  async updateTestRun(id: string, updates: Partial<TestRun>): Promise<TestRun | undefined> {
+    const [run] = await db
+      .update(schema.testRuns)
+      .set(updates)
+      .where(eq(schema.testRuns.id, id))
+      .returning();
+    return run || undefined;
+  }
+
+  async completeTestRun(id: string): Promise<TestRun | undefined> {
+    const [run] = await db
+      .update(schema.testRuns)
+      .set({
+        status: 'completed',
+        completedAt: new Date()
+      })
+      .where(eq(schema.testRuns.id, id))
+      .returning();
+    return run || undefined;
+  }
+
+  async deleteTestRun(id: string): Promise<boolean> {
+    const result = await db
+      .delete(schema.testRuns)
+      .where(eq(schema.testRuns.id, id));
+    return result.rowCount! > 0;
+  }
+
+  // Test Result CRUD Operations
+  async getAllTestResults(): Promise<TestResult[]> {
+    const results = await db.select().from(schema.testResults);
+    return results;
+  }
+
+  async getTestResult(id: string): Promise<TestResult | undefined> {
+    const [result] = await db.select()
+      .from(schema.testResults)
+      .where(eq(schema.testResults.id, id));
+    return result || undefined;
+  }
+
+  async getTestResultsByRun(runId: string): Promise<TestResult[]> {
+    const results = await db.select()
+      .from(schema.testResults)
+      .where(eq(schema.testResults.runId, runId));
+    return results;
+  }
+
+  async getTestResultsByCase(caseId: string): Promise<TestResult[]> {
+    const results = await db.select()
+      .from(schema.testResults)
+      .where(eq(schema.testResults.caseId, caseId))
+      .orderBy(desc(schema.testResults.executedAt));
+    return results;
+  }
+
+  async createTestResult(result: InsertTestResult): Promise<TestResult> {
+    // Generate ID: random UUID
+    const id = crypto.randomUUID();
+
+    const [newResult] = await db
+      .insert(schema.testResults)
+      .values({ ...result, id })
+      .returning();
+    return newResult!;
+  }
+
+  async updateTestResult(id: string, updates: Partial<TestResult>): Promise<TestResult | undefined> {
+    const [result] = await db
+      .update(schema.testResults)
+      .set(updates)
+      .where(eq(schema.testResults.id, id))
+      .returning();
+    return result || undefined;
+  }
+
+  async deleteTestResult(id: string): Promise<boolean> {
+    const result = await db
+      .delete(schema.testResults)
+      .where(eq(schema.testResults.id, id));
+    return result.rowCount! > 0;
+  }
+
+  async linkTestResultToDefect(resultId: string, defectId: string): Promise<boolean> {
+    try {
+      await db.insert(schema.testResultDefects)
+        .values({ resultId, defectId });
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   // Epic CRUD Operations
