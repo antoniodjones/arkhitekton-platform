@@ -21,7 +21,7 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
+import {
   Edit2, 
   Save, 
   X, 
@@ -32,11 +32,23 @@ import {
   GitBranch,
   CheckCircle2,
   Clock,
-  AlertCircle
+  AlertCircle,
+  Link2,
+  Image,
+  Trash2,
+  Plus,
+  Printer,
+  AlertTriangle,
+  CheckCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { CodeChangesBadge } from '@/components/code-changes/code-changes-badge';
+
+interface Epic {
+  id: string;
+  title: string;
+}
 
 interface Story {
   id: string;
@@ -55,6 +67,9 @@ interface Story {
   feature?: string;
   value?: string;
   requirement?: string;
+  githubRepo?: string;
+  githubBranch?: string;
+  screenshots?: string[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -84,17 +99,59 @@ const getPriorityColor = (priority: string) => {
   }
 };
 
+// Gherkin validation helper
+function validateGherkinFormat(text: string): { isValid: boolean; errors: string[]; warnings: string[] } {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  
+  if (!text || text.trim().length === 0) {
+    return { isValid: true, errors: [], warnings: [] };
+  }
+  
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const keywords = ['Given', 'When', 'Then', 'And', 'But', 'Scenario', 'Feature', 'Background', 'Example', 'Examples'];
+  
+  let hasGiven = false, hasWhen = false, hasThen = false;
+  
+  for (const line of lines) {
+    if (line.startsWith('Given')) hasGiven = true;
+    if (line.startsWith('When')) hasWhen = true;
+    if (line.startsWith('Then')) hasThen = true;
+  }
+  
+  if (!hasGiven && !hasWhen && !hasThen) {
+    warnings.push('Consider using Gherkin keywords: Given, When, Then');
+  } else {
+    if (!hasGiven) warnings.push('Missing "Given" step');
+    if (!hasWhen) warnings.push('Missing "When" step');
+    if (!hasThen) warnings.push('Missing "Then" step');
+  }
+  
+  return { isValid: errors.length === 0, errors, warnings };
+}
+
 export function StoryDetailSheet({ storyId, open, onOpenChange }: StoryDetailSheetProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [editedStory, setEditedStory] = useState<Partial<Story>>({});
+  const [newLabel, setNewLabel] = useState('');
 
   // Fetch story details
   const { data: story, isLoading } = useQuery<Story>({
     queryKey: [`/api/user-stories/${storyId}`],
     enabled: !!storyId && open,
   });
+
+  // Fetch epics for dropdown
+  const { data: epics = [] } = useQuery<Epic[]>({
+    queryKey: ['/api/epics'],
+  });
+
+  // Gherkin validation
+  const gherkinValidation = editedStory.acceptanceCriteria 
+    ? validateGherkinFormat(editedStory.acceptanceCriteria)
+    : { isValid: true, errors: [], warnings: [] };
 
   // Update mutation
   const updateMutation = useMutation({
@@ -231,13 +288,45 @@ export function StoryDetailSheet({ storyId, open, onOpenChange }: StoryDetailShe
             </SheetHeader>
 
             <Tabs defaultValue="details" className="mt-6">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="details">Details</TabsTrigger>
                 <TabsTrigger value="criteria">Acceptance</TabsTrigger>
                 <TabsTrigger value="team">Team</TabsTrigger>
+                <TabsTrigger value="links">Links</TabsTrigger>
               </TabsList>
 
               <TabsContent value="details" className="space-y-4 mt-4">
+                {/* Epic Connection */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <Link2 className="w-4 h-4" />
+                    Connected Epic
+                  </Label>
+                  {isEditing ? (
+                    <Select 
+                      value={editedStory.epicId || 'independent'} 
+                      onValueChange={(v) => setEditedStory({ ...editedStory, epicId: v === 'independent' ? undefined : v })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select epic..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="independent">Independent Story</SelectItem>
+                        {epics.map(epic => (
+                          <SelectItem key={epic.id} value={epic.id}>{epic.title}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <p className="text-sm">
+                      {story.epicId 
+                        ? epics.find(e => e.id === story.epicId)?.title || story.epicId
+                        : <span className="text-muted-foreground italic">Independent story</span>
+                      }
+                    </p>
+                  )}
+                </div>
+
                 {/* Description */}
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
@@ -259,35 +348,110 @@ export function StoryDetailSheet({ storyId, open, onOpenChange }: StoryDetailShe
                 </div>
 
                 {/* Feature / Value / Requirement */}
-                <div className="grid grid-cols-1 gap-4">
-                  {(story.feature || isEditing) && (
+                <div className="grid grid-cols-1 gap-3 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-100 dark:border-blue-900">
+                  <Label className="text-xs font-medium text-blue-700 dark:text-blue-300">Story Composition</Label>
+                  <div className="space-y-3">
                     <div className="space-y-1">
-                      <Label className="text-xs text-muted-foreground">Feature</Label>
+                      <Label className="text-xs text-muted-foreground">Feature (What functionality?)</Label>
                       {isEditing ? (
                         <Input
                           value={editedStory.feature || ''}
                           onChange={(e) => setEditedStory({ ...editedStory, feature: e.target.value })}
-                          placeholder="What functionality?"
+                          placeholder="e.g., drag-and-drop interface, AI suggestions"
                         />
                       ) : (
-                        <p className="text-sm">{story.feature}</p>
+                        <p className="text-sm">{story.feature || <span className="text-muted-foreground italic">—</span>}</p>
                       )}
                     </div>
-                  )}
-                  {(story.value || isEditing) && (
                     <div className="space-y-1">
-                      <Label className="text-xs text-muted-foreground">Value</Label>
+                      <Label className="text-xs text-muted-foreground">Value (What benefit?)</Label>
                       {isEditing ? (
                         <Input
                           value={editedStory.value || ''}
                           onChange={(e) => setEditedStory({ ...editedStory, value: e.target.value })}
-                          placeholder="What benefit?"
+                          placeholder="e.g., save time, improve accuracy"
                         />
                       ) : (
-                        <p className="text-sm">{story.value}</p>
+                        <p className="text-sm">{story.value || <span className="text-muted-foreground italic">—</span>}</p>
                       )}
                     </div>
-                  )}
+                    <div className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">Requirement (What specific need?)</Label>
+                      {isEditing ? (
+                        <Input
+                          value={editedStory.requirement || ''}
+                          onChange={(e) => setEditedStory({ ...editedStory, requirement: e.target.value })}
+                          placeholder="e.g., model complex systems, visualize data flows"
+                        />
+                      ) : (
+                        <p className="text-sm">{story.requirement || <span className="text-muted-foreground italic">—</span>}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Labels */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <Tag className="w-4 h-4" />
+                    Labels
+                  </Label>
+                  <div className="flex flex-wrap gap-2">
+                    {(editedStory.labels || story.labels || []).map((label, idx) => (
+                      <Badge key={idx} variant="secondary" className="gap-1">
+                        {label}
+                        {isEditing && (
+                          <button
+                            onClick={() => setEditedStory({
+                              ...editedStory,
+                              labels: (editedStory.labels || []).filter((_, i) => i !== idx)
+                            })}
+                            className="ml-1 hover:text-red-500"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        )}
+                      </Badge>
+                    ))}
+                    {isEditing && (
+                      <div className="flex items-center gap-1">
+                        <Input
+                          value={newLabel}
+                          onChange={(e) => setNewLabel(e.target.value)}
+                          placeholder="Add label..."
+                          className="h-7 w-28 text-xs"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && newLabel.trim()) {
+                              setEditedStory({
+                                ...editedStory,
+                                labels: [...(editedStory.labels || []), newLabel.trim()]
+                              });
+                              setNewLabel('');
+                            }
+                          }}
+                        />
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 w-7 p-0"
+                          onClick={() => {
+                            if (newLabel.trim()) {
+                              setEditedStory({
+                                ...editedStory,
+                                labels: [...(editedStory.labels || []), newLabel.trim()]
+                              });
+                              setNewLabel('');
+                            }
+                          }}
+                        >
+                          <Plus className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    )}
+                    {!isEditing && (!story.labels || story.labels.length === 0) && (
+                      <span className="text-sm text-muted-foreground italic">No labels</span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Points (editable) */}
@@ -318,15 +482,40 @@ export function StoryDetailSheet({ storyId, open, onOpenChange }: StoryDetailShe
                     Acceptance Criteria (Gherkin)
                   </Label>
                   {isEditing ? (
-                    <Textarea
-                      value={editedStory.acceptanceCriteria || ''}
-                      onChange={(e) => setEditedStory({ ...editedStory, acceptanceCriteria: e.target.value })}
-                      rows={12}
-                      className="font-mono text-sm"
-                      placeholder="Given...&#10;When...&#10;Then..."
-                    />
+                    <>
+                      <Textarea
+                        value={editedStory.acceptanceCriteria || ''}
+                        onChange={(e) => setEditedStory({ ...editedStory, acceptanceCriteria: e.target.value })}
+                        rows={12}
+                        className="font-mono text-sm"
+                        placeholder="Given...&#10;When...&#10;Then..."
+                      />
+                      {/* Gherkin Validation */}
+                      {editedStory.acceptanceCriteria && editedStory.acceptanceCriteria.trim().length > 0 && (
+                        <div className="space-y-1">
+                          {gherkinValidation.errors.length > 0 && (
+                            <div className="flex items-start gap-2 p-2 bg-red-50 dark:bg-red-950/20 rounded text-xs text-red-600">
+                              <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+                              <div>{gherkinValidation.errors.join(', ')}</div>
+                            </div>
+                          )}
+                          {gherkinValidation.warnings.length > 0 && (
+                            <div className="flex items-start gap-2 p-2 bg-amber-50 dark:bg-amber-950/20 rounded text-xs text-amber-600">
+                              <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+                              <div>{gherkinValidation.warnings.join(', ')}</div>
+                            </div>
+                          )}
+                          {gherkinValidation.isValid && gherkinValidation.warnings.length === 0 && (
+                            <div className="flex items-center gap-2 p-2 bg-green-50 dark:bg-green-950/20 rounded text-xs text-green-600">
+                              <CheckCheck className="w-4 h-4" />
+                              Valid Gherkin format
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </>
                   ) : (
-                    <pre className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg text-sm font-mono whitespace-pre-wrap overflow-x-auto">
+                    <pre className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg text-sm font-mono whitespace-pre-wrap overflow-x-auto max-h-96 overflow-y-auto">
                       {story.acceptanceCriteria || <span className="text-muted-foreground italic">No acceptance criteria</span>}
                     </pre>
                   )}
@@ -386,6 +575,129 @@ export function StoryDetailSheet({ storyId, open, onOpenChange }: StoryDetailShe
                   {story.updatedAt && (
                     <p>Updated: {new Date(story.updatedAt).toLocaleDateString()}</p>
                   )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="links" className="space-y-4 mt-4">
+                {/* GitHub Integration */}
+                <div className="space-y-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                  <Label className="flex items-center gap-2 text-sm font-medium">
+                    <GitBranch className="w-4 h-4" />
+                    GitHub Integration
+                  </Label>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">Repository</Label>
+                      {isEditing ? (
+                        <Input
+                          value={editedStory.githubRepo || ''}
+                          onChange={(e) => setEditedStory({ ...editedStory, githubRepo: e.target.value })}
+                          placeholder="owner/repo"
+                        />
+                      ) : (
+                        <p className="text-sm font-mono">
+                          {story.githubRepo ? (
+                            <a 
+                              href={`https://github.com/${story.githubRepo}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline"
+                            >
+                              {story.githubRepo}
+                            </a>
+                          ) : (
+                            <span className="text-muted-foreground italic">Not linked</span>
+                          )}
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">Branch</Label>
+                      {isEditing ? (
+                        <Input
+                          value={editedStory.githubBranch || ''}
+                          onChange={(e) => setEditedStory({ ...editedStory, githubBranch: e.target.value })}
+                          placeholder="feature/story-123"
+                        />
+                      ) : (
+                        <p className="text-sm font-mono">
+                          {story.githubBranch ? (
+                            <a 
+                              href={`https://github.com/${story.githubRepo}/tree/${story.githubBranch}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline"
+                            >
+                              {story.githubBranch}
+                            </a>
+                          ) : (
+                            <span className="text-muted-foreground italic">No branch</span>
+                          )}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Code Changes (Auto-linked PRs/Commits) */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <GitBranch className="w-4 h-4" />
+                    Linked Code Changes
+                  </Label>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                    <CodeChangesBadge entityType="user_story" entityId={story.id} showDetails />
+                  </div>
+                </div>
+
+                {/* Screenshots */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <Image className="w-4 h-4" />
+                    Screenshots
+                  </Label>
+                  {story.screenshots && story.screenshots.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-2">
+                      {story.screenshots.map((screenshot, idx) => (
+                        <div key={idx} className="relative group">
+                          <img 
+                            src={screenshot} 
+                            alt={`Screenshot ${idx + 1}`}
+                            className="rounded border w-full h-32 object-cover"
+                          />
+                          {isEditing && (
+                            <button
+                              onClick={() => setEditedStory({
+                                ...editedStory,
+                                screenshots: (editedStory.screenshots || []).filter((_, i) => i !== idx)
+                              })}
+                              className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                      No screenshots attached
+                    </p>
+                  )}
+                </div>
+
+                {/* Print Button */}
+                <div className="pt-4 border-t">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => window.print()}
+                    className="w-full"
+                  >
+                    <Printer className="w-4 h-4 mr-2" />
+                    Print Story Card
+                  </Button>
                 </div>
               </TabsContent>
             </Tabs>
