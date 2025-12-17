@@ -316,11 +316,11 @@ export default function QualityDefectDetailPage() {
               <CardContent className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Created</span>
-                  <span>{format(new Date(defect.createdAt), 'MMM d, yyyy')}</span>
+                  <span>{defect.createdAt ? format(new Date(defect.createdAt), 'MMM d, yyyy') : '—'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Updated</span>
-                  <span>{format(new Date(defect.updatedAt), 'MMM d, yyyy')}</span>
+                  <span>{defect.updatedAt ? format(new Date(defect.updatedAt), 'MMM d, yyyy') : '—'}</span>
                 </div>
                 {defect.resolvedAt && (
                   <div className="flex justify-between">
