@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arkhitekton Wiki - The Codex</title>
+    <style>
+        :root {
+            --bg-color: #fdfbf7;
+            --paper-color: #f5f2eb;
+            --text-color: #2c2925;
+            --accent-color: #8c7355;
+            --timeline-line: #e2dcd0;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Georgia', serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Left Rail - Timeline Stream */
+        aside {
+            width: 350px;
+            background-color: var(--paper-color);
+            border-right: 1px solid #dcd6cc;
+            padding: 40px 20px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        aside h2 {
+            font-family: 'Times New Roman', serif;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 30px;
+            text-align: center;
+            border-bottom: 1px double #ccc;
+            padding-bottom: 10px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 30px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 5px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-color);
+            background: var(--paper-color);
+            z-index: 2;
+        }
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 13px;
+            bottom: -35px;
+            width: 1px;
+            background: var(--timeline-line);
+            z-index: 1;
+        }
+        .timeline-item:last-child::after {
+            display: none;
+        }
+
+        .timestamp {
+            font-size: 11px;
+            color: var(--accent-color);
+            font-style: italic;
+            margin-bottom: 4px;
+        }
+        .entry-title {
+            font-weight: bold;
+            font-size: 15px;
+            margin-bottom: 4px;
+            color: #1a1a1a;
+        }
+        .entry-excerpt {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.4;
+        }
+
+        /* Main Content - Reader View */
+        main {
+            flex: 1;
+            padding: 60px 80px;
+            max-width: 900px;
+            margin: 0 auto;
+            overflow-y: auto;
+        }
+
+        h1 {
+            font-size: 42px;
+            font-weight: normal;
+            border-bottom: 3px double var(--accent-color);
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+
+        .chapter-mark {
+            font-size: 80px;
+            float: left;
+            line-height: 0.8;
+            margin-right: 10px;
+            color: var(--accent-color);
+        }
+
+        p {
+            font-size: 18px;
+            line-height: 1.8;
+            margin-bottom: 24px;
+        }
+
+        /* Metadata Badge */
+        .meta-badge {
+            display: inline-block;
+            border: 1px solid var(--accent-color);
+            padding: 4px 12px;
+            font-size: 12px;
+            border-radius: 20px;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <aside>
+        <h2>Chronicle of Changes</h2>
+        
+        <div class="timeline-item">
+            <div class="timestamp">Today, 10:42 AM</div>
+            <div class="entry-title">Wiki Rebuild Strategy</div>
+            <div class="entry-excerpt">Updated Phase 2 requirements to include semantic graph visualization...</div>
+        </div>
+
+        <div class="timeline-item">
+            <div class="timestamp">Yesterday, 4:15 PM</div>
+            <div class="entry-title">User Story US-Wiki-004</div>
+            <div class="entry-excerpt">Approved by Antonio Jones. Moved to Sprint Backlog.</div>
+        </div>
+
+        <div class="timeline-item">
+            <div class="timestamp">Dec 15, 2025</div>
+            <div class="entry-title">Architecture Vision</div>
+            <div class="entry-excerpt">Initial draft created. 4 sections added.</div>
+        </div>
+        
+        <div class="timeline-item">
+            <div class="timestamp">Dec 12, 2025</div>
+            <div class="entry-title">System Initialization</div>
+            <div class="entry-excerpt">Repository established. Main branch protected.</div>
+        </div>
+    </aside>
+
+    <main>
+        <div class="meta-badge">VERSION 1.4.2</div>
+        <h1>The Knowledge Core</h1>
+        
+        <p><span class="chapter-mark">W</span>elcome to the central repository of truth for the Arkhitekton platform. This living document serves as the foundation for all architectural decisions, component definitions, and strategic directives.</p>
+        
+        <p>Unlike traditional static documentation, the Codex evolves in real-time. Every modification is tracked, every decision is timestamped, and every link is bidirectional. As you navigate through these pages, you are not just reading history—you are observing the pulse of the system as it breathes and grows.</p>
+
+        <p>Use the timeline on the left to traverse the history of this knowledge base, or begin a new chapter by selecting "New Entry" from the command menu.</p>
+    </main>
+</body>
+</html>

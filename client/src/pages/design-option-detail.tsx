@@ -509,13 +509,14 @@ function DesignOptionDetailContent() {
       case "wiki-landing-pages":
         return {
           title: "Wiki Landing Page Prototypes",
-          description: "Six distinct visual styles for the Wiki Knowledge Core landing page - exploring different aesthetics from brutalist to geometric",
+          description: "Twelve distinct visual styles for the Wiki Knowledge Core landing page - exploring different aesthetics from brutalist to geometric, and now including Gemini 3.5 AI-generated concepts.",
           items: [
             {
               id: "ARKWL-00001",
               title: "Option 1: Brutalist",
               description: "Bold, raw, and functional design with strong typography and clear hierarchy. Emphasizes content over decoration.",
               concept: "Functional Minimalism",
+              source: "Claude Code",
               component: (
                 <div className="w-full h-32 bg-white border-4 border-black rounded-none p-4 font-mono">
                   <div className="text-xl font-bold mb-2">WIKI</div>
@@ -536,6 +537,7 @@ function DesignOptionDetailContent() {
               title: "Option 2: Organic",
               description: "Soft shapes, natural colors, and fluid layouts for a more inviting and approachable feel.",
               concept: "Natural & Approachable",
+              source: "Claude Code",
               component: (
                 <div className="w-full h-32 bg-gradient-to-br from-green-50 to-blue-50 rounded-3xl p-4">
                   <div className="text-lg font-semibold text-green-800 mb-2">Wiki</div>
@@ -556,6 +558,7 @@ function DesignOptionDetailContent() {
               title: "Option 3: Minimal",
               description: "Clean lines, ample whitespace, and essential elements for a focused and elegant experience.",
               concept: "Less is More",
+              source: "Claude Code",
               component: (
                 <div className="w-full h-32 bg-white border rounded-lg p-6">
                   <div className="text-sm font-light text-gray-400 mb-4">wiki</div>
@@ -575,6 +578,7 @@ function DesignOptionDetailContent() {
               title: "Option 4: Retro-Futuristic",
               description: "Inspired by classic sci-fi, blending vintage aesthetics with futuristic elements for a unique identity.",
               concept: "Nostalgic Innovation",
+              source: "Claude Code",
               component: (
                 <div className="w-full h-32 bg-gradient-to-r from-purple-900 via-pink-800 to-orange-700 rounded-lg p-4 border-2 border-yellow-400">
                   <div className="text-yellow-300 font-bold text-lg mb-2 tracking-wider">W I K I</div>
@@ -594,6 +598,7 @@ function DesignOptionDetailContent() {
               title: "Option 5: Magazine",
               description: "Layout reminiscent of a digital magazine, with rich imagery and curated content blocks for editorial feel.",
               concept: "Editorial Excellence",
+              source: "Claude Code",
               component: (
                 <div className="w-full h-32 bg-white rounded-lg overflow-hidden grid grid-cols-3 gap-1">
                   <div className="col-span-2 bg-gradient-to-br from-orange-100 to-pink-100 p-3">
@@ -617,6 +622,7 @@ function DesignOptionDetailContent() {
               title: "Option 6: Geometric",
               description: "Structured and precise, using geometric shapes and patterns for a modern, organized look with mathematical beauty.",
               concept: "Mathematical Precision",
+              source: "Claude Code",
               component: (
                 <div className="w-full h-32 bg-white rounded-lg p-4 grid grid-cols-4 gap-2">
                   <div className="col-span-2 bg-blue-500 rounded"></div>
@@ -631,6 +637,147 @@ function DesignOptionDetailContent() {
               cons: ["Can feel rigid", "Requires careful balance"],
               status: "Proposed",
               htmlFile: "docs/Wiki_files_002/Wiki_Landing_Option_6_Geometric.html"
+            },
+            {
+              id: "ARKWL-00007",
+              title: "Option 7: The Knowledge Graph",
+              description: "Visualizing connections with a force-directed graph background. Emphasizes semantic relationships and the network of knowledge.",
+              concept: "Visualizing Connections",
+              source: "Gemini 3.5",
+              component: (
+                <div className="w-full h-32 bg-slate-900 rounded-lg p-4 relative overflow-hidden">
+                  <div className="absolute inset-0 opacity-30">
+                     <svg width="100%" height="100%">
+                       <circle cx="20%" cy="30%" r="3" fill="#3b82f6"/>
+                       <circle cx="80%" cy="70%" r="3" fill="#8b5cf6"/>
+                       <circle cx="50%" cy="50%" r="5" fill="#3b82f6"/>
+                       <line x1="20%" y1="30%" x2="50%" y2="50%" stroke="#475569" strokeWidth="1"/>
+                       <line x1="50%" y1="50%" x2="80%" y2="70%" stroke="#475569" strokeWidth="1"/>
+                     </svg>
+                  </div>
+                  <div className="relative z-10 flex items-center justify-center h-full">
+                     <div className="bg-slate-800/80 border border-slate-700 rounded-full px-4 py-2 text-slate-200 text-xs shadow-xl backdrop-blur-sm">
+                        Search Knowledge Graph...
+                     </div>
+                  </div>
+                </div>
+              ),
+              pros: ["Highlights relationships", "Modern tech feel", "Encourages exploration", "Unique visualization"],
+              cons: ["Can look cluttered", "High performance cost"],
+              status: "Proposed",
+              htmlFile: "docs/Wiki_files_003/Wiki_Landing_Option_7_KnowledgeGraph.html"
+            },
+            {
+              id: "ARKWL-00008",
+              title: "Option 8: The Architect's Blueprint",
+              description: "Technical, grid-based layout mimicking CAD drawings. Emphasizes precision, structure, and the 'Master Builder' persona.",
+              concept: "Technical Precision",
+              source: "Gemini 3.5",
+              component: (
+                <div className="w-full h-32 bg-blue-900 rounded-lg p-4 font-mono relative overflow-hidden">
+                   <div className="absolute inset-0 opacity-20" style={{backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '20px 20px'}}></div>
+                   <div className="relative border-2 border-white/50 h-full p-2 flex flex-col justify-between">
+                      <div className="text-[8px] text-white uppercase tracking-widest border-b border-white/30 pb-1">Wiki Core Spec</div>
+                      <div className="self-end border-l border-t border-white/50 pl-2 pt-1">
+                         <div className="w-8 h-8 border border-dashed border-white/30 rounded-full"></div>
+                      </div>
+                   </div>
+                </div>
+              ),
+              pros: ["Fits 'Arkhitekton' brand", "Distinctive identity", "Feels trustworthy/technical", "High contrast"],
+              cons: ["Low readability for long text", "Very niche aesthetic"],
+              status: "Proposed",
+              htmlFile: "docs/Wiki_files_003/Wiki_Landing_Option_8_Blueprint.html"
+            },
+            {
+              id: "ARKWL-00009",
+              title: "Option 9: The Codex",
+              description: "A timeline-based view focusing on the evolution of documentation. Feels like a living history book or digital scroll.",
+              concept: "Living History",
+              source: "Gemini 3.5",
+              component: (
+                <div className="w-full h-32 bg-[#f5f2eb] rounded-lg flex overflow-hidden">
+                   <div className="w-1/3 border-r border-[#dcd6cc] bg-[#fdfbf7] p-3 flex flex-col gap-2">
+                      <div className="w-2 h-2 rounded-full bg-[#8c7355]"></div>
+                      <div className="w-1 h-1 rounded-full bg-[#e2dcd0] ml-0.5"></div>
+                      <div className="w-1 h-1 rounded-full bg-[#e2dcd0] ml-0.5"></div>
+                   </div>
+                   <div className="flex-1 p-3 font-serif">
+                      <div className="h-1 w-1/2 bg-[#2c2925] mb-2"></div>
+                      <div className="h-0.5 w-full bg-[#888] mb-1"></div>
+                      <div className="h-0.5 w-3/4 bg-[#888]"></div>
+                   </div>
+                </div>
+              ),
+              pros: ["Great for versioning focus", "Classic academic feel", "Strong narrative", "Warm aesthetic"],
+              cons: ["May feel dated", "Not standard for wikis"],
+              status: "Proposed",
+              htmlFile: "docs/Wiki_files_003/Wiki_Landing_Option_9_Codex.html"
+            },
+            {
+              id: "ARKWL-00010",
+              title: "Option 10: The Terminal",
+              description: "CLI-inspired interface for developer efficiency. Features keyboard-first navigation and high information density.",
+              concept: "Command Line Efficiency",
+              source: "Gemini 3.5",
+              component: (
+                <div className="w-full h-32 bg-black rounded-lg p-3 font-mono text-xs">
+                   <div className="text-green-500 mb-1">➜  wiki start</div>
+                   <div className="text-gray-400 mb-2">Loading modules...</div>
+                   <div className="grid grid-cols-2 gap-2">
+                      <div className="border border-gray-700 p-1 text-[8px] text-gray-300">
+                         [DIR] /architecture
+                      </div>
+                      <div className="border border-gray-700 p-1 text-[8px] text-gray-300">
+                         [DIR] /api-docs
+                      </div>
+                   </div>
+                   <div className="mt-2 text-green-500 animate-pulse">_</div>
+                </div>
+              ),
+              pros: ["Developer favorite", "Fast navigation", "High contrast", "Cool factor"],
+              cons: ["Intimidating to non-devs", "Poor discovery"],
+              status: "Proposed",
+              htmlFile: "docs/Wiki_files_004/Wiki_Landing_Option_10_Terminal.html"
+            },
+            {
+              id: "ARKWL-00011",
+              title: "Option 11: Glass Morphism",
+              description: "Modern, spatial design using frosted glass, depth, and blurred layers. Feels premium, futuristic, and aligned with modern OS trends.",
+              concept: "Spatial Computing",
+              source: "Gemini 3.5",
+              component: (
+                <div className="w-full h-32 rounded-lg p-4 relative overflow-hidden bg-gradient-to-br from-pink-400 to-blue-400">
+                   <div className="absolute top-2 left-2 w-8 h-8 bg-white/30 rounded-full blur-sm"></div>
+                   <div className="absolute bottom-2 right-2 w-12 h-12 bg-purple-500/30 rounded-full blur-md"></div>
+                   <div className="relative h-full w-full bg-white/20 backdrop-blur-md border border-white/30 rounded-xl flex items-center justify-center shadow-lg">
+                      <div className="w-3/4 h-2 bg-white/40 rounded-full"></div>
+                   </div>
+                </div>
+              ),
+              pros: ["Trendy & Modern", "Premium feel", "Depth and hierarchy", "Visually stunning"],
+              cons: ["Accessibility challenges", "Performance heavy"],
+              status: "Proposed",
+              htmlFile: "docs/Wiki_files_004/Wiki_Landing_Option_11_GlassMorphism.html"
+            },
+            {
+              id: "ARKWL-00012",
+              title: "Option 12: The Bento Box",
+              description: "Modular, grid-based layout inspired by bento boxes and widgets. High information density with clear separation of concerns.",
+              concept: "Modular Organization",
+              source: "Gemini 3.5",
+              component: (
+                <div className="w-full h-32 bg-gray-100 rounded-lg p-2 gap-1 grid grid-cols-3 grid-rows-2">
+                   <div className="bg-white rounded shadow-sm col-span-2 row-span-1"></div>
+                   <div className="bg-blue-500 rounded shadow-sm col-span-1 row-span-1"></div>
+                   <div className="bg-white rounded shadow-sm col-span-1 row-span-1"></div>
+                   <div className="bg-white rounded shadow-sm col-span-2 row-span-1"></div>
+                </div>
+              ),
+              pros: ["Organized & Clean", "Responsive", "Information dense", "Familiar UI pattern"],
+              cons: ["Can feel rigid", "Boxy aesthetic"],
+              status: "Proposed",
+              htmlFile: "docs/Wiki_files_004/Wiki_Landing_Option_12_BentoBox.html"
             }
           ]
         };
@@ -683,10 +830,15 @@ function DesignOptionDetailContent() {
             {content.items.map((item) => (
               <Card key={item.id} className="group hover:shadow-lg transition-shadow">
                 <CardHeader className="text-center pb-4">
-                  <div className="flex justify-center mb-4">
+                  <div className="flex justify-center mb-4 gap-2">
                     <Badge variant="secondary" className="mb-2">
                       {item.id}
                     </Badge>
+                    {(item as any).source && (
+                      <Badge variant="outline" className="mb-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-none">
+                        {(item as any).source}
+                      </Badge>
+                    )}
                   </div>
 
                   {/* Design Display */}

@@ -319,11 +319,11 @@ function DesignOptionsContent() {
     {
       id: "wiki-landing-pages",
       title: "Wiki Module Landing Page Prototypes",
-      description: "Six distinct visual styles for the Wiki Knowledge Core landing page - from brutalist to minimalist, magazine-style to geometric patterns",
+      description: "Twelve distinct visual styles for the Wiki Knowledge Core landing page - including new Gemini 3.5 AI-generated concepts alongside original designs",
       category: "UX Design",
       priority: "High",
       dateCreated: "2025-12-17",
-      itemCount: 6,
+      itemCount: 12,
       status: "New",
       htmlPrototypes: [
         { name: "Option 1: Brutalist", file: "docs/Wiki_files_001/Wiki_Landing_Option_1_Brutalist.html" },
@@ -331,7 +331,13 @@ function DesignOptionsContent() {
         { name: "Option 3: Minimal", file: "docs/Wiki_files_001/Wiki_Landing_Option_3_Minimal.html" },
         { name: "Option 4: Retro-Futuristic", file: "docs/Wiki_files_002/Wiki_Landing_Option_4_RetroFuturistic.html" },
         { name: "Option 5: Magazine", file: "docs/Wiki_files_002/Wiki_Landing_Option_5_Magazine.html" },
-        { name: "Option 6: Geometric", file: "docs/Wiki_files_002/Wiki_Landing_Option_6_Geometric.html" }
+        { name: "Option 6: Geometric", file: "docs/Wiki_files_002/Wiki_Landing_Option_6_Geometric.html" },
+        { name: "Option 7: The Knowledge Graph", file: "docs/Wiki_files_003/Wiki_Landing_Option_7_KnowledgeGraph.html" },
+        { name: "Option 8: The Architect's Blueprint", file: "docs/Wiki_files_003/Wiki_Landing_Option_8_Blueprint.html" },
+        { name: "Option 9: The Codex", file: "docs/Wiki_files_003/Wiki_Landing_Option_9_Codex.html" },
+        { name: "Option 10: The Terminal", file: "docs/Wiki_files_004/Wiki_Landing_Option_10_Terminal.html" },
+        { name: "Option 11: Glass Morphism", file: "docs/Wiki_files_004/Wiki_Landing_Option_11_GlassMorphism.html" },
+        { name: "Option 12: The Bento Box", file: "docs/Wiki_files_004/Wiki_Landing_Option_12_BentoBox.html" }
       ]
     }
   ];

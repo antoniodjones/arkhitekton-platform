@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arkhitekton Wiki - Glass Morphism</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background: linear-gradient(135deg, #FF6B6B, #556270, #4ECDC4);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .glass-container {
+            width: 1000px;
+            height: 600px;
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: rgba(255, 255, 255, 0.1);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 40px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            padding: 12px 15px;
+            border-radius: 12px;
+            color: white;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-weight: 500;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            color: white;
+            font-size: 36px;
+            margin-top: 0;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .search-glass {
+            width: 100%;
+            padding: 15px 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+            margin-bottom: 40px;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .search-glass::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.2s;
+            color: white;
+            cursor: pointer;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .card-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .card-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .card-desc {
+            font-size: 12px;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        /* Floating elements for depth */
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            z-index: -1;
+        }
+        .b1 { width: 300px; height: 300px; background: rgba(255, 107, 107, 0.4); top: -50px; left: -50px; }
+        .b2 { width: 200px; height: 200px; background: rgba(85, 98, 112, 0.4); bottom: 50px; right: -50px; }
+    </style>
+</head>
+<body>
+    <div class="bubble b1"></div>
+    <div class="bubble b2"></div>
+
+    <div class="glass-container">
+        <div class="sidebar">
+            <div class="logo">Wiki</div>
+            <div class="nav-item active">🏠 Home</div>
+            <div class="nav-item">⭐ Favorites</div>
+            <div class="nav-item">🔄 Recent</div>
+            <div class="nav-item">📂 Library</div>
+            <div class="nav-item" style="margin-top: auto;">⚙️ Settings</div>
+        </div>
+        
+        <div class="main-content">
+            <input type="text" class="search-glass" placeholder="Search knowledge base...">
+            
+            <h1>Good Morning, Antonio</h1>
+            
+            <div class="cards-grid">
+                <div class="card">
+                    <span class="card-icon">🚀</span>
+                    <span class="card-title">Getting Started</span>
+                    <span class="card-desc">New to Arkhitekton? Start your journey here.</span>
+                </div>
+                <div class="card">
+                    <span class="card-icon">📐</span>
+                    <span class="card-title">Architecture</span>
+                    <span class="card-desc">Core patterns, principles, and diagrams.</span>
+                </div>
+                <div class="card">
+                    <span class="card-icon">📚</span>
+                    <span class="card-title">API Docs</span>
+                    <span class="card-desc">Endpoints, schemas, and integration guides.</span>
+                </div>
+                <div class="card">
+                    <span class="card-icon">🎨</span>
+                    <span class="card-title">Design System</span>
+                    <span class="card-desc">Colors, typography, and component library.</span>
+                </div>
+                <div class="card">
+                    <span class="card-icon">🧪</span>
+                    <span class="card-title">Testing</span>
+                    <span class="card-desc">QA protocols, test plans, and coverage reports.</span>
+                </div>
+                <div class="card">
+                    <span class="card-icon">📢</span>
+                    <span class="card-title">Releases</span>
+                    <span class="card-desc">Changelogs and version history.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

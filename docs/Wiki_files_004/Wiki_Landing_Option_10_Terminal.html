@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arkhitekton Wiki - The Terminal</title>
+    <style>
+        :root {
+            --bg-color: #0c0c0c;
+            --term-green: #10b981;
+            --term-gray: #4b5563;
+            --term-white: #e5e7eb;
+            --cursor-color: #10b981;
+        }
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--term-white);
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            margin-bottom: 20px;
+            color: var(--term-gray);
+        }
+
+        .prompt-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .prompt-symbol {
+            color: var(--term-green);
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        .input-area {
+            background: transparent;
+            border: none;
+            color: var(--term-white);
+            font-family: inherit;
+            font-size: inherit;
+            width: 100%;
+            outline: none;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .panel {
+            border: 1px solid var(--term-gray);
+            padding: 15px;
+            position: relative;
+        }
+        .panel-title {
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            background: var(--bg-color);
+            padding: 0 10px;
+            color: var(--term-green);
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            padding: 5px 0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+        }
+        li:hover {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--term-green);
+        }
+        li::before {
+            content: '> ';
+            color: var(--term-gray);
+            margin-right: 5px;
+        }
+        li:hover::before {
+            color: var(--term-green);
+        }
+
+        .status-bar {
+            margin-top: auto;
+            border-top: 1px solid var(--term-gray);
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--term-gray);
+        }
+
+        .blink {
+            animation: blinker 1s linear infinite;
+        }
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+
+        .ascii-art {
+            white-space: pre;
+            color: var(--term-gray);
+            font-size: 10px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        ARKHITEKTON WIKI OS v2.0.4 [Protected Mode]
+        <br>Last Login: Wed Dec 17 03:45:12 PST 2025
+    </div>
+
+    <div class="ascii-art">
+   __      __  .__   __    .__ 
+  /  \    /  \ |__| |  | __|__|
+  \   \/\/   / |  | |  |/ /|  |
+   \        /  |  | |    < |  |
+    \__/\  /   |__| |__|_ \|__|
+         \/              \/    
+    </div>
+
+    <div class="prompt-line">
+        <span class="prompt-symbol">➜  wiki</span>
+        <span class="input-area">search "sprint planning"<span class="blink">█</span></span>
+    </div>
+
+    <div class="grid-container">
+        <div class="panel">
+            <span class="panel-title">Recent_Files</span>
+            <ul>
+                <li><span>wiki_requirements.md</span> <span>4kb</span></li>
+                <li><span>api_gateway_v2.json</span> <span>12kb</span></li>
+                <li><span>deployment_strat.sh</span> <span>2kb</span></li>
+                <li><span>team_roster.csv</span> <span>1kb</span></li>
+            </ul>
+        </div>
+
+        <div class="panel">
+            <span class="panel-title">Directories</span>
+            <ul>
+                <li>/architecture/patterns/</li>
+                <li>/engineering/standards/</li>
+                <li>/product/roadmap/</li>
+                <li>/legacy/archive/</li>
+            </ul>
+        </div>
+
+        <div class="panel">
+            <span class="panel-title">System_Stats</span>
+            <div style="font-size: 12px; line-height: 1.6;">
+                <div>DOCS_COUNT: 1,248</div>
+                <div>LINKS_ACTIVE: 4,302</div>
+                <div>CACHE_HIT: 98.2%</div>
+                <div>LAST_INDEX: 4s ago</div>
+            </div>
+            <div style="margin-top: 10px; height: 4px; background: #333; width: 100%;">
+                <div style="height: 100%; width: 75%; background: var(--term-green);"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <span>MODE: NORMAL</span>
+        <span>UTF-8</span>
+        <span>MEM: 64%</span>
+        <span>user: antonio.d.jones</span>
+    </div>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arkhitekton Wiki - Knowledge Graph Concept</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --node-color: #3b82f6;
+            --line-color: #1e293b;
+            --text-color: #e2e8f0;
+            --accent-color: #8b5cf6;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .graph-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.4;
+            background-image: radial-gradient(circle at 20% 30%, #1e293b 0%, transparent 20%),
+                              radial-gradient(circle at 80% 70%, #1e293b 0%, transparent 20%);
+        }
+        /* Simulated Nodes */
+        .node {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: var(--node-color);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--node-color);
+            z-index: 1;
+        }
+        .line {
+            position: absolute;
+            height: 1px;
+            background-color: var(--line-color);
+            transform-origin: 0 0;
+            z-index: 0;
+        }
+        
+        /* UI Overlay */
+        .overlay {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            backdrop-filter: blur(2px);
+        }
+        
+        .search-container {
+            width: 600px;
+            max-width: 90%;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 8px 24px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            margin-bottom: 40px;
+            transition: transform 0.3s ease;
+        }
+        .search-container:hover {
+            transform: scale(1.02);
+            border-color: var(--accent-color);
+        }
+        .search-input {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 18px;
+            width: 100%;
+            outline: none;
+            padding: 12px;
+        }
+        .search-icon {
+            color: var(--accent-color);
+            margin-right: 12px;
+        }
+        
+        .clusters {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .cluster-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 16px;
+            width: 180px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .cluster-card:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: var(--node-color);
+            transform: translateY(-5px);
+        }
+        .cluster-icon {
+            font-size: 24px;
+            margin-bottom: 12px;
+            display: block;
+        }
+        .cluster-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        .cluster-count {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        /* Nav */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+            z-index: 20;
+        }
+        .logo {
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+
+        /* SVG Graph Simulation */
+        .graph-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo"><div class="logo-dot"></div>ARKHITEKTON // WIKI</div>
+        <div style="color: #64748b; font-size: 14px;">Graph View: Active</div>
+    </nav>
+
+    <svg class="graph-svg" id="graph">
+        <!-- Lines and nodes generated via JS below for static proto -->
+        <line x1="20%" y1="30%" x2="50%" y2="50%" stroke="#1e293b" stroke-width="1"></line>
+        <line x1="50%" y1="50%" x2="80%" y2="20%" stroke="#1e293b" stroke-width="1"></line>
+        <line x1="50%" y1="50%" x2="40%" y2="80%" stroke="#1e293b" stroke-width="1"></line>
+        <line x1="20%" y1="30%" x2="15%" y2="60%" stroke="#1e293b" stroke-width="1"></line>
+        
+        <circle cx="20%" cy="30%" r="4" fill="#3b82f6"></circle>
+        <circle cx="50%" cy="50%" r="6" fill="#8b5cf6"></circle>
+        <circle cx="80%" cy="20%" r="4" fill="#3b82f6"></circle>
+        <circle cx="40%" cy="80%" r="4" fill="#3b82f6"></circle>
+        <circle cx="15%" cy="60%" r="4" fill="#3b82f6"></circle>
+        <circle cx="70%" cy="60%" r="3" fill="#64748b"></circle>
+        <line x1="50%" y1="50%" x2="70%" y2="60%" stroke="#1e293b" stroke-width="1"></line>
+    </svg>
+
+    <div class="overlay">
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" placeholder="Search the Knowledge Graph...">
+        </div>
+
+        <div class="clusters">
+            <div class="cluster-card">
+                <span class="cluster-icon">🏛️</span>
+                <div class="cluster-title">Architecture</div>
+                <div class="cluster-count">42 Nodes</div>
+            </div>
+            <div class="cluster-card">
+                <span class="cluster-icon">🔧</span>
+                <div class="cluster-title">Services</div>
+                <div class="cluster-count">18 Nodes</div>
+            </div>
+            <div class="cluster-card">
+                <span class="cluster-icon">📝</span>
+                <div class="cluster-title">ADRs</div>
+                <div class="cluster-count">156 Nodes</div>
+            </div>
+            <div class="cluster-card">
+                <span class="cluster-icon">👥</span>
+                <div class="cluster-title">Teams</div>
+                <div class="cluster-count">8 Nodes</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
