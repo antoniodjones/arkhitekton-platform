@@ -17,7 +17,7 @@ interface QualityLayoutProps {
 const tabs = [
   { id: 'dashboard', label: 'Dashboard', href: '/quality/dashboard', icon: LayoutDashboard },
   { id: 'defects', label: 'Defects', href: '/quality/defects', icon: Bug },
-  { id: 'test-cases', label: 'Test Cases', href: '/quality/tests', icon: TestTube2, disabled: true },
+  { id: 'test-plan', label: 'Test Plan', href: '/quality/test-plan', icon: TestTube2 },
   { id: 'reports', label: 'Reports', href: '/quality/reports', icon: FileBarChart, disabled: true },
 ];
 
@@ -26,7 +26,7 @@ export function QualityLayout({ children }: QualityLayoutProps) {
 
   const getActiveTab = () => {
     if (location.includes('/quality/defects')) return 'defects';
-    if (location.includes('/quality/tests')) return 'test-cases';
+    if (location.includes('/quality/test-plan')) return 'test-plan';
     if (location.includes('/quality/reports')) return 'reports';
     return 'dashboard';
   };
