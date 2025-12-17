@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arkhitekton Wiki - Option 6: Playful Geometric</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-orange: #FF6B35;
+            --bright-yellow: #FFD23F;
+            --electric-blue: #3772FF;
+            --hot-pink: #FF006E;
+            --lime-green: #B4FF39;
+            --purple: #7209B7;
+            --bg-cream: #FFF8F0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-cream);
+            color: #2a2a2a;
+            overflow-x: hidden;
+        }
+
+        /* Floating geometric shapes */
+        .geometric-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .shape {
+            position: absolute;
+            opacity: 0.15;
+            animation: floatAround 20s ease-in-out infinite;
+        }
+
+        .circle-1 {
+            width: 300px;
+            height: 300px;
+            background: var(--electric-blue);
+            border-radius: 50%;
+            top: 10%;
+            right: 5%;
+            animation-delay: 0s;
+        }
+
+        .square-1 {
+            width: 200px;
+            height: 200px;
+            background: var(--hot-pink);
+            transform: rotate(45deg);
+            bottom: 15%;
+            left: 8%;
+            animation-delay: 3s;
+        }
+
+        .triangle-1 {
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-bottom: 250px solid var(--lime-green);
+            top: 40%;
+            left: 15%;
+            animation-delay: 6s;
+        }
+
+        .circle-2 {
+            width: 150px;
+            height: 150px;
+            background: var(--bright-yellow);
+            border-radius: 50%;
+            bottom: 25%;
+            right: 20%;
+            animation-delay: 9s;
+        }
+
+        @keyframes floatAround {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(30px, -30px) rotate(90deg); }
+            50% { transform: translate(-20px, 20px) rotate(180deg); }
+            75% { transform: translate(20px, 30px) rotate(270deg); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Playful header */
+        .header {
+            padding: 32px 48px;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 36px;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--primary-orange), var(--hot-pink), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-pill {
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-pill:nth-child(1) {
+            background: var(--electric-blue);
+            color: white;
+        }
+
+        .nav-pill:nth-child(2) {
+            background: var(--hot-pink);
+            color: white;
+        }
+
+        .nav-pill:nth-child(3) {
+            background: var(--lime-green);
+            color: #2a2a2a;
+        }
+
+        .nav-pill:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .user-bubble {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-orange), var(--bright-yellow));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 18px;
+        }
+
+        /* Energetic hero */
+        .hero {
+            padding: 100px 48px 80px;
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: clamp(48px, 8vw, 96px);
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 .word {
+            display: inline-block;
+            animation: bounceIn 0.6s ease backwards;
+        }
+
+        .hero h1 .word-1 {
+            color: var(--primary-orange);
+            animation-delay: 0.1s;
+        }
+
+        .hero h1 .word-2 {
+            color: var(--electric-blue);
+            animation-delay: 0.2s;
+        }
+
+        .hero h1 .word-3 {
+            color: var(--hot-pink);
+            animation-delay: 0.3s;
+        }
+
+        .hero h1 .word-4 {
+            color: var(--lime-green);
+            text-shadow: 2px 2px 0 #2a2a2a;
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3) translateY(-50px);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .hero-emoji {
+            font-size: 64px;
+            margin-bottom: 24px;
+            animation: spin 3s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        .hero-subtitle {
+            font-size: 22px;
+            color: #666;
+            max-width: 700px;
+            margin: 0 auto 48px;
+            font-weight: 400;
+        }
+
+        .hero-badges {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .badge-1 { background: var(--bright-yellow); color: #2a2a2a; }
+        .badge-2 { background: var(--purple); color: white; }
+        .badge-3 { background: var(--lime-green); color: #2a2a2a; }
+
+        /* Colorful search */
+        .search-wrapper {
+            max-width: 900px;
+            margin: 0 auto 80px;
+            padding: 0 48px;
+        }
+
+        .search-box {
+            position: relative;
+            background: white;
+            border-radius: 60px;
+            padding: 8px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .search-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-orange), var(--hot-pink));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 18px;
+            font-family: 'Poppins', sans-serif;
+            padding: 12px 0;
+        }
+
+        .search-input::placeholder {
+            color: #aaa;
+        }
+
+        .search-kbd {
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin-right: 12px;
+        }
+
+        /* Content */
+        .content {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 48px 80px;
+        }
+
+        .section-header {
+            margin-bottom: 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 48px;
+            font-weight: 800;
+            color: #2a2a2a;
+        }
+
+        .view-toggles {
+            display: flex;
+            gap: 8px;
+            background: white;
+            padding: 6px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .toggle-btn {
+            padding: 10px 24px;
+            border-radius: 50px;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--electric-blue);
+            color: white;
+            box-shadow: 0 4px 12px rgba(55, 114, 255, 0.3);
+        }
+
+        /* Vibrant cards */
+        .cards-masonry {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-orange), var(--hot-pink), var(--purple), var(--electric-blue), var(--lime-green));
+        }
+
+        .card:hover {
+            transform: translateY(-12px) rotate(1deg);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .card.create {
+            background: linear-gradient(135deg, var(--primary-orange), var(--hot-pink));
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 320px;
+        }
+
+        .card.create::before {
+            display: none;
+        }
+
+        .card.create:hover {
+            transform: translateY(-12px) rotate(-2deg) scale(1.02);
+        }
+
+        .create-icon {
+            font-size: 72px;
+            margin-bottom: 16px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .create-text {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-tag {
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tag-design { background: #FFE5D9; color: var(--primary-orange); }
+        .tag-adr { background: #E5DEFF; color: var(--purple); }
+        .tag-guide { background: #D9F0FF; color: var(--electric-blue); }
+        .tag-req { background: #FFE5F5; color: var(--hot-pink); }
+        .tag-spec { background: #E5FFD9; color: #2a2a2a; }
+
+        .card-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px rgba(255,255,255,0.5);
+        }
+
+        .indicator-hot { background: var(--hot-pink); }
+        .indicator-warm { background: var(--primary-orange); }
+        .indicator-cool { background: var(--electric-blue); }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2a2a2a;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .card-excerpt {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+            font-size: 13px;
+        }
+
+        .footer-time {
+            color: #999;
+            font-weight: 500;
+        }
+
+        .footer-mentions {
+            padding: 6px 14px;
+            background: linear-gradient(135deg, var(--primary-orange), var(--hot-pink));
+            color: white;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        /* Floating create button */
+        .fab {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-orange), var(--hot-pink));
+            color: white;
+            font-size: 36px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(255, 107, 53, 0.4);
+            transition: all 0.3s ease;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fab:hover {
+            transform: scale(1.15) rotate(90deg);
+            box-shadow: 0 12px 40px rgba(255, 107, 53, 0.6);
+        }
+
+        /* Animations */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            animation: slideUp 0.6s ease backwards;
+        }
+
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.15s; }
+        .card:nth-child(3) { animation-delay: 0.2s; }
+        .card:nth-child(4) { animation-delay: 0.25s; }
+        .card:nth-child(5) { animation-delay: 0.3s; }
+        .card:nth-child(6) { animation-delay: 0.35s; }
+        .card:nth-child(7) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <div class="geometric-bg">
+        <div class="shape circle-1"></div>
+        <div class="shape square-1"></div>
+        <div class="shape triangle-1"></div>
+        <div class="shape circle-2"></div>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">Arkhitekton ✨</div>
+                <nav class="nav">
+                    <a href="#" class="nav-pill">Wiki</a>
+                    <a href="#" class="nav-pill">Design</a>
+                    <a href="#" class="nav-pill">Plan</a>
+                    <div class="user-bubble">A</div>
+                </nav>
+            </div>
+        </header>
+
+        <div class="hero">
+            <div class="hero-emoji">🚀</div>
+            <h1>
+                <span class="word word-1">What</span>
+                <span class="word word-2">are</span>
+                <span class="word word-3">you</span>
+                <span class="word word-4">building?</span>
+            </h1>
+            <p class="hero-subtitle">
+                Your architectural playground! Document, design, and dream up amazing systems with AI-powered intelligence.
+            </p>
+            <div class="hero-badges">
+                <div class="badge badge-1">🎯 12 Active Pages</div>
+                <div class="badge badge-2">⚡ 156 @Mentions</div>
+                <div class="badge badge-3">🎨 Updated 2h ago</div>
+            </div>
+        </div>
+
+        <div class="search-wrapper">
+            <div class="search-box">
+                <div class="search-icon">🔍</div>
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    placeholder="Search pages, @mention components, or ask me anything..."
+                >
+                <span class="search-kbd">⌘K</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section-header">
+                <h2 class="section-title">Your Work 📚</h2>
+                <div class="view-toggles">
+                    <button class="toggle-btn active">Grid</button>
+                    <button class="toggle-btn">List</button>
+                    <button class="toggle-btn">Board</button>
+                </div>
+            </div>
+
+            <div class="cards-masonry">
+                <div class="card create">
+                    <div class="create-icon">✨</div>
+                    <div class="create-text">Create New Page</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-top">
+                        <span class="card-tag tag-design">Design Doc</span>
+                        <span class="card-indicator indicator-hot"></span>
+                    </div>
+                    <h3 class="card-title">Payment Service Architecture</h3>
+                    <p class="card-excerpt">
+                        Comprehensive design for the @PaymentService including API specs, data models, and integration patterns with downstream services.
+                    </p>
+                    <div class="card-footer">
+                        <span class="footer-time">2 hours ago</span>
+                        <span class="footer-mentions">12 @mentions</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-top">
+                        <span class="card-tag tag-adr">ADR</span>
+                        <span class="card-indicator indicator-warm"></span>
+                    </div>
+                    <h3 class="card-title">ADR-005: PostgreSQL for Wiki</h3>
+                    <p class="card-excerpt">
+                        Decision to use PostgreSQL with JSONB instead of MongoDB for flexibility and consistency across the platform.
+                    </p>
+                    <div class="card-footer">
+                        <span class="footer-time">3 days ago</span>
+                        <span class="footer-mentions">5 @mentions</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-top">
+                        <span class="card-tag tag-guide">Guide</span>
+                        <span class="card-indicator indicator-warm"></span>
+                    </div>
+                    <h3 class="card-title">Semantic Mentions System</h3>
+                    <p class="card-excerpt">
+                        How to use @mentions to create living links between documentation and actual system components for better traceability.
+                    </p>
+                    <div class="card-footer">
+                        <span class="footer-time">5 days ago</span>
+                        <span class="footer-mentions">18 @mentions</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-top">
+                        <span class="card-tag tag-req">Requirements</span>
+                        <span class="card-indicator indicator-cool"></span>
+                    </div>
+                    <h3 class="card-title">User Authentication Requirements</h3>
+                    <p class="card-excerpt">
+                        REQ-SEC-001 through REQ-SEC-015 covering SSO, MFA, session management, and comprehensive audit logging requirements.
+                    </p>
+                    <div class="card-footer">
+                        <span class="footer-time">18 days ago</span>
+                        <span class="footer-mentions">8 @mentions</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-top">
+                        <span class="card-tag tag-spec">Tech Spec</span>
+                        <span class="card-indicator indicator-cool"></span>
+                    </div>
+                    <h3 class="card-title">API Gateway Design</h3>
+                    <p class="card-excerpt">
+                        Technical specification for the centralized API gateway including rate limiting, authentication, and intelligent routing strategies.
+                    </p>
+                    <div class="card-footer">
+                        <span class="footer-time">21 days ago</span>
+                        <span class="footer-mentions">23 @mentions</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="fab">+</button>
+    </div>
+</body>
+</html>

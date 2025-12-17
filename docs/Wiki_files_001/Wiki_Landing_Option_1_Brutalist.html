@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arkhitekton Wiki - Option 1: Editorial Brutalist</title>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --orange: #F97316;
+            --black: #0a0a0a;
+            --white: #fafafa;
+            --gray: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Libre Baskerville', serif;
+            background: var(--white);
+            color: var(--black);
+            line-height: 1.6;
+        }
+
+        /* Brutalist header with strong borders */
+        .header {
+            background: var(--black);
+            color: var(--white);
+            padding: 24px 48px;
+            border-bottom: 8px solid var(--orange);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Space Mono', monospace;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .user-info {
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+        }
+
+        /* Massive editorial headline */
+        .hero {
+            padding: 80px 48px;
+            border-bottom: 4px solid var(--black);
+        }
+
+        .hero h1 {
+            font-size: clamp(48px, 8vw, 120px);
+            line-height: 0.95;
+            font-weight: 700;
+            margin-bottom: 24px;
+            letter-spacing: -3px;
+        }
+
+        .hero h1 .orange {
+            color: var(--orange);
+            display: block;
+        }
+
+        .hero p {
+            font-family: 'Space Mono', monospace;
+            font-size: 18px;
+            max-width: 600px;
+            border-left: 4px solid var(--orange);
+            padding-left: 24px;
+            margin-top: 32px;
+        }
+
+        /* Command bar - brutalist search */
+        .command-bar {
+            padding: 48px;
+            background: var(--gray);
+            border-bottom: 4px solid var(--black);
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 24px 32px;
+            font-family: 'Space Mono', monospace;
+            font-size: 20px;
+            border: 4px solid var(--black);
+            background: var(--white);
+            outline: none;
+            box-shadow: 8px 8px 0 var(--black);
+        }
+
+        .search-input::placeholder {
+            color: #999;
+        }
+
+        .kbd-hint {
+            position: absolute;
+            right: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            background: var(--black);
+            color: var(--white);
+            padding: 8px 16px;
+            border-radius: 4px;
+        }
+
+        /* Content sections */
+        .content {
+            padding: 48px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 32px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--orange);
+        }
+
+        /* Grid of pages - newspaper columns */
+        .pages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 32px;
+            margin-top: 48px;
+        }
+
+        .page-card {
+            border: 4px solid var(--black);
+            background: var(--white);
+            padding: 24px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .page-card:hover {
+            transform: translate(-4px, -4px);
+            box-shadow: 8px 8px 0 var(--black);
+        }
+
+        .page-card.create {
+            background: var(--orange);
+            border-color: var(--black);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+        }
+
+        .page-card.create .plus {
+            font-size: 64px;
+            font-weight: 700;
+            color: var(--white);
+            line-height: 1;
+        }
+
+        .page-card.create p {
+            font-family: 'Space Mono', monospace;
+            color: var(--white);
+            margin-top: 16px;
+            font-size: 18px;
+        }
+
+        .page-meta {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 16px;
+        }
+
+        .page-status {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .status-recent { background: #3b82f6; }
+        .status-week { background: #10b981; }
+        .status-month { background: var(--orange); }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .page-excerpt {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .page-date {
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 2px solid var(--gray);
+        }
+
+        /* Quick actions sidebar */
+        .quick-actions {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--black);
+            padding: 24px 16px;
+            border: 4px solid var(--orange);
+            border-right: none;
+        }
+
+        .quick-action {
+            background: var(--orange);
+            color: var(--white);
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: none;
+            cursor: pointer;
+            writing-mode: vertical-rl;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .quick-action:hover {
+            background: var(--white);
+            color: var(--orange);
+        }
+
+        /* Animation */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-card {
+            animation: slideIn 0.4s ease backwards;
+        }
+
+        .page-card:nth-child(1) { animation-delay: 0.1s; }
+        .page-card:nth-child(2) { animation-delay: 0.2s; }
+        .page-card:nth-child(3) { animation-delay: 0.3s; }
+        .page-card:nth-child(4) { animation-delay: 0.4s; }
+        .page-card:nth-child(5) { animation-delay: 0.5s; }
+        .page-card:nth-child(6) { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">ARKHITEKTON</div>
+        <div class="user-info"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8dece3f9e2e3e4e2cdecffe6e5e4f9e8e6f9e2e3a3e4e2">[email&#160;protected]</a></div>
+    </div>
+
+    <div class="hero">
+        <h1>
+            What are you
+            <span class="orange">building today?</span>
+        </h1>
+        <p>
+            Your architectural knowledge base. Document, connect, and evolve your system designs with semantic intelligence.
+        </p>
+    </div>
+
+    <div class="command-bar">
+        <div class="search-container">
+            <input 
+                type="text" 
+                class="search-input" 
+                placeholder="Search pages, components, @mentions, or ask AI..."
+            >
+            <div class="kbd-hint">⌘K</div>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2 class="section-title">Your Work</h2>
+
+        <div class="pages-grid">
+            <div class="page-card create">
+                <div class="plus">+</div>
+                <p>Create Page</p>
+            </div>
+
+            <div class="page-card">
+                <div class="page-meta">
+                    <span class="page-status status-recent"></span>
+                    <span>DESIGN DOC</span>
+                </div>
+                <div class="page-title">Payment Service Architecture</div>
+                <div class="page-excerpt">
+                    Comprehensive design for the @PaymentService including API specifications, data models, and integration patterns...
+                </div>
+                <div class="page-date">Updated 2 hours ago</div>
+            </div>
+
+            <div class="page-card">
+                <div class="page-meta">
+                    <span class="page-status status-week"></span>
+                    <span>ADR</span>
+                </div>
+                <div class="page-title">ADR-005: Adopt PostgreSQL for Wiki Storage</div>
+                <div class="page-excerpt">
+                    Decision to use PostgreSQL with JSONB instead of MongoDB for flexibility and consistency...
+                </div>
+                <div class="page-date">Updated 3 days ago</div>
+            </div>
+
+            <div class="page-card">
+                <div class="page-meta">
+                    <span class="page-status status-week"></span>
+                    <span>GUIDE</span>
+                </div>
+                <div class="page-title">Semantic Mentions System</div>
+                <div class="page-excerpt">
+                    How to use @mentions to create living links between documentation and actual system components...
+                </div>
+                <div class="page-date">Updated 5 days ago</div>
+            </div>
+
+            <div class="page-card">
+                <div class="page-meta">
+                    <span class="page-status status-month"></span>
+                    <span>REQUIREMENTS</span>
+                </div>
+                <div class="page-title">User Authentication Requirements</div>
+                <div class="page-excerpt">
+                    REQ-SEC-001 through REQ-SEC-015 covering SSO, MFA, session management, and audit logging requirements...
+                </div>
+                <div class="page-date">Updated 18 days ago</div>
+            </div>
+
+            <div class="page-card">
+                <div class="page-meta">
+                    <span class="page-status status-month"></span>
+                    <span>TECH SPEC</span>
+                </div>
+                <div class="page-title">API Gateway Design</div>
+                <div class="page-excerpt">
+                    Technical specification for the centralized API gateway including rate limiting, authentication, and routing...
+                </div>
+                <div class="page-date">Updated 21 days ago</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="quick-actions">
+        <button class="quick-action">Templates</button>
+        <b

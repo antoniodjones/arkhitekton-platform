@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arkhitekton Wiki - Option 5: Editorial Magazine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Work+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --editorial-black: #1a1a1a;
+            --editorial-white: #fafafa;
+            --accent-gold: #d4af37;
+            --accent-burgundy: #8b1538;
+            --neutral-gray: #9a9a9a;
+        }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: var(--editorial-white);
+            color: var(--editorial-black);
+            line-height: 1.8;
+        }
+
+        /* Magazine masthead */
+        .masthead {
+            border-bottom: 4px double var(--editorial-black);
+            padding: 32px 64px;
+            background: var(--editorial-white);
+        }
+
+        .masthead-content {
+            max-width: 1800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .publication-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 64px;
+            font-weight: 900;
+            font-style: italic;
+            color: var(--editorial-black);
+            letter-spacing: -2px;
+            line-height: 1;
+        }
+
+        .issue-info {
+            text-align: right;
+            font-size: 13px;
+            color: var(--neutral-gray);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            line-height: 1.6;
+        }
+
+        .issue-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: var(--accent-gold);
+            font-weight: 700;
+        }
+
+        /* Editorial menu bar */
+        .menu-bar {
+            background: var(--editorial-black);
+            padding: 20px 64px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .menu-content {
+            max-width: 1800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-items {
+            display: flex;
+            gap: 48px;
+        }
+
+        .menu-item {
+            font-size: 13px;
+            color: var(--editorial-white);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: color 0.3s ease;
+            font-weight: 300;
+        }
+
+        .menu-item:hover {
+            color: var(--accent-gold);
+        }
+
+        .subscriber-badge {
+            font-size: 11px;
+            color: var(--accent-gold);
+            border: 1px solid var(--accent-gold);
+            padding: 8px 16px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Feature story hero */
+        .feature-hero {
+            padding: 120px 64px 80px;
+            max-width: 1400px;
+            margin: 0 auto;
+            border-bottom: 1px solid var(--neutral-gray);
+        }
+
+        .feature-category {
+            font-size: 12px;
+            color: var(--accent-burgundy);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 24px;
+            font-weight: 600;
+        }
+
+        .feature-headline {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(64px, 8vw, 120px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 32px;
+            color: var(--editorial-black);
+        }
+
+        .feature-dek {
+            font-size: 24px;
+            color: var(--neutral-gray);
+            max-width: 800px;
+            font-weight: 300;
+            line-height: 1.6;
+            margin-bottom: 48px;
+        }
+
+        .feature-byline {
+            font-size: 14px;
+            color: var(--editorial-black);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-top: 2px solid var(--editorial-black);
+            padding-top: 16px;
+            display: inline-block;
+        }
+
+        /* Search editorial */
+        .search-section {
+            padding: 64px;
+            background: #f5f5f5;
+            border-top: 4px double var(--editorial-black);
+            border-bottom: 4px double var(--editorial-black);
+        }
+
+        .search-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            font-style: italic;
+            margin-bottom: 16px;
+            color: var(--neutral-gray);
+        }
+
+        .search-input {
+            width: 100%;
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            border: none;
+            border-bottom: 3px solid var(--editorial-black);
+            background: transparent;
+            padding: 16px 0;
+            outline: none;
+            color: var(--editorial-black);
+        }
+
+        .search-input::placeholder {
+            color: var(--neutral-gray);
+            font-style: italic;
+        }
+
+        .search-hint {
+            position: absolute;
+            right: 0;
+            bottom: 20px;
+            font-size: 12px;
+            color: var(--neutral-gray);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Content grid - magazine layout */
+        .content {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 80px 64px;
+        }
+
+        .section-header {
+            margin-bottom: 64px;
+            border-bottom: 3px solid var(--editorial-black);
+            padding-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 56px;
+            font-weight: 900;
+            color: var(--editorial-black);
+        }
+
+        .section-meta {
+            font-size: 12px;
+            color: var(--neutral-gray);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Asymmetric grid */
+        .stories-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 32px;
+        }
+
+        .story {
+            background: var(--editorial-white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .story:hover {
+            transform: translateY(-8px);
+        }
+
+        .story:hover .story-image {
+            filter: grayscale(0);
+        }
+
+        /* Featured story - spans 8 columns */
+        .story.featured {
+            grid-column: span 8;
+        }
+
+        /* Regular stories - span 4 columns */
+        .story.regular {
+            grid-column: span 4;
+        }
+
+        .story.create {
+            grid-column: span 4;
+            border: 3px solid var(--editorial-black);
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-gold);
+        }
+
+        .story.create:hover {
+            background: var(--editorial-black);
+        }
+
+        .story.create:hover .create-plus {
+            color: var(--accent-gold);
+        }
+
+        .story.create:hover .create-text {
+            color: var(--editorial-white);
+        }
+
+        .create-plus {
+            font-size: 96px;
+            color: var(--editorial-black);
+            font-weight: 300;
+            line-height: 1;
+            transition: color 0.3s ease;
+        }
+
+        .create-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-style: italic;
+            color: var(--editorial-black);
+            margin-top: 16px;
+            transition: color 0.3s ease;
+        }
+
+        .story-image {
+            width: 100%;
+            height: 400px;
+            background: #e0e0e0;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+            filter: grayscale(100%);
+            transition: filter 0.5s ease;
+        }
+
+        .story.regular .story-image {
+            height: 300px;
+        }
+
+        .image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 48px;
+            font-style: italic;
+            color: rgba(0, 0, 0, 0.1);
+        }
+
+        .story-category {
+            font-size: 11px;
+            color: var(--accent-burgundy);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .story-status {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 3px solid white;
+        }
+
+        .status-live { background: #ff0000; }
+        .status-recent { background: var(--accent-gold); }
+        .status-archived { background: var(--neutral-gray); }
+
+        .story-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            color: var(--editorial-black);
+        }
+
+        .story.regular .story-title {
+            font-size: 24px;
+        }
+
+        .story-excerpt {
+            font-size: 16px;
+            color: var(--neutral-gray);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .story-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid #e0e0e0;
+            font-size: 12px;
+            color: var(--neutral-gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .meta-mentions {
+            color: var(--accent-burgundy);
+            font-weight: 600;
+        }
+
+        /* Pull quote styling */
+        .pull-quote {
+            grid-column: span 12;
+            padding: 64px;
+            border-top: 4px solid var(--editorial-black);
+            border-bottom: 4px solid var(--editorial-black);
+            text-align: center;
+            background: #f9f9f9;
+        }
+
+        .pull-quote-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 48px;
+            font-style: italic;
+            color: var(--editorial-black);
+            line-height: 1.4;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .story {
+            animation: fadeInUp 0.8s ease backwards;
+        }
+
+        .story:nth-child(1) { animation-delay: 0.1s; }
+        .story:nth-child(2) { animation-delay: 0.2s; }
+        .story:nth-child(3) { animation-delay: 0.3s; }
+        .story:nth-child(4) { animation-delay: 0.4s; }
+        .story:nth-child(5) { animation-delay: 0.5s; }
+        .story:nth-child(6) { animation-delay: 0.6s; }
+        .story:nth-child(7) { animation-delay: 0.7s; }
+    </style>
+</head>
+<body>
+    <div class="masthead">
+        <div class="masthead-content">
+            <h1 class="publication-name">Arkhitekton</h1>
+            <div class="issue-info">
+                <div class="issue-number">Vol. 2024</div>
+                <div>Knowledge • Architecture • Design</div>
+                <div>December 17, 2025</div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="menu-bar">
+        <div class="menu-content">
+            <div class="menu-items">
+                <a href="#" class="menu-item">Wiki</a>
+                <a href="#" class="menu-item">Design Studio</a>
+                <a href="#" class="menu-item">Plan</a>
+                <a href="#" class="menu-item">Archive</a>
+            </div>
+            <div class="subscriber-badge">Antonio • Subscriber</div>
+        </div>
+    </nav>
+
+    <article class="feature-hero">
+        <div class="feature-category">Featured Story</div>
+        <h2 class="feature-headline">
+            What are you building today?
+        </h2>
+        <p class="feature-dek">
+            Your architectural knowledge, curated and connected. A living documentation system that evolves with your designs, powered by semantic intelligence and AI-driven insights.
+        </p>
+        <div class="feature-byline">Edited by Antonio Rodriguez</div>
+    </article>
+
+    <div class="search-section">
+        <div class="search-container">
+            <div class="search-label">Search the archives...</div>
+            <input 
+                type="text" 
+                class="search-input" 
+                placeholder="Pages, @mentions, or ask anything"
+            >
+            <div class="search-hint">Press ⌘K</div>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="section-header">
+            <h3 class="section-title">Latest Stories</h3>
+            <div class="section-meta">12 Pages • Updated Today</div>
+        </div>
+
+        <div class="stories-grid">
+            <div class="story create">
+                <div class="create-plus">+</div>
+                <div class="create-text">New Story</div>
+            </div>
+
+            <div class="story featured">
+                <div class="story-image">
+                    <div class="story-status status-live"></div>
+                    <div class="image-placeholder">Architecture</div>
+                </div>
+                <div class="story-category">Design Document</div>
+                <h3 class="story-title">Payment Service Architecture</h3>
+                <p class="story-excerpt">
+                    A comprehensive exploration of the @PaymentService design, including API specifications, data models, and integration patterns with downstream services. This document serves as the definitive guide for implementation.
+                </p>
+                <div class="story-meta">
+                    <span>2 hours ago</span>
+                    <span class="meta-mentions">12 @mentions</span>
+                </div>
+            </div>
+
+            <div class="story regular">
+                <div class="story-image">
+                    <div class="story-status status-recent"></div>
+                    <div class="image-placeholder">Decision</div>
+                </div>
+                <div class="story-category">Architecture Decision Record</div>
+                <h3 class="story-title">ADR-005: PostgreSQL Strategy</h3>
+                <p class="story-excerpt">
+                    Why we chose PostgreSQL with JSONB over MongoDB for flexibility and consistency.
+                </p>
+                <div class="story-meta">
+                    <span>3 days ago</span>
+                    <span class="meta-mentions">5 @mentions</span>
+                </div>
+            </div>
+
+            <div class="story regular">
+                <div class="story-image">
+                    <div class="story-status status-recent"></div>
+                    <div class="image-placeholder">Guide</div>
+                </div>
+                <div class="story-category">Technical Guide</div>
+                <h3 class="story-title">Semantic Mentions System</h3>
+                <p class="story-excerpt">
+                    How to use @mentions to create living links between documentation and system components.
+                </p>
+                <div class="story-meta">
+                    <span>5 days ago</span>
+                    <span class="meta-mentions">18 @mentions</span>
+                </div>
+            </div>
+
+            <div class="pull-quote">
+                <blockquote class="pull-quote-text">
+                    "Architecture is not just about buildings or systems—it's about the stories we tell to explain them."
+                </blockquote>
+            </div>
+
+            <div class="story regular">
+                <div class="story-image">
+                    <div class="story-status status-archived"></div>
+                    <div class="image-placeholder">Requirements</div>
+                </div>
+                <div class="story-category">Requirements Specification</div>
+                <h3 class="story-title">Authentication Requirements</h3>
+                <p class="story-excerpt">
+                    REQ-SEC-001 through REQ-SEC-015 covering SSO, MFA, and audit logging.
+                </p>
+                <div class="story-meta">
+                    <span>18 days ago</span>
+                    <span class="meta-mentions">8 @mentions</span>
+                </div>
+            </div>
+
+            <div class="story featured">
+                <div class="story-image">
+                    <div class="story-status status-archived"></div>
+                    <div class="image-placeholder">Technical</div>
+                </div>
+                <div class="story-category">Technical Specification</div>
+                <h3 class="story-title">API Gateway Design</h3>
+                <p class="story-excerpt">
+                    A deep dive into our centralized API gateway architecture, exploring rate limiting strategies, authentication flows, and intelligent routing mechanisms that enable seamless service orchestration.
+                </p>
+                <div class="story-meta">
+                    <span>21 days ago</span>
+                    <span class="meta-mentions">23 @mentions</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

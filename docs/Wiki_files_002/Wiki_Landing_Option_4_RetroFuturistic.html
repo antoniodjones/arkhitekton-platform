@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arkhitekton Wiki - Option 4: Retro Futuristic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --neon-pink: #ff006e;
+            --neon-cyan: #00f5ff;
+            --neon-purple: #8b00ff;
+            --dark-bg: #0a0014;
+            --grid-color: #2d1b4e;
+        }
+
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100%); }
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan), 0 0 30px var(--neon-cyan); }
+            50% { text-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan), 0 0 60px var(--neon-cyan); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--dark-bg);
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Retro grid background */
+        .retro-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(var(--grid-color) 2px, transparent 2px),
+                linear-gradient(90deg, var(--grid-color) 2px, transparent 2px),
+                linear-gradient(rgba(139, 0, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(139, 0, 255, 0.1) 1px, transparent 1px);
+            background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+            background-position: -2px -2px, -2px -2px, -1px -1px, -1px -1px;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            z-index: 0;
+        }
+
+        .retro-grid::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background: linear-gradient(180deg, transparent, var(--dark-bg));
+        }
+
+        /* Scanline effect */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 1000;
+            animation: scanlines 8s linear infinite;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Cyberpunk header */
+        .header {
+            padding: 24px 48px;
+            background: rgba(10, 0, 20, 0.8);
+            border-bottom: 2px solid var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--neon-cyan);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        .nav {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .nav-item {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            color: var(--neon-pink);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-item::before {
+            content: '>';
+            position: absolute;
+            left: -20px;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .nav-item:hover::before {
+            opacity: 1;
+            left: -15px;
+        }
+
+        .user-terminal {
+            font-family: 'Orbitron', monospace;
+            padding: 10px 20px;
+            background: rgba(255, 0, 110, 0.1);
+            border: 2px solid var(--neon-pink);
+            color: var(--neon-pink);
+            font-size: 12px;
+            letter-spacing: 1px;
+            box-shadow: 0 0 15px rgba(255, 0, 110, 0.3);
+        }
+
+        /* Hero with neon */
+        .hero {
+            padding: 120px 48px 80px;
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(56px, 10vw, 120px);
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 32px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        .hero .glitch {
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero-subtitle {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 24px;
+            color: var(--neon-cyan);
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            margin-bottom: 48px;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            margin-top: 48px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--neon-pink);
+            text-shadow: 0 0 20px var(--neon-pink);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--neon-cyan);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Terminal search */
+        .terminal-search {
+            max-width: 1000px;
+            margin: 0 auto 80px;
+            padding: 0 48px;
+        }
+
+        .terminal-box {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid var(--neon-cyan);
+            box-shadow: 
+                0 0 20px rgba(0, 245, 255, 0.3),
+                inset 0 0 20px rgba(0, 245, 255, 0.1);
+            padding: 4px;
+            position: relative;
+        }
+
+        .terminal-header {
+            background: var(--neon-cyan);
+            padding: 8px 16px;
+            font-family: 'Orbitron', monospace;
+            font-size: 11px;
+            color: var(--dark-bg);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .terminal-input-wrapper {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .terminal-prompt {
+            font-family: 'Orbitron', monospace;
+            color: var(--neon-pink);
+            font-size: 18px;
+        }
+
+        .terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--neon-cyan);
+            font-family: 'Orbitron', monospace;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .terminal-input::placeholder {
+            color: rgba(0, 245, 255, 0.4);
+        }
+
+        .terminal-blink {
+            width: 12px;
+            height: 20px;
+            background: var(--neon-cyan);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        /* Content */
+        .content {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 48px 80px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 48px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--neon-pink);
+            box-shadow: 0 2px 20px rgba(255, 0, 110, 0.3);
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--neon-pink);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 0 0 20px var(--neon-pink);
+        }
+
+        .view-mode {
+            display: flex;
+            gap: 8px;
+        }
+
+        .mode-btn {
+            font-family: 'Orbitron', sans-serif;
+            padding: 10px 20px;
+            background: transparent;
+            border: 2px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            cursor: pointer;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn:hover,
+        .mode-btn.active {
+            background: var(--neon-cyan);
+            color: var(--dark-bg);
+            box-shadow: 0 0 20px var(--neon-cyan);
+        }
+
+        /* Neon cards */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 32px;
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid var(--neon-purple);
+            padding: 32px;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-pink), var(--neon-purple));
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 
+                0 0 30px rgba(255, 0, 110, 0.4),
+                0 0 60px rgba(0, 245, 255, 0.2);
+        }
+
+        .card:hover::before {
+            opacity: 0.3;
+        }
+
+        .card.create {
+            background: rgba(255, 0, 110, 0.1);
+            border: 3px dashed var(--neon-pink);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 280px;
+        }
+
+        .card.create:hover {
+            background: rgba(255, 0, 110, 0.2);
+            box-shadow: 0 0 40px var(--neon-pink);
+        }
+
+        .create-icon {
+            font-size: 72px;
+            color: var(--neon-pink);
+            margin-bottom: 16px;
+            text-shadow: 0 0 30px var(--neon-pink);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .create-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            color: var(--neon-pink);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 6px 14px;
+            background: rgba(0, 245, 255, 0.2);
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 245, 255, 0.3);
+        }
+
+        .card-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .status-hot { background: var(--neon-pink); }
+        .status-active { background: var(--neon-cyan); }
+        .status-cold { background: var(--neon-purple); }
+
+        .card-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        .card-excerpt {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 245, 255, 0.2);
+            font-family: 'Orbitron', monospace;
+            font-size: 11px;
+        }
+
+        .footer-time {
+            color: rgba(0, 245, 255, 0.6);
+        }
+
+        .footer-mentions {
+            color: var(--neon-pink);
+            text-shadow: 0 0 10px var(--neon-pink);
+        }
+
+        /* Floating action */
+        .fab {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 72px;
+            height: 72px;
+            background: var(--neon-pink);
+            border: 3px solid var(--neon-cyan);
+            color: var(--dark-bg);
+            font-size: 36px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            box-shadow: 
+                0 0 30px var(--neon-pink),
+                0 0 60px var(--neon-cyan);
+            transition: all 0.3s ease;
+            z-index: 50;
+        }
+
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 
+                0 0 50px var(--neon-pink),
+                0 0 100px var(--neon-cyan);
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .card {
+            animation: slideIn 0.6s ease backwards;
+        }
+
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+        .card:nth-child(4) { animation-delay: 0.4s; }
+        .card:nth-child(5) { animation-delay: 0.5s; }
+        .card:nth-child(6) { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <div class="retro-grid"></div>
+    <div class="scanlines"></div>
+
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">ARKHITEKTON</div>
+                <nav class="nav">
+                    <a href="#" class="nav-item">Wiki</a>
+                    <a href="#" class="nav-item">Design</a>
+                    <a href="#" class="nav-item">Plan</a>
+                    <div class="user-terminal">USER: ANTONIO</div>
+                </nav>
+            </div>
+        </header>
+
+        <div class="hero">
+            <h1>
+                <span class="glitch">WHAT ARE YOU</span><br>
+                <span class="glitch">BUILDING TODAY?</span>
+            </h1>
+            <div class="hero-subtitle">Architecture • Intelligence • Future</div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Active Pages</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">156</div>
+                    <div class="stat-label">@Mentions</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">2H</div>
+                    <div class="stat-label">Last Update</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="terminal-search">
+            <div class="terminal-box">
+                <div class="terminal-header">// Command Interface v4.5</div>
+                <div class="terminal-input-wrapper">
+                    <span class="terminal-prompt">&gt;</span>
+                    <input 
+                        type="text" 
+                        class="terminal-input" 
+                        placeholder="search pages | @mention | query AI | ⌘K"
+                    >
+                    <div class="terminal-blink"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section-header">
+                <h2 class="section-title">&gt; Your Work_</h2>
+                <div class="view-mode">
+                    <button class="mode-btn active">Grid</button>
+                    <button class="mode-btn">List</button>
+                    <button class="mode-btn">Matrix</button>
+                </div>
+            </div>
+
+            <div class="cards-grid">
+                <div class="card create">
+                    <div class="create-icon">+</div>
+                    <div class="create-label">New Page</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-badge">Design Doc</span>
+                        <span class="card-status status-hot"></span>
+                    </div>
+                    <h3 class="card-title">Payment Service Architecture</h3>
+                    <p class="card-excerpt">
+                        Comprehensive design for @PaymentService including API specifications, data models, and integration patterns with downstream systems.
+                    </p>
+                    <div class="card-footer">
+                        <span class="footer-time">02:00:00 AGO</span>
+                        <span class="footer-mentions">12 @MENTIONS</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-badge">ADR</span>
+                        <span class="card-status status-active"></span>
+                    </div>
+                    <h3 class="card-title">ADR-005: PostgreSQL Strategy</h3>
+                    <p class="card-excerpt">
+                        Decision to use PostgreSQL with JSONB instead of MongoDB for flexibility and consistency across platform.
+                    </p>
+                    <div class="card-footer">
+                        <span class="footer-time">03D 00:00:00 AGO</span>
+                        <span class="footer-mentions">5 @MENTIONS</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-badge">Guide</span>
+                        <span class="card-status status-active"></span>
+                    </div>
+                    <h3 class="card-title">Semantic Mentions System</h3>
+                    <p class="card-excerpt">
+                        How to use @mentions to create living links between documentation and actual system components for traceability.
+                    </p>
+                    <div class="card-footer">
+                        <span class="footer-time">05D 00:00:00 AGO</span>
+                        <span class="footer-mentions">18 @MENTIONS</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-badge">Requirements</span>
+                        <span class="card-status status-cold"></span>
+                    </div>
+                    <h3 class="card-title">Authentication Requirements</h3>
+                    <p class="card-excerpt">
+                        REQ-SEC-001 through REQ-SEC-015 covering SSO, MFA, session management, and comprehensive audit logging.
+                    </p>
+                    <div class="card-footer">
+                        <span class="footer-time">18D 00:00:00 AGO</span>
+                        <span class="footer-mentions">8 @MENTIONS</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-badge">Tech Spec</span>
+                        <span class="card-status status-cold"></span>
+                    </div>
+                    <h3 class="card-title">API Gateway Design</h3>
+                    <p class="card-excerpt">
+                        Technical specification for the centralized API gateway including rate limiting, authentication, and routing.
+                    </p>
+                    <div class="card-footer">
+                        <span class="footer-time">21D 00:00:00 AGO</span>
+                        <span class="footer-mentions">23 @MENTIONS</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="fab">+</button>
+    </div>
+</body>
+</html>
