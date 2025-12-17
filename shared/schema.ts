@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, jsonb, timestamp, integer, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, jsonb, timestamp, integer, uuid, primaryKey } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { isValidGherkin } from "./gherkin-validator";
@@ -813,7 +813,7 @@ export const testCaseStories = pgTable("test_case_stories", {
   testCaseId: text("test_case_id").references(() => testCases.id, { onDelete: 'cascade' }).notNull(),
   storyId: text("story_id").references(() => userStories.id, { onDelete: 'cascade' }).notNull(),
 }, (table) => ({
-  pk: { primaryKey: table.testCaseId, table.storyId },
+  pk: primaryKey({ columns: [table.testCaseId, table.storyId] }),
 }));
 
 // Test Runs - Execution sessions for test suites
@@ -848,7 +848,7 @@ export const testResultDefects = pgTable("test_result_defects", {
   resultId: text("result_id").references(() => testResults.id, { onDelete: 'cascade' }).notNull(),
   defectId: varchar("defect_id").references(() => defects.id, { onDelete: 'cascade' }).notNull(),
 }, (table) => ({
-  pk: { primaryKey: table.resultId, table.defectId },
+  pk: primaryKey({ columns: [table.resultId, table.defectId] }),
 }));
 
 // Test Suite validation schemas
