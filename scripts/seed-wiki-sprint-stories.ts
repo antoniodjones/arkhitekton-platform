@@ -9,6 +9,7 @@
 
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
+import { eq } from 'drizzle-orm';
 import * as schema from '../shared/schema';
 import dotenv from 'dotenv';
 
@@ -1074,7 +1075,7 @@ And the message should appear in version history`,
       // Check if story already exists
       const existing = await db.select()
         .from(schema.userStories)
-        .where(schema.eq(schema.userStories.id, story.id))
+        .where(eq(schema.userStories.id, story.id))
         .limit(1);
 
       if (existing.length > 0) {
