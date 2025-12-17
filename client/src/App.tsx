@@ -28,6 +28,7 @@ import PlanDashboard from "@/pages/plan/dashboard";
 import PlanBacklog from "@/pages/plan/backlog";
 import PlanBoard from "@/pages/plan/board";
 import PlanStories from "@/pages/plan/stories";
+import PlanDefects from "@/pages/plan/defects";
 import QualityDefectsPage from "@/pages/quality-defects";
 import QualityDefectDetailPage from "@/pages/quality-defect-detail";
 import ArkhitektonArchitecture from "@/pages/arkhitekton-architecture";
@@ -110,6 +111,13 @@ function Router() {
         {() => (
           <PlanLayout>
             <PlanStories />
+          </PlanLayout>
+        )}
+      </Route>
+      <Route path="/plan/defects">
+        {() => (
+          <PlanLayout>
+            <PlanDefects />
           </PlanLayout>
         )}
       </Route>

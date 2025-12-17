@@ -48,7 +48,8 @@ const getPriorityColor = (priority: string) => {
   }
 };
 
-const getCategoryColor = (category: string) => {
+const getCategoryColor = (category?: string) => {
+  if (!category) return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
   switch (category.toLowerCase()) {
     case 'bug': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
     case 'feature': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
@@ -86,12 +87,14 @@ export function KanbanCard({ task, index, onClick, onEdit, onDelete }: KanbanCar
                   >
                     {task.priority}
                   </Badge>
-                  <Badge 
-                    variant="secondary"
-                    className={`text-[10px] h-5 px-1.5 ${getCategoryColor(task.category)}`}
-                  >
-                    {task.category}
-                  </Badge>
+                  {task.category && (
+                    <Badge 
+                      variant="secondary"
+                      className={`text-[10px] h-5 px-1.5 ${getCategoryColor(task.category)}`}
+                    >
+                      {task.category}
+                    </Badge>
+                  )}
                 </div>
                 
                 {/* Actions (only visible on hover if we want cleaner UI, but keeping visible for utility) */}

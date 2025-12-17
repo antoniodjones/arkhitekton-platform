@@ -9,7 +9,8 @@ import {
   Map,
   Plus,
   Settings,
-  Zap
+  Zap,
+  Bug
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
@@ -51,6 +52,13 @@ const tabs = [
     path: '/plan/stories', 
     icon: List,
     description: 'All user stories'
+  },
+  { 
+    id: 'defects', 
+    label: 'Defects', 
+    path: '/plan/defects', 
+    icon: Bug,
+    description: 'Quality & bug tracking'
   },
   { 
     id: 'roadmap', 
