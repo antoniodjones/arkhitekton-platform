@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocation, useRoute } from 'wouter';
 import { AppLayout } from '@/components/layout/app-layout';
@@ -131,6 +131,9 @@ export default function WikiV2Page() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [pageToDelete, setPageToDelete] = useState<WikiPage | null>(null);
+  const [draftStatus, setDraftStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
+  const lastSavedContent = useRef<any>(null);
+  const currentContentRef = useRef<any>(null);
 
   // Mention preview state
   const { previewState, showPreview, hidePreview } = useMentionPreview();
@@ -154,6 +157,8 @@ export default function WikiV2Page() {
       setSelectedPage(currentPage);
       setEditedTitle(currentPage.title);
       setEditedContent(currentPage.content);
+      lastSavedContent.current = currentPage.content;
+      currentContentRef.current = currentPage.content;
     }
   }, [currentPage]);
 
@@ -269,6 +274,59 @@ export default function WikiV2Page() {
     },
   });
 
+  // Auto-save draft mutation (US-WIKI-001)
+  const saveDraftMutation = useMutation({
+    mutationFn: async ({ id, content }: { id: string; content: any }) => {
+      const response = await fetch(`/api/wiki/${id}/draft`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content }),
+      });
+      if (!response.ok) throw new Error('Failed to save draft');
+      return response.json();
+    },
+    onSuccess: () => {
+      lastSavedContent.current = currentContentRef.current;
+      setDraftStatus('saved');
+    },
+    onError: () => {
+      setDraftStatus('unsaved');
+    },
+  });
+
+  // Auto-save effect - saves draft every 30 seconds when editing and content changed
+  useEffect(() => {
+    if (!isEditing || !selectedPage) return;
+
+    const autoSaveInterval = setInterval(() => {
+      // Check if content has changed since last save
+      const currentContent = JSON.stringify(currentContentRef.current);
+      const lastSaved = JSON.stringify(lastSavedContent.current);
+
+      if (currentContent !== lastSaved) {
+        setDraftStatus('saving');
+        saveDraftMutation.mutate({
+          id: selectedPage.id,
+          content: currentContentRef.current,
+        });
+      }
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(autoSaveInterval);
+  }, [isEditing, selectedPage, saveDraftMutation]);
+
+  // Track content changes for unsaved indicator
+  useEffect(() => {
+    if (!isEditing) return;
+    
+    const currentContent = JSON.stringify(currentContentRef.current);
+    const lastSaved = JSON.stringify(lastSavedContent.current);
+    
+    if (currentContent !== lastSaved && draftStatus === 'saved') {
+      setDraftStatus('unsaved');
+    }
+  }, [editedContent, isEditing, draftStatus]);
+
   // Handlers
   const handlePageSelect = useCallback((page: WikiPage) => {
     setLocation(`/wiki-v2/${page.id}`);
@@ -288,6 +346,11 @@ export default function WikiV2Page() {
         title: editedTitle,
         content: editedContent,
       },
+    }, {
+      onSuccess: () => {
+        lastSavedContent.current = editedContent;
+        setDraftStatus('saved');
+      }
     });
   }, [selectedPage, editedTitle, editedContent, updatePageMutation]);
 
@@ -466,7 +529,30 @@ export default function WikiV2Page() {
                         )}
                         {isEditing ? (
                           <>
-                            <Button variant="outline" size="sm" onClick={() => setIsEditing(false)}>
+                            {/* Draft Status Indicator (US-WIKI-001) */}
+                            {draftStatus === 'saving' && (
+                              <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 animate-pulse">
+                                Saving...
+                              </Badge>
+                            )}
+                            {draftStatus === 'saved' && (
+                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                <Check className="h-3 w-3 mr-1" />
+                                Saved
+                              </Badge>
+                            )}
+                            {draftStatus === 'unsaved' && (
+                              <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
+                                Unsaved changes
+                              </Badge>
+                            )}
+                            <Button variant="outline" size="sm" onClick={() => {
+                              setIsEditing(false);
+                              setDraftStatus('saved');
+                              // Reset content to last saved version
+                              setEditedContent(lastSavedContent.current);
+                              currentContentRef.current = lastSavedContent.current;
+                            }}>
                               Cancel
                             </Button>
                             <Button variant="outline" size="sm" onClick={handleSave} disabled={updatePageMutation.isPending}>
@@ -541,7 +627,10 @@ export default function WikiV2Page() {
                   {/* Editor */}
                   <TipTapEditor
                     content={selectedPage.content}
-                    onChange={setEditedContent}
+                    onChange={(content) => {
+                      setEditedContent(content);
+                      currentContentRef.current = content;
+                    }}
                     editable={isEditing}
                     className="min-h-[400px]"
                   />

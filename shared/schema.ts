@@ -1445,6 +1445,10 @@ export const wikiPages = pgTable("wiki_pages", {
   
   // Versioning (basic for Phase 1, full version history in Phase 4)
   version: text("version").default("1.0"),
+
+  // Auto-save drafts
+  contentDraft: jsonb("content_draft").$type<any>(),
+  lastAutoSavedAt: timestamp("last_auto_saved_at"),
   
   // Project/Workspace Association
   projectId: varchar("project_id"), // Optional project association

@@ -3364,6 +3364,31 @@ function mapJiraPriorityToArkhitekton(jiraPriority: string | undefined): string 
     }
   });
 
+  // POST /api/wiki/:id/draft - Auto-save draft
+  app.post("/api/wiki/:id/draft", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { content } = req.body;
+      await storage.saveWikiPageDraft(id, content);
+      res.json({ success: true, savedAt: new Date() });
+    } catch (error) {
+      console.error("Error saving wiki draft:", error);
+      res.status(500).json({ error: "Failed to save draft" });
+    }
+  });
+
+  // GET /api/wiki/:id/draft - Get draft
+  app.get("/api/wiki/:id/draft", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const draft = await storage.getWikiPageDraft(id);
+      res.json({ draft });
+    } catch (error) {
+      console.error("Error getting wiki draft:", error);
+      res.status(500).json({ error: "Failed to get draft" });
+    }
+  });
+
   // GET /api/wiki/search - Full-text search (enhanced version)
   app.get("/api/wiki/search", async (req, res) => {
     try {

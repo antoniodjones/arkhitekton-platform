@@ -10,6 +10,9 @@ app.use(express.urlencoded({ extended: false }));
 // Serve self-hosted draw.io for instant loading
 app.use('/drawio', express.static('public/drawio'));
 
+// Serve documentation files (Wiki prototypes, etc.)
+app.use('/docs', express.static('docs'));
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;

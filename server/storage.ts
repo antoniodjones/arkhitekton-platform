@@ -218,6 +218,8 @@ export interface IStorage {
   duplicateWikiPage(id: string): Promise<WikiPage | undefined>;
   moveWikiPage(id: string, newParentId: string | null, newSortOrder?: number): Promise<boolean>;
   incrementWikiPageViews(id: string): Promise<void>;
+  saveWikiPageDraft(id: string, content: any): Promise<void>;
+  getWikiPageDraft(id: string): Promise<any | null>;
 
   // Entity Mentions - Semantic Linking
   getEntityMentionsByPage(pageId: string): Promise<EntityMention[]>;
@@ -1461,6 +1463,10 @@ Scenario: Team Assignment
   async createJiraMapping(mapping: any): Promise<any> { return mapping; }
   async createJiraSyncLog(log: any): Promise<void> { }
   async getJiraSyncStats(): Promise<any> { return { totalMappings: 0, activeSyncs: 0, errorSyncs: 0, totalSyncLogs: 0, successfulSyncs: 0, failedSyncs: 0, successRate: "0%" }; }
+
+  // Wiki Drafts (Stub)
+  async saveWikiPageDraft(id: string, content: any): Promise<void> { }
+  async getWikiPageDraft(id: string): Promise<any | null> { return null; }
 }
 
 
@@ -2671,6 +2677,23 @@ export class DatabaseStorage implements IStorage {
         .set({ views: (page.views || 0) + 1 })
         .where(eq(schema.wikiPages.id, id));
     }
+  }
+
+  async saveWikiPageDraft(id: string, content: any): Promise<void> {
+    await db
+      .update(schema.wikiPages)
+      .set({
+        contentDraft: content,
+        lastAutoSavedAt: new Date(),
+      })
+      .where(eq(schema.wikiPages.id, id));
+  }
+
+  async getWikiPageDraft(id: string): Promise<any | null> {
+    const page = await db.query.wikiPages.findFirst({
+      where: eq(schema.wikiPages.id, id),
+    });
+    return page?.contentDraft || null;
   }
 
   // ============================================================
