@@ -28,9 +28,9 @@ import PlanDashboard from "@/pages/plan/dashboard";
 import PlanBacklog from "@/pages/plan/backlog";
 import PlanBoard from "@/pages/plan/board";
 import PlanStories from "@/pages/plan/stories";
-import PlanDefects from "@/pages/plan/defects";
-import QualityDefectsPage from "@/pages/quality-defects";
-import QualityDefectDetailPage from "@/pages/quality-defect-detail";
+import QualityDashboard from "@/pages/quality/dashboard";
+import QualityDefectsPage from "@/pages/quality/defects";
+import QualityDefectDetailPage from "@/pages/quality/defect-detail";
 import ArkhitektonArchitecture from "@/pages/arkhitekton-architecture";
 import ArkhitektonArchitectureAWS from "@/pages/arkhitekton-architecture-aws";
 import ArkhitektonArchitectureAzure from "@/pages/arkhitekton-architecture-azure";
@@ -114,16 +114,16 @@ function Router() {
           </PlanLayout>
         )}
       </Route>
-      <Route path="/plan/defects">
-        {() => (
-          <PlanLayout>
-            <PlanDefects />
-          </PlanLayout>
-        )}
-      </Route>
       <Route path="/plan-legacy" component={PlanPage} />
-      <Route path="/defects" component={QualityDefectsPage} />
-      <Route path="/defects/:id" component={QualityDefectDetailPage} />
+      
+      {/* Quality Center Routes */}
+      <Route path="/quality">{() => <Redirect to="/quality/dashboard" />}</Route>
+      <Route path="/quality/dashboard" component={QualityDashboard} />
+      <Route path="/quality/defects" component={QualityDefectsPage} />
+      <Route path="/quality/defects/:id" component={QualityDefectDetailPage} />
+      {/* Legacy defects route - redirect to Quality Center */}
+      <Route path="/defects">{() => <Redirect to="/quality/defects" />}</Route>
+      <Route path="/defects/:id">{({ id }) => <Redirect to={`/quality/defects/${id}`} />}</Route>
       <Route path="/apm" component={APMPage} />
       <Route path="/cloud-icons" component={CloudIconsPage} />
       <Route path="/gcp-icons">{() => <Redirect to="/cloud-icons" />}</Route>

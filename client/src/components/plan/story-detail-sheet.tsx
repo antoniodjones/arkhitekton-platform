@@ -39,8 +39,10 @@ import {
   Plus,
   Printer,
   AlertTriangle,
-  CheckCheck
+  CheckCheck,
+  Bug
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { CodeChangesBadge } from '@/components/code-changes/code-changes-badge';
@@ -136,6 +138,8 @@ export function StoryDetailSheet({ storyId, open, onOpenChange }: StoryDetailShe
   const [isEditing, setIsEditing] = useState(false);
   const [editedStory, setEditedStory] = useState<Partial<Story>>({});
   const [newLabel, setNewLabel] = useState('');
+  const [isReportBugOpen, setIsReportBugOpen] = useState(false);
+  const [newDefect, setNewDefect] = useState({ title: '', description: '', severity: 'medium' as const });
 
   // Fetch story details
   const { data: story, isLoading } = useQuery<Story>({
@@ -168,6 +172,26 @@ export function StoryDetailSheet({ storyId, open, onOpenChange }: StoryDetailShe
     },
     onError: () => {
       toast({ title: "Failed to update story", variant: "destructive" });
+    }
+  });
+
+  // Create defect mutation
+  const createDefectMutation = useMutation({
+    mutationFn: async (data: { title: string; description: string; severity: string; userStoryId: string }) => {
+      const response = await apiRequest('POST', '/api/defects', data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/defects'] });
+      setIsReportBugOpen(false);
+      setNewDefect({ title: '', description: '', severity: 'medium' });
+      toast({ 
+        title: "Defect reported successfully",
+        description: "View it in the Quality Center"
+      });
+    },
+    onError: () => {
+      toast({ title: "Failed to create defect", variant: "destructive" });
     }
   });
 
@@ -688,8 +712,17 @@ export function StoryDetailSheet({ storyId, open, onOpenChange }: StoryDetailShe
                   )}
                 </div>
 
-                {/* Print Button */}
-                <div className="pt-4 border-t">
+                {/* Quick Actions */}
+                <div className="pt-4 border-t space-y-2">
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={() => setIsReportBugOpen(true)}
+                    className="w-full"
+                  >
+                    <Bug className="w-4 h-4 mr-2" />
+                    Report Bug
+                  </Button>
                   <Button 
                     variant="outline" 
                     size="sm"
@@ -702,6 +735,83 @@ export function StoryDetailSheet({ storyId, open, onOpenChange }: StoryDetailShe
                 </div>
               </TabsContent>
             </Tabs>
+
+            {/* Report Bug Dialog */}
+            <Dialog open={isReportBugOpen} onOpenChange={setIsReportBugOpen}>
+              <DialogContent className="max-w-lg">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Bug className="w-5 h-5 text-red-500" />
+                    Report Bug for {story.id}
+                  </DialogTitle>
+                  <DialogDescription>
+                    Create a defect linked to this user story. It will appear in the Quality Center.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="bug-title">Title *</Label>
+                    <Input
+                      id="bug-title"
+                      value={newDefect.title}
+                      onChange={(e) => setNewDefect({ ...newDefect, title: e.target.value })}
+                      placeholder="Brief description of the bug"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="bug-description">Description</Label>
+                    <Textarea
+                      id="bug-description"
+                      value={newDefect.description}
+                      onChange={(e) => setNewDefect({ ...newDefect, description: e.target.value })}
+                      placeholder="Steps to reproduce, expected vs actual behavior..."
+                      rows={4}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Severity</Label>
+                    <Select 
+                      value={newDefect.severity} 
+                      onValueChange={(v: any) => setNewDefect({ ...newDefect, severity: v })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="critical">Critical - System down</SelectItem>
+                        <SelectItem value="high">High - Major feature broken</SelectItem>
+                        <SelectItem value="medium">Medium - Feature impaired</SelectItem>
+                        <SelectItem value="low">Low - Minor issue</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg text-sm">
+                    <span className="text-muted-foreground">Linked to:</span>
+                    <span className="ml-2 font-mono">{story.id}</span>
+                  </div>
+                </div>
+
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsReportBugOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button 
+                    variant="destructive"
+                    onClick={() => createDefectMutation.mutate({
+                      ...newDefect,
+                      userStoryId: story.id
+                    })}
+                    disabled={!newDefect.title || createDefectMutation.isPending}
+                  >
+                    {createDefectMutation.isPending ? 'Creating...' : 'Report Bug'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </>
         ) : (
           <div className="flex items-center justify-center h-64">

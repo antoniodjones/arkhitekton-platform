@@ -54,11 +54,12 @@ const tabs = [
     description: 'All user stories'
   },
   { 
-    id: 'defects', 
-    label: 'Defects', 
-    path: '/plan/defects', 
+    id: 'quality', 
+    label: 'Quality', 
+    path: '/quality/dashboard', 
     icon: Bug,
-    description: 'Quality & bug tracking'
+    description: 'Defects & QA',
+    external: true // Links to Quality Center
   },
   { 
     id: 'roadmap', 

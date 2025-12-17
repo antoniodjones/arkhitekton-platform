@@ -151,9 +151,9 @@ const navigationItems: NavigationItem[] = [
     description: 'Development roadmap and task tracking'
   },
   {
-    id: 'defects',
+    id: 'quality',
     label: 'Quality Center',
-    href: '/defects',
+    href: '/quality/dashboard',
     icon: Bug,
     description: 'Defect tracking and quality management'
   },
