@@ -230,6 +230,28 @@ The Plan module currently relies on a foundational "Task Management" (TM) implem
       | Completed | If set |
     ```
 
+#### US-PLAN-208: Roadmap Line Connection Styles
+*   **Type:** Enhancement
+*   **Enhances:** US-PLAN-201
+*   **Epic:** EPIC-12
+*   **Points:** 5
+*   **Status:** In Progress
+*   **Description:**
+    Add visual connection lines from story bars to milestone/end markers on the right side of the timeline. Lines should alternate between different styles for visual variety.
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given I am viewing the Roadmap with stories
+    Then each story bar should have a connection line extending to the right edge
+    And the line color should match the story bar's color
+    And the line style should alternate between:
+      | Index | Style |
+      | 0, 3, 6... | Straight solid line |
+      | 1, 4, 7... | Zig-zag line (sawtooth) |
+      | 2, 5, 8... | Dotted/dashed line |
+    And each line should terminate with a small circular endpoint marker
+    And the endpoint marker should match the line color
+    ```
+
 #### US-PLAN-301: The Retro Board
 *   **Type:** New Feature
 *   **Epic:** EPIC-13

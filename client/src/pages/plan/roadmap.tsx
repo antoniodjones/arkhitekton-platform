@@ -476,6 +476,10 @@ export default function PlanRoadmap() {
                       {isExpanded && group.stories.map((story, storyIndex) => {
                         const barStyle = getBarStyle(story);
                         const storyColor = SWIMLANE_COLORS[(groupIndex * 3 + storyIndex) % SWIMLANE_COLORS.length];
+                        const lineType = storyIndex % 3; // 0: straight, 1: zigzag, 2: dotted
+                        
+                        // Calculate line start position (end of bar)
+                        const barEnd = barStyle ? parseFloat(barStyle.left) + parseFloat(barStyle.width) : 0;
                         
                         return (
                           <div 
@@ -512,35 +516,110 @@ export default function PlanRoadmap() {
                                 {story.storyPoints}
                               </Badge>
                             </div>
-                            <div className="flex-1 h-8 relative">
+                            <div className="flex-1 h-8 relative overflow-visible">
                               {barStyle && (
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div 
-                                      className={cn(
-                                        "absolute top-1.5 h-5 rounded-md shadow-sm text-xs flex items-center px-2 text-white font-medium cursor-pointer hover:scale-105 transition-transform",
-                                        storyColor.bg
-                                      )}
-                                      style={barStyle}
-                                    >
-                                      <span className="truncate">{story.id}</span>
-                                    </div>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <div className="text-xs space-y-1">
-                                      <p className="font-semibold">{story.title}</p>
-                                      {story.targetDate && (
-                                        <p>Target: {format(parseISO(story.targetDate), 'MMM d, yyyy')}</p>
-                                      )}
-                                      {story.startedAt && (
-                                        <p>Started: {format(parseISO(story.startedAt), 'MMM d, yyyy')}</p>
-                                      )}
-                                      {story.completedAt && (
-                                        <p>Completed: {format(parseISO(story.completedAt), 'MMM d, yyyy')}</p>
-                                      )}
-                                    </div>
-                                  </TooltipContent>
-                                </Tooltip>
+                                <>
+                                  {/* Story Bar */}
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div 
+                                        className={cn(
+                                          "absolute top-1.5 h-5 rounded-md shadow-sm text-xs flex items-center px-2 text-white font-medium cursor-pointer hover:scale-105 transition-transform z-10",
+                                          storyColor.bg
+                                        )}
+                                        style={barStyle}
+                                      >
+                                        <span className="truncate">{story.id}</span>
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <div className="text-xs space-y-1">
+                                        <p className="font-semibold">{story.title}</p>
+                                        {story.targetDate && (
+                                          <p>Target: {format(parseISO(story.targetDate), 'MMM d, yyyy')}</p>
+                                        )}
+                                        {story.startedAt && (
+                                          <p>Started: {format(parseISO(story.startedAt), 'MMM d, yyyy')}</p>
+                                        )}
+                                        {story.completedAt && (
+                                          <p>Completed: {format(parseISO(story.completedAt), 'MMM d, yyyy')}</p>
+                                        )}
+                                      </div>
+                                    </TooltipContent>
+                                  </Tooltip>
+
+                                  {/* Connection Line to Right Edge */}
+                                  <svg 
+                                    className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-visible"
+                                    style={{ zIndex: 5 }}
+                                    preserveAspectRatio="none"
+                                  >
+                                    <defs>
+                                      {/* Gradient matching the story color */}
+                                      <linearGradient id={`line-gradient-${story.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stopColor="currentColor" stopOpacity="0.8" />
+                                        <stop offset="100%" stopColor="currentColor" stopOpacity="0.3" />
+                                      </linearGradient>
+                                    </defs>
+                                    
+                                    {/* Line Path - varies by type */}
+                                    {lineType === 0 && (
+                                      /* Straight solid line */
+                                      <line
+                                        x1={`${barEnd}%`}
+                                        y1="50%"
+                                        x2="98%"
+                                        y2="50%"
+                                        className={storyColor.text}
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeOpacity="0.6"
+                                      />
+                                    )}
+                                    
+                                    {lineType === 1 && (
+                                      /* Zig-zag (sawtooth) line */
+                                      <path
+                                        d={`M ${barEnd}% 50% ${Array.from({ length: Math.ceil((98 - barEnd) / 3) }, (_, i) => {
+                                          const x = barEnd + (i * 3);
+                                          const y = i % 2 === 0 ? 25 : 75;
+                                          return `L ${Math.min(x + 1.5, 98)}% ${y}%`;
+                                        }).join(' ')} L 98% 50%`}
+                                        className={storyColor.text}
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeOpacity="0.6"
+                                        fill="none"
+                                        strokeLinejoin="round"
+                                      />
+                                    )}
+                                    
+                                    {lineType === 2 && (
+                                      /* Dotted/dashed line */
+                                      <line
+                                        x1={`${barEnd}%`}
+                                        y1="50%"
+                                        x2="98%"
+                                        y2="50%"
+                                        className={storyColor.text}
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeOpacity="0.6"
+                                        strokeDasharray="6 4"
+                                      />
+                                    )}
+                                    
+                                    {/* End Circle Marker */}
+                                    <circle
+                                      cx="98%"
+                                      cy="50%"
+                                      r="4"
+                                      className={storyColor.text}
+                                      fill="currentColor"
+                                      fillOpacity="0.8"
+                                    />
+                                  </svg>
+                                </>
                               )}
                             </div>
                           </div>
