@@ -10,6 +10,14 @@ import {
   updateUserStorySchema,
   insertDefectSchema,
   updateDefectSchema,
+  insertTestSuiteSchema,
+  updateTestSuiteSchema,
+  insertTestCaseSchema,
+  updateTestCaseSchema,
+  insertTestRunSchema,
+  updateTestRunSchema,
+  insertTestResultSchema,
+  updateTestResultSchema,
   insertEpicSchema,
   insertSprintSchema,
   updateSprintSchema,
@@ -738,6 +746,464 @@ Keep response concise but comprehensive.`;
     } catch (error) {
       console.error("Failed to delete defect:", error);
       res.status(500).json({ message: "Failed to delete defect" });
+    }
+  });
+
+  // ============================================================
+  // TEST MANAGEMENT API ENDPOINTS - Test Suites, Cases, Runs, Results
+  // ============================================================
+
+  // Test Suites
+  app.get("/api/test-suites", async (req, res) => {
+    try {
+      const { module, parentId } = req.query;
+
+      let suites;
+      if (module && typeof module === 'string') {
+        suites = await storage.getTestSuitesByModule(module);
+      } else if (parentId && typeof parentId === 'string') {
+        suites = await storage.getChildTestSuites(parentId);
+      } else {
+        suites = await storage.getAllTestSuites();
+      }
+
+      res.json(suites);
+    } catch (error) {
+      console.error("Failed to fetch test suites:", error);
+      res.status(500).json({ message: "Failed to fetch test suites" });
+    }
+  });
+
+  app.get("/api/test-suites/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const suite = await storage.getTestSuite(id);
+
+      if (!suite) {
+        return res.status(404).json({ message: "Test suite not found" });
+      }
+
+      // Also fetch child suites and test cases
+      const [children, testCases] = await Promise.all([
+        storage.getChildTestSuites(id),
+        storage.getTestCasesBySuite(id)
+      ]);
+
+      res.json({ ...suite, children, testCases });
+    } catch (error) {
+      console.error("Failed to fetch test suite:", error);
+      res.status(500).json({ message: "Failed to fetch test suite" });
+    }
+  });
+
+  app.post("/api/test-suites", async (req, res) => {
+    try {
+      const validatedSuite = insertTestSuiteSchema.parse(req.body);
+      const newSuite = await storage.createTestSuite(validatedSuite);
+      res.status(201).json(newSuite);
+    } catch (error) {
+      console.error("Failed to create test suite:", error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ message: "Validation failed", errors: error.message });
+      }
+      res.status(500).json({ message: "Failed to create test suite" });
+    }
+  });
+
+  app.patch("/api/test-suites/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedUpdates = updateTestSuiteSchema.parse(req.body);
+      const updated = await storage.updateTestSuite(id, validatedUpdates);
+
+      if (!updated) {
+        return res.status(404).json({ message: "Test suite not found" });
+      }
+
+      res.json(updated);
+    } catch (error) {
+      console.error("Failed to update test suite:", error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ message: "Validation failed", errors: error.message });
+      }
+      res.status(500).json({ message: "Failed to update test suite" });
+    }
+  });
+
+  app.delete("/api/test-suites/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteTestSuite(id);
+
+      if (!success) {
+        return res.status(404).json({ message: "Test suite not found" });
+      }
+
+      res.json({ message: "Test suite deleted successfully" });
+    } catch (error) {
+      console.error("Failed to delete test suite:", error);
+      res.status(500).json({ message: "Failed to delete test suite" });
+    }
+  });
+
+  // Test Cases
+  app.get("/api/test-cases", async (req, res) => {
+    try {
+      const { suiteId, storyId } = req.query;
+
+      let cases;
+      if (suiteId && typeof suiteId === 'string') {
+        cases = await storage.getTestCasesBySuite(suiteId);
+      } else if (storyId && typeof storyId === 'string') {
+        cases = await storage.getTestCasesByStory(storyId);
+      } else {
+        cases = await storage.getAllTestCases();
+      }
+
+      res.json(cases);
+    } catch (error) {
+      console.error("Failed to fetch test cases:", error);
+      res.status(500).json({ message: "Failed to fetch test cases" });
+    }
+  });
+
+  app.get("/api/test-cases/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const testCase = await storage.getTestCase(id);
+
+      if (!testCase) {
+        return res.status(404).json({ message: "Test case not found" });
+      }
+
+      // Also fetch execution history
+      const executionHistory = await storage.getTestResultsByCase(id);
+
+      res.json({ ...testCase, executionHistory });
+    } catch (error) {
+      console.error("Failed to fetch test case:", error);
+      res.status(500).json({ message: "Failed to fetch test case" });
+    }
+  });
+
+  app.post("/api/test-cases", async (req, res) => {
+    try {
+      const validatedCase = insertTestCaseSchema.parse(req.body);
+      const newCase = await storage.createTestCase(validatedCase);
+      res.status(201).json(newCase);
+    } catch (error) {
+      console.error("Failed to create test case:", error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ message: "Validation failed", errors: error.message });
+      }
+      res.status(500).json({ message: "Failed to create test case" });
+    }
+  });
+
+  app.patch("/api/test-cases/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedUpdates = updateTestCaseSchema.parse(req.body);
+      const updated = await storage.updateTestCase(id, validatedUpdates);
+
+      if (!updated) {
+        return res.status(404).json({ message: "Test case not found" });
+      }
+
+      res.json(updated);
+    } catch (error) {
+      console.error("Failed to update test case:", error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ message: "Validation failed", errors: error.message });
+      }
+      res.status(500).json({ message: "Failed to update test case" });
+    }
+  });
+
+  app.delete("/api/test-cases/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteTestCase(id);
+
+      if (!success) {
+        return res.status(404).json({ message: "Test case not found" });
+      }
+
+      res.json({ message: "Test case deleted successfully" });
+    } catch (error) {
+      console.error("Failed to delete test case:", error);
+      res.status(500).json({ message: "Failed to delete test case" });
+    }
+  });
+
+  // Link/Unlink test case to story
+  app.post("/api/test-cases/:testCaseId/stories/:storyId", async (req, res) => {
+    try {
+      const { testCaseId, storyId } = req.params;
+      const success = await storage.linkTestCaseToStory(testCaseId, storyId);
+
+      if (!success) {
+        return res.status(400).json({ message: "Failed to link test case to story" });
+      }
+
+      res.json({ message: "Test case linked to story successfully" });
+    } catch (error) {
+      console.error("Failed to link test case:", error);
+      res.status(500).json({ message: "Failed to link test case to story" });
+    }
+  });
+
+  app.delete("/api/test-cases/:testCaseId/stories/:storyId", async (req, res) => {
+    try {
+      const { testCaseId, storyId } = req.params;
+      const success = await storage.unlinkTestCaseFromStory(testCaseId, storyId);
+
+      if (!success) {
+        return res.status(404).json({ message: "Link not found" });
+      }
+
+      res.json({ message: "Test case unlinked from story successfully" });
+    } catch (error) {
+      console.error("Failed to unlink test case:", error);
+      res.status(500).json({ message: "Failed to unlink test case from story" });
+    }
+  });
+
+  // Test Runs
+  app.get("/api/test-runs", async (req, res) => {
+    try {
+      const { suiteId } = req.query;
+
+      let runs;
+      if (suiteId && typeof suiteId === 'string') {
+        runs = await storage.getTestRunsBySuite(suiteId);
+      } else {
+        runs = await storage.getAllTestRuns();
+      }
+
+      res.json(runs);
+    } catch (error) {
+      console.error("Failed to fetch test runs:", error);
+      res.status(500).json({ message: "Failed to fetch test runs" });
+    }
+  });
+
+  app.get("/api/test-runs/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const run = await storage.getTestRun(id);
+
+      if (!run) {
+        return res.status(404).json({ message: "Test run not found" });
+      }
+
+      // Also fetch results
+      const results = await storage.getTestResultsByRun(id);
+
+      // Calculate summary
+      const summary = {
+        total: results.length,
+        passed: results.filter(r => r.status === 'passed').length,
+        failed: results.filter(r => r.status === 'failed').length,
+        blocked: results.filter(r => r.status === 'blocked').length,
+        skipped: results.filter(r => r.status === 'skipped').length,
+        notRun: results.filter(r => r.status === 'not-run').length,
+      };
+
+      res.json({ ...run, results, summary });
+    } catch (error) {
+      console.error("Failed to fetch test run:", error);
+      res.status(500).json({ message: "Failed to fetch test run" });
+    }
+  });
+
+  app.post("/api/test-runs", async (req, res) => {
+    try {
+      const validatedRun = insertTestRunSchema.parse(req.body);
+      const newRun = await storage.createTestRun(validatedRun);
+
+      // Auto-create test results for all cases in the suite
+      const testCases = await storage.getTestCasesBySuite(validatedRun.suiteId);
+      
+      for (const testCase of testCases) {
+        await storage.createTestResult({
+          runId: newRun.id,
+          caseId: testCase.id,
+          status: 'not-run'
+        });
+      }
+
+      res.status(201).json(newRun);
+    } catch (error) {
+      console.error("Failed to create test run:", error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ message: "Validation failed", errors: error.message });
+      }
+      res.status(500).json({ message: "Failed to create test run" });
+    }
+  });
+
+  app.patch("/api/test-runs/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedUpdates = updateTestRunSchema.parse(req.body);
+      const updated = await storage.updateTestRun(id, validatedUpdates);
+
+      if (!updated) {
+        return res.status(404).json({ message: "Test run not found" });
+      }
+
+      res.json(updated);
+    } catch (error) {
+      console.error("Failed to update test run:", error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ message: "Validation failed", errors: error.message });
+      }
+      res.status(500).json({ message: "Failed to update test run" });
+    }
+  });
+
+  app.post("/api/test-runs/:id/complete", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updated = await storage.completeTestRun(id);
+
+      if (!updated) {
+        return res.status(404).json({ message: "Test run not found" });
+      }
+
+      res.json(updated);
+    } catch (error) {
+      console.error("Failed to complete test run:", error);
+      res.status(500).json({ message: "Failed to complete test run" });
+    }
+  });
+
+  app.delete("/api/test-runs/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteTestRun(id);
+
+      if (!success) {
+        return res.status(404).json({ message: "Test run not found" });
+      }
+
+      res.json({ message: "Test run deleted successfully" });
+    } catch (error) {
+      console.error("Failed to delete test run:", error);
+      res.status(500).json({ message: "Failed to delete test run" });
+    }
+  });
+
+  // Test Results
+  app.get("/api/test-results", async (req, res) => {
+    try {
+      const { runId, caseId } = req.query;
+
+      let results;
+      if (runId && typeof runId === 'string') {
+        results = await storage.getTestResultsByRun(runId);
+      } else if (caseId && typeof caseId === 'string') {
+        results = await storage.getTestResultsByCase(caseId);
+      } else {
+        results = await storage.getAllTestResults();
+      }
+
+      res.json(results);
+    } catch (error) {
+      console.error("Failed to fetch test results:", error);
+      res.status(500).json({ message: "Failed to fetch test results" });
+    }
+  });
+
+  app.post("/api/test-results", async (req, res) => {
+    try {
+      const validatedResult = insertTestResultSchema.parse(req.body);
+      const newResult = await storage.createTestResult(validatedResult);
+      res.status(201).json(newResult);
+    } catch (error) {
+      console.error("Failed to create test result:", error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ message: "Validation failed", errors: error.message });
+      }
+      res.status(500).json({ message: "Failed to create test result" });
+    }
+  });
+
+  app.patch("/api/test-results/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedUpdates = updateTestResultSchema.parse(req.body);
+      
+      // Auto-set executedAt when status changes from not-run
+      if (validatedUpdates.status && validatedUpdates.status !== 'not-run') {
+        validatedUpdates.executedAt = new Date();
+      }
+
+      const updated = await storage.updateTestResult(id, validatedUpdates);
+
+      if (!updated) {
+        return res.status(404).json({ message: "Test result not found" });
+      }
+
+      res.json(updated);
+    } catch (error) {
+      console.error("Failed to update test result:", error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ message: "Validation failed", errors: error.message });
+      }
+      res.status(500).json({ message: "Failed to update test result" });
+    }
+  });
+
+  // Link test result to defect
+  app.post("/api/test-results/:resultId/defects/:defectId", async (req, res) => {
+    try {
+      const { resultId, defectId } = req.params;
+      const success = await storage.linkTestResultToDefect(resultId, defectId);
+
+      if (!success) {
+        return res.status(400).json({ message: "Failed to link test result to defect" });
+      }
+
+      res.json({ message: "Test result linked to defect successfully" });
+    } catch (error) {
+      console.error("Failed to link test result:", error);
+      res.status(500).json({ message: "Failed to link test result to defect" });
+    }
+  });
+
+  // Test Coverage Dashboard
+  app.get("/api/test-coverage/dashboard", async (req, res) => {
+    try {
+      const [stories, testCases] = await Promise.all([
+        storage.getAllUserStories(),
+        storage.getAllTestCases()
+      ]);
+
+      // Calculate coverage metrics
+      const storiesWithTests = new Set();
+      
+      // Note: This is a simplified version - in production, we'd use a more efficient query
+      for (const testCase of testCases) {
+        const testCaseDetails = await storage.getTestCase(testCase.id);
+        // In a real implementation, we'd fetch linked stories here
+      }
+
+      const totalStories = stories.length;
+      const coveredStories = storiesWithTests.size;
+      const coveragePercent = totalStories > 0 ? Math.round((coveredStories / totalStories) * 100) : 0;
+
+      res.json({
+        totalStories,
+        coveredStories,
+        uncoveredStories: totalStories - coveredStories,
+        coveragePercent,
+        totalTestCases: testCases.length
+      });
+    } catch (error) {
+      console.error("Failed to fetch test coverage:", error);
+      res.status(500).json({ message: "Failed to fetch test coverage" });
     }
   });
 
