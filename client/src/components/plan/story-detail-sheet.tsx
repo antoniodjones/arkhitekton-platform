@@ -144,9 +144,10 @@ export function StoryDetailSheet({ storyId, open, onOpenChange }: StoryDetailShe
   });
 
   // Fetch epics for dropdown
-  const { data: epics = [] } = useQuery<Epic[]>({
+  const { data: epicsResponse } = useQuery<{ data: Epic[], total: number }>({
     queryKey: ['/api/epics'],
   });
+  const epics = epicsResponse?.data || [];
 
   // Gherkin validation
   const gherkinValidation = editedStory.acceptanceCriteria 
