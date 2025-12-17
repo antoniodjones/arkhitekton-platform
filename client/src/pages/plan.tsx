@@ -61,6 +61,7 @@ import { DefectManagement, DefectBadge } from '@/components/defect-management';
 import { CodeChangesBadge } from '@/components/code-changes/code-changes-badge';
 import { exportStoryToPDF } from '@/lib/pdf-export';
 import { KanbanBoard } from '@/components/plan/kanban-board';
+import { SprintBacklogSplit } from '@/components/plan/sprint-backlog-split';
 
 // User Story interface for enhanced functionality
 interface UserStory {
@@ -1017,8 +1018,8 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
   // Epic filter state (must be declared before useQuery that uses it)
   const [epicFilter, setEpicFilter] = useState<string>('all');
 
-  // View mode state for List vs Kanban (US-PLAN-ENH-001)
-  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
+  // View mode state for List vs Kanban vs Split (US-PLAN-ENH-001, US-PLAN-ENH-002)
+  const [viewMode, setViewMode] = useState<'list' | 'kanban' | 'split'>('split');
 
   // Unified search state for stories and defects
   const [searchQuery, setSearchQuery] = useState('');
@@ -1508,14 +1509,25 @@ Then [expected outcome]`,
             {total > 0 && `${total} Total Stories`}
           </div>
           <div className="flex items-center gap-2">
-            {/* View Mode Toggle (US-PLAN-ENH-001) */}
+            {/* View Mode Toggle (US-PLAN-ENH-001, US-PLAN-ENH-002) */}
             <div className="flex border rounded-md overflow-hidden" role="group">
+              <Button
+                variant={viewMode === 'split' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('split')}
+                className="rounded-none"
+                data-testid="view-mode-split"
+                title="Sprint/Backlog Split View"
+              >
+                <GitBranch className="w-4 h-4" />
+              </Button>
               <Button
                 variant={viewMode === 'list' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setViewMode('list')}
                 className="rounded-none"
                 data-testid="view-mode-list"
+                title="List View"
               >
                 <List className="w-4 h-4" />
               </Button>
@@ -1525,6 +1537,7 @@ Then [expected outcome]`,
                 onClick={() => setViewMode('kanban')}
                 className="rounded-none"
                 data-testid="view-mode-kanban"
+                title="Kanban Board"
               >
                 <LayoutGrid className="w-4 h-4" />
               </Button>
@@ -1596,6 +1609,15 @@ Then [expected outcome]`,
           <div className="flex items-center justify-center h-64">
             <div className="text-sm text-muted-foreground">No stories found.</div>
           </div>
+        ) : viewMode === 'split' ? (
+          /* Sprint/Backlog Split View (US-PLAN-ENH-002) */
+          <SprintBacklogSplit
+            onStoryClick={(story) => {
+              const convertedStory = convertBackendStory(story as BackendUserStory);
+              setEditingStory(convertedStory);
+              setIsStoryDialogOpen(true);
+            }}
+          />
         ) : viewMode === 'kanban' ? (
           /* Kanban Board View (US-PLAN-ENH-001) */
           <KanbanBoard
