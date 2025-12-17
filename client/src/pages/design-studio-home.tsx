@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { cn } from '@/lib/utils';
+import { AppLayout } from '@/components/layout/app-layout';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -232,7 +233,8 @@ export default function DesignStudioHome() {
   const isMac = typeof navigator !== 'undefined' && navigator.platform.toUpperCase().indexOf('MAC') >= 0;
 
   return (
-    <div className="flex flex-col h-full bg-[#f9f9fa] text-slate-900 font-sans">
+    <AppLayout>
+      <div className="flex flex-col h-full bg-[#f9f9fa] text-slate-900 font-sans">
       {/* Hero Header */}
       <header className="bg-white border-b pb-8 pt-6 px-8 sticky top-0 z-20 shadow-sm">
         <div className="max-w-6xl mx-auto w-full">
@@ -460,6 +462,7 @@ export default function DesignStudioHome() {
         onSelectModel={handleModelSelect}
         onAIQuery={handleAIQuery}
       />
-    </div>
+      </div>
+    </AppLayout>
   );
 }
