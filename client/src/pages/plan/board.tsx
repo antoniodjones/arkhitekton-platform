@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { KanbanBoard } from '@/components/plan/kanban-board';
+import { StoryDetailSheet } from '@/components/plan/story-detail-sheet';
 import { useToast } from '@/hooks/use-toast';
 
 interface Story {
@@ -15,6 +16,7 @@ interface Story {
 export default function PlanBoard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
 
   const { data: storiesResponse, isLoading } = useQuery<{ items: Story[] }>({
     queryKey: ['/api/user-stories?pageSize=500'],
@@ -48,15 +50,20 @@ export default function PlanBoard() {
   const stories = storiesResponse?.items || [];
 
   return (
-    <KanbanBoard
-      tasks={stories as any}
-      onStatusChange={handleStatusChange}
-      onTaskClick={(story) => {
-        // TODO: Open story dialog
-        console.log('Clicked:', story.id);
-      }}
-      isLoading={isLoading}
-    />
+    <>
+      <KanbanBoard
+        tasks={stories as any}
+        onStatusChange={handleStatusChange}
+        onTaskClick={(story) => setSelectedStoryId(story.id)}
+        isLoading={isLoading}
+      />
+      
+      <StoryDetailSheet
+        storyId={selectedStoryId}
+        open={!!selectedStoryId}
+        onOpenChange={(open) => !open && setSelectedStoryId(null)}
+      />
+    </>
   );
 }
 

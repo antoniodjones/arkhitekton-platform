@@ -9,7 +9,8 @@ import {
   Trash2,
   ChevronLeft,
   ChevronRight,
-  User
+  User,
+  Eye
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +23,7 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { StoryDetailSheet } from '@/components/plan/story-detail-sheet';
 
 interface Story {
   id: string;
@@ -65,6 +67,7 @@ export default function PlanStories() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
+  const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
 
   // Fetch stories
   const { data: storiesResponse, isLoading } = useQuery<{ items: Story[]; total: number; totalPages: number }>({
@@ -174,7 +177,11 @@ export default function PlanStories() {
               </tr>
             ) : (
               filteredStories.map((story) => (
-                <tr key={story.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                <tr 
+                  key={story.id} 
+                  className="hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer"
+                  onClick={() => setSelectedStoryId(story.id)}
+                >
                   <td className="px-4 py-3">
                     <span className="text-xs font-mono text-muted-foreground">
                       {story.id.split('-').pop()?.substring(0, 7)}
@@ -207,11 +214,16 @@ export default function PlanStories() {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="sm">
-                        <Edit2 className="w-4 h-4" />
+                    <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => setSelectedStoryId(story.id)}
+                        title="View story"
+                      >
+                        <Eye className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" title="Delete">
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -252,6 +264,12 @@ export default function PlanStories() {
           </Button>
         </div>
       </div>
+
+      <StoryDetailSheet
+        storyId={selectedStoryId}
+        open={!!selectedStoryId}
+        onOpenChange={(open) => !open && setSelectedStoryId(null)}
+      />
     </div>
   );
 }
