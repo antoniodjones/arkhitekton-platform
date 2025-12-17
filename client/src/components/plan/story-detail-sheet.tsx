@@ -48,6 +48,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { CodeChangesBadge } from '@/components/code-changes/code-changes-badge';
+import { TestCasesTab } from '@/components/plan/test-cases-tab';
 
 interface Epic {
   id: string;
@@ -355,11 +356,12 @@ export function StoryDetailSheet({ storyId, open, onOpenChange }: StoryDetailShe
             </SheetHeader>
 
             <Tabs defaultValue="details" className="mt-6">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="details">Details</TabsTrigger>
                 <TabsTrigger value="criteria">Acceptance</TabsTrigger>
                 <TabsTrigger value="team">Team</TabsTrigger>
                 <TabsTrigger value="links">Links</TabsTrigger>
+                <TabsTrigger value="tests">Test Cases</TabsTrigger>
               </TabsList>
 
               <TabsContent value="details" className="space-y-4 mt-4">
@@ -992,6 +994,11 @@ export function StoryDetailSheet({ storyId, open, onOpenChange }: StoryDetailShe
                     Print Story Card
                   </Button>
                 </div>
+              </TabsContent>
+
+              {/* Test Cases Tab */}
+              <TabsContent value="tests" className="space-y-4 mt-4">
+                <TestCasesTab storyId={story.id} />
               </TabsContent>
             </Tabs>
 
