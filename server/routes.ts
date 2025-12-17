@@ -11,6 +11,8 @@ import {
   insertDefectSchema,
   updateDefectSchema,
   insertEpicSchema,
+  insertSprintSchema,
+  updateSprintSchema,
   insertIntegrationChannelSchema,
   insertObjectSyncFlowSchema,
   insertApplicationSettingSchema,
@@ -944,6 +946,236 @@ Keep response concise but comprehensive.`;
     } catch (error) {
       console.error("Failed to delete epic:", error);
       res.status(500).json({ message: "Failed to delete epic" });
+    }
+  });
+
+  // ============================================================
+  // SPRINT API ENDPOINTS - Agile Sprint Management (US-PLAN-101)
+  // ============================================================
+
+  // Get all sprints
+  app.get("/api/sprints", async (req, res) => {
+    try {
+      const { status } = req.query;
+
+      let sprints;
+      if (status && typeof status === 'string') {
+        sprints = await storage.getSprintsByStatus(status);
+      } else {
+        sprints = await storage.getAllSprints();
+      }
+
+      res.json({ data: sprints, total: sprints.length });
+    } catch (error) {
+      console.error("Failed to fetch sprints:", error);
+      res.status(500).json({ message: "Failed to fetch sprints" });
+    }
+  });
+
+  // Get active sprint
+  app.get("/api/sprints/active", async (req, res) => {
+    try {
+      const sprint = await storage.getActiveSprint();
+      if (!sprint) {
+        return res.status(404).json({ message: "No active sprint found" });
+      }
+      res.json(sprint);
+    } catch (error) {
+      console.error("Failed to fetch active sprint:", error);
+      res.status(500).json({ message: "Failed to fetch active sprint" });
+    }
+  });
+
+  // Get single sprint
+  app.get("/api/sprints/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const sprint = await storage.getSprint(id);
+
+      if (!sprint) {
+        return res.status(404).json({ message: "Sprint not found" });
+      }
+
+      // Get stories assigned to this sprint
+      const allStories = await storage.getAllUserStories();
+      const sprintStories = allStories.filter(s => s.sprintId === id);
+
+      res.json({
+        ...sprint,
+        stories: sprintStories,
+        storyCount: sprintStories.length
+      });
+    } catch (error) {
+      console.error("Failed to fetch sprint:", error);
+      res.status(500).json({ message: "Failed to fetch sprint" });
+    }
+  });
+
+  // Create sprint
+  app.post("/api/sprints", async (req, res) => {
+    try {
+      const validated = insertSprintSchema.parse(req.body);
+      const sprint = await storage.createSprint(validated);
+      res.status(201).json(sprint);
+    } catch (error: any) {
+      if (error.errors) {
+        return res.status(400).json({
+          message: "Validation failed",
+          errors: error.errors
+        });
+      }
+      console.error("Failed to create sprint:", error);
+      res.status(500).json({ message: "Failed to create sprint" });
+    }
+  });
+
+  // Update sprint
+  app.patch("/api/sprints/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = updateSprintSchema.parse(req.body);
+      const sprint = await storage.updateSprint(id, updateData);
+
+      if (!sprint) {
+        return res.status(404).json({ message: "Sprint not found" });
+      }
+
+      res.json(sprint);
+    } catch (error: any) {
+      if (error.errors) {
+        return res.status(400).json({
+          message: "Validation failed",
+          errors: error.errors
+        });
+      }
+      console.error("Failed to update sprint:", error);
+      res.status(500).json({ message: "Failed to update sprint" });
+    }
+  });
+
+  // Start sprint (change status to active)
+  app.post("/api/sprints/:id/start", async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      // Check if there's already an active sprint
+      const activeSprint = await storage.getActiveSprint();
+      if (activeSprint && activeSprint.id !== id) {
+        return res.status(400).json({
+          message: "Another sprint is already active",
+          activeSprintId: activeSprint.id
+        });
+      }
+
+      const sprint = await storage.updateSprint(id, { status: 'active' });
+      if (!sprint) {
+        return res.status(404).json({ message: "Sprint not found" });
+      }
+
+      res.json(sprint);
+    } catch (error) {
+      console.error("Failed to start sprint:", error);
+      res.status(500).json({ message: "Failed to start sprint" });
+    }
+  });
+
+  // Complete sprint
+  app.post("/api/sprints/:id/complete", async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      // Recalculate points before completing
+      await storage.recalculateSprintPoints(id);
+
+      const sprint = await storage.updateSprint(id, { status: 'completed' });
+      if (!sprint) {
+        return res.status(404).json({ message: "Sprint not found" });
+      }
+
+      res.json(sprint);
+    } catch (error) {
+      console.error("Failed to complete sprint:", error);
+      res.status(500).json({ message: "Failed to complete sprint" });
+    }
+  });
+
+  // Assign story to sprint
+  app.post("/api/sprints/:sprintId/stories/:storyId", async (req, res) => {
+    try {
+      const { sprintId, storyId } = req.params;
+
+      const sprint = await storage.getSprint(sprintId);
+      if (!sprint) {
+        return res.status(404).json({ message: "Sprint not found" });
+      }
+
+      const story = await storage.updateUserStory(storyId, { 
+        sprintId, 
+        status: 'sprint' // Move to sprint backlog
+      });
+
+      if (!story) {
+        return res.status(404).json({ message: "Story not found" });
+      }
+
+      // Recalculate sprint points
+      await storage.recalculateSprintPoints(sprintId);
+      const updatedSprint = await storage.getSprint(sprintId);
+
+      res.json({ 
+        message: "Story assigned to sprint",
+        story,
+        sprint: updatedSprint
+      });
+    } catch (error) {
+      console.error("Failed to assign story to sprint:", error);
+      res.status(500).json({ message: "Failed to assign story to sprint" });
+    }
+  });
+
+  // Remove story from sprint
+  app.delete("/api/sprints/:sprintId/stories/:storyId", async (req, res) => {
+    try {
+      const { sprintId, storyId } = req.params;
+
+      const story = await storage.updateUserStory(storyId, { 
+        sprintId: null, 
+        status: 'backlog' // Move back to backlog
+      });
+
+      if (!story) {
+        return res.status(404).json({ message: "Story not found" });
+      }
+
+      // Recalculate sprint points
+      await storage.recalculateSprintPoints(sprintId);
+      const updatedSprint = await storage.getSprint(sprintId);
+
+      res.json({ 
+        message: "Story removed from sprint",
+        story,
+        sprint: updatedSprint
+      });
+    } catch (error) {
+      console.error("Failed to remove story from sprint:", error);
+      res.status(500).json({ message: "Failed to remove story from sprint" });
+    }
+  });
+
+  // Delete sprint
+  app.delete("/api/sprints/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteSprint(id);
+
+      if (!success) {
+        return res.status(404).json({ message: "Sprint not found" });
+      }
+
+      res.json({ message: "Sprint deleted successfully" });
+    } catch (error) {
+      console.error("Failed to delete sprint:", error);
+      res.status(500).json({ message: "Failed to delete sprint" });
     }
   });
 

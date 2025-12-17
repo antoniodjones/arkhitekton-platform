@@ -13,6 +13,8 @@ import {
   type InsertDefect,
   type Epic,
   type InsertEpic,
+  type Sprint,
+  type InsertSprint,
   type IntegrationChannel,
   type InsertIntegrationChannel,
   type ObjectSyncFlow,
@@ -97,6 +99,16 @@ export interface IStorage {
   createEpic(epic: InsertEpic): Promise<Epic>;
   updateEpic(id: string, updates: Partial<Epic>): Promise<Epic | undefined>;
   deleteEpic(id: string): Promise<boolean>;
+
+  // Sprints - Agile Sprint Management (US-PLAN-101)
+  getAllSprints(): Promise<Sprint[]>;
+  getSprint(id: string): Promise<Sprint | undefined>;
+  getSprintsByStatus(status: string): Promise<Sprint[]>;
+  getActiveSprint(): Promise<Sprint | undefined>;
+  createSprint(sprint: InsertSprint): Promise<Sprint>;
+  updateSprint(id: string, updates: Partial<Sprint>): Promise<Sprint | undefined>;
+  deleteSprint(id: string): Promise<boolean>;
+  recalculateSprintPoints(sprintId: string): Promise<Sprint | undefined>;
 
   // Developer Integration Channels
   getAllIntegrationChannels(): Promise<IntegrationChannel[]>;
@@ -716,6 +728,58 @@ export class MemStorage implements IStorage {
 
   async deleteEpic(id: string): Promise<boolean> {
     return this.epics.delete(id);
+  }
+
+  // Sprint CRUD Operations (stub for MemStorage)
+  private sprints: Map<string, Sprint> = new Map();
+
+  async getAllSprints(): Promise<Sprint[]> {
+    return Array.from(this.sprints.values());
+  }
+
+  async getSprint(id: string): Promise<Sprint | undefined> {
+    return this.sprints.get(id);
+  }
+
+  async getSprintsByStatus(status: string): Promise<Sprint[]> {
+    return Array.from(this.sprints.values()).filter(s => s.status === status);
+  }
+
+  async getActiveSprint(): Promise<Sprint | undefined> {
+    return Array.from(this.sprints.values()).find(s => s.status === 'active');
+  }
+
+  async createSprint(sprintData: InsertSprint): Promise<Sprint> {
+    const id = `SPRINT-${Date.now().toString().slice(-7)}`;
+    const sprint: Sprint = {
+      id,
+      ...sprintData,
+      committedPoints: 0,
+      completedPoints: 0,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.sprints.set(id, sprint);
+    return sprint;
+  }
+
+  async updateSprint(id: string, updates: Partial<Sprint>): Promise<Sprint | undefined> {
+    const sprint = this.sprints.get(id);
+    if (!sprint) return undefined;
+    const updated = { ...sprint, ...updates, updatedAt: new Date() };
+    this.sprints.set(id, updated);
+    return updated;
+  }
+
+  async deleteSprint(id: string): Promise<boolean> {
+    return this.sprints.delete(id);
+  }
+
+  async recalculateSprintPoints(sprintId: string): Promise<Sprint | undefined> {
+    const sprint = this.sprints.get(sprintId);
+    if (!sprint) return undefined;
+    // Stub: would calculate points from stories
+    return sprint;
   }
 
   // Initialize sample user stories
@@ -1559,6 +1623,81 @@ export class DatabaseStorage implements IStorage {
       .delete(schema.epics)
       .where(eq(schema.epics.id, id));
     return result.rowCount! > 0;
+  }
+
+  // Sprint CRUD Operations (US-PLAN-101)
+  async getAllSprints(): Promise<Sprint[]> {
+    const sprints = await db.select().from(schema.sprints).orderBy(desc(schema.sprints.startDate));
+    return sprints;
+  }
+
+  async getSprint(id: string): Promise<Sprint | undefined> {
+    const [sprint] = await db.select().from(schema.sprints).where(eq(schema.sprints.id, id));
+    return sprint || undefined;
+  }
+
+  async getSprintsByStatus(status: string): Promise<Sprint[]> {
+    const sprints = await db.select().from(schema.sprints).where(eq(schema.sprints.status, status));
+    return sprints;
+  }
+
+  async getActiveSprint(): Promise<Sprint | undefined> {
+    const [sprint] = await db.select().from(schema.sprints).where(eq(schema.sprints.status, 'active'));
+    return sprint || undefined;
+  }
+
+  async createSprint(sprintData: InsertSprint): Promise<Sprint> {
+    const id = `SPRINT-${Date.now().toString().slice(-7)}`;
+    const [sprint] = await db
+      .insert(schema.sprints)
+      .values({
+        ...sprintData,
+        id,
+        committedPoints: 0,
+        completedPoints: 0,
+      })
+      .returning();
+    return sprint;
+  }
+
+  async updateSprint(id: string, updates: Partial<Sprint>): Promise<Sprint | undefined> {
+    const [sprint] = await db
+      .update(schema.sprints)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(schema.sprints.id, id))
+      .returning();
+    return sprint || undefined;
+  }
+
+  async deleteSprint(id: string): Promise<boolean> {
+    // First, unassign all stories from this sprint
+    await db
+      .update(schema.userStories)
+      .set({ sprintId: null, status: 'backlog' })
+      .where(eq(schema.userStories.sprintId, id));
+    
+    const result = await db
+      .delete(schema.sprints)
+      .where(eq(schema.sprints.id, id));
+    return result.rowCount! > 0;
+  }
+
+  async recalculateSprintPoints(sprintId: string): Promise<Sprint | undefined> {
+    // Get all stories in this sprint
+    const stories = await db.select().from(schema.userStories).where(eq(schema.userStories.sprintId, sprintId));
+    
+    const committedPoints = stories.reduce((sum, s) => sum + (s.storyPoints || 0), 0);
+    const completedPoints = stories
+      .filter(s => s.status === 'done')
+      .reduce((sum, s) => sum + (s.storyPoints || 0), 0);
+    
+    const [sprint] = await db
+      .update(schema.sprints)
+      .set({ committedPoints, completedPoints, updatedAt: new Date() })
+      .where(eq(schema.sprints.id, sprintId))
+      .returning();
+    
+    return sprint || undefined;
   }
 
   // Developer Integration Channels (stub implementations - using memory for demo)

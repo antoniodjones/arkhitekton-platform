@@ -60,26 +60,7 @@ import { AppLayout } from '@/components/layout/app-layout';
 import { DefectManagement, DefectBadge } from '@/components/defect-management';
 import { CodeChangesBadge } from '@/components/code-changes/code-changes-badge';
 import { exportStoryToPDF } from '@/lib/pdf-export';
-import { 
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-  DragOverlay,
-  DragStartEvent,
-  useDroppable
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-  useSortable
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { KanbanBoard } from '@/components/plan/kanban-board';
 
 // User Story interface for enhanced functionality
 interface UserStory {
@@ -1036,6 +1017,9 @@ function StoriesView({ tasks, onEditTask }: { tasks: Task[]; onEditTask: (task: 
   // Epic filter state (must be declared before useQuery that uses it)
   const [epicFilter, setEpicFilter] = useState<string>('all');
 
+  // View mode state for List vs Kanban (US-PLAN-ENH-001)
+  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
+
   // Unified search state for stories and defects
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -1330,6 +1314,23 @@ Scenario: [scenario name]
     setIsStoryDialogOpen(false);
   };
 
+  // Handle status update for Kanban Board drag-and-drop (US-PLAN-ENH-001)
+  const handleStatusUpdate = async (storyId: string, newStatus: string) => {
+    // Validate status is one of the allowed values
+    const validStatuses = ['backlog', 'sprint', 'in-progress', 'review', 'done'];
+    const dbStatus = validStatuses.includes(newStatus) ? newStatus : 'backlog';
+
+    try {
+      await updateStoryMutation.mutateAsync({ 
+        id: storyId, 
+        updates: { status: dbStatus as 'backlog' | 'sprint' | 'in-progress' | 'review' | 'done' }
+      });
+    } catch (error) {
+      console.error("Failed to update story status:", error);
+      throw error; // Re-throw so KanbanBoard can rollback
+    }
+  };
+
   const handleCsvUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -1507,6 +1508,27 @@ Then [expected outcome]`,
             {total > 0 && `${total} Total Stories`}
           </div>
           <div className="flex items-center gap-2">
+            {/* View Mode Toggle (US-PLAN-ENH-001) */}
+            <div className="flex border rounded-md overflow-hidden" role="group">
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                className="rounded-none"
+                data-testid="view-mode-list"
+              >
+                <List className="w-4 h-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'kanban' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('kanban')}
+                className="rounded-none"
+                data-testid="view-mode-kanban"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </Button>
+            </div>
             {/* Epic Filter */}
             <Select value={epicFilter} onValueChange={setEpicFilter}>
               <SelectTrigger className="w-[200px]" data-testid="select-epic-filter">
@@ -1574,7 +1596,20 @@ Then [expected outcome]`,
           <div className="flex items-center justify-center h-64">
             <div className="text-sm text-muted-foreground">No stories found.</div>
           </div>
+        ) : viewMode === 'kanban' ? (
+          /* Kanban Board View (US-PLAN-ENH-001) */
+          <KanbanBoard
+            tasks={allStories as any}
+            onStatusChange={handleStatusUpdate}
+            onTaskClick={(story) => {
+              const convertedStory = convertBackendStory(story as BackendUserStory);
+              setEditingStory(convertedStory);
+              setIsStoryDialogOpen(true);
+            }}
+            isLoading={isLoadingStories}
+          />
         ) : (
+          /* List View */
           <div className="space-y-4">
             {allStories.map((story: BackendUserStory) => {
               const convertedStory = convertBackendStory(story);
@@ -2723,66 +2758,12 @@ function PlanContent() {
 
       {/* Content Based on Current View */}
       {currentView === 'board' && (
-        <>{/* Kanban Board */}
-        <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-96">
-          <TaskColumn
-            id="todo"
-            title="To Do"
-            icon={Circle}
-            iconColor="text-gray-400"
-            tasks={getTasksByStatus('todo')}
-            onEdit={handleEditTask}
-            onArchive={handleArchiveTask}
-            onDelete={handleDeleteTask}
-            onToggleComplete={handleToggleTaskComplete}
-          />
-          
-          <TaskColumn
-            id="in-progress"
-            title="In Progress"
-            icon={Clock}
-            iconColor="text-blue-500"
-            tasks={getTasksByStatus('in-progress')}
-            onEdit={handleEditTask}
-            onArchive={handleArchiveTask}
-            onDelete={handleDeleteTask}
-            onToggleComplete={handleToggleTaskComplete}
-          />
-          
-          <TaskColumn
-            id="completed"
-            title="Completed"
-            icon={CheckCircle2}
-            iconColor="text-green-500"
-            tasks={getTasksByStatus('completed')}
-            onEdit={handleEditTask}
-            onArchive={handleArchiveTask}
-            onDelete={handleDeleteTask}
-            onToggleComplete={handleToggleTaskComplete}
-          />
-        </div>
-
-        <DragOverlay>
-          {activeId ? (
-            <div className="opacity-95 rotate-3 scale-105">
-              <TaskCard 
-                task={tasks.find((t: Task) => t.id === activeId)!} 
-                onEdit={handleEditTask}
-                onArchive={handleArchiveTask}
-                onDelete={handleDeleteTask}
-                onToggleComplete={handleToggleTaskComplete}
-              />
-            </div>
-          ) : null}
-        </DragOverlay>
-        </DndContext>
-        </>
+        <KanbanBoard
+          tasks={filteredTasks as any}
+          onStatusChange={handleStatusUpdate}
+          onTaskClick={(task) => handleEditTask(task as any)}
+          isLoading={isLoading}
+        />
       )}
 
       {/* List View */}

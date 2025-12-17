@@ -568,10 +568,46 @@ export type InsertUserGameProfile = z.infer<typeof insertUserGameProfileSchema>;
 export type Leaderboard = typeof leaderboards.$inferSelect;
 export type InsertLeaderboard = z.infer<typeof insertLeaderboardSchema>;
 
+// Sprints - Agile Sprint Management (US-PLAN-101)
+export const sprints = pgTable("sprints", {
+  id: text("id").primaryKey(), // SPRINT-XXXXXXX format
+  name: text("name").notNull(), // e.g., "Sprint 23", "Q4 2025 - Sprint 1"
+  goal: text("goal"), // Sprint goal/objective
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
+  status: text("status").notNull().default("planning"), // 'planning', 'active', 'completed', 'cancelled'
+  
+  // Capacity planning
+  teamVelocity: integer("team_velocity").notNull().default(30), // Average story points per sprint
+  committedPoints: integer("committed_points").default(0), // Total points of stories in sprint
+  completedPoints: integer("completed_points").default(0), // Points completed so far
+  
+  // Metadata
+  notes: text("notes"), // Sprint planning notes, retro outcomes
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+// Sprint schema validation
+export const insertSprintSchema = createInsertSchema(sprints).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  status: z.enum(['planning', 'active', 'completed', 'cancelled']).default('planning'),
+  teamVelocity: z.number().int().min(1).max(200).default(30),
+});
+
+export const updateSprintSchema = insertSprintSchema.partial();
+
+export type Sprint = typeof sprints.$inferSelect;
+export type InsertSprint = z.infer<typeof insertSprintSchema>;
+
 // User Stories - Enterprise story management
 export const userStories = pgTable("user_stories", {
   id: text("id").primaryKey(), // US-XXXXXXX format
   epicId: text("epic_id").references(() => epics.id), // Epic assignment (EA Value Stream)
+  sprintId: text("sprint_id").references(() => sprints.id), // Sprint assignment (US-PLAN-101)
   title: text("title").notNull(),
   description: text("description").default(""),
   acceptanceCriteria: text("acceptance_criteria").notNull(),
