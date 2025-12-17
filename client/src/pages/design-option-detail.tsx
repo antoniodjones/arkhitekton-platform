@@ -506,6 +506,135 @@ function DesignOptionDetailContent() {
           ]
         };
 
+      case "wiki-landing-pages":
+        return {
+          title: "Wiki Landing Page Prototypes",
+          description: "Six distinct visual styles for the Wiki Knowledge Core landing page - exploring different aesthetics from brutalist to geometric",
+          items: [
+            {
+              id: "ARKWL-00001",
+              title: "Option 1: Brutalist",
+              description: "Bold, raw, and functional design with strong typography and clear hierarchy. Emphasizes content over decoration.",
+              concept: "Functional Minimalism",
+              component: (
+                <div className="w-full h-32 bg-white border-4 border-black rounded-none p-4 font-mono">
+                  <div className="text-xl font-bold mb-2">WIKI</div>
+                  <div className="space-y-1">
+                    <div className="h-2 w-3/4 bg-black"></div>
+                    <div className="h-2 w-1/2 bg-black"></div>
+                    <div className="h-2 w-2/3 bg-black"></div>
+                  </div>
+                </div>
+              ),
+              pros: ["Strong visual impact", "Clear hierarchy", "Fast loading", "Distinctive identity"],
+              cons: ["May feel too harsh", "Limited visual warmth"],
+              status: "Proposed",
+              htmlFile: "docs/Wiki_files_001/Wiki_Landing_Option_1_Brutalist.html"
+            },
+            {
+              id: "ARKWL-00002",
+              title: "Option 2: Organic",
+              description: "Soft shapes, natural colors, and fluid layouts for a more inviting and approachable feel.",
+              concept: "Natural & Approachable",
+              component: (
+                <div className="w-full h-32 bg-gradient-to-br from-green-50 to-blue-50 rounded-3xl p-4">
+                  <div className="text-lg font-semibold text-green-800 mb-2">Wiki</div>
+                  <div className="space-y-2">
+                    <div className="h-2 w-3/4 bg-green-200 rounded-full"></div>
+                    <div className="h-2 w-1/2 bg-blue-200 rounded-full"></div>
+                    <div className="h-2 w-2/3 bg-teal-200 rounded-full"></div>
+                  </div>
+                </div>
+              ),
+              pros: ["Welcoming feel", "Reduced cognitive load", "Pleasant aesthetics", "Modern curves"],
+              cons: ["May seem less professional", "Harder to maintain consistency"],
+              status: "Proposed",
+              htmlFile: "docs/Wiki_files_001/Wiki_Landing_Option_2_Organic.html"
+            },
+            {
+              id: "ARKWL-00003",
+              title: "Option 3: Minimal",
+              description: "Clean lines, ample whitespace, and essential elements for a focused and elegant experience.",
+              concept: "Less is More",
+              component: (
+                <div className="w-full h-32 bg-white border rounded-lg p-6">
+                  <div className="text-sm font-light text-gray-400 mb-4">wiki</div>
+                  <div className="space-y-3">
+                    <div className="h-px w-1/2 bg-gray-200"></div>
+                    <div className="h-px w-1/3 bg-gray-200"></div>
+                  </div>
+                </div>
+              ),
+              pros: ["Maximum focus", "Timeless design", "Fast performance", "Professional"],
+              cons: ["May feel too sparse", "Requires perfect content"],
+              status: "Proposed",
+              htmlFile: "docs/Wiki_files_001/Wiki_Landing_Option_3_Minimal.html"
+            },
+            {
+              id: "ARKWL-00004",
+              title: "Option 4: Retro-Futuristic",
+              description: "Inspired by classic sci-fi, blending vintage aesthetics with futuristic elements for a unique identity.",
+              concept: "Nostalgic Innovation",
+              component: (
+                <div className="w-full h-32 bg-gradient-to-r from-purple-900 via-pink-800 to-orange-700 rounded-lg p-4 border-2 border-yellow-400">
+                  <div className="text-yellow-300 font-bold text-lg mb-2 tracking-wider">W I K I</div>
+                  <div className="space-y-1">
+                    <div className="h-2 w-3/4 bg-cyan-400 rounded"></div>
+                    <div className="h-2 w-1/2 bg-pink-400 rounded"></div>
+                  </div>
+                </div>
+              ),
+              pros: ["Memorable design", "Distinctive brand", "Emotional connection", "Unique in market"],
+              cons: ["Polarizing aesthetics", "May date quickly"],
+              status: "Proposed",
+              htmlFile: "docs/Wiki_files_002/Wiki_Landing_Option_4_RetroFuturistic.html"
+            },
+            {
+              id: "ARKWL-00005",
+              title: "Option 5: Magazine",
+              description: "Layout reminiscent of a digital magazine, with rich imagery and curated content blocks for editorial feel.",
+              concept: "Editorial Excellence",
+              component: (
+                <div className="w-full h-32 bg-white rounded-lg overflow-hidden grid grid-cols-3 gap-1">
+                  <div className="col-span-2 bg-gradient-to-br from-orange-100 to-pink-100 p-3">
+                    <div className="text-xs font-bold mb-1">FEATURED</div>
+                    <div className="h-1 w-3/4 bg-orange-400 mb-1"></div>
+                    <div className="h-1 w-1/2 bg-orange-300"></div>
+                  </div>
+                  <div className="bg-gray-100 p-2 space-y-1">
+                    <div className="h-1 w-full bg-gray-300"></div>
+                    <div className="h-1 w-3/4 bg-gray-300"></div>
+                  </div>
+                </div>
+              ),
+              pros: ["Rich visual hierarchy", "Great for storytelling", "Engaging layouts", "Editorial credibility"],
+              cons: ["Complex to maintain", "Slower loading"],
+              status: "Proposed",
+              htmlFile: "docs/Wiki_files_002/Wiki_Landing_Option_5_Magazine.html"
+            },
+            {
+              id: "ARKWL-00006",
+              title: "Option 6: Geometric",
+              description: "Structured and precise, using geometric shapes and patterns for a modern, organized look with mathematical beauty.",
+              concept: "Mathematical Precision",
+              component: (
+                <div className="w-full h-32 bg-white rounded-lg p-4 grid grid-cols-4 gap-2">
+                  <div className="col-span-2 bg-blue-500 rounded"></div>
+                  <div className="bg-orange-500 rounded"></div>
+                  <div className="bg-green-500 rounded"></div>
+                  <div className="bg-purple-500 rounded"></div>
+                  <div className="bg-red-500 rounded"></div>
+                  <div className="col-span-2 bg-yellow-500 rounded"></div>
+                </div>
+              ),
+              pros: ["Strong structure", "Modern aesthetic", "Scalable system", "Clear organization"],
+              cons: ["Can feel rigid", "Requires careful balance"],
+              status: "Proposed",
+              htmlFile: "docs/Wiki_files_002/Wiki_Landing_Option_6_Geometric.html"
+            }
+          ]
+        };
+
       default:
         return null;
     }
@@ -627,6 +756,20 @@ function DesignOptionDetailContent() {
                       >
                         <Monitor className="w-4 h-4 mr-2" />
                         Launch Prototype
+                      </Button>
+                    )}
+                    
+                    {item.id.startsWith('ARKWL') && 'htmlFile' in item && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full bg-indigo-50 text-indigo-600 border-indigo-200 hover:bg-indigo-100 hover:text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-800"
+                        onClick={() => {
+                          window.open(`/${(item as any).htmlFile}`, '_blank');
+                        }}
+                      >
+                        <Monitor className="w-4 h-4 mr-2" />
+                        View Prototype
                       </Button>
                     )}
 
