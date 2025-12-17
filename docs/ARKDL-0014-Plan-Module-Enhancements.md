@@ -117,6 +117,119 @@ The Plan module currently relies on a foundational "Task Management" (TM) implem
     And I should be able to filter by "Value Stream"
     ```
 
+#### US-PLAN-202: Roadmap Colorful Swimlanes
+*   **Type:** Enhancement
+*   **Enhances:** US-PLAN-201
+*   **Epic:** EPIC-12
+*   **Points:** 5
+*   **Status:** Done
+*   **Description:**
+    Add vibrant gradient colors to each swimlane row for visual distinction and fun.
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given I am viewing the Roadmap
+    Then each Sprint/Epic row should have a unique gradient color
+    And the colors should cycle through a palette of 10 vibrant options (rose, orange, emerald, blue, violet, etc.)
+    And the story bars within should also use coordinated colors
+    ```
+
+#### US-PLAN-203: Roadmap Expandable Hierarchy
+*   **Type:** Enhancement
+*   **Enhances:** US-PLAN-201
+*   **Epic:** EPIC-12
+*   **Points:** 8
+*   **Status:** Done
+*   **Description:**
+    Add collapsible/expandable rows so users can drill down from group to individual stories.
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given I am viewing the Roadmap grouped by Sprint
+    When I click on a Sprint row
+    Then the stories under that Sprint should expand/collapse
+    And there should be "Expand All" / "Collapse All" buttons
+    And the expand state should show a chevron indicator
+    ```
+
+#### US-PLAN-204: Roadmap Grouping Modes
+*   **Type:** Enhancement
+*   **Enhances:** US-PLAN-201
+*   **Epic:** EPIC-12
+*   **Points:** 5
+*   **Status:** Done
+*   **Description:**
+    Allow users to toggle between different grouping modes for the roadmap view.
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given I am viewing the Roadmap
+    Then I should see a "Group By" dropdown with options:
+      | Option | Description |
+      | Sprint | Group by feature/sprint label |
+      | Epic | Group by parent epic |
+      | Flat | No grouping, flat list |
+    And changing the selection should regroup the stories immediately
+    ```
+
+#### US-PLAN-205: Roadmap Extended Views
+*   **Type:** Enhancement
+*   **Enhances:** US-PLAN-201
+*   **Epic:** EPIC-12
+*   **Points:** 3
+*   **Status:** Done
+*   **Description:**
+    Add longer time horizon options for planning beyond a single month.
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given I am viewing the Roadmap
+    Then I should see a "View" dropdown with options:
+      | Option | Range |
+      | Month | Current month |
+      | Quarter | 3 months |
+      | 6 Months | 6 months |
+    And the timeline header should adjust to show the selected range
+    ```
+
+#### US-PLAN-206: Roadmap Progress Indicators
+*   **Type:** Enhancement
+*   **Enhances:** US-PLAN-201
+*   **Epic:** EPIC-12
+*   **Points:** 3
+*   **Status:** Done
+*   **Description:**
+    Show progress statistics per group row.
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given I am viewing the Roadmap
+    Then each Sprint/Epic row should display:
+      | Indicator | Format |
+      | Story Count | "X stories" badge |
+      | Total Points | "Y pts" badge |
+      | Completion % | "Z%" badge (green if 100%) |
+    And these should update as stories are completed
+    ```
+
+#### US-PLAN-207: Roadmap Story Tooltips
+*   **Type:** Enhancement
+*   **Enhances:** US-PLAN-201
+*   **Epic:** EPIC-12
+*   **Points:** 3
+*   **Status:** Done
+*   **Description:**
+    Rich tooltips on hover showing story details without leaving the roadmap.
+*   **Acceptance Criteria:**
+    ```gherkin
+    Given I am viewing the Roadmap
+    When I hover over a story bar
+    Then a tooltip should appear showing:
+      | Field | Value |
+      | ID | Story ID |
+      | Title | Full story title |
+      | Points | Story points |
+      | Status | Current status |
+      | Target Date | If set |
+      | Started | If set |
+      | Completed | If set |
+    ```
+
 #### US-PLAN-301: The Retro Board
 *   **Type:** New Feature
 *   **Epic:** EPIC-13
@@ -314,7 +427,13 @@ The Plan module currently relies on a foundational "Task Management" (TM) implem
 
 **Phase 2: The Planner (Sprint 2)**
 *   `US-PLAN-ENH-002` (Backlog Split View)
-*   `US-PLAN-201` (Roadmap)
+*   `US-PLAN-201` (Roadmap - Base)
+*   `US-PLAN-202` (Roadmap Colorful Swimlanes) ✅
+*   `US-PLAN-203` (Roadmap Expandable Hierarchy) ✅
+*   `US-PLAN-204` (Roadmap Grouping Modes) ✅
+*   `US-PLAN-205` (Roadmap Extended Views) ✅
+*   `US-PLAN-206` (Roadmap Progress Indicators) ✅
+*   `US-PLAN-207` (Roadmap Story Tooltips) ✅
 
 **Phase 3: The Rituals (Sprint 3)**
 *   `US-PLAN-301` (Retro Board)
