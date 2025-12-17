@@ -105,10 +105,10 @@ export function KanbanCard({ task, index, onClick, onEdit, onDelete }: KanbanCar
 
               {/* Title */}
               <div>
+                <p className="text-[10px] font-mono text-purple-600 dark:text-purple-400 mb-0.5">
+                  {task.id}
+                </p>
                 <h4 className="font-medium text-sm text-foreground line-clamp-2 leading-tight">
-                  <span className="text-muted-foreground mr-1.5 font-normal">
-                    {task.id.split('-').pop()?.substring(0, 4)}
-                  </span>
                   {task.title}
                 </h4>
               </div>

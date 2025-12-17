@@ -148,8 +148,8 @@ function StoryRow({
           </div>
 
           {/* Story ID */}
-          <span className="text-xs font-mono text-muted-foreground w-24 shrink-0">
-            {story.id.split('-').slice(-1)[0]?.substring(0, 7)}
+          <span className="text-xs font-mono text-purple-600 dark:text-purple-400 font-medium shrink-0">
+            {story.id}
           </span>
 
           {/* Title */}

@@ -183,8 +183,8 @@ export default function PlanStories() {
                   onClick={() => setSelectedStoryId(story.id)}
                 >
                   <td className="px-4 py-3">
-                    <span className="text-xs font-mono text-muted-foreground">
-                      {story.id.split('-').pop()?.substring(0, 7)}
+                    <span className="text-xs font-mono text-purple-600 dark:text-purple-400 font-medium">
+                      {story.id}
                     </span>
                   </td>
                   <td className="px-4 py-3">
