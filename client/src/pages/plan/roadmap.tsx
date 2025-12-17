@@ -453,21 +453,97 @@ export default function PlanRoadmap() {
                             </Badge>
                           )}
                         </div>
-                        <div className="flex-1 h-12 relative">
+                        <div className="flex-1 h-12 relative overflow-visible">
                           {groupBarStyle && (
-                            <div 
-                              className={cn(
-                                "absolute top-3 h-6 rounded-lg shadow-sm flex items-center justify-center text-white text-xs font-medium",
-                                group.color.bg
-                              )}
-                              style={groupBarStyle}
-                            >
-                              {group.startDate && group.endDate && (
-                                <span className="truncate px-2">
-                                  {format(parseISO(group.startDate), 'MMM d')} → {format(parseISO(group.endDate), 'MMM d')}
-                                </span>
-                              )}
-                            </div>
+                            <>
+                              {/* Group Bar */}
+                              <div 
+                                className={cn(
+                                  "absolute top-3 h-6 rounded-lg shadow-sm flex items-center justify-center text-white text-xs font-medium z-10",
+                                  group.color.bg
+                                )}
+                                style={groupBarStyle}
+                              >
+                                {group.startDate && group.endDate && (
+                                  <span className="truncate px-2">
+                                    {format(parseISO(group.startDate), 'MMM d')} → {format(parseISO(group.endDate), 'MMM d')}
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Connection Line for Group */}
+                              <svg 
+                                className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-visible"
+                                style={{ zIndex: 5 }}
+                                preserveAspectRatio="none"
+                              >
+                                {/* Group line - thicker, uses group's line type */}
+                                {groupIndex % 3 === 0 && (
+                                  /* Straight solid line */
+                                  <line
+                                    x1={`${parseFloat(groupBarStyle.left) + parseFloat(groupBarStyle.width)}%`}
+                                    y1="50%"
+                                    x2="98%"
+                                    y2="50%"
+                                    className={group.color.text}
+                                    stroke="currentColor"
+                                    strokeWidth="3"
+                                    strokeOpacity="0.7"
+                                  />
+                                )}
+                                
+                                {groupIndex % 3 === 1 && (
+                                  /* Zig-zag (sawtooth) line */
+                                  <path
+                                    d={`M ${parseFloat(groupBarStyle.left) + parseFloat(groupBarStyle.width)}% 50% ${Array.from({ length: Math.ceil((98 - (parseFloat(groupBarStyle.left) + parseFloat(groupBarStyle.width))) / 4) }, (_, i) => {
+                                      const startX = parseFloat(groupBarStyle.left) + parseFloat(groupBarStyle.width);
+                                      const x = startX + (i * 4);
+                                      const y = i % 2 === 0 ? 30 : 70;
+                                      return `L ${Math.min(x + 2, 98)}% ${y}%`;
+                                    }).join(' ')} L 98% 50%`}
+                                    className={group.color.text}
+                                    stroke="currentColor"
+                                    strokeWidth="3"
+                                    strokeOpacity="0.7"
+                                    fill="none"
+                                    strokeLinejoin="round"
+                                  />
+                                )}
+                                
+                                {groupIndex % 3 === 2 && (
+                                  /* Dotted/dashed line */
+                                  <line
+                                    x1={`${parseFloat(groupBarStyle.left) + parseFloat(groupBarStyle.width)}%`}
+                                    y1="50%"
+                                    x2="98%"
+                                    y2="50%"
+                                    className={group.color.text}
+                                    stroke="currentColor"
+                                    strokeWidth="3"
+                                    strokeOpacity="0.7"
+                                    strokeDasharray="8 6"
+                                  />
+                                )}
+                                
+                                {/* End Diamond Marker for Groups */}
+                                <polygon
+                                  points="0,-6 6,0 0,6 -6,0"
+                                  className={group.color.text}
+                                  fill="currentColor"
+                                  fillOpacity="0.9"
+                                  transform="translate(98%, 50%)"
+                                  style={{ transform: 'translate(98%, 50%)' }}
+                                />
+                                <circle
+                                  cx="98%"
+                                  cy="50%"
+                                  r="6"
+                                  className={group.color.text}
+                                  fill="currentColor"
+                                  fillOpacity="0.9"
+                                />
+                              </svg>
+                            </>
                           )}
                         </div>
                       </div>
