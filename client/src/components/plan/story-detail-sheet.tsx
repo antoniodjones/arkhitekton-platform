@@ -43,6 +43,8 @@ import {
   Bug
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { CodeChangesBadge } from '@/components/code-changes/code-changes-badge';
@@ -72,9 +74,25 @@ interface Story {
   githubRepo?: string;
   githubBranch?: string;
   screenshots?: string[];
+  // Enhancement Story Metadata
+  enhances?: string[];
+  enhancementType?: string;
+  rationale?: string;
   createdAt?: string;
   updatedAt?: string;
 }
+
+// Enhancement type options
+const ENHANCEMENT_TYPES = [
+  { value: 'feature-evolution', label: 'Feature Evolution' },
+  { value: 'bug-fix', label: 'Bug Fix' },
+  { value: 'ux-improvement', label: 'UX Improvement' },
+  { value: 'performance', label: 'Performance' },
+  { value: 'refactoring', label: 'Refactoring' },
+  { value: 'security', label: 'Security' },
+  { value: 'accessibility', label: 'Accessibility' },
+  { value: 'technical-debt', label: 'Technical Debt' },
+];
 
 interface StoryDetailSheetProps {
   storyId: string | null;
@@ -140,6 +158,8 @@ export function StoryDetailSheet({ storyId, open, onOpenChange }: StoryDetailShe
   const [newLabel, setNewLabel] = useState('');
   const [isReportBugOpen, setIsReportBugOpen] = useState(false);
   const [newDefect, setNewDefect] = useState({ title: '', description: '', severity: 'medium' as const });
+  const [enhancesSearch, setEnhancesSearch] = useState('');
+  const [isEnhancesOpen, setIsEnhancesOpen] = useState(false);
 
   // Fetch story details
   const { data: story, isLoading } = useQuery<Story>({
@@ -152,6 +172,23 @@ export function StoryDetailSheet({ storyId, open, onOpenChange }: StoryDetailShe
     queryKey: ['/api/epics'],
   });
   const epics = epicsResponse?.data || [];
+
+  // Fetch all stories for Enhances dropdown
+  const { data: allStoriesResponse } = useQuery<{ items: { id: string; title: string }[] }>({
+    queryKey: ['/api/user-stories', { pageSize: 200 }],
+    queryFn: async () => {
+      const response = await fetch('/api/user-stories?pageSize=200');
+      return response.json();
+    },
+  });
+  const allStories = allStoriesResponse?.items || [];
+
+  // Filter stories for search
+  const filteredStories = allStories.filter(s => 
+    s.id !== storyId && // Exclude current story
+    (s.id.toLowerCase().includes(enhancesSearch.toLowerCase()) ||
+     s.title.toLowerCase().includes(enhancesSearch.toLowerCase()))
+  ).slice(0, 10);
 
   // Gherkin validation
   const gherkinValidation = editedStory.acceptanceCriteria 
@@ -498,6 +535,147 @@ export function StoryDetailSheet({ storyId, open, onOpenChange }: StoryDetailShe
                     </Select>
                   </div>
                 )}
+
+                {/* Enhancement Story Metadata */}
+                <div className="space-y-4 p-3 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-100 dark:border-purple-900">
+                  <Label className="text-xs font-medium text-purple-700 dark:text-purple-300 flex items-center gap-2">
+                    <Link2 className="w-3 h-3" />
+                    Enhancement Traceability
+                  </Label>
+                  
+                  {/* Enhances Field - Searchable Multi-select */}
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Enhances (linked stories)</Label>
+                    <div className="space-y-2">
+                      {/* Selected stories as badges */}
+                      <div className="flex flex-wrap gap-1">
+                        {(editedStory.enhances || story.enhances || []).map((storyId, idx) => {
+                          const linkedStory = allStories.find(s => s.id === storyId);
+                          return (
+                            <Badge 
+                              key={idx} 
+                              variant="outline" 
+                              className="gap-1 bg-purple-100 dark:bg-purple-900/30 border-purple-300 text-purple-700 dark:text-purple-300"
+                            >
+                              {storyId}
+                              {linkedStory && (
+                                <span className="text-xs opacity-70 max-w-24 truncate">
+                                  - {linkedStory.title}
+                                </span>
+                              )}
+                              {isEditing && (
+                                <button
+                                  onClick={() => setEditedStory({
+                                    ...editedStory,
+                                    enhances: (editedStory.enhances || []).filter((_, i) => i !== idx)
+                                  })}
+                                  className="ml-1 hover:text-red-500"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              )}
+                            </Badge>
+                          );
+                        })}
+                        {!isEditing && (!story.enhances || story.enhances.length === 0) && (
+                          <span className="text-xs text-muted-foreground italic">No linked stories</span>
+                        )}
+                      </div>
+
+                      {/* Search and add stories */}
+                      {isEditing && (
+                        <Popover open={isEnhancesOpen} onOpenChange={setIsEnhancesOpen}>
+                          <PopoverTrigger asChild>
+                            <Button variant="outline" size="sm" className="w-full justify-start">
+                              <Plus className="w-3 h-3 mr-2" />
+                              Add linked story...
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-80 p-0" align="start">
+                            <Command>
+                              <CommandInput 
+                                placeholder="Search stories..." 
+                                value={enhancesSearch}
+                                onValueChange={setEnhancesSearch}
+                              />
+                              <CommandList>
+                                <CommandEmpty>No stories found</CommandEmpty>
+                                <CommandGroup>
+                                  {filteredStories.map(s => (
+                                    <CommandItem
+                                      key={s.id}
+                                      value={s.id}
+                                      onSelect={() => {
+                                        if (!(editedStory.enhances || []).includes(s.id)) {
+                                          setEditedStory({
+                                            ...editedStory,
+                                            enhances: [...(editedStory.enhances || []), s.id]
+                                          });
+                                        }
+                                        setIsEnhancesOpen(false);
+                                        setEnhancesSearch('');
+                                      }}
+                                    >
+                                      <span className="font-mono text-xs mr-2">{s.id}</span>
+                                      <span className="truncate text-sm">{s.title}</span>
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Enhancement Type Dropdown */}
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Enhancement Type</Label>
+                    {isEditing ? (
+                      <Select 
+                        value={editedStory.enhancementType || ''} 
+                        onValueChange={(v) => setEditedStory({ ...editedStory, enhancementType: v })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ENHANCEMENT_TYPES.map(type => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <p className="text-sm">
+                        {story.enhancementType 
+                          ? ENHANCEMENT_TYPES.find(t => t.value === story.enhancementType)?.label || story.enhancementType
+                          : <span className="text-muted-foreground italic">Not specified</span>
+                        }
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Rationale Text Area */}
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Rationale</Label>
+                    {isEditing ? (
+                      <Textarea
+                        value={editedStory.rationale || ''}
+                        onChange={(e) => setEditedStory({ ...editedStory, rationale: e.target.value })}
+                        rows={3}
+                        placeholder="Why is this enhancement needed? What business value does it provide?"
+                        className="text-sm"
+                      />
+                    ) : (
+                      <p className="text-sm p-2 bg-white dark:bg-gray-800 rounded border">
+                        {story.rationale || <span className="text-muted-foreground italic">No rationale provided</span>}
+                      </p>
+                    )}
+                  </div>
+                </div>
               </TabsContent>
 
               <TabsContent value="criteria" className="space-y-4 mt-4">

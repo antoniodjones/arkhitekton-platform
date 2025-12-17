@@ -654,6 +654,11 @@ export const userStories = pgTable("user_stories", {
   relatedFiles: jsonb("related_files").$type<string[]>().default([]), // Files that implement this story
   documentationPageId: text("documentation_page_id"), // Link to knowledge base article
 
+  // Enhancement Story Metadata (US-WW9SP8C)
+  enhances: jsonb("enhances").$type<string[]>().default([]), // Story IDs this enhances
+  enhancementType: text("enhancement_type"), // Feature Evolution, Bug Fix, UX Improvement, etc.
+  rationale: text("rationale"), // Business justification for the enhancement
+
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow()
 });
