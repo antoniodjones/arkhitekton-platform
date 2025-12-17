@@ -264,24 +264,12 @@ export function StoryDetailSheet({ storyId, open, onOpenChange }: StoryDetailShe
         ) : story ? (
           <>
             <SheetHeader className="space-y-4">
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <SheetDescription className="text-xs font-mono">
-                    {story.id}
-                  </SheetDescription>
-                  <SheetTitle className="text-xl pr-8">
-                    {isEditing ? (
-                      <Input
-                        value={editedStory.title || ''}
-                        onChange={(e) => setEditedStory({ ...editedStory, title: e.target.value })}
-                        className="text-xl font-semibold"
-                      />
-                    ) : (
-                      story.title
-                    )}
-                  </SheetTitle>
-                </div>
-                <div className="flex items-center gap-2">
+              {/* Top Row: ID and Action Buttons */}
+              <div className="flex items-center justify-between pb-2">
+                <SheetDescription className="text-lg font-mono font-bold text-purple-600 dark:text-purple-400">
+                  {story.id}
+                </SheetDescription>
+                <div className="flex items-center gap-3 mr-8">
                   {isEditing ? (
                     <>
                       <Button size="sm" variant="ghost" onClick={handleCancel}>
@@ -301,6 +289,19 @@ export function StoryDetailSheet({ storyId, open, onOpenChange }: StoryDetailShe
                   )}
                 </div>
               </div>
+
+              {/* Title - Full Width */}
+              <SheetTitle className="text-xl">
+                {isEditing ? (
+                  <Input
+                    value={editedStory.title || ''}
+                    onChange={(e) => setEditedStory({ ...editedStory, title: e.target.value })}
+                    className="text-xl font-semibold w-full"
+                  />
+                ) : (
+                  <span className="block">{story.title}</span>
+                )}
+              </SheetTitle>
 
               {/* Status & Priority Badges */}
               <div className="flex items-center gap-2 flex-wrap">
