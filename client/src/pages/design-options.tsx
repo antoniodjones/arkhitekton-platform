@@ -315,6 +315,24 @@ function DesignOptionsContent() {
       dateCreated: "2025-12-09",
       itemCount: 5,
       status: "New"
+    },
+    {
+      id: "wiki-landing-pages",
+      title: "Wiki Module Landing Page Prototypes",
+      description: "Six distinct visual styles for the Wiki Knowledge Core landing page - from brutalist to minimalist, magazine-style to geometric patterns",
+      category: "UX Design",
+      priority: "High",
+      dateCreated: "2025-12-17",
+      itemCount: 6,
+      status: "New",
+      htmlPrototypes: [
+        { name: "Option 1: Brutalist", file: "docs/Wiki_files_001/Wiki_Landing_Option_1_Brutalist.html" },
+        { name: "Option 2: Organic", file: "docs/Wiki_files_001/Wiki_Landing_Option_2_Organic.html" },
+        { name: "Option 3: Minimal", file: "docs/Wiki_files_001/Wiki_Landing_Option_3_Minimal.html" },
+        { name: "Option 4: Retro-Futuristic", file: "docs/Wiki_files_002/Wiki_Landing_Option_4_RetroFuturistic.html" },
+        { name: "Option 5: Magazine", file: "docs/Wiki_files_002/Wiki_Landing_Option_5_Magazine.html" },
+        { name: "Option 6: Geometric", file: "docs/Wiki_files_002/Wiki_Landing_Option_6_Geometric.html" }
+      ]
     }
   ];
 
