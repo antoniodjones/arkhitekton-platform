@@ -694,6 +694,14 @@ export const updateUserStorySchema = insertUserStorySchema.partial().extend({
   epicId: z.string().optional().nullable(), // Validate Epic ID format if provided (EPIC-XX)
   storyPoints: z.number().int().min(1).max(13).optional(),
   githubIssue: z.number().int().positive().optional().nullable(),
+  // Enhancement Story Metadata (US-WW9SP8C)
+  enhances: z.array(z.string()).optional().nullable(),
+  enhancementType: z.enum(['feature-evolution', 'bug-fix', 'ux-improvement', 'performance', 'refactoring', 'security', 'accessibility', 'technical-debt']).optional().nullable(),
+  rationale: z.string().optional().nullable(),
+  // Planning Date Fields (US-8KE9R60)
+  targetDate: z.string().datetime().optional().nullable(),
+  startedAt: z.string().datetime().optional().nullable(),
+  completedAt: z.string().datetime().optional().nullable(),
 });
 
 export type UserStory = typeof userStories.$inferSelect;
