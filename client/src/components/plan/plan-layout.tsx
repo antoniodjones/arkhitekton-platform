@@ -10,7 +10,8 @@ import {
   Plus,
   Settings,
   Zap,
-  Bug
+  Bug,
+  GitBranch
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
@@ -66,8 +67,14 @@ const tabs = [
     label: 'Roadmap', 
     path: '/plan/roadmap', 
     icon: Map,
-    description: 'Epic timeline',
-    disabled: true // Coming soon
+    description: 'Epic timeline'
+  },
+  { 
+    id: 'enhancements', 
+    label: 'Enhancements', 
+    path: '/plan/enhancements', 
+    icon: GitBranch,
+    description: 'Enhancement traceability'
   },
 ];
 

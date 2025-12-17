@@ -1448,10 +1448,35 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUserStory(id: string, updates: Partial<UserStory>): Promise<UserStory | undefined> {
+    // Auto-populate dates based on status changes (US-8KE9R60)
+    const enrichedUpdates = { ...updates };
+    
+    if (updates.status) {
+      // Get current story to check existing dates
+      const existingStory = await this.getUserStory(id);
+      
+      if (existingStory) {
+        // Auto-set startedAt when moving to in-progress (if not already set)
+        if (updates.status === 'in-progress' && !existingStory.startedAt && !updates.startedAt) {
+          enrichedUpdates.startedAt = new Date();
+        }
+        
+        // Auto-set completedAt when moving to done (if not already set)
+        if (updates.status === 'done' && !existingStory.completedAt && !updates.completedAt) {
+          enrichedUpdates.completedAt = new Date();
+        }
+        
+        // Clear completedAt if moving away from done (story reopened)
+        if (updates.status !== 'done' && existingStory.status === 'done' && existingStory.completedAt) {
+          enrichedUpdates.completedAt = null;
+        }
+      }
+    }
+    
     const [story] = await db
       .update(schema.userStories)
       .set({
-        ...updates,
+        ...enrichedUpdates,
         updatedAt: new Date()
       })
       .where(eq(schema.userStories.id, id))

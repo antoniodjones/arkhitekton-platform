@@ -28,6 +28,8 @@ import PlanDashboard from "@/pages/plan/dashboard";
 import PlanBacklog from "@/pages/plan/backlog";
 import PlanBoard from "@/pages/plan/board";
 import PlanStories from "@/pages/plan/stories";
+import PlanRoadmap from "@/pages/plan/roadmap";
+import PlanEnhancements from "@/pages/plan/enhancements";
 import QualityDashboard from "@/pages/quality/dashboard";
 import QualityDefectsPage from "@/pages/quality/defects";
 import QualityDefectDetailPage from "@/pages/quality/defect-detail";
@@ -114,6 +116,8 @@ function Router() {
           </PlanLayout>
         )}
       </Route>
+      <Route path="/plan/roadmap" component={PlanRoadmap} />
+      <Route path="/plan/enhancements" component={PlanEnhancements} />
       <Route path="/plan-legacy" component={PlanPage} />
       
       {/* Quality Center Routes */}
