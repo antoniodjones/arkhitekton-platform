@@ -379,8 +379,8 @@ export function TipTapEditor({
       {/* Drag Handle Styles (US-WIKI-007) */}
       <style dangerouslySetInnerHTML={{ __html: dragHandleStyles }} />
 
-      {/* Editor Content - with left margin for drag handle */}
-      <div className="relative ml-8">
+      {/* Editor Content - with left padding for drag handle */}
+      <div className="relative pl-8">
         <EditorContent editor={editor} />
       </div>
     </div>

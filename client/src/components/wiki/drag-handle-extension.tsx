@@ -11,26 +11,25 @@ import { Plugin, PluginKey } from '@tiptap/pm/state';
 
 export const DragHandleKey = new PluginKey('dragHandle');
 
-// Track drag state
-let currentDragHandle: HTMLElement | null = null;
-let draggedNodePos: number | null = null;
-let draggedNode: any = null;
-
 export const DragHandle = Extension.create({
   name: 'dragHandle',
 
   addProseMirrorPlugins() {
-    const editor = this.editor;
+    let dragHandle: HTMLElement | null = null;
+    let currentBlockPos: number | null = null;
+    let currentBlockNode: any = null;
+    let isDragging = false;
+    let hideTimeout: ReturnType<typeof setTimeout> | null = null;
 
     return [
       new Plugin({
         key: DragHandleKey,
         view(editorView) {
           // Create the drag handle element
-          const handle = document.createElement('div');
-          handle.className = 'tiptap-drag-handle';
-          handle.draggable = true;
-          handle.innerHTML = `
+          dragHandle = document.createElement('div');
+          dragHandle.className = 'tiptap-drag-handle';
+          dragHandle.draggable = true;
+          dragHandle.innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <circle cx="9" cy="5" r="1.5"/>
               <circle cx="9" cy="12" r="1.5"/>
@@ -40,35 +39,86 @@ export const DragHandle = Extension.create({
               <circle cx="15" cy="19" r="1.5"/>
             </svg>
           `;
+          dragHandle.style.display = 'none';
           
-          // Hide initially
-          handle.style.display = 'none';
-          document.body.appendChild(handle);
-          currentDragHandle = handle;
+          // Append to editor parent so it's in the same container
+          editorView.dom.parentElement?.appendChild(dragHandle);
 
-          // Find block node at position
-          const getBlockNodeAtPos = (pos: { top: number; left: number }) => {
-            const editorRect = editorView.dom.getBoundingClientRect();
-            
-            // Check if mouse is within editor bounds
-            if (pos.left < editorRect.left - 50 || pos.left > editorRect.right + 50) {
-              return null;
+          // Keep handle visible when hovering over it
+          dragHandle.addEventListener('mouseenter', () => {
+            if (hideTimeout) {
+              clearTimeout(hideTimeout);
+              hideTimeout = null;
             }
+          });
 
-            // Find the node at this Y position
+          dragHandle.addEventListener('mouseleave', () => {
+            if (!isDragging) {
+              hideHandle();
+            }
+          });
+
+          // Drag start
+          dragHandle.addEventListener('dragstart', (e) => {
+            if (currentBlockPos === null || !currentBlockNode) return;
+            
+            isDragging = true;
+            editorView.dom.classList.add('is-dragging');
+            
+            e.dataTransfer?.setData('text/plain', '');
+            if (e.dataTransfer) {
+              e.dataTransfer.effectAllowed = 'move';
+            }
+          });
+
+          // Drag end
+          dragHandle.addEventListener('dragend', () => {
+            isDragging = false;
+            editorView.dom.classList.remove('is-dragging');
+            document.querySelectorAll('.drop-target').forEach(el => 
+              el.classList.remove('drop-target', 'drop-before', 'drop-after')
+            );
+            hideHandle();
+          });
+
+          // Helper functions
+          const showHandle = (blockDom: HTMLElement) => {
+            if (!dragHandle) return;
+            if (hideTimeout) {
+              clearTimeout(hideTimeout);
+              hideTimeout = null;
+            }
+            
+            const rect = blockDom.getBoundingClientRect();
+            const parentRect = editorView.dom.parentElement?.getBoundingClientRect();
+            
+            if (parentRect) {
+              dragHandle.style.display = 'flex';
+              dragHandle.style.top = `${rect.top - parentRect.top + 2}px`;
+              dragHandle.style.left = '-24px';
+            }
+          };
+
+          const hideHandle = () => {
+            if (isDragging) return;
+            hideTimeout = setTimeout(() => {
+              if (dragHandle && !isDragging) {
+                dragHandle.style.display = 'none';
+              }
+            }, 150);
+          };
+
+          const getBlockAtCoords = (y: number) => {
+            const editorRect = editorView.dom.getBoundingClientRect();
             const posAtCoords = editorView.posAtCoords({ 
               left: editorRect.left + 20, 
-              top: pos.top 
+              top: y 
             });
             
             if (!posAtCoords) return null;
 
-            const { pos: nodePos } = posAtCoords;
-            const $pos = editorView.state.doc.resolve(nodePos);
-            
-            // Get the top-level block node
-            const depth = $pos.depth;
-            if (depth === 0) return null;
+            const $pos = editorView.state.doc.resolve(posAtCoords.pos);
+            if ($pos.depth === 0) return null;
             
             const blockPos = $pos.before(1);
             const blockNode = editorView.state.doc.nodeAt(blockPos);
@@ -81,93 +131,43 @@ export const DragHandle = Extension.create({
             return { node: blockNode, pos: blockPos, dom };
           };
 
-          // Position the handle next to a block
-          const positionHandle = (blockDom: HTMLElement) => {
-            const rect = blockDom.getBoundingClientRect();
-            
-            handle.style.display = 'flex';
-            handle.style.top = `${rect.top + window.scrollY + 2}px`;
-            handle.style.left = `${rect.left - 28}px`;
-          };
-
-          // Mouse move handler
+          // Mouse move on editor
           const onMouseMove = (event: MouseEvent) => {
-            if (draggedNodePos !== null) return; // Don't update while dragging
+            if (isDragging) return;
 
-            const block = getBlockNodeAtPos({ top: event.clientY, left: event.clientX });
+            const block = getBlockAtCoords(event.clientY);
             
             if (block) {
-              positionHandle(block.dom);
-              handle.dataset.nodePos = block.pos.toString();
-            } else {
-              handle.style.display = 'none';
+              currentBlockPos = block.pos;
+              currentBlockNode = block.node;
+              showHandle(block.dom);
             }
           };
 
-          // Mouse leave handler
+          // Mouse leave editor (with delay to allow moving to handle)
           const onMouseLeave = () => {
-            if (draggedNodePos === null) {
-              handle.style.display = 'none';
+            if (!isDragging) {
+              hideHandle();
             }
           };
-
-          // Drag start
-          handle.addEventListener('dragstart', (e) => {
-            const pos = parseInt(handle.dataset.nodePos || '0');
-            const node = editorView.state.doc.nodeAt(pos);
-            
-            if (node) {
-              draggedNodePos = pos;
-              draggedNode = node;
-              
-              // Set drag image
-              const dom = editorView.nodeDOM(pos);
-              if (dom instanceof HTMLElement) {
-                e.dataTransfer?.setDragImage(dom, 0, 0);
-                dom.classList.add('is-being-dragged');
-              }
-              
-              e.dataTransfer?.setData('text/plain', '');
-              if (e.dataTransfer) {
-                e.dataTransfer.effectAllowed = 'move';
-              }
-              
-              editorView.dom.classList.add('is-dragging');
-            }
-          });
-
-          // Drag end
-          handle.addEventListener('dragend', () => {
-            // Cleanup
-            document.querySelectorAll('.is-being-dragged').forEach(el => 
-              el.classList.remove('is-being-dragged')
-            );
-            document.querySelectorAll('.drop-target').forEach(el => 
-              el.classList.remove('drop-target')
-            );
-            editorView.dom.classList.remove('is-dragging');
-            draggedNodePos = null;
-            draggedNode = null;
-          });
 
           // Drag over editor
-          editorView.dom.addEventListener('dragover', (e) => {
-            if (draggedNodePos === null || !draggedNode) return;
+          const onDragOver = (e: DragEvent) => {
+            if (!isDragging) return;
             
             e.preventDefault();
             if (e.dataTransfer) {
               e.dataTransfer.dropEffect = 'move';
             }
 
-            // Find target block
-            const block = getBlockNodeAtPos({ top: e.clientY, left: e.clientX });
+            const block = getBlockAtCoords(e.clientY);
             
             // Clear old targets
             document.querySelectorAll('.drop-target').forEach(el => 
               el.classList.remove('drop-target', 'drop-before', 'drop-after')
             );
 
-            if (block && block.pos !== draggedNodePos) {
+            if (block && block.pos !== currentBlockPos) {
               const rect = block.dom.getBoundingClientRect();
               const midY = rect.top + rect.height / 2;
               
@@ -177,20 +177,17 @@ export const DragHandle = Extension.create({
                 block.dom.classList.add('drop-target', 'drop-after');
               }
             }
-          });
+          };
 
           // Drop on editor
-          editorView.dom.addEventListener('drop', (e) => {
-            if (draggedNodePos === null || !draggedNode) return;
+          const onDrop = (e: DragEvent) => {
+            if (!isDragging || currentBlockPos === null || !currentBlockNode) return;
             
             e.preventDefault();
 
-            const block = getBlockNodeAtPos({ top: e.clientY, left: e.clientX });
+            const block = getBlockAtCoords(e.clientY);
             
-            if (!block || block.pos === draggedNodePos) {
-              // Cleanup
-              draggedNodePos = null;
-              draggedNode = null;
+            if (!block || block.pos === currentBlockPos) {
               return;
             }
 
@@ -200,21 +197,21 @@ export const DragHandle = Extension.create({
 
             // Calculate target position
             let targetPos = insertBefore ? block.pos : block.pos + block.node.nodeSize;
-
-            // Create transaction
-            const { tr } = editorView.state;
-            const nodeSize = draggedNode.nodeSize;
+            const nodeSize = currentBlockNode.nodeSize;
 
             // Adjust target if moving downward
-            if (targetPos > draggedNodePos) {
+            if (targetPos > currentBlockPos) {
               targetPos -= nodeSize;
             }
 
+            // Create transaction
+            const { tr } = editorView.state;
+
             // Delete from original position
-            tr.delete(draggedNodePos, draggedNodePos + nodeSize);
+            tr.delete(currentBlockPos, currentBlockPos + nodeSize);
             
             // Insert at new position
-            tr.insert(targetPos, draggedNode);
+            tr.insert(targetPos, currentBlockNode);
 
             // Dispatch
             editorView.dispatch(tr);
@@ -223,19 +220,26 @@ export const DragHandle = Extension.create({
             document.querySelectorAll('.drop-target').forEach(el => 
               el.classList.remove('drop-target', 'drop-before', 'drop-after')
             );
-            draggedNodePos = null;
-            draggedNode = null;
-          });
+            
+            isDragging = false;
+            currentBlockPos = null;
+            currentBlockNode = null;
+          };
 
           // Attach listeners
           editorView.dom.addEventListener('mousemove', onMouseMove);
           editorView.dom.addEventListener('mouseleave', onMouseLeave);
+          editorView.dom.addEventListener('dragover', onDragOver);
+          editorView.dom.addEventListener('drop', onDrop);
 
           return {
             destroy() {
               editorView.dom.removeEventListener('mousemove', onMouseMove);
               editorView.dom.removeEventListener('mouseleave', onMouseLeave);
-              handle.remove();
+              editorView.dom.removeEventListener('dragover', onDragOver);
+              editorView.dom.removeEventListener('drop', onDrop);
+              if (hideTimeout) clearTimeout(hideTimeout);
+              dragHandle?.remove();
             },
           };
         },
@@ -247,7 +251,7 @@ export const DragHandle = Extension.create({
 // CSS styles for the drag handle
 export const dragHandleStyles = `
   .tiptap-drag-handle {
-    position: fixed;
+    position: absolute;
     width: 20px;
     height: 20px;
     display: flex;
@@ -257,7 +261,7 @@ export const dragHandleStyles = `
     color: #9ca3af;
     background: transparent;
     border-radius: 4px;
-    z-index: 100;
+    z-index: 50;
     transition: color 0.15s, background 0.15s;
     user-select: none;
   }
@@ -281,10 +285,8 @@ export const dragHandleStyles = `
     cursor: grabbing !important;
   }
 
-  .ProseMirror .is-being-dragged {
-    opacity: 0.4;
-    background: #fef3c7;
-    border-radius: 4px;
+  .ProseMirror.is-dragging * {
+    cursor: grabbing !important;
   }
 
   /* Drop target indicators */
