@@ -1865,33 +1865,81 @@ Keep response concise but comprehensive.`;
     }
   });
 
-  // POST /api/webhooks/github - Handle GitHub webhook events
+  // POST /api/webhooks/github - Consolidated GitHub webhook handler
+  // Handles: push (commits), pull_request (PRs), create (branches)
+  // Features: Story validation, automatic status updates, code traceability
   app.post('/api/webhooks/github', async (req, res) => {
     try {
       const event = req.headers['x-github-event'] as string;
       const payload = req.body;
+      const repository = payload.repository?.full_name;
 
-      console.log(`📬 GitHub webhook received: ${event}`);
+      console.log(`\n📬 GitHub webhook received: ${event} from ${repository}`);
 
-      // Extract story ID from branch name, PR title, or commit message
-      const extractStoryId = (text: string): string | null => {
-        const match = text?.match(/US-[A-Z0-9]{7}|DEF-[A-Z0-9-]+|EPIC-\d+/i);
-        return match ? match[0].toUpperCase() : null;
+      // Extract story IDs from text (supports US-*, DEF-*, EPIC-*)
+      const extractStoryIds = (text: string): string[] => {
+        if (!text) return [];
+        const matches = text.match(/US-[A-Z0-9-]+|DEF-[A-Z0-9-]+|EPIC-\d+/gi) || [];
+        return [...new Set(matches.map(m => m.toUpperCase()))];
       };
 
-      const repository = payload.repository?.full_name;
+      const getEntityType = (storyId: string) => {
+        if (storyId.startsWith('US-')) return 'user_story';
+        if (storyId.startsWith('DEF-')) return 'defect';
+        return 'epic';
+      };
+
+      // Track processing results
+      const results = {
+        event,
+        repository,
+        processed: 0,
+        linked: 0,
+        blocked: 0,
+        stories_updated: [] as string[],
+        violations: [] as Array<{ id: string; message: string; reason: string }>
+      };
 
       switch (event) {
         case 'push': {
-          // Handle commit push
           const commits = payload.commits || [];
+          
           for (const commit of commits) {
-            const storyId = extractStoryId(commit.message);
-            if (storyId) {
-              const entityType = storyId.startsWith('US-') ? 'user_story' 
-                : storyId.startsWith('DEF-') ? 'defect' 
-                : 'epic';
+            results.processed++;
+            const storyIds = extractStoryIds(commit.message);
 
+            if (storyIds.length === 0) {
+              results.violations.push({
+                id: commit.id.substring(0, 7),
+                message: commit.message.split('\n')[0].substring(0, 60),
+                reason: 'No story ID found (US-*, DEF-*, or EPIC-* required)'
+              });
+              results.blocked++;
+              continue;
+            }
+
+            // Validate and link each story
+            for (const storyId of storyIds) {
+              const entityType = getEntityType(storyId);
+              
+              // Validate story exists
+              let story = null;
+              if (entityType === 'user_story') {
+                story = await storage.getUserStory(storyId);
+              } else if (entityType === 'defect') {
+                story = await storage.getDefect(storyId);
+              }
+
+              if (!story && entityType !== 'epic') {
+                results.violations.push({
+                  id: commit.id.substring(0, 7),
+                  message: `→ ${storyId}`,
+                  reason: `${storyId} not found in database`
+                });
+                continue;
+              }
+
+              // Create code change record
               await storage.createCodeChange({
                 entityType,
                 entityId: storyId,
@@ -1899,70 +1947,101 @@ Keep response concise but comprehensive.`;
                 provider: 'github',
                 repository,
                 commitSha: commit.id,
-                commitMessage: commit.message,
+                commitMessage: commit.message.split('\n')[0],
                 commitUrl: commit.url,
-                authorUsername: commit.author?.username,
+                authorUsername: commit.author?.username || commit.author?.name,
                 authorEmail: commit.author?.email,
                 eventTimestamp: new Date(commit.timestamp),
-                externalId: `commit:${commit.id}`,
+                externalId: `commit:${commit.id}:${storyId}`,
                 syncSource: 'webhook',
               });
+
+              results.linked++;
+              if (!results.stories_updated.includes(storyId)) {
+                results.stories_updated.push(storyId);
+              }
+              console.log(`✅ Linked commit ${commit.id.substring(0, 7)} → ${storyId}`);
             }
           }
           break;
         }
 
         case 'pull_request': {
+          results.processed++;
           const pr = payload.pull_request;
           const action = payload.action;
-          const storyId = extractStoryId(pr.title) || extractStoryId(pr.head?.ref);
+          
+          // Extract story IDs from PR title, body, or branch name
+          const storyIds = [
+            ...extractStoryIds(pr.title),
+            ...extractStoryIds(pr.head?.ref),
+            ...extractStoryIds(pr.body || '')
+          ];
+          const uniqueStoryIds = [...new Set(storyIds)];
 
-          if (storyId) {
-            const entityType = storyId.startsWith('US-') ? 'user_story' 
-              : storyId.startsWith('DEF-') ? 'defect' 
-              : 'epic';
+          if (uniqueStoryIds.length === 0) {
+            results.violations.push({
+              id: `PR #${pr.number}`,
+              message: pr.title.substring(0, 60),
+              reason: 'No story ID found in title, branch, or body'
+            });
+            results.blocked++;
+          } else {
+            for (const storyId of uniqueStoryIds) {
+              const entityType = getEntityType(storyId);
+              const prState = action === 'closed' && pr.merged ? 'merged'
+                : pr.draft ? 'draft'
+                : pr.state;
 
-            const prState = action === 'closed' && pr.merged ? 'merged'
-              : pr.draft ? 'draft'
-              : pr.state;
+              // Check if PR already tracked
+              const existing = await storage.getCodeChangeByExternalId(`pr:${pr.id}:${storyId}`);
 
-            const existing = await storage.getCodeChangeByExternalId(`pr:${pr.id}`);
+              if (existing) {
+                await storage.updateCodeChange(existing.id, {
+                  prState,
+                  prTitle: pr.title,
+                  prMergedAt: pr.merged_at ? new Date(pr.merged_at) : null,
+                  prMergedBy: pr.merged_by?.login,
+                });
+                console.log(`🔄 Updated PR #${pr.number} → ${storyId} (${prState})`);
+              } else {
+                await storage.createCodeChange({
+                  entityType,
+                  entityId: storyId,
+                  changeType: 'pull_request',
+                  provider: 'github',
+                  repository,
+                  prNumber: pr.number,
+                  prTitle: pr.title,
+                  prState,
+                  prUrl: pr.html_url,
+                  prBaseBranch: pr.base?.ref,
+                  prHeadBranch: pr.head?.ref,
+                  authorUsername: pr.user?.login,
+                  authorAvatarUrl: pr.user?.avatar_url,
+                  eventTimestamp: new Date(pr.created_at),
+                  externalId: `pr:${pr.id}:${storyId}`,
+                  syncSource: 'webhook',
+                });
+                console.log(`✅ Linked PR #${pr.number} → ${storyId}`);
+              }
 
-            if (existing) {
-              await storage.updateCodeChange(existing.id, {
-                prState,
-                prMergedAt: pr.merged_at ? new Date(pr.merged_at) : null,
-                prMergedBy: pr.merged_by?.login,
-              });
-            } else {
-              await storage.createCodeChange({
-                entityType,
-                entityId: storyId,
-                changeType: 'pull_request',
-                provider: 'github',
-                repository,
-                prNumber: pr.number,
-                prTitle: pr.title,
-                prState,
-                prUrl: pr.html_url,
-                prBaseBranch: pr.base?.ref,
-                prHeadBranch: pr.head?.ref,
-                authorUsername: pr.user?.login,
-                authorAvatarUrl: pr.user?.avatar_url,
-                eventTimestamp: new Date(pr.created_at),
-                externalId: `pr:${pr.id}`,
-                syncSource: 'webhook',
-              });
-            }
+              results.linked++;
+              if (!results.stories_updated.includes(storyId)) {
+                results.stories_updated.push(storyId);
+              }
 
-            // Update story status based on PR state
-            if (entityType === 'user_story') {
-              const story = await storage.getUserStory(storyId);
-              if (story) {
-                if (action === 'opened' && story.status === 'in-progress') {
-                  await storage.updateUserStory(storyId, { status: 'review' });
-                } else if (prState === 'merged' && story.status === 'review') {
-                  await storage.updateUserStory(storyId, { status: 'done' });
+              // Auto-update story status based on PR lifecycle
+              if (entityType === 'user_story') {
+                const story = await storage.getUserStory(storyId);
+                if (story) {
+                  if (action === 'opened' && story.status === 'in-progress') {
+                    await storage.updateUserStory(storyId, { status: 'review' });
+                    console.log(`📝 ${storyId} status → review (PR opened)`);
+                  } else if (prState === 'merged' && story.status === 'review') {
+                    await storage.updateUserStory(storyId, { status: 'done' });
+                    console.log(`✅ ${storyId} status → done (PR merged)`);
+                  }
                 }
               }
             }
@@ -1971,47 +2050,75 @@ Keep response concise but comprehensive.`;
         }
 
         case 'create': {
-          // Handle branch creation
           if (payload.ref_type === 'branch') {
+            results.processed++;
             const branchName = payload.ref;
-            const storyId = extractStoryId(branchName);
+            const storyIds = extractStoryIds(branchName);
 
-            if (storyId) {
-              const entityType = storyId.startsWith('US-') ? 'user_story' 
-                : storyId.startsWith('DEF-') ? 'defect' 
-                : 'epic';
-
-              await storage.createCodeChange({
-                entityType,
-                entityId: storyId,
-                changeType: 'branch',
-                provider: 'github',
-                repository,
-                branchName,
-                branchUrl: `https://github.com/${repository}/tree/${branchName}`,
-                authorUsername: payload.sender?.login,
-                eventTimestamp: new Date(),
-                externalId: `branch:${repository}:${branchName}`,
-                syncSource: 'webhook',
+            if (storyIds.length === 0) {
+              results.violations.push({
+                id: branchName,
+                message: 'Branch created',
+                reason: 'No story ID in branch name'
               });
+            } else {
+              for (const storyId of storyIds) {
+                const entityType = getEntityType(storyId);
 
-              // Update story status to in-progress
-              if (entityType === 'user_story') {
-                const story = await storage.getUserStory(storyId);
-                if (story && story.status === 'backlog') {
-                  await storage.updateUserStory(storyId, { status: 'in-progress' });
+                await storage.createCodeChange({
+                  entityType,
+                  entityId: storyId,
+                  changeType: 'branch',
+                  provider: 'github',
+                  repository,
+                  branchName,
+                  branchUrl: `https://github.com/${repository}/tree/${branchName}`,
+                  authorUsername: payload.sender?.login,
+                  eventTimestamp: new Date(),
+                  externalId: `branch:${repository}:${branchName}`,
+                  syncSource: 'webhook',
+                });
+
+                results.linked++;
+                if (!results.stories_updated.includes(storyId)) {
+                  results.stories_updated.push(storyId);
+                }
+                console.log(`🌿 Linked branch ${branchName} → ${storyId}`);
+
+                // Auto-update story status to in-progress when branch created
+                if (entityType === 'user_story') {
+                  const story = await storage.getUserStory(storyId);
+                  if (story && story.status === 'backlog') {
+                    await storage.updateUserStory(storyId, { status: 'in-progress' });
+                    console.log(`📝 ${storyId} status → in-progress (branch created)`);
+                  }
                 }
               }
             }
           }
           break;
         }
+
+        default:
+          console.log(`⏭️ Ignoring event type: ${event}`);
       }
 
-      res.json({ success: true, event });
+      // Summary logging
+      console.log('\n📊 Webhook Processing Summary:');
+      console.log(`   Processed: ${results.processed} | Linked: ${results.linked} | Blocked: ${results.blocked}`);
+      console.log(`   Stories: ${results.stories_updated.join(', ') || 'none'}`);
+      if (results.violations.length > 0) {
+        console.log('   ⚠️ Violations:');
+        results.violations.forEach(v => console.log(`      - [${v.id}] ${v.reason}`));
+      }
+
+      res.json({ success: true, ...results });
     } catch (error) {
-      console.error('Error processing GitHub webhook:', error);
-      res.status(500).json({ error: 'Failed to process webhook' });
+      console.error('❌ GitHub webhook error:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 
@@ -2461,174 +2568,6 @@ Keep response concise but comprehensive.`;
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete setting" });
-    }
-  });
-
-  // GitHub Webhook Handler
-  app.post("/api/webhooks/github", async (req, res) => {
-    try {
-      const event = req.headers['x-github-event'];
-
-      // Only process push events for now
-      if (event !== 'push') {
-        return res.json({ message: 'Event type not supported', processed: 0 });
-      }
-
-      const payload = req.body;
-      const commits = payload.commits || [];
-
-      // Track processing results
-      const results = {
-        processed: 0,
-        linked: 0,
-        blocked: 0, // Commits blocked due to violations
-        stories_updated: [] as string[],
-        violations: [] as Array<{ commit: string; message: string; reason: string; story?: string }>
-      };
-
-      // Regex to extract story IDs: US-XXXXXXX
-      const storyIdRegex = /US-[A-Z0-9]{7}/g;
-
-      for (const commit of commits) {
-        results.processed++;
-
-        // Extract story IDs from commit message
-        const storyIds = commit.message.match(storyIdRegex) || [];
-
-        if (storyIds.length === 0) {
-          // VIOLATION: No story ID in commit - BLOCK ENTIRE COMMIT
-          results.violations.push({
-            commit: commit.id.substring(0, 7),
-            message: commit.message.split('\n')[0],
-            reason: '❌ BLOCKED: No user story ID found (US-XXXXXXX format required)'
-          });
-          results.blocked++;
-          console.log(`❌ BLOCKED commit ${commit.id.substring(0, 7)}: No story ID`);
-          continue; // Skip this commit entirely
-        }
-
-        // PHASE 1: PRE-VALIDATION - Check ALL stories before linking ANY
-        let commitIsValid = true;
-        const validatedStories = [];
-
-        for (const storyId of storyIds) {
-          // Check if story exists
-          const story = await storage.getUserStory(storyId);
-
-          if (!story) {
-            results.violations.push({
-              commit: commit.id.substring(0, 7),
-              message: commit.message.split('\n')[0],
-              reason: `❌ BLOCKED: Story ${storyId} not found in database`,
-              story: storyId
-            });
-            commitIsValid = false;
-            console.log(`❌ BLOCKED commit ${commit.id.substring(0, 7)} → ${storyId}: Story not found`);
-            break; // Entire commit is invalid
-          }
-
-          // ENFORCE: Story MUST have acceptance criteria - BLOCKING RULE
-          if (!story.acceptanceCriteria || story.acceptanceCriteria.trim().length === 0) {
-            results.violations.push({
-              commit: commit.id.substring(0, 7),
-              message: commit.message.split('\n')[0],
-              reason: `❌ BLOCKED: Story ${storyId} has no acceptance criteria (required for commit linking)`,
-              story: storyId
-            });
-            commitIsValid = false;
-            console.log(`❌ BLOCKED commit ${commit.id.substring(0, 7)} → ${storyId}: No acceptance criteria`);
-            break; // Entire commit is invalid
-          }
-
-          // TODO: Validate Gherkin format (Given/When/Then)
-
-          // Story is valid - add to validated list
-          validatedStories.push(story);
-        }
-
-        // If ANY story failed validation, BLOCK the entire commit
-        if (!commitIsValid) {
-          results.blocked++;
-          continue; // Do NOT link this commit to ANY story
-        }
-
-        // PHASE 2: LINKING - All stories are valid, proceed with linking
-        const commitData = {
-          sha: commit.id,
-          message: commit.message.split('\n')[0], // First line only
-          author: commit.author.name,
-          email: commit.author.email,
-          timestamp: commit.timestamp,
-          url: commit.url
-        };
-
-        for (const story of validatedStories) {
-          // Get existing commits
-          const existingCommits = story.githubCommits || [];
-
-          // Check if commit already linked (avoid duplicates)
-          const isDuplicate = existingCommits.some(c => c.sha === commit.id);
-          if (isDuplicate) {
-            console.log(`⏭️  Skipped duplicate: ${commit.id.substring(0, 7)} → ${story.id} (already linked)`);
-            continue;
-          }
-
-          // Add new commit
-          const updatedCommits = [...existingCommits, commitData];
-
-          // Update story with new commit
-          await storage.updateUserStory(story.id, {
-            githubCommits: updatedCommits
-          });
-
-          results.linked++;
-
-          // Track unique stories updated
-          if (!results.stories_updated.includes(story.id)) {
-            results.stories_updated.push(story.id);
-          }
-
-          console.log(`✅ Linked commit ${commit.id.substring(0, 7)} → ${story.id}: "${commit.message.split('\n')[0].substring(0, 60)}..."`);
-        }
-      }
-
-      // Enhanced logging with context
-      console.log('\n📊 GitHub Webhook Processing Summary:');
-      console.log(`   Repository: ${payload.repository?.full_name || 'unknown'}`);
-      console.log(`   Branch: ${payload.ref || 'unknown'}`);
-      console.log(`   Pusher: ${payload.pusher?.name || 'unknown'}`);
-      console.log(`   Commits processed: ${results.processed}`);
-      console.log(`   Commits linked: ${results.linked}`);
-      console.log(`   Commits blocked: ${results.blocked}`);
-      console.log(`   Stories updated: ${results.stories_updated.join(', ') || 'none'}`);
-      console.log(`   Violations: ${results.violations.length}`);
-
-      if (results.violations.length > 0) {
-        console.log('\n⚠️  Violations detected:');
-        results.violations.forEach((v, idx) => {
-          console.log(`   ${idx + 1}. [${v.commit}] "${v.message}"`);
-          console.log(`      Reason: ${v.reason}`);
-        });
-      }
-
-      // Structured response with enhanced context
-      res.json({
-        success: true,
-        repository: payload.repository?.full_name,
-        branch: payload.ref?.replace('refs/heads/', ''),
-        pusher: payload.pusher?.name,
-        ...results
-      });
-    } catch (error) {
-      console.error('❌ GitHub webhook error:', error);
-
-      // Structured error response
-      res.status(500).json({
-        success: false,
-        message: "Failed to process webhook",
-        error: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date().toISOString()
-      });
     }
   });
 
