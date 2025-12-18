@@ -380,9 +380,7 @@ export function TipTapEditor({
       <style dangerouslySetInnerHTML={{ __html: dragHandleStyles }} />
 
       {/* Editor Content */}
-      <div className="pl-6 relative">
-        <EditorContent editor={editor} />
-      </div>
+      <EditorContent editor={editor} />
     </div>
   );
 }
