@@ -84,11 +84,10 @@ export const DragHandle = Extension.create({
           // Position the handle next to a block
           const positionHandle = (blockDom: HTMLElement) => {
             const rect = blockDom.getBoundingClientRect();
-            const editorRect = editorView.dom.getBoundingClientRect();
             
             handle.style.display = 'flex';
-            handle.style.top = `${rect.top + window.scrollY + 4}px`;
-            handle.style.left = `${editorRect.left - 28}px`;
+            handle.style.top = `${rect.top + window.scrollY + 2}px`;
+            handle.style.left = `${rect.left - 28}px`;
           };
 
           // Mouse move handler
