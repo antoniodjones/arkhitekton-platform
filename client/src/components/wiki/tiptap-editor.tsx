@@ -13,7 +13,8 @@ import Underline from '@tiptap/extension-underline';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { createMentionExtension } from './mention-extension';
-import { DragHandle, dragHandleStyles } from './drag-handle-extension';
+// Drag handle temporarily disabled - causing editor issues
+// import { DragHandle, dragHandleStyles } from './drag-handle-extension';
 import { Button } from '@/components/ui/button';
 import { Toggle } from '@/components/ui/toggle';
 import { Separator } from '@/components/ui/separator';
@@ -95,8 +96,8 @@ export function TipTapEditor({
       }),
       // @mention extension for semantic linking
       createMentionExtension(),
-      // Drag handle for block reordering (US-WIKI-007)
-      DragHandle,
+      // TODO: Re-enable drag handle after fixing (US-WIKI-007)
+      // DragHandle,
     ],
     content: content || {
       type: 'doc',
@@ -376,13 +377,8 @@ export function TipTapEditor({
         </div>
       )}
 
-      {/* Drag Handle Styles (US-WIKI-007) */}
-      <style dangerouslySetInnerHTML={{ __html: dragHandleStyles }} />
-
       {/* Editor Content */}
-      <div className="pl-6 relative">
-        <EditorContent editor={editor} />
-      </div>
+      <EditorContent editor={editor} />
     </div>
   );
 }
