@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -10,13 +10,28 @@ import TaskItem from '@tiptap/extension-task-item';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Underline from '@tiptap/extension-underline';
+import TextStyle from '@tiptap/extension-text-style';
+import FontFamily from '@tiptap/extension-font-family';
+import { Color } from '@tiptap/extension-color';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { createMentionExtension } from './mention-extension';
-import { DragHandle, dragHandleStyles } from './drag-handle-extension';
+import { BlockMoveButtons } from './block-move-buttons';
+import { FontSizeExtension, LineHeightExtension } from './extensions';
 import { Button } from '@/components/ui/button';
 import { Toggle } from '@/components/ui/toggle';
 import { Separator } from '@/components/ui/separator';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import {
   Bold,
   Italic,
@@ -37,7 +52,12 @@ import {
   Undo,
   Redo,
   Code2,
-  Pilcrow
+  Pilcrow,
+  ChevronDown,
+  Type,
+  ALargeSmall,
+  ListCollapse,
+  Palette
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -87,6 +107,12 @@ export function TipTapEditor({
         },
       }),
       Underline,
+      // Text styling extensions (ported from Google Docs clone)
+      TextStyle,
+      FontFamily,
+      Color,
+      FontSizeExtension,
+      LineHeightExtension,
       CodeBlockLowlight.configure({
         lowlight,
         HTMLAttributes: {
@@ -95,8 +121,6 @@ export function TipTapEditor({
       }),
       // @mention extension for semantic linking
       createMentionExtension(),
-      // Drag handle for block reordering (US-WIKI-007)
-      DragHandle,
     ],
     content: content || {
       type: 'doc',
@@ -124,6 +148,16 @@ export function TipTapEditor({
       },
     },
   });
+
+  // Update editable state when prop changes
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(editable);
+    }
+  }, [editor, editable]);
+
+  // Editor ref for drag handle positioning
+  const editorRef = useRef<HTMLDivElement>(null);
 
   const setLink = useCallback(() => {
     if (!editor) return;
@@ -181,6 +215,125 @@ export function TipTapEditor({
               <Redo className="h-4 w-4" />
             </Button>
           </div>
+
+          <Separator orientation="vertical" className="h-6 mx-1" />
+
+          {/* Font Family */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 px-2 gap-1 min-w-[100px] justify-between">
+                <span className="text-xs truncate">
+                  {editor.getAttributes('textStyle').fontFamily || 'Default'}
+                </span>
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {['Default', 'Arial', 'Georgia', 'Times New Roman', 'Courier New', 'Verdana'].map((font) => (
+                <DropdownMenuItem
+                  key={font}
+                  onClick={() => font === 'Default' 
+                    ? editor.chain().focus().unsetFontFamily().run()
+                    : editor.chain().focus().setFontFamily(font).run()
+                  }
+                  style={{ fontFamily: font === 'Default' ? 'inherit' : font }}
+                >
+                  {font}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Font Size */}
+          <div className="flex items-center gap-0.5">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-6 p-0"
+              onClick={() => {
+                const current = parseInt(editor.getAttributes('textStyle').fontSize || '16');
+                if (current > 8) editor.chain().focus().setFontSize(`${current - 1}px`).run();
+              }}
+            >
+              <span className="text-xs">−</span>
+            </Button>
+            <span className="text-xs w-8 text-center">
+              {editor.getAttributes('textStyle').fontSize?.replace('px', '') || '16'}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-6 p-0"
+              onClick={() => {
+                const current = parseInt(editor.getAttributes('textStyle').fontSize || '16');
+                if (current < 72) editor.chain().focus().setFontSize(`${current + 1}px`).run();
+              }}
+            >
+              <span className="text-xs">+</span>
+            </Button>
+          </div>
+
+          {/* Text Color */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Text Color">
+                <div className="flex flex-col items-center">
+                  <Type className="h-3 w-3" />
+                  <div 
+                    className="h-1 w-4 rounded-sm mt-0.5" 
+                    style={{ backgroundColor: editor.getAttributes('textStyle').color || '#000000' }}
+                  />
+                </div>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-2">
+              <div className="grid grid-cols-8 gap-1">
+                {['#000000', '#434343', '#666666', '#999999', '#b7b7b7', '#cccccc', '#d9d9d9', '#ffffff',
+                  '#980000', '#ff0000', '#ff9900', '#ffff00', '#00ff00', '#00ffff', '#4a86e8', '#0000ff',
+                  '#9900ff', '#ff00ff', '#e6b8af', '#f4cccc', '#fce5cd', '#fff2cc', '#d9ead3', '#d0e0e3',
+                  '#c9daf8', '#cfe2f3', '#d9d2e9', '#ead1dc'].map((color) => (
+                  <button
+                    key={color}
+                    className="h-5 w-5 rounded border border-gray-300 hover:scale-110 transition-transform"
+                    style={{ backgroundColor: color }}
+                    onClick={() => editor.chain().focus().setColor(color).run()}
+                  />
+                ))}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full mt-2 text-xs"
+                onClick={() => editor.chain().focus().unsetColor().run()}
+              >
+                Remove Color
+              </Button>
+            </PopoverContent>
+          </Popover>
+
+          {/* Line Height */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Line Height">
+                <ListCollapse className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {[
+                { label: 'Single', value: '1' },
+                { label: '1.15', value: '1.15' },
+                { label: '1.5', value: '1.5' },
+                { label: 'Double', value: '2' },
+              ].map(({ label, value }) => (
+                <DropdownMenuItem
+                  key={value}
+                  onClick={() => editor.chain().focus().setLineHeight(value).run()}
+                >
+                  {label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <Separator orientation="vertical" className="h-6 mx-1" />
 
@@ -376,11 +529,10 @@ export function TipTapEditor({
         </div>
       )}
 
-      {/* Drag Handle Styles (US-WIKI-007) */}
-      <style dangerouslySetInnerHTML={{ __html: dragHandleStyles }} />
-
-      {/* Editor Content - with left padding for drag handle */}
-      <div className="relative pl-8">
+      {/* Editor Content - with left padding for move buttons */}
+      <div ref={editorRef} className="relative pl-8">
+        {/* Block Move Buttons (US-WIKI-007) */}
+        <BlockMoveButtons editor={editor} editorRef={editorRef} />
         <EditorContent editor={editor} />
       </div>
     </div>

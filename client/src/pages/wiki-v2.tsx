@@ -557,7 +557,7 @@ export default function WikiV2Page() {
     <AppLayout>
       <div className="flex flex-col h-[calc(100vh-4rem)]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-3 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex items-center justify-between px-6 py-3 border-b bg-background shrink-0">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <BookOpen className="h-6 w-6 text-amber-600" />
@@ -625,7 +625,7 @@ export default function WikiV2Page() {
         </div>
 
         {/* Main Content */}
-        <ResizablePanelGroup direction="horizontal" className="flex-1">
+        <ResizablePanelGroup direction="horizontal" className="flex-1 overflow-hidden">
           {/* Tree Sidebar */}
           <ResizablePanel defaultSize={20} minSize={15} maxSize={35}>
             <div className="h-full border-r bg-muted/20 flex flex-col">
@@ -825,7 +825,8 @@ export default function WikiV2Page() {
 
                   {/* Editor */}
                   <TipTapEditor
-                    content={selectedPage.content}
+                    key={selectedPage.id}
+                    content={editedContent || selectedPage.content}
                     onChange={(content) => {
                       setEditedContent(content);
                       currentContentRef.current = content;
