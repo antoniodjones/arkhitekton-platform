@@ -43,7 +43,7 @@ import ArkhitektonArchitectureOracle from "@/pages/arkhitekton-architecture-orac
 import ArkhitektonSystemsIntegration from "@/pages/arkhitekton-systems-integration";
 import PitchDeck from "@/pages/pitch-deck";
 import SettingsPage from "@/pages/settings";
-import APMPage from "@/pages/apm";
+// APM functionality consolidated into Portfolio Management
 import CloudIconsPage from "@/pages/cloud-icons";
 import DrawioPOCPage from "@/pages/drawio-poc";
 import CanvasPOCPage from "@/pages/canvas-poc";
@@ -132,7 +132,8 @@ function Router() {
       {/* Legacy defects route - redirect to Quality Center */}
       <Route path="/defects">{() => <Redirect to="/quality/defects" />}</Route>
       <Route path="/defects/:id">{({ id }) => <Redirect to={`/quality/defects/${id}`} />}</Route>
-      <Route path="/apm" component={APMPage} />
+      {/* APM consolidated into Portfolio Management */}
+      <Route path="/apm">{() => <Redirect to="/portfolio?tab=applications" />}</Route>
       <Route path="/cloud-icons" component={CloudIconsPage} />
       <Route path="/gcp-icons">{() => <Redirect to="/cloud-icons" />}</Route>
       <Route path="/drawio-poc" component={DrawioPOCPage} />

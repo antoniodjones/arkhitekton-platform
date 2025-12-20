@@ -26,6 +26,9 @@ import {
   insertApplicationSettingSchema,
   insertApplicationSchema,
   updateApplicationSchema,
+  insertInitiativeSchema,
+  updateInitiativeSchema,
+  insertInitiativeApplicationLinkSchema,
   insertJiraMappingSchema,
   insertJiraSyncLogSchema,
   insertJiraWebhookEventSchema,
@@ -2677,6 +2680,187 @@ Keep response concise but comprehensive.`;
     } catch (error) {
       console.error('Error deleting application:', error);
       res.status(500).json({ error: "Failed to delete application" });
+    }
+  });
+
+  // ============================================================================
+  // Initiatives API - Strategic Transformation Portfolio Management
+  // ============================================================================
+
+  // GET /api/initiatives - Get all initiatives with optional filters
+  app.get("/api/initiatives", async (req, res) => {
+    try {
+      const { status, type, priority, search } = req.query;
+
+      let initiatives;
+
+      if (search && typeof search === 'string') {
+        initiatives = await storage.searchInitiatives(search);
+      } else if (status && typeof status === 'string') {
+        initiatives = await storage.getInitiativesByStatus(status);
+      } else if (type && typeof type === 'string') {
+        initiatives = await storage.getInitiativesByType(type);
+      } else if (priority && typeof priority === 'string') {
+        initiatives = await storage.getInitiativesByPriority(priority);
+      } else {
+        initiatives = await storage.getAllInitiatives();
+      }
+
+      res.json(initiatives);
+    } catch (error) {
+      console.error('Error fetching initiatives:', error);
+      res.status(500).json({ error: "Failed to fetch initiatives" });
+    }
+  });
+
+  // GET /api/initiatives/:id - Get single initiative by ID
+  app.get("/api/initiatives/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const initiative = await storage.getInitiative(id);
+
+      if (!initiative) {
+        return res.status(404).json({ error: "Initiative not found" });
+      }
+
+      res.json(initiative);
+    } catch (error) {
+      console.error('Error fetching initiative:', error);
+      res.status(500).json({ error: "Failed to fetch initiative" });
+    }
+  });
+
+  // POST /api/initiatives - Create new initiative
+  app.post("/api/initiatives", async (req, res) => {
+    try {
+      const validatedData = insertInitiativeSchema.parse(req.body);
+      const initiative = await storage.createInitiative(validatedData);
+      res.status(201).json(initiative);
+    } catch (error) {
+      console.error('Error creating initiative:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          error: "Invalid initiative data",
+          details: error.errors
+        });
+      }
+      res.status(500).json({ error: "Failed to create initiative" });
+    }
+  });
+
+  // PATCH /api/initiatives/:id - Update initiative
+  app.patch("/api/initiatives/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedData = updateInitiativeSchema.parse(req.body);
+
+      const updatedInitiative = await storage.updateInitiative(id, validatedData);
+
+      if (!updatedInitiative) {
+        return res.status(404).json({ error: "Initiative not found" });
+      }
+
+      res.json(updatedInitiative);
+    } catch (error) {
+      console.error('Error updating initiative:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          error: "Invalid initiative data",
+          details: error.errors
+        });
+      }
+      res.status(500).json({ error: "Failed to update initiative" });
+    }
+  });
+
+  // DELETE /api/initiatives/:id - Delete initiative
+  app.delete("/api/initiatives/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deleteInitiative(id);
+
+      if (!deleted) {
+        return res.status(404).json({ error: "Initiative not found" });
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting initiative:', error);
+      res.status(500).json({ error: "Failed to delete initiative" });
+    }
+  });
+
+  // ============================================================================
+  // Initiative-Application Links API - Cross-references
+  // ============================================================================
+
+  // GET /api/initiatives/:id/applications - Get applications linked to an initiative
+  app.get("/api/initiatives/:id/applications", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const links = await storage.getApplicationsForInitiative(id);
+      res.json(links);
+    } catch (error) {
+      console.error('Error fetching initiative applications:', error);
+      res.status(500).json({ error: "Failed to fetch initiative applications" });
+    }
+  });
+
+  // GET /api/applications/:id/initiatives - Get initiatives linked to an application
+  app.get("/api/applications/:id/initiatives", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const links = await storage.getInitiativesForApplication(id);
+      res.json(links);
+    } catch (error) {
+      console.error('Error fetching application initiatives:', error);
+      res.status(500).json({ error: "Failed to fetch application initiatives" });
+    }
+  });
+
+  // POST /api/initiative-application-links - Create a link between initiative and application
+  app.post("/api/initiative-application-links", async (req, res) => {
+    try {
+      const validatedData = insertInitiativeApplicationLinkSchema.parse(req.body);
+      const link = await storage.createInitiativeApplicationLink(validatedData);
+      res.status(201).json(link);
+    } catch (error) {
+      console.error('Error creating initiative-application link:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          error: "Invalid link data",
+          details: error.errors
+        });
+      }
+      res.status(500).json({ error: "Failed to create link" });
+    }
+  });
+
+  // DELETE /api/initiative-application-links/:id - Delete a link
+  app.delete("/api/initiative-application-links/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deleteInitiativeApplicationLink(id);
+
+      if (!deleted) {
+        return res.status(404).json({ error: "Link not found" });
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting link:', error);
+      res.status(500).json({ error: "Failed to delete link" });
+    }
+  });
+
+  // GET /api/initiative-application-links - Get all links (for dependencies view)
+  app.get("/api/initiative-application-links", async (req, res) => {
+    try {
+      const links = await storage.getAllInitiativeApplicationLinks();
+      res.json(links);
+    } catch (error) {
+      console.error('Error fetching links:', error);
+      res.status(500).json({ error: "Failed to fetch links" });
     }
   });
 

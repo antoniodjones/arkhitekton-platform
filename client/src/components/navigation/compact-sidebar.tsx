@@ -29,7 +29,6 @@ import {
   Cloud,
   Presentation,
   Palette,
-  Database,
   Plug,
   Bug
 } from 'lucide-react';
@@ -56,14 +55,7 @@ const navigationItems: NavigationItem[] = [
     label: 'Portfolio Management',
     href: '/portfolio',
     icon: TrendingUp,
-    description: 'Track transformation initiatives'
-  },
-  {
-    id: 'apm',
-    label: 'Application Portfolio',
-    href: '/apm',
-    icon: Database,
-    description: 'Manage applications, tools, and technologies'
+    description: 'Applications, initiatives, and dependencies'
   },
   {
     id: 'studio',

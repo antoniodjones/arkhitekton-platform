@@ -32,6 +32,11 @@ import {
   type Application,
   type InsertApplication,
   type UpdateApplication,
+  type Initiative,
+  type InsertInitiative,
+  type UpdateInitiative,
+  type InitiativeApplicationLink,
+  type InsertInitiativeApplicationLink,
   type ArchitecturalModel,
   type InsertArchitecturalModel,
   type ArchitecturalObject,
@@ -192,6 +197,24 @@ export interface IStorage {
   createApplication(application: InsertApplication): Promise<Application>;
   updateApplication(id: string, updates: UpdateApplication): Promise<Application | undefined>;
   deleteApplication(id: string): Promise<boolean>;
+
+  // Initiatives - Strategic Transformation Portfolio
+  getAllInitiatives(): Promise<Initiative[]>;
+  getInitiative(id: string): Promise<Initiative | undefined>;
+  getInitiativesByStatus(status: string): Promise<Initiative[]>;
+  getInitiativesByType(type: string): Promise<Initiative[]>;
+  getInitiativesByPriority(priority: string): Promise<Initiative[]>;
+  searchInitiatives(query: string): Promise<Initiative[]>;
+  createInitiative(initiative: InsertInitiative): Promise<Initiative>;
+  updateInitiative(id: string, updates: UpdateInitiative): Promise<Initiative | undefined>;
+  deleteInitiative(id: string): Promise<boolean>;
+
+  // Initiative-Application Links
+  getApplicationsForInitiative(initiativeId: string): Promise<InitiativeApplicationLink[]>;
+  getInitiativesForApplication(applicationId: string): Promise<InitiativeApplicationLink[]>;
+  getAllInitiativeApplicationLinks(): Promise<InitiativeApplicationLink[]>;
+  createInitiativeApplicationLink(link: InsertInitiativeApplicationLink): Promise<InitiativeApplicationLink>;
+  deleteInitiativeApplicationLink(id: string): Promise<boolean>;
 
   // Jira Integration - Native bi-directional sync
   getJiraWebhookEventByIdempotency(idempotencyKey: string): Promise<any | undefined>;
@@ -1454,6 +1477,43 @@ Scenario: Team Assignment
   }
   async deleteApplication(id: string): Promise<boolean> { return this.applications.delete(id); }
 
+  // Initiatives (Stub for MemStorage)
+  private initiatives: Map<string, Initiative> = new Map();
+  private initiativeApplicationLinks: Map<string, InitiativeApplicationLink> = new Map();
+
+  async getAllInitiatives(): Promise<Initiative[]> { return Array.from(this.initiatives.values()); }
+  async getInitiative(id: string): Promise<Initiative | undefined> { return this.initiatives.get(id); }
+  async getInitiativesByStatus(status: string): Promise<Initiative[]> { return Array.from(this.initiatives.values()).filter(i => i.status === status); }
+  async getInitiativesByType(type: string): Promise<Initiative[]> { return Array.from(this.initiatives.values()).filter(i => i.type === type); }
+  async getInitiativesByPriority(priority: string): Promise<Initiative[]> { return Array.from(this.initiatives.values()).filter(i => i.priority === priority); }
+  async searchInitiatives(query: string): Promise<Initiative[]> { return Array.from(this.initiatives.values()).filter(i => i.name.toLowerCase().includes(query.toLowerCase()) || (i.description && i.description.toLowerCase().includes(query.toLowerCase()))); }
+  async createInitiative(init: InsertInitiative): Promise<Initiative> {
+    const id = randomUUID();
+    const newInit: Initiative = { ...init, id, createdAt: new Date(), updatedAt: new Date(), description: init.description || null, sponsor: init.sponsor || null, programManager: init.programManager || null, stakeholders: (init.stakeholders as any) || [], startDate: init.startDate || null, targetDate: init.targetDate || null, actualEndDate: null, budget: init.budget || null, spentBudget: init.spentBudget || 0, businessValue: init.businessValue || null, progressPercent: init.progressPercent || 0, dependencies: (init.dependencies as any) || [], capabilities: (init.capabilities as any) || [], milestones: (init.milestones as any) || [], kpis: (init.kpis as any) || [], tags: (init.tags as any) || [], notes: init.notes || null, status: init.status || 'planning', priority: init.priority || 'medium', healthStatus: init.healthStatus || 'green', riskLevel: init.riskLevel || 'medium', type: init.type || 'technology_modernization' };
+    this.initiatives.set(id, newInit);
+    return newInit;
+  }
+  async updateInitiative(id: string, updates: UpdateInitiative): Promise<Initiative | undefined> {
+    const existing = this.initiatives.get(id);
+    if (!existing) return undefined;
+    const updated = { ...existing, ...updates, updatedAt: new Date() };
+    this.initiatives.set(id, updated as Initiative);
+    return updated as Initiative;
+  }
+  async deleteInitiative(id: string): Promise<boolean> { return this.initiatives.delete(id); }
+
+  // Initiative-Application Links (Stub for MemStorage)
+  async getApplicationsForInitiative(initiativeId: string): Promise<InitiativeApplicationLink[]> { return Array.from(this.initiativeApplicationLinks.values()).filter(l => l.initiativeId === initiativeId); }
+  async getInitiativesForApplication(applicationId: string): Promise<InitiativeApplicationLink[]> { return Array.from(this.initiativeApplicationLinks.values()).filter(l => l.applicationId === applicationId); }
+  async getAllInitiativeApplicationLinks(): Promise<InitiativeApplicationLink[]> { return Array.from(this.initiativeApplicationLinks.values()); }
+  async createInitiativeApplicationLink(link: InsertInitiativeApplicationLink): Promise<InitiativeApplicationLink> {
+    const id = randomUUID();
+    const newLink: InitiativeApplicationLink = { ...link, id, createdAt: new Date(), notes: link.notes || null, impactType: link.impactType || 'impacted' };
+    this.initiativeApplicationLinks.set(id, newLink);
+    return newLink;
+  }
+  async deleteInitiativeApplicationLink(id: string): Promise<boolean> { return this.initiativeApplicationLinks.delete(id); }
+
   // Jira Integration (Stub)
   async getJiraWebhookEventByIdempotency(idempotencyKey: string): Promise<any | undefined> { return undefined; }
   async createJiraWebhookEvent(event: any): Promise<string> { return randomUUID(); }
@@ -2454,6 +2514,138 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(schema.applications)
       .where(eq(schema.applications.id, id));
+    return result.rowCount! > 0;
+  }
+
+  // Initiatives - Strategic Transformation Portfolio
+  async getAllInitiatives(): Promise<Initiative[]> {
+    const initiatives = await db.select().from(schema.initiatives);
+    return initiatives;
+  }
+
+  async getInitiative(id: string): Promise<Initiative | undefined> {
+    const [initiative] = await db
+      .select()
+      .from(schema.initiatives)
+      .where(eq(schema.initiatives.id, id));
+    return initiative || undefined;
+  }
+
+  async getInitiativesByStatus(status: string): Promise<Initiative[]> {
+    const initiatives = await db
+      .select()
+      .from(schema.initiatives)
+      .where(eq(schema.initiatives.status, status));
+    return initiatives;
+  }
+
+  async getInitiativesByType(type: string): Promise<Initiative[]> {
+    const initiatives = await db
+      .select()
+      .from(schema.initiatives)
+      .where(eq(schema.initiatives.type, type));
+    return initiatives;
+  }
+
+  async getInitiativesByPriority(priority: string): Promise<Initiative[]> {
+    const initiatives = await db
+      .select()
+      .from(schema.initiatives)
+      .where(eq(schema.initiatives.priority, priority));
+    return initiatives;
+  }
+
+  async searchInitiatives(query: string): Promise<Initiative[]> {
+    const initiatives = await db.select().from(schema.initiatives);
+    const searchLower = query.toLowerCase();
+    return initiatives.filter(init =>
+      init.name.toLowerCase().includes(searchLower) ||
+      (init.description && init.description.toLowerCase().includes(searchLower)) ||
+      (init.sponsor && init.sponsor.toLowerCase().includes(searchLower)) ||
+      (init.programManager && init.programManager.toLowerCase().includes(searchLower))
+    );
+  }
+
+  async createInitiative(initiative: InsertInitiative): Promise<Initiative> {
+    const [newInit] = await db
+      .insert(schema.initiatives)
+      .values({
+        ...initiative,
+        stakeholders: (initiative.stakeholders as any) || [],
+        dependencies: (initiative.dependencies as any) || [],
+        capabilities: (initiative.capabilities as any) || [],
+        milestones: (initiative.milestones as any) || [],
+        kpis: (initiative.kpis as any) || [],
+        tags: (initiative.tags as any) || [],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+    return newInit;
+  }
+
+  async updateInitiative(id: string, updates: UpdateInitiative): Promise<Initiative | undefined> {
+    const [updated] = await db
+      .update(schema.initiatives)
+      .set({
+        ...updates,
+        stakeholders: updates.stakeholders ? ((updates.stakeholders as any) || []) : undefined,
+        dependencies: updates.dependencies ? ((updates.dependencies as any) || []) : undefined,
+        capabilities: updates.capabilities ? ((updates.capabilities as any) || []) : undefined,
+        milestones: updates.milestones ? ((updates.milestones as any) || []) : undefined,
+        kpis: updates.kpis ? ((updates.kpis as any) || []) : undefined,
+        tags: updates.tags ? ((updates.tags as any) || []) : undefined,
+        updatedAt: new Date()
+      })
+      .where(eq(schema.initiatives.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async deleteInitiative(id: string): Promise<boolean> {
+    const result = await db
+      .delete(schema.initiatives)
+      .where(eq(schema.initiatives.id, id));
+    return result.rowCount! > 0;
+  }
+
+  // Initiative-Application Links
+  async getApplicationsForInitiative(initiativeId: string): Promise<InitiativeApplicationLink[]> {
+    const links = await db
+      .select()
+      .from(schema.initiativeApplicationLinks)
+      .where(eq(schema.initiativeApplicationLinks.initiativeId, initiativeId));
+    return links;
+  }
+
+  async getInitiativesForApplication(applicationId: string): Promise<InitiativeApplicationLink[]> {
+    const links = await db
+      .select()
+      .from(schema.initiativeApplicationLinks)
+      .where(eq(schema.initiativeApplicationLinks.applicationId, applicationId));
+    return links;
+  }
+
+  async getAllInitiativeApplicationLinks(): Promise<InitiativeApplicationLink[]> {
+    const links = await db.select().from(schema.initiativeApplicationLinks);
+    return links;
+  }
+
+  async createInitiativeApplicationLink(link: InsertInitiativeApplicationLink): Promise<InitiativeApplicationLink> {
+    const [newLink] = await db
+      .insert(schema.initiativeApplicationLinks)
+      .values({
+        ...link,
+        createdAt: new Date()
+      })
+      .returning();
+    return newLink;
+  }
+
+  async deleteInitiativeApplicationLink(id: string): Promise<boolean> {
+    const result = await db
+      .delete(schema.initiativeApplicationLinks)
+      .where(eq(schema.initiativeApplicationLinks.id, id));
     return result.rowCount! > 0;
   }
 

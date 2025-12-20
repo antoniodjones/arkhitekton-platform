@@ -1287,6 +1287,119 @@ export type Application = typeof applications.$inferSelect;
 export type InsertApplication = z.infer<typeof insertApplicationSchema>;
 export type UpdateApplication = z.infer<typeof updateApplicationSchema>;
 
+// Initiatives - Strategic Transformation Portfolio Management
+export const initiatives = pgTable("initiatives", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+
+  // Basic Information
+  name: text("name").notNull(),
+  description: text("description"),
+
+  // Status & Priority
+  status: text("status").notNull().default("planning"), // 'planning', 'in_progress', 'on_hold', 'completed', 'cancelled'
+  priority: text("priority").notNull().default("medium"), // 'low', 'medium', 'high', 'critical'
+  healthStatus: text("health_status").notNull().default("green"), // 'green', 'yellow', 'red'
+  riskLevel: text("risk_level").notNull().default("medium"), // 'low', 'medium', 'high', 'critical'
+
+  // Classification
+  type: text("type").notNull().default("technology_modernization"), // 'digital_transformation', 'process_improvement', 'technology_modernization', 'organizational_change', 'infrastructure_upgrade'
+
+  // Ownership
+  sponsor: text("sponsor"),
+  programManager: text("program_manager"),
+  stakeholders: jsonb("stakeholders").$type<string[]>().default([]),
+
+  // Timeline
+  startDate: text("start_date"), // ISO date string
+  targetDate: text("target_date"), // ISO date string
+  actualEndDate: text("actual_end_date"), // ISO date string
+
+  // Financials
+  budget: integer("budget"), // Budget in dollars
+  spentBudget: integer("spent_budget").default(0), // Spent budget in dollars
+  businessValue: integer("business_value"), // Expected business value in dollars
+
+  // Progress
+  progressPercent: integer("progress_percent").default(0),
+
+  // Dependencies (initiative IDs this initiative depends on)
+  dependencies: jsonb("dependencies").$type<string[]>().default([]),
+
+  // Capabilities this initiative enables/impacts
+  capabilities: jsonb("capabilities").$type<string[]>().default([]),
+
+  // Milestones
+  milestones: jsonb("milestones").$type<Array<{
+    name: string;
+    targetDate: string;
+    status: 'not_started' | 'in_progress' | 'completed' | 'at_risk';
+  }>>().default([]),
+
+  // KPIs
+  kpis: jsonb("kpis").$type<Array<{
+    name: string;
+    target: number;
+    current: number;
+    unit: string;
+  }>>().default([]),
+
+  // Metadata
+  tags: jsonb("tags").$type<string[]>().default([]),
+  notes: text("notes"),
+
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+// Initiative validation schemas
+export const insertInitiativeSchema = createInsertSchema(initiatives).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  name: z.string().min(1, "Initiative name is required"),
+  status: z.enum(['planning', 'in_progress', 'on_hold', 'completed', 'cancelled']).default('planning'),
+  priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
+  healthStatus: z.enum(['green', 'yellow', 'red']).default('green'),
+  riskLevel: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
+  type: z.enum(['digital_transformation', 'process_improvement', 'technology_modernization', 'organizational_change', 'infrastructure_upgrade']).default('technology_modernization'),
+});
+
+export const updateInitiativeSchema = insertInitiativeSchema.partial();
+
+export type Initiative = typeof initiatives.$inferSelect;
+export type InsertInitiative = z.infer<typeof insertInitiativeSchema>;
+export type UpdateInitiative = z.infer<typeof updateInitiativeSchema>;
+
+// Initiative-Application Links - Junction table for cross-references
+export const initiativeApplicationLinks = pgTable("initiative_application_links", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+
+  // References
+  initiativeId: varchar("initiative_id").notNull().references(() => initiatives.id, { onDelete: 'cascade' }),
+  applicationId: varchar("application_id").notNull().references(() => applications.id, { onDelete: 'cascade' }),
+
+  // Relationship metadata
+  impactType: text("impact_type").notNull().default("impacted"), // 'impacted', 'modernized', 'replaced', 'created', 'retired'
+  notes: text("notes"),
+
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertInitiativeApplicationLinkSchema = createInsertSchema(initiativeApplicationLinks).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  initiativeId: z.string().min(1, "Initiative ID is required"),
+  applicationId: z.string().min(1, "Application ID is required"),
+  impactType: z.enum(['impacted', 'modernized', 'replaced', 'created', 'retired']).default('impacted'),
+});
+
+export type InitiativeApplicationLink = typeof initiativeApplicationLinks.$inferSelect;
+export type InsertInitiativeApplicationLink = z.infer<typeof insertInitiativeApplicationLinkSchema>;
+
 // Jira Integration - Native bi-directional sync infrastructure
 // Each system maintains own IDs with mapping table approach
 
@@ -1561,3 +1674,165 @@ export type InsertEntityMention = z.infer<typeof insertEntityMentionSchema>;
 
 // Keeping existing KnowledgeBasePage for backward compatibility
 // Will migrate to wikiPages in future sprint
+
+// ============================================================
+// DESIGN OPTIONS - Design Decision Management System
+// ============================================================
+
+/**
+ * Design Option Categories
+ * Groups related design options together (e.g., Logo Design, Color Palettes, Typography)
+ */
+export const designOptionCategories = pgTable("design_option_categories", {
+  id: text("id").primaryKey(), // e.g., 'logo-concepts', 'color-palettes'
+  title: text("title").notNull(),
+  description: text("description"),
+  categoryTag: text("category_tag").notNull(), // e.g., 'LOGO-CONCEPTS', 'COLOR-PALETTES'
+  status: text("status").notNull().default("proposed"), // 'proposed', 'active', 'new', 'archived', 'completed'
+  priority: text("priority").notNull().default("medium"), // 'low', 'medium', 'high', 'critical'
+  optionCount: integer("option_count").default(0),
+  
+  // Ownership
+  owner: text("owner"),
+  stakeholders: jsonb("stakeholders").$type<string[]>().default([]),
+  
+  // Dates
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  
+  // Optional link to decision/ADR
+  linkedDecisionId: text("linked_decision_id"),
+});
+
+/**
+ * Design Options
+ * Individual design alternatives within a category
+ */
+export const designOptions = pgTable("design_options", {
+  id: text("id").primaryKey(), // e.g., 'ARKDO-00001'
+  categoryId: text("category_id").notNull().references(() => designOptionCategories.id, { onDelete: "cascade" }),
+  
+  // Core fields
+  title: text("title").notNull(),
+  description: text("description"),
+  concept: text("concept"), // High-level concept description
+  
+  // Status and selection
+  status: text("status").notNull().default("proposed"), // 'proposed', 'under_review', 'selected', 'rejected', 'archived'
+  isSelected: integer("is_selected").default(0), // 0 = not selected, 1 = selected winner
+  selectionReason: text("selection_reason"),
+  
+  // Analysis
+  pros: jsonb("pros").$type<string[]>().default([]),
+  cons: jsonb("cons").$type<string[]>().default([]),
+  
+  // Visual representation
+  previewType: text("preview_type").default("component"), // 'component', 'image', 'html', 'figma', 'url'
+  previewData: jsonb("preview_data").$type<{
+    componentName?: string;
+    imageUrl?: string;
+    htmlFile?: string;
+    figmaUrl?: string;
+    externalUrl?: string;
+  }>(),
+  
+  // Technical details
+  implementationNotes: text("implementation_notes"),
+  technicalStack: jsonb("technical_stack").$type<string[]>().default([]),
+  estimatedEffort: text("estimated_effort"), // 'low', 'medium', 'high', 'x-large'
+  
+  // Ordering and metadata
+  sortOrder: integer("sort_order").default(0),
+  tags: jsonb("tags").$type<string[]>().default([]),
+  
+  // Dates
+  dateProposed: timestamp("date_proposed").defaultNow(),
+  dateReviewed: timestamp("date_reviewed"),
+  dateSelected: timestamp("date_selected"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+/**
+ * Design Option Votes
+ * Track stakeholder votes on design options
+ */
+export const designOptionVotes = pgTable("design_option_votes", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+  optionId: text("option_id").notNull().references(() => designOptions.id, { onDelete: "cascade" }),
+  
+  voterId: text("voter_id").notNull(),
+  voterName: text("voter_name"),
+  vote: text("vote").notNull(), // 'approve', 'reject', 'abstain'
+  comment: text("comment"),
+  weight: integer("weight").default(1), // Allow weighted votes for senior stakeholders
+  
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+/**
+ * Design Option Comments
+ * Discussion threads on design options
+ */
+export const designOptionComments = pgTable("design_option_comments", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+  optionId: text("option_id").notNull().references(() => designOptions.id, { onDelete: "cascade" }),
+  
+  authorId: text("author_id").notNull(),
+  authorName: text("author_name"),
+  content: text("content").notNull(),
+  
+  parentCommentId: text("parent_comment_id"), // For threaded replies
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Zod schemas for validation
+export const insertDesignOptionCategorySchema = createInsertSchema(designOptionCategories).omit({
+  createdAt: true,
+  updatedAt: true,
+  optionCount: true,
+}).extend({
+  title: z.string().min(1, "Title is required"),
+  status: z.enum(['proposed', 'active', 'new', 'archived', 'completed']).default('proposed'),
+  priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
+});
+
+export const insertDesignOptionSchema = createInsertSchema(designOptions).omit({
+  createdAt: true,
+  updatedAt: true,
+  dateReviewed: true,
+  dateSelected: true,
+}).extend({
+  title: z.string().min(1, "Title is required"),
+  status: z.enum(['proposed', 'under_review', 'selected', 'rejected', 'archived']).default('proposed'),
+  previewType: z.enum(['component', 'image', 'html', 'figma', 'url']).default('component'),
+  estimatedEffort: z.enum(['low', 'medium', 'high', 'x-large']).optional(),
+});
+
+export const insertDesignOptionVoteSchema = createInsertSchema(designOptionVotes).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  vote: z.enum(['approve', 'reject', 'abstain']),
+});
+
+export const insertDesignOptionCommentSchema = createInsertSchema(designOptionComments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  content: z.string().min(1, "Comment content is required"),
+});
+
+// Types
+export type DesignOptionCategory = typeof designOptionCategories.$inferSelect;
+export type InsertDesignOptionCategory = z.infer<typeof insertDesignOptionCategorySchema>;
+export type DesignOption = typeof designOptions.$inferSelect;
+export type InsertDesignOption = z.infer<typeof insertDesignOptionSchema>;
+export type DesignOptionVote = typeof designOptionVotes.$inferSelect;
+export type InsertDesignOptionVote = z.infer<typeof insertDesignOptionVoteSchema>;
+export type DesignOptionComment = typeof designOptionComments.$inferSelect;
+export type InsertDesignOptionComment = z.infer<typeof insertDesignOptionCommentSchema>;

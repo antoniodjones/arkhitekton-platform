@@ -782,6 +782,74 @@ function DesignOptionDetailContent() {
           ]
         };
 
+      case "canvas-implementation":
+        return {
+          title: "Canvas Implementation Options",
+          description: "Technical comparison of canvas rendering approaches for the Design Studio. Compare Static HTML/CSS mockup vs React Konva (HTML5 Canvas) with draggable shapes.",
+          items: [
+            {
+              id: "ARKCI-00001",
+              title: "Option A: Static HTML/CSS Mockup",
+              description: "Uses styled HTML divs positioned absolutely. Shapes are visual only - they cannot be dragged. Connections are hardcoded SVG lines. Good for UI/UX design validation but not for production.",
+              concept: "UI/UX Design Validation",
+              component: (
+                <div className="w-full h-40 bg-slate-100 rounded-lg relative overflow-hidden border-2 border-dashed border-slate-300">
+                  <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, #CBD5E1 1px, transparent 1px)', backgroundSize: '12px 12px' }} />
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                    <line x1="100" y1="35" x2="60" y2="70" stroke="#94A3B8" strokeWidth="2" />
+                    <line x1="100" y1="35" x2="100" y2="70" stroke="#94A3B8" strokeWidth="2" />
+                    <line x1="100" y1="35" x2="140" y2="70" stroke="#94A3B8" strokeWidth="2" />
+                  </svg>
+                  <div className="absolute left-[70px] top-[15px] px-2 py-1 bg-orange-500 text-white text-[10px] rounded">API Gateway</div>
+                  <div className="absolute left-[30px] top-[70px] px-2 py-1 bg-orange-500 text-white text-[10px] rounded">Orders</div>
+                  <div className="absolute left-[75px] top-[70px] px-2 py-1 bg-orange-500 text-white text-[10px] rounded">Users</div>
+                  <div className="absolute left-[120px] top-[70px] px-2 py-1 bg-orange-500 text-white text-[10px] rounded">Products</div>
+                  <div className="absolute bottom-2 left-2 bg-white/90 px-1 py-0.5 rounded text-[8px] text-slate-600">HTML/CSS Divs (Static)</div>
+                </div>
+              ),
+              pros: ["Fast to prototype", "Easy CSS styling", "Familiar web tech", "Matches design mockups"],
+              cons: ["NOT actually draggable", "Connections are hardcoded", "Poor performance at scale", "No canvas export"],
+              status: "Rejected",
+              technicalDetails: {
+                file: "canvas-simple.tsx",
+                technology: "HTML, CSS, SVG",
+                route: "/studio/canvas"
+              }
+            },
+            {
+              id: "ARKCI-00002",
+              title: "Option B: React Konva Canvas (Recommended)",
+              description: "Uses HTML5 Canvas via react-konva library. Shapes ARE truly draggable. Connections update dynamically when shapes move. Supports zoom/pan, shape selection, and proper performance at scale.",
+              concept: "Production-Ready Canvas",
+              component: (
+                <div className="w-full h-40 bg-slate-50 rounded-lg relative overflow-hidden border-2 border-solid border-green-400">
+                  <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, #CBD5E1 1px, transparent 1px)', backgroundSize: '12px 12px' }} />
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                    <line x1="100" y1="35" x2="60" y2="70" stroke="#10B981" strokeWidth="2" />
+                    <line x1="100" y1="35" x2="100" y2="70" stroke="#10B981" strokeWidth="2" />
+                    <line x1="100" y1="35" x2="140" y2="70" stroke="#10B981" strokeWidth="2" />
+                    <line x1="100" y1="85" x2="100" y2="110" stroke="#10B981" strokeWidth="2" />
+                  </svg>
+                  <div className="absolute left-[70px] top-[15px] px-2 py-1 bg-orange-500 text-white text-[10px] rounded shadow-md cursor-move">API Gateway</div>
+                  <div className="absolute left-[30px] top-[70px] px-2 py-1 bg-orange-500 text-white text-[10px] rounded shadow-md cursor-move ring-2 ring-green-500 ring-offset-1">Orders</div>
+                  <div className="absolute left-[75px] top-[70px] px-2 py-1 bg-orange-500 text-white text-[10px] rounded shadow-md cursor-move">Users</div>
+                  <div className="absolute left-[120px] top-[70px] px-2 py-1 bg-orange-500 text-white text-[10px] rounded shadow-md cursor-move">Products</div>
+                  <div className="absolute left-[70px] top-[110px] px-2 py-1 bg-blue-500 text-white text-[10px] rounded shadow-md cursor-move">DynamoDB</div>
+                  <div className="absolute bottom-2 left-2 bg-white/90 px-1 py-0.5 rounded text-[8px] text-green-600 font-medium">React Konva (Draggable)</div>
+                </div>
+              ),
+              pros: ["Truly draggable shapes", "Dynamic connections", "Zoom & pan support", "Performance at scale (100+ shapes)", "Export to PNG/SVG", "Shape components"],
+              cons: ["Slightly more complex setup", "Requires react-konva knowledge"],
+              status: "Active",
+              technicalDetails: {
+                file: "DesignCanvas.tsx",
+                technology: "React Konva (HTML5 Canvas)",
+                route: "/studio/canvas-advanced"
+              }
+            }
+          ]
+        };
+
       default:
         return null;
     }
