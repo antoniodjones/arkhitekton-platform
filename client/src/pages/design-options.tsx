@@ -317,6 +317,17 @@ function DesignOptionsContent() {
       status: "New"
     },
     {
+      id: "canvas-implementation",
+      title: "Canvas Implementation Options",
+      description: "Technical comparison of canvas rendering approaches: Static HTML/CSS mockup vs React Konva (HTML5 Canvas) with draggable shapes and dynamic connections",
+      category: "Technical Design",
+      priority: "Critical",
+      dateCreated: "2025-12-19",
+      itemCount: 2,
+      status: "Decided",
+      decision: "React Konva (Option B)"
+    },
+    {
       id: "wiki-landing-pages",
       title: "Wiki Module Landing Page Prototypes",
       description: "Twelve distinct visual styles for the Wiki Knowledge Core landing page - including new Gemini 3.5 AI-generated concepts alongside original designs",
