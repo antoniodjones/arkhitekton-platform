@@ -234,14 +234,14 @@ export default function DesignStudioHome() {
 
   return (
     <AppLayout>
-      <div className="flex flex-col h-full bg-[#f9f9fa] text-slate-900 font-sans">
+      <div className="flex flex-col h-full bg-background text-foreground font-sans">
       {/* Hero Header */}
-      <header className="bg-white border-b pb-8 pt-6 px-8 sticky top-0 z-20 shadow-sm">
+      <header className="bg-card border-b border-border pb-8 pt-6 px-8 sticky top-0 z-20 shadow-sm">
         <div className="max-w-6xl mx-auto w-full">
           {/* Top Bar */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
-              <div className="w-8 h-8 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-lg shadow-lg shadow-indigo-200" />
+              <div className="w-8 h-8 bg-gradient-to-tr from-orange-400 to-orange-600 rounded-lg shadow-lg shadow-orange-200/50 dark:shadow-orange-900/30" />
               Arkhitekton
             </div>
             <div className="flex items-center gap-4">
@@ -273,7 +273,7 @@ export default function DesignStudioHome() {
 
           {/* Hero Section */}
           <div className="flex flex-col items-center justify-center py-8">
-            <h1 className="text-4xl font-semibold mb-6 tracking-tight text-slate-800">
+            <h1 className="text-4xl font-semibold mb-6 tracking-tight text-foreground">
               What are you building today?
             </h1>
             
@@ -283,14 +283,14 @@ export default function DesignStudioHome() {
               onClick={() => setCommandBarOpen(true)}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 via-green-400/20 to-blue-400/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative bg-white shadow-xl shadow-slate-200/60 rounded-full h-14 flex items-center px-6 border border-slate-100 ring-1 ring-slate-50 transition-shadow group-hover:shadow-2xl group-hover:shadow-orange-100/40">
-                <Search className="w-5 h-5 text-slate-400 mr-4" />
-                <span className="flex-1 text-lg text-slate-400">
+              <div className="relative bg-card shadow-xl shadow-muted/60 rounded-full h-14 flex items-center px-6 border border-border ring-1 ring-muted/50 transition-shadow group-hover:shadow-2xl group-hover:shadow-orange-100/40 dark:group-hover:shadow-orange-900/20">
+                <Search className="w-5 h-5 text-muted-foreground mr-4" />
+                <span className="flex-1 text-lg text-muted-foreground">
                   Search diagrams, objects, or type <span className="text-orange-500 font-medium">/</span> for AI...
                 </span>
-                <div className="flex items-center gap-2 pl-4 border-l border-slate-200">
+                <div className="flex items-center gap-2 pl-4 border-l border-border">
                   <AISparkleIcon size={18} state="idle" className="opacity-60" />
-                  <kbd className="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-1 rounded">
+                  <kbd className="text-xs font-medium text-muted-foreground bg-muted px-2 py-1 rounded">
                     {isMac ? '⌘K' : 'Ctrl+K'}
                   </kbd>
                 </div>
@@ -307,7 +307,7 @@ export default function DesignStudioHome() {
           <div className="flex items-center justify-between mb-6 gap-4">
             {/* Left: Tabs */}
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
-              <TabsList className="bg-white border shadow-sm">
+              <TabsList className="bg-card border border-border shadow-sm">
                 <TabsTrigger value="all">All</TabsTrigger>
                 <TabsTrigger value="models">Models</TabsTrigger>
                 <TabsTrigger value="diagrams">Diagrams</TabsTrigger>
@@ -355,13 +355,13 @@ export default function DesignStudioHome() {
               </DropdownMenu>
 
               {/* View Toggle */}
-              <div className="flex bg-white p-1 rounded-lg border shadow-sm">
+              <div className="flex bg-card p-1 rounded-lg border border-border shadow-sm">
                 <button
                   className={cn(
                     'p-1.5 rounded cursor-pointer transition-colors',
                     viewMode === 'grid' 
-                      ? 'bg-slate-100 text-slate-700 shadow-sm' 
-                      : 'text-slate-400 hover:text-slate-600'
+                      ? 'bg-muted text-foreground shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground'
                   )}
                   onClick={() => setViewMode('grid')}
                 >
@@ -371,8 +371,8 @@ export default function DesignStudioHome() {
                   className={cn(
                     'p-1.5 ml-1 rounded cursor-pointer transition-colors',
                     viewMode === 'list' 
-                      ? 'bg-slate-100 text-slate-700 shadow-sm' 
-                      : 'text-slate-400 hover:text-slate-600'
+                      ? 'bg-muted text-foreground shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground'
                   )}
                   onClick={() => setViewMode('list')}
                 >
@@ -387,13 +387,13 @@ export default function DesignStudioHome() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {/* Create New Card */}
               <div
-                className="aspect-[16/10] rounded-2xl border-2 border-dashed border-slate-200 hover:border-orange-400 hover:bg-orange-50/30 transition-all cursor-pointer flex flex-col items-center justify-center group shadow-sm hover:shadow-md"
+                className="aspect-[16/10] rounded-2xl border-2 border-dashed border-border hover:border-orange-400 hover:bg-orange-50/30 dark:hover:bg-orange-950/30 transition-all cursor-pointer flex flex-col items-center justify-center group shadow-sm hover:shadow-md"
                 onClick={handleNewDiagram}
               >
-                <div className="w-16 h-16 bg-white rounded-2xl shadow-sm border flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-16 h-16 bg-card rounded-2xl shadow-sm border border-border flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Plus className="w-8 h-8 text-orange-500" />
                 </div>
-                <span className="font-medium text-slate-600 group-hover:text-orange-600">
+                <span className="font-medium text-muted-foreground group-hover:text-orange-600 dark:group-hover:text-orange-400">
                   Create new diagram
                 </span>
               </div>
@@ -431,11 +431,11 @@ export default function DesignStudioHome() {
 
               {filteredModels.length === 0 && (
                 <div className="text-center py-16">
-                  <div className="w-16 h-16 bg-slate-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-                    <Search className="w-8 h-8 text-slate-400" />
+                  <div className="w-16 h-16 bg-muted rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <Search className="w-8 h-8 text-muted-foreground" />
                   </div>
-                  <h3 className="text-lg font-medium text-slate-700 mb-2">No models found</h3>
-                  <p className="text-slate-500 mb-4">
+                  <h3 className="text-lg font-medium text-foreground mb-2">No models found</h3>
+                  <p className="text-muted-foreground mb-4">
                     {filterBy !== 'all' 
                       ? 'Try adjusting your filters' 
                       : 'Create your first model to get started'}
