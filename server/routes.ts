@@ -3610,46 +3610,102 @@ function mapJiraPriorityToArkhitekton(jiraPriority: string | undefined): string 
   // Story: US-WIKI-070 (Unified Entity Search API for @mentions)
   // ============================================================================
 
-  // GET /api/entities/search - Search across all entity types for @mentions
+  // GET /api/entities/search - Search across all entity types for @mentions and global search
   app.get("/api/entities/search", async (req, res) => {
     try {
-      const { q, type, limit = '5' } = req.query;
+      const { q, type, limit = '10', offset = '0' } = req.query;
       
-      if (!q || typeof q !== 'string' || q.length < 1) {
-        return res.status(400).json({ error: "Search query 'q' is required" });
+      // Minimum 2 characters for search (user-friendly, while 3+ is ideal)
+      if (!q || typeof q !== 'string' || q.length < 2) {
+        return res.status(400).json({ 
+          error: "Search query 'q' is required (minimum 2 characters)",
+          query: q || '',
+          totalResults: 0,
+          results: []
+        });
       }
 
-      const searchLimit = Math.min(parseInt(limit as string) || 5, 20);
-      const query = q.toLowerCase();
+      const searchLimit = Math.min(parseInt(limit as string) || 10, 50);
+      const searchOffset = Math.max(parseInt(offset as string) || 0, 0);
+      const query = q.toLowerCase().trim();
       const results: any[] = [];
 
-      // Helper to add results with entity metadata
+      // Helper to calculate relevance score
+      const calculateScore = (item: any, query: string): number => {
+        let score = 0;
+        const id = (item.id || '').toLowerCase();
+        const title = (item.title || item.name || '').toLowerCase();
+        const description = (item.description || '').toLowerCase();
+        
+        // Exact ID match = highest priority
+        if (id === query) score += 100;
+        else if (id.includes(query)) score += 50;
+        
+        // Title matches = high priority
+        if (title === query) score += 80;
+        else if (title.startsWith(query)) score += 60;
+        else if (title.includes(query)) score += 40;
+        
+        // Description matches = medium priority
+        if (description.includes(query)) score += 20;
+        
+        // Recency boost (within last 7 days)
+        const updatedAt = item.updatedAt || item.createdAt;
+        if (updatedAt) {
+          const daysSinceUpdate = (Date.now() - new Date(updatedAt).getTime()) / (1000 * 60 * 60 * 24);
+          if (daysSinceUpdate < 7) score += 10;
+          else if (daysSinceUpdate < 30) score += 5;
+        }
+        
+        // Status boost (active/in-progress > done > archived)
+        const status = (item.status || '').toLowerCase();
+        if (['active', 'in-progress', 'in_progress', 'sprint'].includes(status)) score += 10;
+        else if (['done', 'completed', 'published'].includes(status)) score += 5;
+        else if (['archived', 'deprecated'].includes(status)) score -= 5;
+        
+        return score;
+      };
+
+      // Helper to add results with entity metadata and scoring
       const addResults = (items: any[], entityType: string, getUrl: (item: any) => string) => {
-        const filtered = items
-          .filter(item => {
-            const searchFields = [
-              item.title,
-              item.name,
-              item.id,
-              item.description
-            ].filter(Boolean).join(' ').toLowerCase();
-            return searchFields.includes(query);
+        const scored = items
+          .map(item => {
+            const id = (item.id || '').toLowerCase();
+            const title = (item.title || item.name || '').toLowerCase();
+            const description = (item.description || '').toLowerCase();
+            const searchFields = `${id} ${title} ${description}`;
+            
+            // Check if item matches query
+            if (!searchFields.includes(query)) return null;
+            
+            return {
+              item,
+              score: calculateScore(item, query)
+            };
           })
-          .slice(0, searchLimit)
-          .map(item => ({
-            id: item.id,
-            entityType,
-            title: item.title || item.name,
-            status: item.status || 'active',
-            url: getUrl(item),
-            metadata: {
-              description: item.description?.substring(0, 100),
-              createdAt: item.createdAt,
-              updatedAt: item.updatedAt,
-              ...getEntityMetadata(item, entityType)
-            }
-          }));
-        results.push(...filtered);
+          .filter((result): result is { item: any; score: number } => result !== null && result.score > 0);
+        
+        // Sort by score descending
+        scored.sort((a, b) => b.score - a.score);
+        
+        // Map to result format
+        const mapped = scored.map(({ item, score }) => ({
+          id: item.id,
+          entityType,
+          title: item.title || item.name,
+          description: item.description,
+          status: item.status || 'active',
+          score,
+          url: getUrl(item),
+          metadata: {
+            description: item.description?.substring(0, 100),
+            createdAt: item.createdAt,
+            updatedAt: item.updatedAt,
+            ...getEntityMetadata(item, entityType)
+          }
+        }));
+        
+        results.push(...mapped);
       };
 
       // Helper to get entity-specific metadata
@@ -3685,30 +3741,25 @@ function mapJiraPriorityToArkhitekton(jiraPriority: string | undefined): string 
               criticality: item.criticality,
               owner: item.owner
             };
+          case 'initiative':
+            return { 
+              status: item.status,
+              priority: item.priority,
+              businessValue: item.businessValue,
+              owner: item.owner
+            };
           case 'page':
             return { 
               category: item.category,
               template: item.template,
               views: item.views
             };
-          case 'object':
-          case 'component':
-            return { 
-              type: item.type,
-              modelId: item.modelId,
-              layer: item.layer
-            };
-          case 'capability':
-            return { 
-              level: item.level,
-              domain: item.domain,
-              parentId: item.parentId
-            };
           case 'element':
             return { 
               type: item.type,
               category: item.category,
-              layer: item.layer
+              layer: item.layer,
+              framework: item.framework
             };
           default:
             return {};
@@ -3718,7 +3769,7 @@ function mapJiraPriorityToArkhitekton(jiraPriority: string | undefined): string 
       // Search User Stories
       if (!type || type === 'user_story') {
         const stories = await storage.getAllUserStories();
-        addResults(stories, 'user_story', (s) => `/plan?storyId=${s.id}`);
+        addResults(stories, 'user_story', (s) => `/plan/stories/${s.id}`);
       }
 
       // Search Epics
@@ -3730,13 +3781,19 @@ function mapJiraPriorityToArkhitekton(jiraPriority: string | undefined): string 
       // Search Defects
       if (!type || type === 'defect') {
         const defects = await storage.getAllDefects();
-        addResults(defects, 'defect', (d) => `/defects/${d.id}`);
+        addResults(defects, 'defect', (d) => `/quality/defects/${d.id}`);
       }
 
       // Search Applications
       if (!type || type === 'application') {
         const apps = await storage.getAllApplications();
         addResults(apps, 'application', (a) => `/apm?appId=${a.id}`);
+      }
+
+      // Search Initiatives
+      if (!type || type === 'initiative') {
+        const initiatives = await storage.getAllInitiatives();
+        addResults(initiatives, 'initiative', (i) => `/portfolio?tab=initiatives&id=${i.id}`);
       }
 
       // Search Wiki Pages
@@ -3751,35 +3808,33 @@ function mapJiraPriorityToArkhitekton(jiraPriority: string | undefined): string 
         addResults(models, 'model', (m) => `/studio/canvas?modelId=${m.id}`);
       }
 
-      // Search Architectural Objects (Components)
-      if (!type || type === 'object' || type === 'component') {
-        const objects = await storage.getArchitecturalObjects();
-        addResults(objects, 'object', (o) => `/studio/canvas?objectId=${o.id}`);
-      }
-
-      // Search Business Capabilities
-      if (!type || type === 'capability') {
-        const capabilities = await storage.getBusinessCapabilities();
-        addResults(capabilities, 'capability', (c) => `/capabilities?id=${c.id}`);
-      }
-
       // Search Architecture Elements
       if (!type || type === 'element') {
         const elements = await storage.getArchitectureElements();
         addResults(elements, 'element', (e) => `/elements?id=${e.id}`);
       }
 
+      // Sort all results by score (descending)
+      results.sort((a, b) => (b.score || 0) - (a.score || 0));
+
+      // Apply pagination
+      const totalResults = results.length;
+      const paginatedResults = results.slice(searchOffset, searchOffset + searchLimit);
+
       // Group results by entity type
       const grouped: Record<string, any[]> = {};
-      results.forEach(r => {
+      paginatedResults.forEach(r => {
         if (!grouped[r.entityType]) grouped[r.entityType] = [];
         grouped[r.entityType].push(r);
       });
 
       res.json({
         query: q,
-        totalResults: results.length,
-        results: results.slice(0, searchLimit * 6), // Limit total results
+        totalResults,
+        limit: searchLimit,
+        offset: searchOffset,
+        hasMore: totalResults > (searchOffset + searchLimit),
+        results: paginatedResults,
         grouped,
       });
     } catch (error) {
