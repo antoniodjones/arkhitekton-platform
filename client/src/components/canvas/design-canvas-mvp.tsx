@@ -63,6 +63,8 @@ export function DesignCanvasMVP({ onShapeAdd }: DesignCanvasMVPProps) {
       height: size.height,
     };
 
+    console.log('✅ Adding shape:', shapeType, 'at', newShape.x, newShape.y);
+
     setShapes(prev => [...prev, newShape]);
     setSelectedShapeId(newShape.id);
     
@@ -71,10 +73,46 @@ export function DesignCanvasMVP({ onShapeAdd }: DesignCanvasMVPProps) {
     }
   }, [stageSize, canvasState, onShapeAdd]);
 
+  // Update connections when shapes move - FIX: Use setShapes callback to get current state
+  const updateConnectionsForShape = useCallback((shapeId: string, newX: number, newY: number) => {
+    setShapes(currentShapes => {
+      setConnections(currentConns =>
+        currentConns.map(conn => {
+          if (conn.sourceShapeId === shapeId || conn.targetShapeId === shapeId) {
+            const sourceShape = currentShapes.find(s => s.id === conn.sourceShapeId);
+            const targetShape = currentShapes.find(s => s.id === conn.targetShapeId);
+            
+            if (sourceShape && targetShape) {
+              // Update the moved shape's position
+              const updatedSource = conn.sourceShapeId === shapeId
+                ? { ...sourceShape, x: newX, y: newY }
+                : sourceShape;
+              const updatedTarget = conn.targetShapeId === shapeId
+                ? { ...targetShape, x: newX, y: newY }
+                : targetShape;
+              
+              const points = calculateConnectionPoints(
+                updatedSource,
+                updatedTarget,
+                conn.routingType
+              );
+              
+              return { ...conn, points };
+            }
+          }
+          return conn;
+        })
+      );
+      return currentShapes; // Don't modify shapes state here
+    });
+  }, []);
+
   // Update shape position after drag
   const handleShapeDragEnd = useCallback((shapeId: string, e: Konva.KonvaEventObject<DragEvent>) => {
     const newX = e.target.x();
     const newY = e.target.y();
+    
+    console.log('🔄 Shape dragged:', shapeId, 'to', newX, newY);
     
     setShapes(prev =>
       prev.map(shape =>
@@ -86,70 +124,53 @@ export function DesignCanvasMVP({ onShapeAdd }: DesignCanvasMVPProps) {
     
     // Update any connections involving this shape
     updateConnectionsForShape(shapeId, newX, newY);
-  }, []);
-
-  // Update connections when shapes move
-  const updateConnectionsForShape = useCallback((shapeId: string, newX: number, newY: number) => {
-    setConnections(prev =>
-      prev.map(conn => {
-        if (conn.sourceShapeId === shapeId || conn.targetShapeId === shapeId) {
-          const sourceShape = shapes.find(s => s.id === conn.sourceShapeId);
-          const targetShape = shapes.find(s => s.id === conn.targetShapeId);
-          
-          if (sourceShape && targetShape) {
-            // Update the moved shape's position
-            const updatedSource = conn.sourceShapeId === shapeId
-              ? { ...sourceShape, x: newX, y: newY }
-              : sourceShape;
-            const updatedTarget = conn.targetShapeId === shapeId
-              ? { ...targetShape, x: newX, y: newY }
-              : targetShape;
-            
-            const points = calculateConnectionPoints(
-              updatedSource,
-              updatedTarget,
-              conn.routingType
-            );
-            
-            return { ...conn, points };
-          }
-        }
-        return conn;
-      })
-    );
-  }, [shapes]);
+  }, [updateConnectionsForShape]);
 
   // Select shape or create connection
   const handleShapeSelect = useCallback((shapeId: string, isShiftKey: boolean = false) => {
     if (connectionMode === 'creating') {
       if (!connectionSource) {
         // First click - set as source
+        console.log('Connection source set:', shapeId);
         setConnectionSource(shapeId);
         setSelectedShapeId(shapeId);
       } else if (connectionSource !== shapeId) {
         // Second click - create connection
-        const sourceShape = shapes.find(s => s.id === connectionSource);
-        const targetShape = shapes.find(s => s.id === shapeId);
-        
-        if (sourceShape && targetShape) {
-          const points = calculateConnectionPoints(
-            sourceShape,
-            targetShape,
-            'orthogonal'
-          );
+        setShapes(currentShapes => {
+          const sourceShape = currentShapes.find(s => s.id === connectionSource);
+          const targetShape = currentShapes.find(s => s.id === shapeId);
           
-          const newConnection: CanvasConnectionData = {
-            id: `conn-${Date.now()}`,
-            sourceShapeId: connectionSource,
-            targetShapeId: shapeId,
-            routingType: 'orthogonal',
-            lineStyle: 'solid',
-            arrowType: 'single',
-            points,
-          };
+          console.log('Creating connection:', { sourceShape, targetShape });
           
-          setConnections(prev => [...prev, newConnection]);
-        }
+          if (sourceShape && targetShape) {
+            const points = calculateConnectionPoints(
+              sourceShape,
+              targetShape,
+              'orthogonal'
+            );
+            
+            console.log('Connection points calculated:', points);
+            
+            const newConnection: CanvasConnectionData = {
+              id: `conn-${Date.now()}`,
+              sourceShapeId: connectionSource,
+              targetShapeId: shapeId,
+              routingType: 'orthogonal',
+              lineStyle: 'solid',
+              arrowType: 'single',
+              points,
+            };
+            
+            setConnections(prev => {
+              console.log('Adding connection to state:', newConnection);
+              return [...prev, newConnection];
+            });
+          } else {
+            console.error('Could not find shapes for connection:', { connectionSource, shapeId, currentShapes });
+          }
+          
+          return currentShapes; // Don't modify shapes
+        });
         
         // Reset connection mode
         setConnectionMode('none');
@@ -176,7 +197,7 @@ export function DesignCanvasMVP({ onShapeAdd }: DesignCanvasMVPProps) {
         setSelectedConnectionId(null);
       }
     }
-  }, [connectionMode, connectionSource, shapes]);
+  }, [connectionMode, connectionSource]);
 
   // Deselect when clicking empty space
   const handleStageClick = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -304,8 +325,13 @@ export function DesignCanvasMVP({ onShapeAdd }: DesignCanvasMVPProps) {
     });
   }, []);
 
-  // Handle pan (drag empty space)
-  const handleDragStart = () => {
+  // Handle pan (drag empty space) - FIX: Only allow stage drag if clicking on stage, not shapes
+  const handleDragStart = (e: Konva.KonvaEventObject<DragEvent>) => {
+    // Only allow stage drag if clicking on stage itself (empty space)
+    if (e.target !== e.target.getStage()) {
+      e.target.getStage()!.stopDrag();
+      return;
+    }
     setIsDragging(true);
   };
 
@@ -314,12 +340,15 @@ export function DesignCanvasMVP({ onShapeAdd }: DesignCanvasMVPProps) {
   };
 
   const handleDragMove = (e: Konva.KonvaEventObject<DragEvent>) => {
-    const stage = e.target as Konva.Stage;
-    setCanvasState(prev => ({
-      ...prev,
-      x: stage.x(),
-      y: stage.y(),
-    }));
+    // Only update if dragging the stage itself
+    if (e.target === e.target.getStage()) {
+      const stage = e.target as Konva.Stage;
+      setCanvasState(prev => ({
+        ...prev,
+        x: stage.x(),
+        y: stage.y(),
+      }));
+    }
   };
 
   // Generate grid dots

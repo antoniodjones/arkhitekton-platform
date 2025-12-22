@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,12 +26,35 @@ import {
   Bug
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/app-layout';
+import { useDebouncedSearch, useGlobalSearch } from '@/hooks/use-global-search';
+import { SearchResultCard, SearchResultSkeleton } from '@/components/search/search-result-card';
+import { useSearchShortcut } from '@/hooks/use-search-shortcut';
 
 function DashboardContent() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
   const [designOption, setDesignOption] = useState<1 | 2 | 3 | 4>(1);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  
+  // Debounced search with 300ms delay
+  const { value: searchQuery, debouncedValue: debouncedQuery, setValue: setSearchQuery } = useDebouncedSearch('', 300);
+  
+  // Global search hook
+  const { results, totalResults, isLoading, isError } = useGlobalSearch({
+    query: debouncedQuery,
+    limit: 10,
+    enabled: debouncedQuery.length >= 2,
+  });
+
+  // Keyboard shortcut for search (Cmd+K / Ctrl+K)
+  const { shortcutKey } = useSearchShortcut({
+    onOpen: () => {
+      searchInputRef.current?.focus();
+      searchInputRef.current?.select();
+    },
+    onClose: () => {
+      setSearchQuery('');
+      searchInputRef.current?.blur();
+    },
+  });
 
   // Four Design Options System
   const palette = {
@@ -337,72 +360,73 @@ function DashboardContent() {
             <div className={`relative ${palette.cardBg} backdrop-blur-sm border ${palette.cardBorder} rounded-3xl shadow-2xl`}>
               <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
               <Input
-                placeholder="Discover architecture insights, capabilities, and strategic opportunities..."
+                ref={searchInputRef}
+                placeholder="Search for User Stories, Epics, Applications, Wiki Pages, and more..."
                 value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  if (e.target.value.length > 0) {
-                    setIsSearching(true);
-                    setTimeout(() => {
-                      setSearchResults([
-                        { type: 'Capability', name: 'Digital Innovation', description: 'Strategic capability for digital transformation', category: 'Strategic' },
-                        { type: 'Platform', name: 'Enterprise Data Hub', description: 'Centralized data architecture platform', category: 'Technical' },
-                        { type: 'Journey', name: 'Customer Onboarding', description: 'End-to-end customer experience design', category: 'Business' },
-                        { type: 'Initiative', name: 'Cloud Migration', description: 'Strategic technology modernization program', category: 'Transformation' }
-                      ].filter(item => 
-                        item.name.toLowerCase().includes(e.target.value.toLowerCase()) ||
-                        item.description.toLowerCase().includes(e.target.value.toLowerCase())
-                      ));
-                      setIsSearching(false);
-                    }, 300);
-                  } else {
-                    setSearchResults([]);
-                    setIsSearching(false);
-                  }
-                }}
-                className="pl-14 pr-6 py-6 text-lg bg-transparent border-0 rounded-3xl placeholder:text-slate-400 focus:ring-0 focus:outline-none"
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-14 pr-32 py-6 text-lg bg-transparent border-0 rounded-3xl placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-0 focus:outline-none"
                 data-testid="input-global-search"
               />
+              {/* Keyboard shortcut hint */}
+              {!searchQuery && (
+                <div className="absolute right-6 top-1/2 transform -translate-y-1/2">
+                  <kbd className="px-2 py-1 text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md">
+                    {shortcutKey}
+                  </kbd>
+                </div>
+              )}
             </div>
           </div>
           
           {/* Search Results */}
           {(searchQuery.length > 0) && (
-            <div className="absolute top-full mt-4 w-full bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-2xl shadow-2xl z-50 max-h-96 overflow-hidden">
-              {isSearching ? (
-                <div className="p-8 text-center">
-                  <div className={`w-8 h-8 ${gradients.accentBar} rounded-full mx-auto mb-3 animate-pulse`} />
-                  <p className="text-slate-600 dark:text-slate-300">Analyzing architecture...</p>
+            <div className="absolute top-full mt-4 w-full bg-card/95 backdrop-blur-md border border-border rounded-2xl shadow-2xl z-50 max-h-96 overflow-hidden">
+              {/* Show hint for minimum 2 characters */}
+              {searchQuery.length === 1 ? (
+                <div className="p-6 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Type at least 2 characters to search...
+                  </p>
                 </div>
-              ) : searchResults.length > 0 ? (
-                <div className="p-3">
-                  <div className="text-xs text-slate-500 dark:text-slate-400 mb-3 px-3 pt-2 font-medium tracking-wide">
-                    DISCOVERED {searchResults.length} ELEMENTS
+              ) : isLoading ? (
+                <div className="p-4 space-y-2">
+                  <div className="text-xs text-muted-foreground mb-3 px-3 pt-2 font-medium tracking-wide">
+                    SEARCHING...
                   </div>
-                  {searchResults.map((result, index) => (
-                    <div key={index} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-xl cursor-pointer transition-all duration-200">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className={`w-2 h-2 ${gradients.accentBar} rounded-full`} />
-                            <h4 className="font-semibold text-slate-900 dark:text-white">{result.name}</h4>
-                            <Badge variant="outline" className="text-xs font-medium">
-                              {result.type}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-slate-600 dark:text-slate-300">{result.description}</p>
-                        </div>
-                        <Badge className="ml-4 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
-                          {result.category}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
+                  <SearchResultSkeleton />
+                  <SearchResultSkeleton />
+                  <SearchResultSkeleton />
+                </div>
+              ) : isError ? (
+                <div className="p-8 text-center">
+                  <div className="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-full mx-auto mb-3 flex items-center justify-center">
+                    <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                  </div>
+                  <p className="text-foreground font-medium mb-1">Search failed</p>
+                  <p className="text-sm text-muted-foreground">Please try again</p>
+                </div>
+              ) : results.length > 0 ? (
+                <div className="p-3">
+                  <div className="text-xs text-muted-foreground mb-3 px-3 pt-2 font-medium tracking-wide">
+                    DISCOVERED {totalResults} ELEMENT{totalResults !== 1 ? 'S' : ''}
+                  </div>
+                  <div className="space-y-2 max-h-80 overflow-y-auto">
+                    {results.map((result) => (
+                      <SearchResultCard 
+                        key={result.id} 
+                        result={result}
+                        onClick={() => setSearchQuery('')}
+                      />
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <div className="p-8 text-center">
-                  <Search className="h-6 w-6 text-slate-400 mx-auto mb-3" />
-                  <p className="text-slate-600 dark:text-slate-300">No elements found for "{searchQuery}"</p>
+                  <div className="w-12 h-12 bg-muted rounded-full mx-auto mb-3 flex items-center justify-center">
+                    <Search className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <p className="text-foreground font-medium mb-1">No elements found for "{debouncedQuery}"</p>
+                  <p className="text-sm text-muted-foreground">Try different keywords or browse modules</p>
                 </div>
               )}
             </div>
