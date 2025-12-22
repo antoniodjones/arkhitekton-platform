@@ -51,6 +51,7 @@ import DrawioPOCPage from "@/pages/drawio-poc";
 import CanvasPOCPage from "@/pages/canvas-poc";
 import InstantCanvasPage from "@/pages/instant-canvas";
 import CanvasSimple from "@/pages/canvas-simple";
+import CanvasMVPPage from "@/pages/canvas-mvp";
 import WikiV2Page from "@/pages/wiki-v2";
 
 
@@ -70,6 +71,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/studio" component={DesignStudioHome} />
+      <Route path="/studio/canvas-mvp" component={CanvasMVPPage} />
       <Route path="/studio/canvas" component={CanvasSimple} />
       <Route path="/studio/canvas-advanced" component={StudioPage} />
       <Route path="/design-palette">{() => <Redirect to="/studio" />}</Route>
