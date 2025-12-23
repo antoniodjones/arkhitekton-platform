@@ -40,7 +40,6 @@ export function DesignCanvasMVP({ onShapeAdd }: DesignCanvasMVPProps) {
     y: 0,
   });
   const [gridVisible, setGridVisible] = useState(true);
-  const [isDragging, setIsDragging] = useState(false);
   const [shapes, setShapes] = useState<CanvasShapeData[]>([]);
   const [selectedShapeId, setSelectedShapeId] = useState<string | null>(null);
   const [selectedShapeIds, setSelectedShapeIds] = useState<Set<string>>(new Set());
@@ -325,31 +324,8 @@ export function DesignCanvasMVP({ onShapeAdd }: DesignCanvasMVPProps) {
     });
   }, []);
 
-  // Handle pan (drag empty space) - FIX: Only allow stage drag if clicking on stage, not shapes
-  const handleDragStart = (e: Konva.KonvaEventObject<DragEvent>) => {
-    // Only allow stage drag if clicking on stage itself (empty space)
-    if (e.target !== e.target.getStage()) {
-      e.target.getStage()!.stopDrag();
-      return;
-    }
-    setIsDragging(true);
-  };
-
-  const handleDragEnd = () => {
-    setIsDragging(false);
-  };
-
-  const handleDragMove = (e: Konva.KonvaEventObject<DragEvent>) => {
-    // Only update if dragging the stage itself
-    if (e.target === e.target.getStage()) {
-      const stage = e.target as Konva.Stage;
-      setCanvasState(prev => ({
-        ...prev,
-        x: stage.x(),
-        y: stage.y(),
-      }));
-    }
-  };
+  // Pan removed - shapes now draggable without Stage drag interference
+  // Canvas pan can be added later with Space+Drag if needed
 
   // Generate grid dots
   const renderGrid = () => {
@@ -482,16 +458,10 @@ export function DesignCanvasMVP({ onShapeAdd }: DesignCanvasMVPProps) {
         scaleY={canvasState.scale}
         x={canvasState.x}
         y={canvasState.y}
-        draggable
+        draggable={false}
         onWheel={handleWheel}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        onDragMove={handleDragMove}
         onClick={handleStageClick}
-        className={cn(
-          'cursor-grab',
-          isDragging && 'cursor-grabbing'
-        )}
+        className="cursor-default"
       >
         {/* Grid Layer */}
         <Layer listening={false}>
