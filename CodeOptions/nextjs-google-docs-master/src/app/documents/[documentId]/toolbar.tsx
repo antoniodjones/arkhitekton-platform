@@ -498,7 +498,7 @@ const HeadingLevelButton = () => {
             }}
             className={cn(
               "flex items-center gap-x-2 px-2 py-1 rounded-sm hover:bg-neutral-200/80",
-              (value === 0 && !editor?.isActive("heading")) || editor?.isActive("heading", { level: value }) && "bg-neutral-200/80"
+              ((value === 0 && !editor?.isActive("heading")) || editor?.isActive("heading", { level: value })) && "bg-neutral-200/80"
             )}
           >
             {label}
