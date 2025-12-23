@@ -25,11 +25,11 @@ export const TemplatesGallery = () => {
   const onTemplateClick = (title: string, initialContent: string) => {
     setIsCreating(true);
     create({ title, initialContent })
-      .catch(() => toast.error("Something went wrong"))
       .then((documentId) => {
         toast.success("Document created")
         router.push(`/documents/${documentId}`);
       })
+      .catch(() => toast.error("Something went wrong"))
       .finally(() => {
         setIsCreating(false);
       });
