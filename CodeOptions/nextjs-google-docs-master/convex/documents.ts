@@ -31,7 +31,7 @@ export const create = mutation({
       throw new ConvexError("Unauthorized");
     }
 
-    const organizationId = (user.organization_id ?? undefined) as
+    const organizationId = (user.org_id ?? undefined) as
     | string
     | undefined;
 
@@ -174,7 +174,7 @@ export const getById = query({
 
     const isOwner = document.ownerId === user.subject;
     const isOrganizationMember = 
-      !!(document.organizationId && document.organizationId === user.organization_id);
+      !!(document.organizationId && document.organizationId === user.org_id);
 
     if (!isOwner && !isOrganizationMember) {
       throw new ConvexError("Unauthorized");
