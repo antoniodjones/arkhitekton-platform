@@ -28,7 +28,7 @@ export const create = mutation({
     const user = await ctx.auth.getUserIdentity();
 
     if (!user) {
-      throw new ConvexError("Unathorized");
+      throw new ConvexError("Unauthorized");
     }
 
     const organizationId = (user.organization_id ?? undefined) as
@@ -36,7 +36,7 @@ export const create = mutation({
     | undefined;
 
     return await ctx.db.insert("documents", {
-      title: args.title ?? "Untitled coument",
+      title: args.title ?? "Untitled document",
       ownerId: user.subject,
       organizationId,
       initialContent: args.initialContent,
@@ -160,10 +160,24 @@ export const updateById = mutation({
 export const getById = query({
   args: { id: v.id("documents") },
   handler: async (ctx, { id }) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if (!user) {
+      throw new ConvexError("Unauthorized");
+    }
+
     const document = await ctx.db.get(id);
 
     if (!document) {
       throw new ConvexError("Document not found");
+    }
+
+    const isOwner = document.ownerId === user.subject;
+    const isOrganizationMember = 
+      !!(document.organizationId && document.organizationId === user.organization_id);
+
+    if (!isOwner && !isOrganizationMember) {
+      throw new ConvexError("Unauthorized");
     }
 
     return document;
