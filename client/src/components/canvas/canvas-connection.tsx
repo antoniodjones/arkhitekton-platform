@@ -103,12 +103,75 @@ export function calculateConnectionPoints(
   };
 
   if (routingType === 'straight') {
-    // Simple straight line from center to center
-    return [sourceCenter.x, sourceCenter.y, targetCenter.x, targetCenter.y];
+    // Calculate edge-based connection points (not center-to-center)
+    const startPoint = getEdgeIntersectionPoint(sourceShape, sourceCenter, targetCenter);
+    const endPoint = getEdgeIntersectionPoint(targetShape, targetCenter, sourceCenter);
+    
+    return [startPoint.x, startPoint.y, endPoint.x, endPoint.y];
   }
 
   // Orthogonal (elbow) routing
   return calculateOrthogonalPath(sourceShape, targetShape, sourceCenter, targetCenter);
+}
+
+/**
+ * Calculate the point where a line from shapeCenter to targetCenter intersects the shape's edge
+ */
+function getEdgeIntersectionPoint(
+  shape: { x: number; y: number; width: number; height: number },
+  shapeCenter: { x: number; y: number },
+  targetCenter: { x: number; y: number }
+): { x: number; y: number } {
+  // Calculate the angle from shape center to target center
+  const dx = targetCenter.x - shapeCenter.x;
+  const dy = targetCenter.y - shapeCenter.y;
+  
+  // If shapes are at the same position, return center
+  if (dx === 0 && dy === 0) {
+    return shapeCenter;
+  }
+  
+  // Calculate the intersection with the shape's bounding box
+  const angle = Math.atan2(dy, dx);
+  
+  // Shape boundaries
+  const left = shape.x;
+  const right = shape.x + shape.width;
+  const top = shape.y;
+  const bottom = shape.y + shape.height;
+  
+  // Test intersection with each edge
+  let intersectX = shapeCenter.x;
+  let intersectY = shapeCenter.y;
+  
+  // Determine which edge the line exits from based on angle
+  const absAngle = Math.abs(angle);
+  const halfWidth = shape.width / 2;
+  const halfHeight = shape.height / 2;
+  const edgeAngle = Math.atan2(halfHeight, halfWidth);
+  
+  if (absAngle <= edgeAngle) {
+    // Exits right edge
+    intersectX = right;
+    intersectY = shapeCenter.y + (right - shapeCenter.x) * Math.tan(angle);
+  } else if (absAngle <= Math.PI - edgeAngle) {
+    // Exits top or bottom edge
+    if (angle > 0) {
+      // Bottom edge
+      intersectY = bottom;
+      intersectX = shapeCenter.x + (bottom - shapeCenter.y) / Math.tan(angle);
+    } else {
+      // Top edge
+      intersectY = top;
+      intersectX = shapeCenter.x + (top - shapeCenter.y) / Math.tan(angle);
+    }
+  } else {
+    // Exits left edge
+    intersectX = left;
+    intersectY = shapeCenter.y + (left - shapeCenter.x) * Math.tan(angle);
+  }
+  
+  return { x: intersectX, y: intersectY };
 }
 
 function calculateOrthogonalPath(

@@ -2,7 +2,8 @@ import { useRef, useState, useCallback, useEffect } from 'react';
 import { Stage, Layer, Circle } from 'react-konva';
 import Konva from 'konva';
 import { Button } from '@/components/ui/button';
-import { ZoomIn, ZoomOut, Maximize2, Grid3x3, Link as LinkIcon } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { ZoomIn, ZoomOut, Maximize2, Grid3x3, Link as LinkIcon, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CanvasShape, CanvasShapeData } from './canvas-shape';
 import { CanvasConnection, CanvasConnectionData, calculateConnectionPoints } from './canvas-connection';
@@ -47,6 +48,8 @@ export function DesignCanvasMVP({ onShapeAdd }: DesignCanvasMVPProps) {
   const [selectedConnectionId, setSelectedConnectionId] = useState<string | null>(null);
   const [connectionMode, setConnectionMode] = useState<'none' | 'creating'>('none');
   const [connectionSource, setConnectionSource] = useState<string | null>(null);
+  const [connectionRoutingType, setConnectionRoutingType] = useState<'straight' | 'orthogonal'>('straight');
+  const [connectionArrowType, setConnectionArrowType] = useState<'single' | 'bidirectional' | 'none'>('single');
 
   // Add shape to canvas (called from shape palette)
   const handleAddShape = useCallback((shapeType: ShapeType, size: { width: number; height: number }) => {
@@ -93,10 +96,10 @@ export function DesignCanvasMVP({ onShapeAdd }: DesignCanvasMVPProps) {
               const points = calculateConnectionPoints(
                 updatedSource,
                 updatedTarget,
-                'straight' // Use straight for now to debug
+                conn.routingType
               );
               
-              console.log('🔄 Updated connection points:', { shapeId, newX, newY, points: points.slice(0, 4) });
+              console.log('🔄 Updated connection points:', { shapeId, newX, newY, routing: conn.routingType });
               
               return { ...conn, points };
             }
@@ -152,18 +155,18 @@ export function DesignCanvasMVP({ onShapeAdd }: DesignCanvasMVPProps) {
             const points = calculateConnectionPoints(
               sourceShape,
               targetShape,
-              'straight' // Start with straight to debug
+              connectionRoutingType
             );
             
-            console.log('✅ Connection points:', points, '(should be [x1,y1,x2,y2])');
+            console.log('✅ Connection points:', points, `(routing: ${connectionRoutingType}, arrow: ${connectionArrowType})`);
             
             const newConnection: CanvasConnectionData = {
               id: `conn-${Date.now()}`,
               sourceShapeId: connectionSource,
               targetShapeId: shapeId,
-              routingType: 'straight',
+              routingType: connectionRoutingType,
               lineStyle: 'solid',
-              arrowType: 'single',
+              arrowType: connectionArrowType,
               points,
             };
             
@@ -432,6 +435,80 @@ export function DesignCanvasMVP({ onShapeAdd }: DesignCanvasMVPProps) {
         >
           <LinkIcon className="h-4 w-4" />
         </Button>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              title="Connection Options"
+            >
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Routing Type</div>
+            <DropdownMenuItem
+              onClick={() => setConnectionRoutingType('straight')}
+              className={connectionRoutingType === 'straight' ? 'bg-accent' : ''}
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 flex items-center justify-center">
+                  {connectionRoutingType === 'straight' && '✓'}
+                </div>
+                Straight Line
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setConnectionRoutingType('orthogonal')}
+              className={connectionRoutingType === 'orthogonal' ? 'bg-accent' : ''}
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 flex items-center justify-center">
+                  {connectionRoutingType === 'orthogonal' && '✓'}
+                </div>
+                Orthogonal (Elbow)
+              </div>
+            </DropdownMenuItem>
+            
+            <DropdownMenuSeparator />
+            
+            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Arrow Style</div>
+            <DropdownMenuItem
+              onClick={() => setConnectionArrowType('single')}
+              className={connectionArrowType === 'single' ? 'bg-accent' : ''}
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 flex items-center justify-center">
+                  {connectionArrowType === 'single' && '✓'}
+                </div>
+                Single Arrow
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setConnectionArrowType('bidirectional')}
+              className={connectionArrowType === 'bidirectional' ? 'bg-accent' : ''}
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 flex items-center justify-center">
+                  {connectionArrowType === 'bidirectional' && '✓'}
+                </div>
+                Bidirectional
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setConnectionArrowType('none')}
+              className={connectionArrowType === 'none' ? 'bg-accent' : ''}
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 flex items-center justify-center">
+                  {connectionArrowType === 'none' && '✓'}
+                </div>
+                No Arrow (Line Only)
+              </div>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Zoom Level Indicator (bottom right) */}
