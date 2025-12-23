@@ -93,8 +93,10 @@ export function DesignCanvasMVP({ onShapeAdd }: DesignCanvasMVPProps) {
               const points = calculateConnectionPoints(
                 updatedSource,
                 updatedTarget,
-                conn.routingType
+                'straight' // Use straight for now to debug
               );
+              
+              console.log('🔄 Updated connection points:', { shapeId, newX, newY, points: points.slice(0, 4) });
               
               return { ...conn, points };
             }
@@ -142,19 +144,24 @@ export function DesignCanvasMVP({ onShapeAdd }: DesignCanvasMVPProps) {
           console.log('Creating connection:', { sourceShape, targetShape });
           
           if (sourceShape && targetShape) {
+            console.log('🔗 Creating connection between:', {
+              source: { id: sourceShape.id, x: sourceShape.x, y: sourceShape.y, w: sourceShape.width, h: sourceShape.height },
+              target: { id: targetShape.id, x: targetShape.x, y: targetShape.y, w: targetShape.width, h: targetShape.height }
+            });
+            
             const points = calculateConnectionPoints(
               sourceShape,
               targetShape,
-              'orthogonal'
+              'straight' // Start with straight to debug
             );
             
-            console.log('Connection points calculated:', points);
+            console.log('✅ Connection points:', points, '(should be [x1,y1,x2,y2])');
             
             const newConnection: CanvasConnectionData = {
               id: `conn-${Date.now()}`,
               sourceShapeId: connectionSource,
               targetShapeId: shapeId,
-              routingType: 'orthogonal',
+              routingType: 'straight',
               lineStyle: 'solid',
               arrowType: 'single',
               points,
