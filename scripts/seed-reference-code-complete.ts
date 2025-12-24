@@ -87,14 +87,26 @@ And fix similar issues in Arkhitekton platform`,
     {
       id: 'DEF-REF-001',
       title: 'Template creation routing fails due to incorrect promise chain',
-      description: 'The createDocument mutation promise chain in templates-gallery.tsx has .catch() before .then(), causing router.push() to execute with undefined when an error is caught.',
+      description: `**Location**: CodeOptions/nextjs-google-docs-master/src/app/(home)/templates-gallery.tsx
+
+**Issue**: The createDocument mutation promise chain has .catch() before .then(), causing router.push() to execute with undefined when an error is caught.
+
+**Steps to Reproduce**:
+1. Click any template in gallery
+2. If error occurs, promise catch returns undefined
+3. Subsequent .then() receives undefined
+4. router.push(undefined) navigates to /documents/undefined
+
+**Expected Behavior**: Should navigate to /documents/{documentId} on success, stay on page on error
+
+**Actual Behavior**: Navigates to /documents/undefined when error is caught
+
+**Environment**: Reference Code (Next.js Google Docs)`,
       severity: 'high' as const,
-      priority: 'high' as const,
+      type: 'bug' as const,
       status: 'resolved' as const,
-      stepsToReproduce: '1. Click any template in gallery\n2. If error occurs, promise catch returns undefined\n3. Subsequent .then() receives undefined\n4. router.push(undefined) navigates to /documents/undefined',
-      expectedBehavior: 'Should navigate to /documents/{documentId} on success, stay on page on error',
-      actualBehavior: 'Navigates to /documents/undefined when error caught',
-      environment: 'Reference Code (Next.js Google Docs)',
+      rootCause: 'Promise chain has .catch() before .then(). When error is caught, .catch() returns undefined, which flows to .then(), causing router.push(undefined).',
+      resolution: 'Reordered promise chain: moved .catch() after .then(). Now errors are handled without breaking routing. Fixed in commit 096098d.',
       userStoryId: storyId,
       resolvedAt: new Date('2025-12-24'),
     },
