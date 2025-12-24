@@ -54,7 +54,8 @@ export default function QualityDefectDetailPage() {
     queryFn: async () => {
       const response = await fetch(`/api/defects/${params.id}`);
       if (!response.ok) throw new Error('Failed to fetch defect');
-      return response.json();
+      const result = await response.json();
+      return result.data || result; // Unwrap data property from API response
     },
     enabled: !!params.id
   });
