@@ -148,7 +148,7 @@ export function TestSuiteDialog({
                 <SelectValue placeholder="Select a module" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 <SelectItem value="plan">Plan</SelectItem>
                 <SelectItem value="wiki">Wiki</SelectItem>
                 <SelectItem value="quality">Quality Center</SelectItem>
