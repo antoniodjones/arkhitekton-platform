@@ -2,6 +2,7 @@ import { Link } from 'wouter';
 import { Badge } from '@/components/ui/badge';
 import { getEntityTypeInfo, getStatusColor, type SearchResult } from '@/hooks/use-global-search';
 import { cn } from '@/lib/utils';
+import { GitBranch, Zap } from 'lucide-react';
 
 interface SearchResultCardProps {
   result: SearchResult;
@@ -83,6 +84,25 @@ export function SearchResultCard({ result, onClick, className, highlighted }: Se
                 </span>
               )}
             </div>
+
+            {/* Code Change Metadata (Option 1c: Context-Aware) */}
+            {result.metadata?.commitSha && (
+              <div className="mt-3 pt-3 border-t border-border">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <GitBranch className="w-3.5 h-3.5 text-purple-500" />
+                  <span className="font-medium">Fixed in:</span>
+                  <code className="px-2 py-0.5 bg-muted rounded font-mono text-cyan-600 dark:text-cyan-400">
+                    {result.metadata.commitSha.substring(0, 7)}
+                  </code>
+                  {result.metadata.linkedItemsCount && result.metadata.linkedItemsCount > 1 && (
+                    <span className="flex items-center gap-1 px-2 py-0.5 bg-muted rounded">
+                      <Zap className="w-3 h-3" />
+                      + {result.metadata.linkedItemsCount - 1} other {result.metadata.linkedItemsCount - 1 === 1 ? 'story' : 'stories'}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </a>

@@ -3,13 +3,26 @@ import { useState, useCallback, useEffect } from 'react';
 
 export interface SearchResult {
   id: string;
-  entityType: 'user_story' | 'epic' | 'defect' | 'application' | 'initiative' | 'page' | 'model' | 'object' | 'capability' | 'element';
+  entityType: 'user_story' | 'epic' | 'defect' | 'application' | 'initiative' | 'page' | 'model' | 'object' | 'capability' | 'element' | 'code_change';
   title: string;
   description?: string;
   status: string;
   score: number;
   url: string;
-  metadata?: Record<string, any>;
+  metadata?: {
+    description?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+    // Code change specific metadata
+    commitSha?: string;
+    prNumber?: number;
+    branchName?: string;
+    authorUsername?: string;
+    linkedItemsCount?: number;
+    codeChangeId?: string;
+    // Entity-specific metadata
+    [key: string]: any;
+  };
 }
 
 export interface SearchResponse {

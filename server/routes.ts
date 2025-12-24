@@ -3814,6 +3814,115 @@ function mapJiraPriorityToArkhitekton(jiraPriority: string | undefined): string 
         addResults(elements, 'element', (e) => `/elements?id=${e.id}`);
       }
 
+      // Search Code Changes (Commits/PRs)
+      if (!type || type === 'code_change') {
+        const codeChanges = await storage.getAllCodeChanges();
+        
+        // Custom search logic for code changes
+        const matchingChanges = codeChanges.filter(change => {
+          const searchText = query.toLowerCase();
+          
+          // Match commit SHA (partial or full)
+          if (change.commitSha && change.commitSha.toLowerCase().includes(searchText)) {
+            return true;
+          }
+          
+          // Match PR number (with or without #)
+          const prQuery = searchText.replace(/^#/, '');
+          if (change.prNumber && change.prNumber.toString() === prQuery) {
+            return true;
+          }
+          
+          // Match commit message
+          if (change.commitMessage && change.commitMessage.toLowerCase().includes(searchText)) {
+            return true;
+          }
+          
+          // Match PR title
+          if (change.prTitle && change.prTitle.toLowerCase().includes(searchText)) {
+            return true;
+          }
+          
+          // Match branch name
+          if (change.branchName && change.branchName.toLowerCase().includes(searchText)) {
+            return true;
+          }
+          
+          // Match author (with or without @)
+          const authorQuery = searchText.replace(/^@/, '');
+          if (change.authorUsername && change.authorUsername.toLowerCase().includes(authorQuery)) {
+            return true;
+          }
+          
+          return false;
+        });
+
+        // For each code change, fetch linked entities to determine primary item
+        const enrichedChanges = await Promise.all(
+          matchingChanges.map(async (change) => {
+            // Get the linked entity
+            let primaryEntity: any = null;
+            let primaryType = '';
+            let primaryUrl = '';
+            
+            // Priority: defect > user_story > epic
+            if (change.entityType === 'defect') {
+              primaryEntity = await storage.getDefect(change.entityId);
+              primaryType = 'defect';
+              primaryUrl = `/quality/defects/${change.entityId}`;
+            } else if (change.entityType === 'user_story') {
+              primaryEntity = await storage.getUserStory(change.entityId);
+              primaryType = 'user_story';
+              primaryUrl = `/plan/stories/${change.entityId}`;
+            } else if (change.entityType === 'epic') {
+              primaryEntity = await storage.getEpic(change.entityId);
+              primaryType = 'epic';
+              primaryUrl = `/plan?epicId=${change.entityId}`;
+            }
+
+            // Get all linked entities for this code change
+            const allLinked = await storage.getCodeChangesByEntity(change.entityType, change.entityId);
+            
+            return {
+              change,
+              primaryEntity,
+              primaryType,
+              primaryUrl,
+              linkedCount: allLinked.length
+            };
+          })
+        );
+
+        // Add results using primary entity with code change metadata
+        enrichedChanges.forEach(({ change, primaryEntity, primaryType, primaryUrl, linkedCount }) => {
+          if (primaryEntity) {
+            const result = {
+              id: primaryEntity.id,
+              entityType: primaryType as any,
+              title: primaryEntity.title || primaryEntity.name,
+              description: primaryEntity.description,
+              status: primaryEntity.status || 'active',
+              score: calculateScore(primaryEntity, query),
+              url: primaryUrl,
+              metadata: {
+                description: primaryEntity.description?.substring(0, 100),
+                createdAt: primaryEntity.createdAt,
+                updatedAt: primaryEntity.updatedAt,
+                // Code change metadata
+                commitSha: change.commitSha,
+                prNumber: change.prNumber,
+                branchName: change.branchName,
+                authorUsername: change.authorUsername,
+                linkedItemsCount: linkedCount,
+                codeChangeId: change.id,
+                ...getEntityMetadata(primaryEntity, primaryType)
+              }
+            };
+            results.push(result);
+          }
+        });
+      }
+
       // Sort all results by score (descending)
       results.sort((a, b) => (b.score || 0) - (a.score || 0));
 

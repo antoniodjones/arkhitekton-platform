@@ -1837,6 +1837,34 @@ export class DatabaseStorage implements IStorage {
     return defects;
   }
 
+  // Code Changes
+  async getAllCodeChanges(): Promise<CodeChange[]> {
+    const changes = await db.select()
+      .from(schema.codeChanges)
+      .orderBy(desc(schema.codeChanges.eventTimestamp));
+    return changes;
+  }
+
+  async getCodeChangeById(id: string): Promise<CodeChange | undefined> {
+    const [change] = await db.select()
+      .from(schema.codeChanges)
+      .where(eq(schema.codeChanges.id, id));
+    return change || undefined;
+  }
+
+  async getCodeChangesByEntity(entityType: string, entityId: string): Promise<CodeChange[]> {
+    const changes = await db.select()
+      .from(schema.codeChanges)
+      .where(
+        and(
+          eq(schema.codeChanges.entityType, entityType),
+          eq(schema.codeChanges.entityId, entityId)
+        )
+      )
+      .orderBy(desc(schema.codeChanges.eventTimestamp));
+    return changes;
+  }
+
   async createDefect(defectData: InsertDefect): Promise<Defect> {
     const [defect] = await db
       .insert(schema.defects)

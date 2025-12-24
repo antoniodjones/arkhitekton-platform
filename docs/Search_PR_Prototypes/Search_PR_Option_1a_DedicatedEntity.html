@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Option 1a: Dedicated Code Change Entity</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #e2e8f0;
+        }
+
+        .prototype-container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .prototype-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .prototype-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #f1f5f9;
+        }
+
+        .prototype-header p {
+            font-size: 16px;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-modal {
+            background: #1e293b;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid #334155;
+        }
+
+        .search-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-icon {
+            width: 20px;
+            height: 20px;
+            color: #64748b;
+        }
+
+        .search-input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            color: #f1f5f9;
+        }
+
+        .search-input::placeholder {
+            color: #64748b;
+        }
+
+        .search-results {
+            padding: 16px;
+        }
+
+        .result-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            padding: 0 12px;
+        }
+
+        .result-card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #a855f7 0%, #7c3aed 100%);
+        }
+
+        .result-card:hover {
+            background: #1e293b;
+            border-color: #a855f7;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -8px rgba(168, 85, 247, 0.3);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .result-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .result-icon svg {
+            width: 20px;
+            height: 20px;
+            color: #fff;
+        }
+
+        .result-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .result-type {
+            font-size: 11px;
+            font-weight: 600;
+            color: #a855f7;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .result-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .result-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 16px;
+        }
+
+        .result-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .result-meta svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .separator {
+            width: 3px;
+            height: 3px;
+            background: #475569;
+            border-radius: 50%;
+        }
+
+        .linked-section {
+            border-top: 1px solid #334155;
+            padding-top: 16px;
+        }
+
+        .linked-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #94a3b8;
+            margin-bottom: 12px;
+        }
+
+        .linked-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .badge-story {
+            background: #1e40af;
+            color: #93c5fd;
+            border: 1px solid #1e3a8a;
+        }
+
+        .badge-story:hover {
+            background: #1e3a8a;
+            border-color: #3b82f6;
+        }
+
+        .badge-defect {
+            background: #991b1b;
+            color: #fca5a5;
+            border: 1px solid #7f1d1d;
+        }
+
+        .badge-defect:hover {
+            background: #7f1d1d;
+            border-color: #dc2626;
+        }
+
+        .badge-icon {
+            width: 14px;
+            height: 14px;
+        }
+
+        .code-sha {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background: #334155;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #a5f3fc;
+        }
+
+        @media (max-width: 640px) {
+            .prototype-header h1 {
+                font-size: 22px;
+            }
+            
+            .result-card {
+                padding: 16px;
+            }
+            
+            .result-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .separator {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="prototype-container">
+        <div class="prototype-header">
+            <h1>Option 1a: Dedicated Code Change Entity</h1>
+            <p>Code changes appear as a distinct entity type with linked records displayed as interactive badges. Click badges to navigate to specific linked items.</p>
+        </div>
+
+        <div class="search-modal">
+            <div class="search-header">
+                <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input type="text" class="search-input" placeholder="Search user stories, defects, PRs, commits..." value="3f4e05f">
+            </div>
+
+            <div class="search-results">
+                <div class="result-label">1 Result Found</div>
+
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="result-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                            </svg>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-type">Code Change</div>
+                            <div class="result-title">
+                                <span class="code-sha">3f4e05f</span> Fix import path and fix useDebouncedSearch hook
+                            </div>
+                            <div class="result-meta">
+                                <span>
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                    @antoniodjones
+                                </span>
+                                <div class="separator"></div>
+                                <span>
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    2 hours ago
+                                </span>
+                                <div class="separator"></div>
+                                <span>
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                    </svg>
+                                    Commit
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="linked-section">
+                        <div class="linked-label">Linked to 4 items:</div>
+                        <div class="linked-badges">
+                            <div class="badge badge-story">
+                                <svg class="badge-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                US-SEARCH-006
+                            </div>
+                            <div class="badge badge-defect">
+                                <svg class="badge-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                DEF-SEARCH-001
+                            </div>
+                            <div class="badge badge-story">
+                                <svg class="badge-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                                </svg>
+                                US-SEARCH-IMPL-001
+                            </div>
+                            <div class="badge badge-story">
+                                <svg class="badge-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                                </svg>
+                                US-SEARCH-IMPL-002
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

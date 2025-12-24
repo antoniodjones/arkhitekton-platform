@@ -850,6 +850,116 @@ function DesignOptionDetailContent() {
           ]
         };
 
+      case "search-pr-commit-results":
+        return {
+          title: "Global Search: PR/Commit Results UX",
+          description: "Three UX approaches for displaying code changes (commits/PRs) that are linked to multiple user stories and defects. Compares different patterns for showing relationships between code changes and work items.",
+          items: [
+            {
+              id: "ARKSR-001",
+              title: "Option 1a: Dedicated Code Change Entity",
+              description: "Code changes appear as a distinct entity type with linked records displayed as interactive badges. Each badge can be clicked to navigate to the specific linked item.",
+              concept: "Explicit Entity Representation",
+              source: "UX Design Research",
+              component: (
+                <div className="w-full h-40 bg-slate-900 rounded-lg p-4 text-white">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
+                      <span className="text-xs">🔀</span>
+                    </div>
+                    <div>
+                      <div className="text-xs text-purple-400 font-semibold">CODE CHANGE</div>
+                      <div className="text-sm font-mono">3f4e05f - Fix import path</div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-slate-400 mb-2">Linked to 4 items:</div>
+                  <div className="flex gap-2 flex-wrap">
+                    <span className="px-2 py-1 bg-blue-900 text-blue-200 rounded text-xs">US-SEARCH-006</span>
+                    <span className="px-2 py-1 bg-red-900 text-red-200 rounded text-xs">DEF-SEARCH-001</span>
+                    <span className="px-2 py-1 bg-blue-900 text-blue-200 rounded text-xs">US-IMPL-001</span>
+                    <span className="px-2 py-1 bg-blue-900 text-blue-200 rounded text-xs">US-IMPL-002</span>
+                  </div>
+                </div>
+              ),
+              pros: ["Clear entity separation", "All links visible at once", "Easy to scan relationships", "Dedicated navigation"],
+              cons: ["Takes more space", "Extra click to reach item", "May clutter results"],
+              status: "Proposed",
+              htmlFile: "docs/Search_PR_Prototypes/Search_PR_Option_1a_DedicatedEntity.html"
+            },
+            {
+              id: "ARKSR-002",
+              title: "Option 1b: Grouped Hierarchical View",
+              description: "Parent code change with expandable child records in a tree structure. Users can expand/collapse to see all linked items with clear visual hierarchy.",
+              concept: "Expandable Parent-Child",
+              source: "UX Design Research",
+              component: (
+                <div className="w-full h-40 bg-slate-900 rounded-lg p-4 text-white">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-purple-400">▼</span>
+                    <div className="flex-1">
+                      <div className="text-sm font-mono">3f4e05f - Fix import path</div>
+                      <div className="text-xs text-slate-400">Commit • @user • 2h ago • 4 linked</div>
+                    </div>
+                  </div>
+                  <div className="ml-6 space-y-1 border-l-2 border-slate-700 pl-3">
+                    <div className="text-xs flex items-center gap-2">
+                      <span className="text-blue-400">📋</span> US-SEARCH-006
+                    </div>
+                    <div className="text-xs flex items-center gap-2">
+                      <span className="text-red-400">🐛</span> DEF-SEARCH-001
+                    </div>
+                    <div className="text-xs flex items-center gap-2">
+                      <span className="text-blue-400">📋</span> US-IMPL-001
+                    </div>
+                    <div className="text-xs flex items-center gap-2">
+                      <span className="text-blue-400">📋</span> US-IMPL-002
+                    </div>
+                  </div>
+                </div>
+              ),
+              pros: ["Saves space when collapsed", "Clear parent-child relationship", "Tree navigation pattern", "Keyboard friendly"],
+              cons: ["Requires interaction to see all", "More complex interaction", "May hide important links"],
+              status: "Proposed",
+              htmlFile: "docs/Search_PR_Prototypes/Search_PR_Option_1b_HierarchicalView.html"
+            },
+            {
+              id: "ARKSR-003",
+              title: "Option 1c: Smart Context-Aware (Recommended)",
+              description: "Shows the most relevant linked item (prioritizing defects > stories > epics) with commit info as metadata. Hover reveals all linked items in a tooltip for context without cluttering the UI.",
+              concept: "Intelligent Prioritization",
+              source: "UX Design Research",
+              component: (
+                <div className="w-full h-40 bg-slate-900 rounded-lg p-4 text-white relative">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
+                      <span className="text-xs">🐛</span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-xs text-red-400 font-semibold">DEFECT</div>
+                      <div className="text-sm">DEF-SEARCH-001 - CMD+K not working</div>
+                      <div className="text-xs text-slate-400">High • Resolved • 2h ago</div>
+                    </div>
+                  </div>
+                  <div className="border-t border-slate-700 pt-2">
+                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                      <span className="text-purple-400">💾</span> Fixed in: 
+                      <span className="px-2 py-1 bg-slate-800 rounded font-mono">3f4e05f</span>
+                      <span className="px-2 py-1 bg-slate-800 rounded">+ 3 other stories</span>
+                    </div>
+                  </div>
+                  <div className="absolute top-2 right-2 text-xs bg-orange-500 text-white px-2 py-1 rounded-full font-semibold">
+                    RECOMMENDED
+                  </div>
+                </div>
+              ),
+              pros: ["Intelligent prioritization", "Clean, focused UI", "Hover for more context", "Direct navigation"],
+              cons: ["Other links less visible", "Requires hover discovery"],
+              status: "Recommended",
+              htmlFile: "docs/Search_PR_Prototypes/Search_PR_Option_1c_ContextAware.html"
+            }
+          ]
+        };
+
       default:
         return null;
     }

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Option 1c: Smart Context-Aware (Recommended)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #e2e8f0;
+        }
+
+        .prototype-container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .prototype-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .prototype-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #f1f5f9;
+        }
+
+        .prototype-header .recommended {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+
+        .prototype-header p {
+            font-size: 16px;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-modal {
+            background: #1e293b;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid #334155;
+        }
+
+        .search-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-icon {
+            width: 20px;
+            height: 20px;
+            color: #64748b;
+        }
+
+        .search-input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            color: #f1f5f9;
+        }
+
+        .search-input::placeholder {
+            color: #64748b;
+        }
+
+        .search-results {
+            padding: 16px;
+        }
+
+        .result-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            padding: 0 12px;
+        }
+
+        .result-card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #dc2626 0%, #991b1b 100%);
+        }
+
+        .result-card:hover {
+            background: #1e293b;
+            border-color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -8px rgba(220, 38, 38, 0.3);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .result-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .result-icon svg {
+            width: 20px;
+            height: 20px;
+            color: #fff;
+        }
+
+        .result-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .result-type {
+            font-size: 11px;
+            font-weight: 600;
+            color: #dc2626;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .result-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .result-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .result-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .result-meta svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .meta-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            background: #334155;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .meta-badge.resolved {
+            background: #15803d;
+            color: #86efac;
+        }
+
+        .meta-badge.high {
+            background: #dc2626;
+            color: #fca5a5;
+        }
+
+        .separator {
+            width: 3px;
+            height: 3px;
+            background: #475569;
+            border-radius: 50%;
+        }
+
+        .code-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #334155;
+        }
+
+        .code-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .code-icon {
+            width: 18px;
+            height: 18px;
+            color: #a855f7;
+        }
+
+        .code-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #94a3b8;
+        }
+
+        .code-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .code-sha {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background: #1e293b;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #a5f3fc;
+            border: 1px solid #334155;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .code-sha:hover {
+            background: #334155;
+            border-color: #a855f7;
+        }
+
+        .code-tooltip {
+            position: absolute;
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            border: 1px solid #a855f7;
+            border-radius: 8px;
+            padding: 12px;
+            width: 280px;
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 10;
+        }
+
+        .code-sha:hover .code-tooltip {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .code-tooltip::before {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            width: 12px;
+            height: 12px;
+            background: #0f172a;
+            border-right: 1px solid #a855f7;
+            border-bottom: 1px solid #a855f7;
+        }
+
+        .tooltip-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #a855f7;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .tooltip-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 0;
+            font-size: 12px;
+        }
+
+        .tooltip-icon {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        .tooltip-icon.story {
+            color: #3b82f6;
+        }
+
+        .tooltip-icon.defect {
+            color: #dc2626;
+        }
+
+        .tooltip-text {
+            color: #cbd5e1;
+        }
+
+        .also-linked {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: #334155;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .also-linked-icon {
+            width: 14px;
+            height: 14px;
+        }
+
+        @media (max-width: 640px) {
+            .prototype-header h1 {
+                font-size: 22px;
+            }
+            
+            .result-card {
+                padding: 16px;
+            }
+            
+            .result-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .separator {
+                display: none;
+            }
+
+            .code-tooltip {
+                width: 240px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="prototype-container">
+        <div class="prototype-header">
+            <div class="recommended">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                Recommended
+            </div>
+            <h1>Option 1c: Smart Context-Aware</h1>
+            <p>Shows the most relevant linked item with commit info as metadata. Hover over the commit SHA to see all linked records in a tooltip.</p>
+        </div>
+
+        <div class="search-modal">
+            <div class="search-header">
+                <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input type="text" class="search-input" placeholder="Search user stories, defects, PRs, commits..." value="3f4e05f">
+            </div>
+
+            <div class="search-results">
+                <div class="result-label">1 Result Found</div>
+
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="result-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-type">Defect</div>
+                            <div class="result-title">
+                                DEF-SEARCH-001 - CMD+K keyboard shortcut not working
+                            </div>
+                            <div class="result-meta">
+                                <span class="meta-badge high">High</span>
+                                <div class="separator"></div>
+                                <span class="meta-badge resolved">Resolved</span>
+                                <div class="separator"></div>
+                                <span>
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    2 hours ago
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-header">
+                            <svg class="code-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                            </svg>
+                            <span class="code-label">Fixed in:</span>
+                        </div>
+                        <div class="code-info">
+                            <div class="code-sha">
+                                3f4e05f
+                                <div class="code-tooltip">
+                                    <div class="tooltip-title">Also Linked To</div>
+                                    <div class="tooltip-item">
+                                        <svg class="tooltip-icon story" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                        </svg>
+                                        <span class="tooltip-text">US-SEARCH-006</span>
+                                    </div>
+                                    <div class="tooltip-item">
+                                        <svg class="tooltip-icon story" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                                        </svg>
+                                        <span class="tooltip-text">US-SEARCH-IMPL-001</span>
+                                    </div>
+                                    <div class="tooltip-item">
+                                        <svg class="tooltip-icon story" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                                        </svg>
+                                        <span class="tooltip-text">US-SEARCH-IMPL-002</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="also-linked">
+                                <svg class="also-linked-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                                + 3 other stories
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
