@@ -35,6 +35,9 @@ interface Defect {
   status: 'open' | 'in-progress' | 'resolved' | 'closed' | 'rejected';
   discoveredBy: string | null;
   assignedTo: string | null;
+  stepsToReproduce: string | null;
+  expectedBehavior: string | null;
+  actualBehavior: string | null;
   rootCause: string | null;
   resolution: string | null;
   createdAt: string;
@@ -328,6 +331,71 @@ export default function QualityDefectDetailPage() {
                     <span className="text-muted-foreground">Resolved</span>
                     <span>{format(new Date(defect.resolvedAt), 'MMM d, yyyy')}</span>
                   </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Steps to Reproduce & Expected vs Actual Behavior */}
+        <div className="grid grid-cols-1 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Steps to Reproduce</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isEditing ? (
+                <Textarea
+                  value={editedDefect.stepsToReproduce || ''}
+                  onChange={(e) => setEditedDefect({ ...editedDefect, stepsToReproduce: e.target.value })}
+                  rows={5}
+                  placeholder="1. Navigate to...\n2. Click on...\n3. Observe..."
+                />
+              ) : (
+                <p className="text-sm whitespace-pre-wrap">
+                  {defect.stepsToReproduce || <span className="text-muted-foreground italic">No steps provided</span>}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Expected Behavior</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isEditing ? (
+                  <Textarea
+                    value={editedDefect.expectedBehavior || ''}
+                    onChange={(e) => setEditedDefect({ ...editedDefect, expectedBehavior: e.target.value })}
+                    rows={4}
+                    placeholder="What should happen..."
+                  />
+                ) : (
+                  <p className="text-sm whitespace-pre-wrap">
+                    {defect.expectedBehavior || <span className="text-muted-foreground italic">Not specified</span>}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Actual Behavior</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isEditing ? (
+                  <Textarea
+                    value={editedDefect.actualBehavior || ''}
+                    onChange={(e) => setEditedDefect({ ...editedDefect, actualBehavior: e.target.value })}
+                    rows={4}
+                    placeholder="What actually happens..."
+                  />
+                ) : (
+                  <p className="text-sm whitespace-pre-wrap">
+                    {defect.actualBehavior || <span className="text-muted-foreground italic">Not specified</span>}
+                  </p>
                 )}
               </CardContent>
             </Card>
