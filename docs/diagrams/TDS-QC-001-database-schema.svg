@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg viewBox="0 0 1600 1200" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 1800 1400" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#2d3748"/>
@@ -10,172 +10,256 @@
     <marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#5e35b1"/>
     </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1976d2"/>
+    </marker>
   </defs>
 
   <!-- Title -->
-  <text x="800" y="30" font-family="Arial" font-size="24" font-weight="bold" text-anchor="middle" fill="#1a202c">Quality Center Database Schema</text>
-  <text x="800" y="55" font-family="Arial" font-size="14" text-anchor="middle" fill="#4a5568">TDS-QC-001 | Entity Relationships and Evolution</text>
+  <text x="900" y="30" font-family="Arial" font-size="24" font-weight="bold" text-anchor="middle" fill="#1a202c">Quality Center Database Schema</text>
+  <text x="900" y="55" font-family="Arial" font-size="14" text-anchor="middle" fill="#4a5568">TDS-QC-001 | Entity Relationships and Evolution</text>
   
-  <!-- Defects Table -->
-  <rect x="50" y="100" width="350" height="420" fill="#ffe6e6" stroke="#d32f2f" stroke-width="3" rx="5"/>
-  <rect x="50" y="100" width="350" height="35" fill="#d32f2f" rx="5"/>
-  <text x="225" y="123" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#fff">defects</text>
+  <!-- Related Entities (Top Row) - Context -->
+  <rect x="50" y="90" width="200" height="160" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="5"/>
+  <rect x="50" y="90" width="200" height="35" fill="#1976d2" rx="5"/>
+  <text x="150" y="113" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#fff">user_stories</text>
+  <text x="60" y="145" font-family="Courier" font-size="10" font-weight="bold" fill="#333">id TEXT PK</text>
+  <text x="60" y="165" font-family="Courier" font-size="10" fill="#333">epic_id TEXT FK</text>
+  <text x="60" y="185" font-family="Courier" font-size="10" fill="#333">title TEXT</text>
+  <text x="60" y="205" font-family="Courier" font-size="10" fill="#333">status TEXT</text>
+  <text x="60" y="225" font-family="Courier" font-size="10" fill="#333">sprint_id TEXT FK</text>
+  <text x="60" y="240" font-family="Arial" font-size="9" fill="#1976d2">Context Entity</text>
   
-  <text x="60" y="160" font-family="Courier" font-size="11" font-weight="bold" fill="#333">id VARCHAR PK</text>
-  <text x="60" y="180" font-family="Courier" font-size="11" fill="#333">user_story_id TEXT FK</text>
-  <text x="60" y="200" font-family="Courier" font-size="11" fill="#333">title TEXT</text>
-  <text x="60" y="220" font-family="Courier" font-size="11" fill="#333">description TEXT</text>
-  <text x="60" y="240" font-family="Courier" font-size="11" fill="#333">severity TEXT</text>
-  <text x="60" y="260" font-family="Courier" font-size="11" fill="#333">type TEXT</text>
-  <text x="60" y="280" font-family="Courier" font-size="11" fill="#333">status TEXT</text>
-  <text x="60" y="300" font-family="Courier" font-size="11" fill="#f57c00">triage_status TEXT P2</text>
-  <text x="60" y="320" font-family="Courier" font-size="11" fill="#333">discovered_by TEXT</text>
-  <text x="60" y="340" font-family="Courier" font-size="11" fill="#333">assigned_to TEXT</text>
-  <text x="60" y="360" font-family="Courier" font-size="11" fill="#f57c00">verified_by TEXT P2</text>
-  <text x="60" y="380" font-family="Courier" font-size="11" fill="#333">root_cause TEXT</text>
-  <text x="60" y="400" font-family="Courier" font-size="11" fill="#333">resolution TEXT</text>
-  <text x="60" y="420" font-family="Courier" font-size="11" fill="#1976d2">component_ids ARRAY P3</text>
-  <text x="60" y="440" font-family="Courier" font-size="11" fill="#7b1fa2">found_in_version TEXT P4</text>
-  <text x="60" y="460" font-family="Courier" font-size="11" fill="#7b1fa2">fixed_in_version TEXT P4</text>
-  <text x="60" y="480" font-family="Courier" font-size="11" fill="#333">created_at TIMESTAMP</text>
-  <text x="60" y="505" font-family="Arial" font-size="10" fill="#999">Implementation 15%</text>
+  <rect x="280" y="90" width="180" height="160" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="5"/>
+  <rect x="280" y="90" width="180" height="35" fill="#1976d2" rx="5"/>
+  <text x="370" y="113" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#fff">epics</text>
+  <text x="290" y="145" font-family="Courier" font-size="10" font-weight="bold" fill="#333">id TEXT PK</text>
+  <text x="290" y="165" font-family="Courier" font-size="10" fill="#333">name TEXT</text>
+  <text x="290" y="185" font-family="Courier" font-size="10" fill="#333">status TEXT</text>
+  <text x="290" y="205" font-family="Courier" font-size="10" fill="#333">priority TEXT</text>
+  <text x="290" y="225" font-family="Courier" font-size="10" fill="#333">estimated_points INT</text>
+  <text x="290" y="240" font-family="Arial" font-size="9" fill="#1976d2">Context Entity</text>
+  
+  <rect x="490" y="90" width="180" height="160" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="5"/>
+  <rect x="490" y="90" width="180" height="35" fill="#1976d2" rx="5"/>
+  <text x="580" y="113" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#fff">sprints</text>
+  <text x="500" y="145" font-family="Courier" font-size="10" font-weight="bold" fill="#333">id TEXT PK</text>
+  <text x="500" y="165" font-family="Courier" font-size="10" fill="#333">name TEXT</text>
+  <text x="500" y="185" font-family="Courier" font-size="10" fill="#333">start_date DATE</text>
+  <text x="500" y="205" font-family="Courier" font-size="10" fill="#333">end_date DATE</text>
+  <text x="500" y="225" font-family="Courier" font-size="10" fill="#333">status TEXT</text>
+  <text x="500" y="240" font-family="Arial" font-size="9" fill="#1976d2">Context Entity</text>
+  
+  <rect x="700" y="90" width="220" height="160" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="5"/>
+  <rect x="700" y="90" width="220" height="35" fill="#1976d2" rx="5"/>
+  <text x="810" y="113" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#fff">architectural_models</text>
+  <text x="710" y="145" font-family="Courier" font-size="10" font-weight="bold" fill="#333">id UUID PK</text>
+  <text x="710" y="165" font-family="Courier" font-size="10" fill="#333">name TEXT</text>
+  <text x="710" y="185" font-family="Courier" font-size="10" fill="#333">type TEXT</text>
+  <text x="710" y="205" font-family="Courier" font-size="10" fill="#333">domain TEXT</text>
+  <text x="710" y="225" font-family="Courier" font-size="10" fill="#333">canvas_data JSONB</text>
+  <text x="710" y="240" font-family="Arial" font-size="9" fill="#1976d2">Design Studio</text>
+  
+  <rect x="950" y="90" width="180" height="160" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="5"/>
+  <rect x="950" y="90" width="180" height="35" fill="#1976d2" rx="5"/>
+  <text x="1040" y="113" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#fff">wiki_pages</text>
+  <text x="960" y="145" font-family="Courier" font-size="10" font-weight="bold" fill="#333">id UUID PK</text>
+  <text x="960" y="165" font-family="Courier" font-size="10" fill="#333">title TEXT</text>
+  <text x="960" y="185" font-family="Courier" font-size="10" fill="#333">content TEXT</text>
+  <text x="960" y="205" font-family="Courier" font-size="10" fill="#333">slug TEXT</text>
+  <text x="960" y="225" font-family="Courier" font-size="10" fill="#333">parent_id UUID FK</text>
+  <text x="960" y="240" font-family="Arial" font-size="9" fill="#1976d2">Wiki Module</text>
+  
+  <!-- Defects Table (Core Quality Center) -->
+  <rect x="50" y="300" width="350" height="440" fill="#ffe6e6" stroke="#d32f2f" stroke-width="3" rx="5"/>
+  <rect x="50" y="300" width="350" height="35" fill="#d32f2f" rx="5"/>
+  <text x="225" y="323" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#fff">defects</text>
+  
+  <text x="60" y="360" font-family="Courier" font-size="11" font-weight="bold" fill="#333">id VARCHAR PK</text>
+  <text x="60" y="380" font-family="Courier" font-size="11" fill="#333">user_story_id TEXT FK</text>
+  <text x="60" y="400" font-family="Courier" font-size="11" fill="#333">title TEXT</text>
+  <text x="60" y="420" font-family="Courier" font-size="11" fill="#333">description TEXT</text>
+  <text x="60" y="440" font-family="Courier" font-size="11" fill="#333">severity TEXT</text>
+  <text x="60" y="460" font-family="Courier" font-size="11" fill="#333">type TEXT</text>
+  <text x="60" y="480" font-family="Courier" font-size="11" fill="#333">status TEXT</text>
+  <text x="60" y="500" font-family="Courier" font-size="11" fill="#f57c00">triage_status TEXT P2</text>
+  <text x="60" y="520" font-family="Courier" font-size="11" fill="#333">discovered_by TEXT</text>
+  <text x="60" y="540" font-family="Courier" font-size="11" fill="#333">assigned_to TEXT</text>
+  <text x="60" y="560" font-family="Courier" font-size="11" fill="#f57c00">verified_by TEXT P2</text>
+  <text x="60" y="580" font-family="Courier" font-size="11" fill="#333">root_cause TEXT</text>
+  <text x="60" y="600" font-family="Courier" font-size="11" fill="#333">resolution TEXT</text>
+  <text x="60" y="620" font-family="Courier" font-size="11" fill="#1976d2">component_ids TEXT[] P3</text>
+  <text x="60" y="640" font-family="Courier" font-size="11" fill="#7b1fa2">found_in_version TEXT P4</text>
+  <text x="60" y="660" font-family="Courier" font-size="11" fill="#7b1fa2">fixed_in_version TEXT P4</text>
+  <text x="60" y="680" font-family="Courier" font-size="11" fill="#333">github_commits JSONB</text>
+  <text x="60" y="700" font-family="Courier" font-size="11" fill="#333">jira_issue_key TEXT</text>
+  <text x="60" y="720" font-family="Courier" font-size="11" fill="#333">created_at TIMESTAMP</text>
+  <text x="60" y="735" font-family="Arial" font-size="10" fill="#999">Implementation 15%</text>
   
   <!-- Test Suites Table -->
-  <rect x="500" y="100" width="300" height="220" fill="#e6ffe6" stroke="#388e3c" stroke-width="2" rx="5"/>
-  <rect x="500" y="100" width="300" height="35" fill="#388e3c" rx="5"/>
-  <text x="650" y="123" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#fff">test_suites</text>
+  <rect x="500" y="300" width="300" height="220" fill="#e6ffe6" stroke="#388e3c" stroke-width="2" rx="5"/>
+  <rect x="500" y="300" width="300" height="35" fill="#388e3c" rx="5"/>
+  <text x="650" y="323" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#fff">test_suites</text>
   
-  <text x="510" y="160" font-family="Courier" font-size="11" font-weight="bold" fill="#333">id TEXT PK</text>
-  <text x="510" y="180" font-family="Courier" font-size="11" fill="#333">name TEXT</text>
-  <text x="510" y="200" font-family="Courier" font-size="11" fill="#333">description TEXT</text>
-  <text x="510" y="220" font-family="Courier" font-size="11" fill="#333">parent_suite_id TEXT FK</text>
-  <text x="510" y="240" font-family="Courier" font-size="11" fill="#333">module TEXT</text>
-  <text x="510" y="260" font-family="Courier" font-size="11" fill="#333">created_at TIMESTAMP</text>
-  <text x="510" y="280" font-family="Courier" font-size="11" fill="#333">updated_at TIMESTAMP</text>
-  <text x="510" y="305" font-family="Arial" font-size="10" fill="#388e3c">COMPLETE 95%</text>
+  <text x="510" y="360" font-family="Courier" font-size="11" font-weight="bold" fill="#333">id TEXT PK</text>
+  <text x="510" y="380" font-family="Courier" font-size="11" fill="#333">name TEXT</text>
+  <text x="510" y="400" font-family="Courier" font-size="11" fill="#333">description TEXT</text>
+  <text x="510" y="420" font-family="Courier" font-size="11" fill="#333">parent_suite_id TEXT FK</text>
+  <text x="510" y="440" font-family="Courier" font-size="11" fill="#333">module TEXT</text>
+  <text x="510" y="460" font-family="Courier" font-size="11" fill="#333">created_at TIMESTAMP</text>
+  <text x="510" y="480" font-family="Courier" font-size="11" fill="#333">updated_at TIMESTAMP</text>
+  <text x="510" y="505" font-family="Arial" font-size="10" fill="#388e3c">COMPLETE 95%</text>
   
   <!-- Test Cases Table -->
-  <rect x="900" y="100" width="300" height="260" fill="#e6ffe6" stroke="#388e3c" stroke-width="2" rx="5"/>
-  <rect x="900" y="100" width="300" height="35" fill="#388e3c" rx="5"/>
-  <text x="1050" y="123" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#fff">test_cases</text>
+  <rect x="900" y="300" width="300" height="260" fill="#e6ffe6" stroke="#388e3c" stroke-width="2" rx="5"/>
+  <rect x="900" y="300" width="300" height="35" fill="#388e3c" rx="5"/>
+  <text x="1050" y="323" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#fff">test_cases</text>
   
-  <text x="910" y="160" font-family="Courier" font-size="11" font-weight="bold" fill="#333">id TEXT PK</text>
-  <text x="910" y="180" font-family="Courier" font-size="11" fill="#333">suite_id TEXT FK</text>
-  <text x="910" y="200" font-family="Courier" font-size="11" fill="#333">title TEXT</text>
-  <text x="910" y="220" font-family="Courier" font-size="11" fill="#333">preconditions TEXT</text>
-  <text x="910" y="240" font-family="Courier" font-size="11" fill="#333">steps JSONB</text>
-  <text x="910" y="260" font-family="Courier" font-size="11" fill="#333">priority TEXT</text>
-  <text x="910" y="280" font-family="Courier" font-size="11" fill="#333">test_type TEXT</text>
-  <text x="910" y="300" font-family="Courier" font-size="11" fill="#333">created_at TIMESTAMP</text>
-  <text x="910" y="320" font-family="Courier" font-size="11" fill="#333">updated_at TIMESTAMP</text>
-  <text x="910" y="345" font-family="Arial" font-size="10" fill="#388e3c">COMPLETE 95%</text>
+  <text x="910" y="360" font-family="Courier" font-size="11" font-weight="bold" fill="#333">id TEXT PK</text>
+  <text x="910" y="380" font-family="Courier" font-size="11" fill="#333">suite_id TEXT FK</text>
+  <text x="910" y="400" font-family="Courier" font-size="11" fill="#333">title TEXT</text>
+  <text x="910" y="420" font-family="Courier" font-size="11" fill="#333">preconditions TEXT</text>
+  <text x="910" y="440" font-family="Courier" font-size="11" fill="#333">steps JSONB</text>
+  <text x="910" y="460" font-family="Courier" font-size="11" fill="#333">priority TEXT</text>
+  <text x="910" y="480" font-family="Courier" font-size="11" fill="#333">test_type TEXT</text>
+  <text x="910" y="500" font-family="Courier" font-size="11" fill="#333">created_at TIMESTAMP</text>
+  <text x="910" y="520" font-family="Courier" font-size="11" fill="#333">updated_at TIMESTAMP</text>
+  <text x="910" y="545" font-family="Arial" font-size="10" fill="#388e3c">COMPLETE 95%</text>
   
   <!-- Test Runs Table -->
-  <rect x="1280" y="100" width="280" height="240" fill="#e6ffe6" stroke="#388e3c" stroke-width="2" rx="5"/>
-  <rect x="1280" y="100" width="280" height="35" fill="#388e3c" rx="5"/>
-  <text x="1420" y="123" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#fff">test_runs</text>
+  <rect x="1280" y="300" width="280" height="240" fill="#e6ffe6" stroke="#388e3c" stroke-width="2" rx="5"/>
+  <rect x="1280" y="300" width="280" height="35" fill="#388e3c" rx="5"/>
+  <text x="1420" y="323" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#fff">test_runs</text>
   
-  <text x="1290" y="160" font-family="Courier" font-size="11" font-weight="bold" fill="#333">id TEXT PK</text>
-  <text x="1290" y="180" font-family="Courier" font-size="11" fill="#333">suite_id TEXT FK</text>
-  <text x="1290" y="200" font-family="Courier" font-size="11" fill="#333">name TEXT</text>
-  <text x="1290" y="220" font-family="Courier" font-size="11" fill="#333">assigned_to TEXT</text>
-  <text x="1290" y="240" font-family="Courier" font-size="11" fill="#333">environment TEXT</text>
-  <text x="1290" y="260" font-family="Courier" font-size="11" fill="#333">status TEXT</text>
-  <text x="1290" y="280" font-family="Courier" font-size="11" fill="#333">started_at TIMESTAMP</text>
-  <text x="1290" y="305" font-family="Arial" font-size="10" fill="#388e3c">COMPLETE 95%</text>
+  <text x="1290" y="360" font-family="Courier" font-size="11" font-weight="bold" fill="#333">id TEXT PK</text>
+  <text x="1290" y="380" font-family="Courier" font-size="11" fill="#333">suite_id TEXT FK</text>
+  <text x="1290" y="400" font-family="Courier" font-size="11" fill="#333">name TEXT</text>
+  <text x="1290" y="420" font-family="Courier" font-size="11" fill="#333">assigned_to TEXT</text>
+  <text x="1290" y="440" font-family="Courier" font-size="11" fill="#333">environment TEXT</text>
+  <text x="1290" y="460" font-family="Courier" font-size="11" fill="#333">status TEXT</text>
+  <text x="1290" y="480" font-family="Courier" font-size="11" fill="#333">started_at TIMESTAMP</text>
+  <text x="1290" y="505" font-family="Arial" font-size="10" fill="#388e3c">COMPLETE 95%</text>
   
   <!-- Test Results Table -->
-  <rect x="900" y="420" width="300" height="240" fill="#e6ffe6" stroke="#388e3c" stroke-width="2" rx="5"/>
-  <rect x="900" y="420" width="300" height="35" fill="#388e3c" rx="5"/>
-  <text x="1050" y="443" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#fff">test_results</text>
+  <rect x="900" y="620" width="300" height="240" fill="#e6ffe6" stroke="#388e3c" stroke-width="2" rx="5"/>
+  <rect x="900" y="620" width="300" height="35" fill="#388e3c" rx="5"/>
+  <text x="1050" y="643" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#fff">test_results</text>
   
-  <text x="910" y="480" font-family="Courier" font-size="11" font-weight="bold" fill="#333">id TEXT PK</text>
-  <text x="910" y="500" font-family="Courier" font-size="11" fill="#333">run_id TEXT FK</text>
-  <text x="910" y="520" font-family="Courier" font-size="11" fill="#333">case_id TEXT FK</text>
-  <text x="910" y="540" font-family="Courier" font-size="11" fill="#333">status TEXT</text>
-  <text x="910" y="560" font-family="Courier" font-size="11" fill="#333">notes TEXT</text>
-  <text x="910" y="580" font-family="Courier" font-size="11" fill="#333">executed_by TEXT</text>
-  <text x="910" y="600" font-family="Courier" font-size="11" fill="#333">executed_at TIMESTAMP</text>
-  <text x="910" y="625" font-family="Arial" font-size="10" fill="#388e3c">COMPLETE 95%</text>
+  <text x="910" y="680" font-family="Courier" font-size="11" font-weight="bold" fill="#333">id TEXT PK</text>
+  <text x="910" y="700" font-family="Courier" font-size="11" fill="#333">run_id TEXT FK</text>
+  <text x="910" y="720" font-family="Courier" font-size="11" fill="#333">case_id TEXT FK</text>
+  <text x="910" y="740" font-family="Courier" font-size="11" fill="#333">status TEXT</text>
+  <text x="910" y="760" font-family="Courier" font-size="11" fill="#333">notes TEXT</text>
+  <text x="910" y="780" font-family="Courier" font-size="11" fill="#333">executed_by TEXT</text>
+  <text x="910" y="800" font-family="Courier" font-size="11" fill="#333">executed_at TIMESTAMP</text>
+  <text x="910" y="825" font-family="Arial" font-size="10" fill="#388e3c">COMPLETE 95%</text>
   
   <!-- Releases Table (Phase 4) -->
-  <rect x="50" y="600" width="350" height="280" fill="#e6e6ff" stroke="#5e35b1" stroke-width="2" rx="5"/>
-  <rect x="50" y="600" width="350" height="35" fill="#5e35b1" rx="5"/>
-  <text x="225" y="623" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#fff">releases</text>
+  <rect x="50" y="800" width="350" height="280" fill="#e6e6ff" stroke="#5e35b1" stroke-width="2" rx="5"/>
+  <rect x="50" y="800" width="350" height="35" fill="#5e35b1" rx="5"/>
+  <text x="225" y="823" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#fff">releases</text>
   
-  <text x="60" y="660" font-family="Courier" font-size="11" font-weight="bold" fill="#333">id TEXT PK</text>
-  <text x="60" y="680" font-family="Courier" font-size="11" fill="#333">version TEXT</text>
-  <text x="60" y="700" font-family="Courier" font-size="11" fill="#333">name TEXT</text>
-  <text x="60" y="720" font-family="Courier" font-size="11" fill="#333">description TEXT</text>
-  <text x="60" y="740" font-family="Courier" font-size="11" fill="#333">target_date TIMESTAMP</text>
-  <text x="60" y="760" font-family="Courier" font-size="11" fill="#333">actual_date TIMESTAMP</text>
-  <text x="60" y="780" font-family="Courier" font-size="11" fill="#333">release_type TEXT</text>
-  <text x="60" y="800" font-family="Courier" font-size="11" fill="#333">status TEXT</text>
-  <text x="60" y="820" font-family="Courier" font-size="11" fill="#333">created_at TIMESTAMP</text>
-  <text x="60" y="840" font-family="Courier" font-size="11" fill="#333">updated_at TIMESTAMP</text>
-  <text x="60" y="865" font-family="Arial" font-size="10" fill="#999">Phase 4 Not Implemented</text>
+  <text x="60" y="860" font-family="Courier" font-size="11" font-weight="bold" fill="#333">id TEXT PK</text>
+  <text x="60" y="880" font-family="Courier" font-size="11" fill="#333">version TEXT</text>
+  <text x="60" y="900" font-family="Courier" font-size="11" fill="#333">name TEXT</text>
+  <text x="60" y="920" font-family="Courier" font-size="11" fill="#333">description TEXT</text>
+  <text x="60" y="940" font-family="Courier" font-size="11" fill="#333">target_date TIMESTAMP</text>
+  <text x="60" y="960" font-family="Courier" font-size="11" fill="#333">actual_date TIMESTAMP</text>
+  <text x="60" y="980" font-family="Courier" font-size="11" fill="#333">release_type TEXT</text>
+  <text x="60" y="1000" font-family="Courier" font-size="11" fill="#333">status TEXT</text>
+  <text x="60" y="1020" font-family="Courier" font-size="11" fill="#333">created_at TIMESTAMP</text>
+  <text x="60" y="1040" font-family="Courier" font-size="11" fill="#333">updated_at TIMESTAMP</text>
+  <text x="60" y="1065" font-family="Arial" font-size="10" fill="#999">Phase 4 Not Implemented</text>
   
   <!-- Launch Checklist Items Table -->
-  <rect x="480" y="600" width="320" height="280" fill="#e6e6ff" stroke="#5e35b1" stroke-width="2" rx="5"/>
-  <rect x="480" y="600" width="320" height="35" fill="#5e35b1" rx="5"/>
-  <text x="640" y="623" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#fff">launch_checklist_items</text>
+  <rect x="480" y="800" width="320" height="280" fill="#e6e6ff" stroke="#5e35b1" stroke-width="2" rx="5"/>
+  <rect x="480" y="800" width="320" height="35" fill="#5e35b1" rx="5"/>
+  <text x="640" y="823" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#fff">launch_checklist_items</text>
   
-  <text x="490" y="660" font-family="Courier" font-size="11" font-weight="bold" fill="#333">id TEXT PK</text>
-  <text x="490" y="680" font-family="Courier" font-size="11" fill="#333">release_id TEXT FK</text>
-  <text x="490" y="700" font-family="Courier" font-size="11" fill="#333">category TEXT</text>
-  <text x="490" y="720" font-family="Courier" font-size="11" fill="#333">item TEXT</text>
-  <text x="490" y="740" font-family="Courier" font-size="11" fill="#333">is_critical BOOLEAN</text>
-  <text x="490" y="760" font-family="Courier" font-size="11" fill="#333">is_complete BOOLEAN</text>
-  <text x="490" y="780" font-family="Courier" font-size="11" fill="#333">owner TEXT</text>
-  <text x="490" y="800" font-family="Courier" font-size="11" fill="#333">due_date TIMESTAMP</text>
-  <text x="490" y="820" font-family="Courier" font-size="11" fill="#333">evidence_url TEXT</text>
-  <text x="490" y="840" font-family="Courier" font-size="11" fill="#333">completed_at TIMESTAMP</text>
-  <text x="490" y="865" font-family="Arial" font-size="10" fill="#999">Phase 4 Not Implemented</text>
+  <text x="490" y="860" font-family="Courier" font-size="11" font-weight="bold" fill="#333">id TEXT PK</text>
+  <text x="490" y="880" font-family="Courier" font-size="11" fill="#333">release_id TEXT FK</text>
+  <text x="490" y="900" font-family="Courier" font-size="11" fill="#333">category TEXT</text>
+  <text x="490" y="920" font-family="Courier" font-size="11" fill="#333">item TEXT</text>
+  <text x="490" y="940" font-family="Courier" font-size="11" fill="#333">is_critical BOOLEAN</text>
+  <text x="490" y="960" font-family="Courier" font-size="11" fill="#333">is_complete BOOLEAN</text>
+  <text x="490" y="980" font-family="Courier" font-size="11" fill="#333">owner TEXT</text>
+  <text x="490" y="1000" font-family="Courier" font-size="11" fill="#333">due_date TIMESTAMP</text>
+  <text x="490" y="1020" font-family="Courier" font-size="11" fill="#333">evidence_url TEXT</text>
+  <text x="490" y="1040" font-family="Courier" font-size="11" fill="#333">completed_at TIMESTAMP</text>
+  <text x="490" y="1065" font-family="Arial" font-size="10" fill="#999">Phase 4 Not Implemented</text>
   
   <!-- Quality Gates Table -->
-  <rect x="880" y="760" width="280" height="180" fill="#fff4e6" stroke="#ff9800" stroke-width="2" rx="5"/>
-  <rect x="880" y="760" width="280" height="35" fill="#ff9800" rx="5"/>
-  <text x="1020" y="783" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#fff">quality_gates</text>
+  <rect x="880" y="960" width="280" height="180" fill="#fff4e6" stroke="#ff9800" stroke-width="2" rx="5"/>
+  <rect x="880" y="960" width="280" height="35" fill="#ff9800" rx="5"/>
+  <text x="1020" y="983" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#fff">quality_gates</text>
   
-  <text x="890" y="820" font-family="Courier" font-size="11" font-weight="bold" fill="#333">id TEXT PK</text>
-  <text x="890" y="840" font-family="Courier" font-size="11" fill="#333">name TEXT</text>
-  <text x="890" y="860" font-family="Courier" font-size="11" fill="#333">type TEXT</text>
-  <text x="890" y="880" font-family="Courier" font-size="11" fill="#333">threshold JSONB</text>
-  <text x="890" y="900" font-family="Courier" font-size="11" fill="#333">status TEXT</text>
-  <text x="890" y="925" font-family="Arial" font-size="10" fill="#999">Phase 3 Not Implemented</text>
+  <text x="890" y="1020" font-family="Courier" font-size="11" font-weight="bold" fill="#333">id TEXT PK</text>
+  <text x="890" y="1040" font-family="Courier" font-size="11" fill="#333">name TEXT</text>
+  <text x="890" y="1060" font-family="Courier" font-size="11" fill="#333">type TEXT</text>
+  <text x="890" y="1080" font-family="Courier" font-size="11" fill="#333">threshold JSONB</text>
+  <text x="890" y="1100" font-family="Courier" font-size="11" fill="#333">status TEXT</text>
+  <text x="890" y="1125" font-family="Arial" font-size="10" fill="#999">Phase 3 Not Implemented</text>
   
   <!-- Defect Components Table -->
-  <rect x="1240" y="760" width="320" height="140" fill="#fff9e6" stroke="#ff6f00" stroke-width="2" rx="5"/>
-  <rect x="1240" y="760" width="320" height="35" fill="#ff6f00" rx="5"/>
-  <text x="1400" y="783" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#fff">defect_components</text>
+  <rect x="1240" y="960" width="320" height="140" fill="#fff9e6" stroke="#ff6f00" stroke-width="2" rx="5"/>
+  <rect x="1240" y="960" width="320" height="35" fill="#ff6f00" rx="5"/>
+  <text x="1400" y="983" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#fff">defect_components</text>
   
-  <text x="1250" y="820" font-family="Courier" font-size="11" font-weight="bold" fill="#333">defect_id VARCHAR FK</text>
-  <text x="1250" y="840" font-family="Courier" font-size="11" font-weight="bold" fill="#333">component_id UUID FK</text>
-  <text x="1250" y="860" font-family="Courier" font-size="11" fill="#333">impact_level TEXT</text>
-  <text x="1250" y="885" font-family="Arial" font-size="10" fill="#999">Phase 5 Not Implemented</text>
+  <text x="1250" y="1020" font-family="Courier" font-size="11" font-weight="bold" fill="#333">defect_id VARCHAR FK</text>
+  <text x="1250" y="1040" font-family="Courier" font-size="11" font-weight="bold" fill="#333">component_id UUID FK</text>
+  <text x="1250" y="1060" font-family="Courier" font-size="11" fill="#333">impact_level TEXT</text>
+  <text x="1250" y="1085" font-family="Arial" font-size="10" fill="#999">Phase 5 Not Implemented</text>
   
   <!-- Relationships -->
-  <path d="M 800 160 L 900 160" stroke="#388e3c" stroke-width="2" fill="none" marker-end="url(#arrow-green)"/>
-  <path d="M 1280 180 L 1220 180 L 1220 210 L 800 210" stroke="#388e3c" stroke-width="2" fill="none" marker-end="url(#arrow-green)"/>
-  <path d="M 1200 540 L 1420 540 L 1420 340" stroke="#388e3c" stroke-width="2" fill="none" marker-end="url(#arrow-green)"/>
-  <path d="M 1050 420 L 1050 360" stroke="#388e3c" stroke-width="2" fill="none" marker-end="url(#arrow-green)"/>
-  <path d="M 480 740 L 400 740" stroke="#5e35b1" stroke-width="2" fill="none" marker-end="url(#arrow-purple)"/>
+  <!-- defects → user_stories -->
+  <path d="M 200 300 L 150 250" stroke="#1976d2" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+  
+  <!-- test_cases → test_suites -->
+  <path d="M 900 360 L 800 360" stroke="#388e3c" stroke-width="2" fill="none" marker-end="url(#arrow-green)"/>
+  
+  <!-- test_runs → test_suites -->
+  <path d="M 1280 380 L 1220 380 L 1220 410 L 800 410" stroke="#388e3c" stroke-width="2" fill="none" marker-end="url(#arrow-green)"/>
+  
+  <!-- test_results → test_runs -->
+  <path d="M 1200 740 L 1420 740 L 1420 540" stroke="#388e3c" stroke-width="2" fill="none" marker-end="url(#arrow-green)"/>
+  
+  <!-- test_results → test_cases -->
+  <path d="M 1050 620 L 1050 560" stroke="#388e3c" stroke-width="2" fill="none" marker-end="url(#arrow-green)"/>
+  
+  <!-- test_results → defects (via junction) -->
+  <path d="M 900 780 L 600 780 L 600 600 L 400 600" stroke="#d32f2f" stroke-width="2" stroke-dasharray="5,5" fill="none"/>
+  
+  <!-- launch_checklist_items → releases -->
+  <path d="M 480 940 L 400 940" stroke="#5e35b1" stroke-width="2" fill="none" marker-end="url(#arrow-purple)"/>
+  
+  <!-- defect_components → defects -->
+  <path d="M 1240 1020 L 600 1020 L 600 720 L 400 720" stroke="#ff6f00" stroke-width="2" fill="none"/>
+  
+  <!-- defect_components → architectural_models -->
+  <path d="M 1400 960 L 1400 800 L 810 800 L 810 250" stroke="#ff6f00" stroke-width="2" fill="none"/>
   
   <!-- Legend -->
-  <rect x="50" y="980" width="700" height="180" fill="#f9f9f9" stroke="#999" stroke-width="1" rx="5"/>
-  <text x="400" y="1010" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#333">Schema Evolution Legend</text>
+  <rect x="50" y="1180" width="900" height="180" fill="#f9f9f9" stroke="#999" stroke-width="1" rx="5"/>
+  <text x="500" y="1210" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#333">Schema Evolution Legend</text>
   
-  <rect x="70" y="1030" width="20" height="15" fill="#e6ffe6" stroke="#388e3c" stroke-width="1"/>
-  <text x="100" y="1042" font-family="Arial" font-size="12" fill="#333">Test Planning 95% complete</text>
+  <rect x="70" y="1230" width="20" height="15" fill="#e3f2fd" stroke="#1976d2" stroke-width="1"/>
+  <text x="100" y="1242" font-family="Arial" font-size="12" fill="#333">Context Entities (Plan, Design Studio, Wiki)</text>
   
-  <rect x="70" y="1055" width="20" height="15" fill="#ffe6e6" stroke="#d32f2f" stroke-width="1"/>
-  <text x="100" y="1067" font-family="Arial" font-size="12" fill="#333">Defect Management 15% complete</text>
+  <rect x="70" y="1255" width="20" height="15" fill="#e6ffe6" stroke="#388e3c" stroke-width="1"/>
+  <text x="100" y="1267" font-family="Arial" font-size="12" fill="#333">Test Planning 95% complete</text>
   
-  <rect x="70" y="1080" width="20" height="15" fill="#e6e6ff" stroke="#5e35b1" stroke-width="1"/>
-  <text x="100" y="1092" font-family="Arial" font-size="12" fill="#333">Release Management Phase 4 not started</text>
+  <rect x="70" y="1280" width="20" height="15" fill="#ffe6e6" stroke="#d32f2f" stroke-width="1"/>
+  <text x="100" y="1292" font-family="Arial" font-size="12" fill="#333">Defect Management 15% complete</text>
   
-  <rect x="70" y="1105" width="20" height="15" fill="#fff9e6" stroke="#ff6f00" stroke-width="1"/>
-  <text x="100" y="1117" font-family="Arial" font-size="12" fill="#333">Intelligent Linking Phase 5 not started</text>
+  <rect x="70" y="1305" width="20" height="15" fill="#e6e6ff" stroke="#5e35b1" stroke-width="1"/>
+  <text x="100" y="1317" font-family="Arial" font-size="12" fill="#333">Release Management Phase 4 not started</text>
   
-  <text x="400" y="1145" font-family="Arial" font-size="11" fill="#999">Phase annotations: P2 P3 P4 P5 P6</text>
+  <rect x="70" y="1330" width="20" height="15" fill="#fff9e6" stroke="#ff6f00" stroke-width="1"/>
+  <text x="100" y="1342" font-family="Arial" font-size="12" fill="#333">Intelligent Linking Phase 5 not started</text>
+  
+  <text x="500" y="1230" font-family="Arial" font-size="12" fill="#f57c00">P2 Phase 2</text>
+  <text x="500" y="1255" font-family="Arial" font-size="12" fill="#1976d2">P3 Phase 3</text>
+  <text x="500" y="1280" font-family="Arial" font-size="12" fill="#7b1fa2">P4 Phase 4</text>
+  <text x="500" y="1305" font-family="Arial" font-size="12" fill="#ff6f00">P5 Phase 5</text>
+  <text x="500" y="1330" font-family="Arial" font-size="12" fill="#9c27b0">P6 Phase 6 AI</text>
 </svg>
