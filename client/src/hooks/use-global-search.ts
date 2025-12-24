@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 export interface SearchResult {
   id: string;
@@ -87,20 +87,18 @@ export function useDebouncedSearch(initialValue: string = '', delayMs: number = 
   const [value, setValue] = useState(initialValue);
   const [debouncedValue, setDebouncedValue] = useState(initialValue);
 
-  const handleChange = useCallback((newValue: string) => {
-    setValue(newValue);
-    
+  useEffect(() => {
     const timeoutId = setTimeout(() => {
-      setDebouncedValue(newValue);
+      setDebouncedValue(value);
     }, delayMs);
 
     return () => clearTimeout(timeoutId);
-  }, [delayMs]);
+  }, [value, delayMs]);
 
   return {
     value,
     debouncedValue,
-    setValue: handleChange,
+    setValue,
     setImmediate: (newValue: string) => {
       setValue(newValue);
       setDebouncedValue(newValue);

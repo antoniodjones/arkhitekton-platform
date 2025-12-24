@@ -13,8 +13,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { useGlobalSearch } from '@/hooks/use-global-search';
-import { useDebouncedSearch } from '@/hooks/use-debounced-search';
+import { useGlobalSearch, useDebouncedSearch } from '@/hooks/use-global-search';
 import { SearchResultCard } from '@/components/search/search-result-card';
 import { Search, AlertTriangle, Loader2, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
