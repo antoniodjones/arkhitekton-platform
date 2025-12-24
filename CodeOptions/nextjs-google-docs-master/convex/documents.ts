@@ -6,13 +6,29 @@ import { mutation, query } from "./_generated/server";
 export const getByIds = query({
   args: { ids: v.array(v.id("documents")) },
   handler: async (ctx, { ids }) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if (!user) {
+      throw new ConvexError("Unauthorized");
+    }
+
     const documents = [];
 
     for (const id of ids) {
       const document = await ctx.db.get(id);
 
       if (document) {
-        documents.push({ id: document._id, name: document.title });
+        // Check authorization for each document
+        const isOwner = document.ownerId === user.subject;
+        const isOrganizationMember = 
+          !!(document.organizationId && document.organizationId === user.org_id);
+
+        if (isOwner || isOrganizationMember) {
+          documents.push({ id: document._id, name: document.title });
+        } else {
+          // User not authorized to see this document
+          documents.push({ id, name: "[Removed]" });
+        }
       } else {
         documents.push({ id, name: "[Removed]" })
       }
@@ -53,9 +69,9 @@ export const get = query({
       throw new ConvexError("Unauthorized");
     }
 
-    const organizationId = (user.organization_id ?? undefined) as
-      | string
-      | undefined;
+    const organizationId = (user.org_id ?? undefined) as
+    | string
+    | undefined;
 
     // Search within organization
     if (search && organizationId) {
@@ -104,7 +120,7 @@ export const removeById = mutation({
       throw new ConvexError("Unauthorized");
     }
 
-    const organizationId = (user.organization_id ?? undefined) as
+    const organizationId = (user.org_id ?? undefined) as
       | string
       | undefined;
 
@@ -135,7 +151,7 @@ export const updateById = mutation({
       throw new ConvexError("Unauthorized");
     }
 
-    const organizationId = (user.organization_id ?? undefined) as
+    const organizationId = (user.org_id ?? undefined) as
       | string
       | undefined;
 
