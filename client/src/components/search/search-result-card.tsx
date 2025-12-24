@@ -1,8 +1,11 @@
 import { Link } from 'wouter';
+import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { getEntityTypeInfo, getStatusColor, type SearchResult } from '@/hooks/use-global-search';
 import { cn } from '@/lib/utils';
-import { GitBranch, Zap } from 'lucide-react';
+import { GitBranch, Zap, FileText, AlertCircle, Layers, Circle } from 'lucide-react';
+import { StoryDetailSheet } from '@/components/plan/story-detail-sheet';
 
 interface SearchResultCardProps {
   result: SearchResult;
@@ -11,9 +14,31 @@ interface SearchResultCardProps {
   highlighted?: boolean;
 }
 
+// Truncate title to specified length
+const truncateTitle = (title: string, maxLength: number = 10) => {
+  return title.length > maxLength 
+    ? title.substring(0, maxLength) + '...' 
+    : title;
+};
+
+// Get icon for entity type
+const getIconForEntityType = (type: string) => {
+  switch (type) {
+    case 'user_story':
+      return <FileText className="w-3 h-3 text-blue-500" />;
+    case 'defect':
+      return <AlertCircle className="w-3 h-3 text-red-500" />;
+    case 'epic':
+      return <Layers className="w-3 h-3 text-purple-500" />;
+    default:
+      return <Circle className="w-3 h-3" />;
+  }
+};
+
 export function SearchResultCard({ result, onClick, className, highlighted }: SearchResultCardProps) {
   const typeInfo = getEntityTypeInfo(result.entityType);
   const statusColor = getStatusColor(result.status);
+  const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
 
   const handleClick = (e: React.MouseEvent) => {
     // Allow Cmd/Ctrl+Click to open in new tab
@@ -94,11 +119,60 @@ export function SearchResultCard({ result, onClick, className, highlighted }: Se
                   <code className="px-2 py-0.5 bg-muted rounded font-mono text-cyan-600 dark:text-cyan-400">
                     {result.metadata.commitSha.substring(0, 7)}
                   </code>
-                  {result.metadata.linkedItemsCount && result.metadata.linkedItemsCount > 1 && (
-                    <span className="flex items-center gap-1 px-2 py-0.5 bg-muted rounded">
-                      <Zap className="w-3 h-3" />
-                      + {result.metadata.linkedItemsCount - 1} other {result.metadata.linkedItemsCount - 1 === 1 ? 'story' : 'stories'}
-                    </span>
+                  {result.metadata.linkedItems && result.metadata.linkedItems.length > 1 && (
+                    <>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
+                            className="flex items-center gap-1 px-2 py-0.5 bg-muted rounded hover:bg-accent cursor-pointer transition-colors"
+                          >
+                            <Zap className="w-3 h-3" />
+                            + {result.metadata.linkedItems.length - 1} other {result.metadata.linkedItems.length - 1 === 1 ? 'story' : 'stories'}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80 p-3" align="start">
+                          <div className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wide">
+                            Also Linked To
+                          </div>
+                          <div className="space-y-1">
+                            {result.metadata.linkedItems
+                              .filter(item => item.id !== result.id)
+                              .map((item) => (
+                                <button
+                                  key={item.id}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setSelectedStoryId(item.id);
+                                  }}
+                                  className="w-full flex items-center gap-2 px-2 py-1.5 rounded hover:bg-accent text-xs transition-colors text-left"
+                                >
+                                  {getIconForEntityType(item.entityType)}
+                                  <span className="font-mono text-muted-foreground">{item.id}</span>
+                                  <span className="text-foreground">
+                                    {truncateTitle(item.title, 10)}
+                                  </span>
+                                </button>
+                              ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+
+                      {/* Story Detail Sheet */}
+                      {selectedStoryId && (
+                        <StoryDetailSheet
+                          storyId={selectedStoryId}
+                          open={!!selectedStoryId}
+                          onOpenChange={(open) => {
+                            if (!open) setSelectedStoryId(null);
+                          }}
+                        />
+                      )}
+                    </>
                   )}
                 </div>
               </div>

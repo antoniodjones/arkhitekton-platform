@@ -19,6 +19,12 @@ export interface SearchResult {
     branchName?: string;
     authorUsername?: string;
     linkedItemsCount?: number;
+    linkedItems?: Array<{
+      id: string;
+      title: string;
+      entityType: string;
+      url: string;
+    }>;
     codeChangeId?: string;
     // Entity-specific metadata
     [key: string]: any;

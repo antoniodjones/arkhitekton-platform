@@ -3860,41 +3860,80 @@ function mapJiraPriorityToArkhitekton(jiraPriority: string | undefined): string 
         // For each code change, fetch linked entities to determine primary item
         const enrichedChanges = await Promise.all(
           matchingChanges.map(async (change) => {
-            // Get the linked entity
+            // Get all code changes with the same commit SHA
+            const allChanges = await storage.getAllCodeChanges();
+            const relatedChanges = allChanges.filter(c => c.commitSha === change.commitSha);
+            
+            // Fetch all linked entities for this commit
+            const linkedEntitiesPromises = relatedChanges.map(async (relatedChange) => {
+              let entity: any = null;
+              let entityType = '';
+              let url = '';
+              
+              if (relatedChange.entityType === 'defect') {
+                entity = await storage.getDefect(relatedChange.entityId);
+                entityType = 'defect';
+                url = `/quality/defects/${relatedChange.entityId}`;
+              } else if (relatedChange.entityType === 'user_story') {
+                entity = await storage.getUserStory(relatedChange.entityId);
+                entityType = 'user_story';
+                url = `/plan/stories/${relatedChange.entityId}`;
+              } else if (relatedChange.entityType === 'epic') {
+                entity = await storage.getEpic(relatedChange.entityId);
+                entityType = 'epic';
+                url = `/plan?epicId=${relatedChange.entityId}`;
+              }
+              
+              if (entity) {
+                return {
+                  id: relatedChange.entityId,
+                  title: entity.title || entity.name || 'Unknown',
+                  entityType: entityType,
+                  url: url
+                };
+              }
+              return null;
+            });
+            
+            const allLinkedEntities = (await Promise.all(linkedEntitiesPromises)).filter(Boolean);
+            
+            // Determine primary entity (priority: defect > user_story > epic)
             let primaryEntity: any = null;
             let primaryType = '';
             let primaryUrl = '';
             
-            // Priority: defect > user_story > epic
-            if (change.entityType === 'defect') {
-              primaryEntity = await storage.getDefect(change.entityId);
+            // Find the highest priority entity
+            const defectEntity = allLinkedEntities.find(e => e?.entityType === 'defect');
+            const storyEntity = allLinkedEntities.find(e => e?.entityType === 'user_story');
+            const epicEntity = allLinkedEntities.find(e => e?.entityType === 'epic');
+            
+            if (defectEntity) {
+              primaryEntity = await storage.getDefect(defectEntity.id);
               primaryType = 'defect';
-              primaryUrl = `/quality/defects/${change.entityId}`;
-            } else if (change.entityType === 'user_story') {
-              primaryEntity = await storage.getUserStory(change.entityId);
+              primaryUrl = defectEntity.url;
+            } else if (storyEntity) {
+              primaryEntity = await storage.getUserStory(storyEntity.id);
               primaryType = 'user_story';
-              primaryUrl = `/plan/stories/${change.entityId}`;
-            } else if (change.entityType === 'epic') {
-              primaryEntity = await storage.getEpic(change.entityId);
+              primaryUrl = storyEntity.url;
+            } else if (epicEntity) {
+              primaryEntity = await storage.getEpic(epicEntity.id);
               primaryType = 'epic';
-              primaryUrl = `/plan?epicId=${change.entityId}`;
+              primaryUrl = epicEntity.url;
             }
-
-            // Get all linked entities for this code change
-            const allLinked = await storage.getCodeChangesByEntity(change.entityType, change.entityId);
             
             return {
               change,
               primaryEntity,
               primaryType,
               primaryUrl,
-              linkedCount: allLinked.length
+              linkedCount: allLinkedEntities.length,
+              linkedItems: allLinkedEntities
             };
           })
         );
 
         // Add results using primary entity with code change metadata
-        enrichedChanges.forEach(({ change, primaryEntity, primaryType, primaryUrl, linkedCount }) => {
+        enrichedChanges.forEach(({ change, primaryEntity, primaryType, primaryUrl, linkedCount, linkedItems }) => {
           if (primaryEntity) {
             const result = {
               id: primaryEntity.id,
@@ -3914,6 +3953,7 @@ function mapJiraPriorityToArkhitekton(jiraPriority: string | undefined): string 
                 branchName: change.branchName,
                 authorUsername: change.authorUsername,
                 linkedItemsCount: linkedCount,
+                linkedItems: linkedItems,
                 codeChangeId: change.id,
                 ...getEntityMetadata(primaryEntity, primaryType)
               }

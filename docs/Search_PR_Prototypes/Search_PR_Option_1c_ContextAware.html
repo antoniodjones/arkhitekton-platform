@@ -327,8 +327,15 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            padding: 4px 0;
+            padding: 6px 8px;
             font-size: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .tooltip-item:hover {
+            background-color: #334155;
         }
 
         .tooltip-icon {
@@ -345,8 +352,19 @@
             color: #dc2626;
         }
 
+        .tooltip-id {
+            font-family: 'Monaco', 'Courier New', monospace;
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
         .tooltip-text {
             color: #cbd5e1;
+            text-decoration: none;
+        }
+
+        .tooltip-item:hover .tooltip-text {
+            color: #f1f5f9;
         }
 
         .also-linked {
@@ -453,23 +471,26 @@
                                 3f4e05f
                                 <div class="code-tooltip">
                                     <div class="tooltip-title">Also Linked To</div>
-                                    <div class="tooltip-item">
+                                    <div class="tooltip-item" onclick="alert('Opening story detail sheet for US-SEARCH-006: Keyboard Sh...')">
                                         <svg class="tooltip-icon story" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                                         </svg>
-                                        <span class="tooltip-text">US-SEARCH-006</span>
+                                        <span class="tooltip-id">US-SEARCH-006:</span>
+                                        <span class="tooltip-text">Keyboard Sh...</span>
                                     </div>
-                                    <div class="tooltip-item">
+                                    <div class="tooltip-item" onclick="alert('Opening story detail sheet for US-SEARCH-IMPL-001: Create Glo...')">
                                         <svg class="tooltip-icon story" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
                                         </svg>
-                                        <span class="tooltip-text">US-SEARCH-IMPL-001</span>
+                                        <span class="tooltip-id">US-SEARCH-IMPL-001:</span>
+                                        <span class="tooltip-text">Create Glo...</span>
                                     </div>
-                                    <div class="tooltip-item">
+                                    <div class="tooltip-item" onclick="alert('Opening story detail sheet for US-SEARCH-IMPL-002: Integrate...')">
                                         <svg class="tooltip-icon story" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
                                         </svg>
-                                        <span class="tooltip-text">US-SEARCH-IMPL-002</span>
+                                        <span class="tooltip-id">US-SEARCH-IMPL-002:</span>
+                                        <span class="tooltip-text">Integrate...</span>
                                     </div>
                                 </div>
                             </div>
