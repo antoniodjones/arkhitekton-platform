@@ -988,6 +988,83 @@ Keep response concise but comprehensive.`;
   });
 
   // ============================================================
+  // STEP MIGRATION - US-QC-IMPL-014
+  // ============================================================
+
+  // Preview migration from textarea to structured steps
+  app.post("/api/defects/:defectId/steps/preview-migration", async (req, res) => {
+    try {
+      const { defectId } = req.params;
+      const { text } = req.body;
+
+      if (!text || typeof text !== 'string') {
+        return res.status(400).json({ message: "Text is required" });
+      }
+
+      const { autoParseSteps, validateParsedSteps } = await import('./services/step-migration');
+      const parsedSteps = autoParseSteps(text);
+      const validation = validateParsedSteps(parsedSteps);
+
+      res.json({
+        data: {
+          steps: parsedSteps,
+          validation,
+        },
+      });
+    } catch (error) {
+      console.error("Failed to preview migration:", error);
+      res.status(500).json({ message: "Failed to preview migration" });
+    }
+  });
+
+  // Execute migration from textarea to structured steps
+  app.post("/api/defects/:defectId/steps/execute-migration", async (req, res) => {
+    try {
+      const { defectId } = req.params;
+      const { steps, originalText } = req.body;
+
+      if (!Array.isArray(steps) || steps.length === 0) {
+        return res.status(400).json({ message: "Steps array is required" });
+      }
+
+      // Store original text in defect's legacy field
+      if (originalText) {
+        await storage.updateDefect(defectId, {
+          legacyStepsToReproduce: originalText,
+        });
+      }
+
+      // Get next step ID
+      const existingSteps = await storage.getReproductionStepsByDefect(defectId);
+      let stepCounter = existingSteps.length + 1;
+
+      // Create all steps
+      const createdSteps = [];
+      for (const step of steps) {
+        const stepId = `S${stepCounter.toString().padStart(3, '0')}`;
+        
+        const newStep = await storage.createReproductionStep({
+          defectId,
+          stepId,
+          sequence: step.sequence,
+          description: step.description,
+        });
+
+        createdSteps.push(newStep);
+        stepCounter++;
+      }
+
+      res.json({
+        data: createdSteps,
+        message: `Successfully migrated ${createdSteps.length} steps`,
+      });
+    } catch (error) {
+      console.error("Failed to execute migration:", error);
+      res.status(500).json({ message: "Failed to execute migration" });
+    }
+  });
+
+  // ============================================================
   // TEST MANAGEMENT API ENDPOINTS - Test Suites, Cases, Runs, Results
   // ============================================================
 

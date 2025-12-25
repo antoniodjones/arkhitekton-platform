@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { StepManager } from '@/components/quality/step-manager';
+import { StepMigrationDialog } from '@/components/quality/step-migration-dialog';
 import { 
   ArrowLeft, 
   Edit2, 
@@ -340,8 +341,15 @@ export default function QualityDefectDetailPage() {
 
         {/* Steps to Reproduce - Structured (US-QC-010) */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Steps to Reproduce</CardTitle>
+            {/* Show migration button if there's legacy text */}
+            {defect.stepsToReproduce && isEditing && (
+              <StepMigrationDialog
+                defectId={params.id!}
+                originalText={defect.stepsToReproduce}
+              />
+            )}
           </CardHeader>
           <CardContent>
             <StepManager defectId={params.id!} editable={isEditing} />
