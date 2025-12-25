@@ -182,7 +182,7 @@ export const getById = query({
 
     const isOwner = document.ownerId === user.subject;
     const isOrganizationMember = 
-      !!(document.organizationId && document.organizationId === user.org_id);
+      !!(document.organizationId && user.org_id && document.organizationId === user.org_id);
 
     if (!isOwner && !isOrganizationMember) {
       throw new ConvexError("Unauthorized");
