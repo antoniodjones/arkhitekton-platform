@@ -21,7 +21,7 @@ export const getByIds = query({
         // Check authorization for each document
         const isOwner = document.ownerId === user.subject;
         const isOrganizationMember = 
-          !!(document.organizationId && document.organizationId === user.org_id);
+          !!(document.organizationId && user.org_id && document.organizationId === user.org_id);
 
         if (isOwner || isOrganizationMember) {
           documents.push({ id: document._id, name: document.title });
@@ -128,7 +128,7 @@ export const removeById = mutation({
 
     const isOwner = document.ownerId === user.subject;
     const isOrganizationMember = 
-      !!(document.organizationId && document.organizationId === user.org_id);
+      !!(document.organizationId && user.org_id && document.organizationId === user.org_id);
 
     if (!isOwner && !isOrganizationMember) {
       throw new ConvexError("Unauthorized");
@@ -155,7 +155,7 @@ export const updateById = mutation({
 
     const isOwner = document.ownerId === user.subject;
     const isOrganizationMember = 
-      !!(document.organizationId && document.organizationId === user.org_id);
+      !!(document.organizationId && user.org_id && document.organizationId === user.org_id);
 
     if (!isOwner && !isOrganizationMember) {
       throw new ConvexError("Unauthorized");
