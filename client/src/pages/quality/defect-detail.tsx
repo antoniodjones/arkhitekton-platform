@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
+import { StepManager } from '@/components/quality/step-manager';
 import { 
   ArrowLeft, 
   Edit2, 
@@ -337,27 +338,18 @@ export default function QualityDefectDetailPage() {
           </div>
         </div>
 
-        {/* Steps to Reproduce & Expected vs Actual Behavior */}
+        {/* Steps to Reproduce - Structured (US-QC-010) */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Steps to Reproduce</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <StepManager defectId={params.id!} editable={isEditing} />
+          </CardContent>
+        </Card>
+
+        {/* Expected vs Actual Behavior */}
         <div className="grid grid-cols-1 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Steps to Reproduce</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isEditing ? (
-                <Textarea
-                  value={editedDefect.stepsToReproduce || ''}
-                  onChange={(e) => setEditedDefect({ ...editedDefect, stepsToReproduce: e.target.value })}
-                  rows={5}
-                  placeholder="1. Navigate to...\n2. Click on...\n3. Observe..."
-                />
-              ) : (
-                <p className="text-sm whitespace-pre-wrap">
-                  {defect.stepsToReproduce || <span className="text-muted-foreground italic">No steps provided</span>}
-                </p>
-              )}
-            </CardContent>
-          </Card>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
