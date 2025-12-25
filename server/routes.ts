@@ -763,6 +763,203 @@ Keep response concise but comprehensive.`;
   });
 
   // ============================================================
+  // REPRODUCTION STEPS API - US-QC-IMPL-011
+  // ============================================================
+
+  // Get all reproduction steps for a defect
+  app.get("/api/defects/:defectId/steps", async (req, res) => {
+    try {
+      const { defectId } = req.params;
+      const steps = await storage.getReproductionStepsByDefect(defectId);
+      res.json({ data: steps });
+    } catch (error) {
+      console.error("Failed to get reproduction steps:", error);
+      res.status(500).json({ message: "Failed to get reproduction steps" });
+    }
+  });
+
+  // Create new reproduction step
+  app.post("/api/defects/:defectId/steps", async (req, res) => {
+    try {
+      const { defectId } = req.params;
+      const { description, expectedResult } = req.body;
+
+      if (!description || typeof description !== 'string') {
+        return res.status(400).json({ message: "Description is required" });
+      }
+
+      // Auto-generate step ID
+      const stepId = await storage.getNextStepId(defectId);
+
+      // Get current max sequence
+      const existingSteps = await storage.getReproductionStepsByDefect(defectId);
+      const sequence = existingSteps.length + 1;
+
+      const newStep = await storage.createReproductionStep({
+        defectId,
+        stepId,
+        sequence,
+        description,
+        expectedResult: expectedResult || null,
+      });
+
+      res.status(201).json({ data: newStep });
+    } catch (error) {
+      console.error("Failed to create reproduction step:", error);
+      res.status(500).json({ message: "Failed to create reproduction step" });
+    }
+  });
+
+  // Update reproduction step
+  app.put("/api/defects/:defectId/steps/:stepId", async (req, res) => {
+    try {
+      const { defectId, stepId } = req.params;
+      const { description, expectedResult } = req.body;
+
+      // Find the step by defect ID and step ID
+      const existingSteps = await storage.getReproductionStepsByDefect(defectId);
+      const step = existingSteps.find(s => s.stepId === stepId);
+
+      if (!step) {
+        return res.status(404).json({ message: "Reproduction step not found" });
+      }
+
+      const updates: any = {};
+      if (description !== undefined) updates.description = description;
+      if (expectedResult !== undefined) updates.expectedResult = expectedResult;
+
+      const updatedStep = await storage.updateReproductionStep(step.id, updates);
+
+      if (!updatedStep) {
+        return res.status(404).json({ message: "Failed to update step" });
+      }
+
+      res.json({ data: updatedStep });
+    } catch (error) {
+      console.error("Failed to update reproduction step:", error);
+      res.status(500).json({ message: "Failed to update reproduction step" });
+    }
+  });
+
+  // Delete reproduction step (soft delete)
+  app.delete("/api/defects/:defectId/steps/:stepId", async (req, res) => {
+    try {
+      const { defectId, stepId } = req.params;
+
+      // Find the step by defect ID and step ID
+      const existingSteps = await storage.getReproductionStepsByDefect(defectId);
+      const step = existingSteps.find(s => s.stepId === stepId);
+
+      if (!step) {
+        return res.status(404).json({ message: "Reproduction step not found" });
+      }
+
+      // Check if step is referenced
+      const references = await storage.getStepReferences(step.id);
+      if (references.length > 0) {
+        return res.status(400).json({
+          message: `This step is referenced in ${references.length} place(s)`,
+          references: references.map(r => ({
+            type: r.referenceType,
+            id: r.referenceId,
+            url: r.referenceUrl,
+          })),
+        });
+      }
+
+      const success = await storage.deleteReproductionStep(step.id);
+
+      if (!success) {
+        return res.status(404).json({ message: "Failed to delete step" });
+      }
+
+      // Recalculate sequences for remaining steps
+      const remainingSteps = await storage.getReproductionStepsByDefect(defectId);
+      const reorderData = remainingSteps.map((s, index) => ({
+        stepId: s.stepId,
+        sequence: index + 1,
+      }));
+      await storage.reorderReproductionSteps(defectId, reorderData);
+
+      res.json({ message: "Step deleted successfully" });
+    } catch (error) {
+      console.error("Failed to delete reproduction step:", error);
+      res.status(500).json({ message: "Failed to delete reproduction step" });
+    }
+  });
+
+  // Reorder reproduction steps
+  app.put("/api/defects/:defectId/steps/reorder", async (req, res) => {
+    try {
+      const { defectId } = req.params;
+      const { steps } = req.body;
+
+      if (!Array.isArray(steps)) {
+        return res.status(400).json({ message: "Steps array is required" });
+      }
+
+      // Validate format: [{ stepId: "S001", sequence: 1 }, ...]
+      for (const step of steps) {
+        if (!step.stepId || typeof step.sequence !== 'number') {
+          return res.status(400).json({ message: "Each step must have stepId and sequence" });
+        }
+      }
+
+      // Check for duplicate sequences
+      const sequences = steps.map(s => s.sequence);
+      const uniqueSequences = new Set(sequences);
+      if (sequences.length !== uniqueSequences.size) {
+        return res.status(400).json({ message: "Duplicate sequence numbers detected" });
+      }
+
+      await storage.reorderReproductionSteps(defectId, steps);
+
+      const updatedSteps = await storage.getReproductionStepsByDefect(defectId);
+      res.json({ data: updatedSteps });
+    } catch (error) {
+      console.error("Failed to reorder reproduction steps:", error);
+      res.status(500).json({ message: "Failed to reorder reproduction steps" });
+    }
+  });
+
+  // Get references for a step
+  app.get("/api/reproduction-steps/:stepId/references", async (req, res) => {
+    try {
+      const { stepId } = req.params;
+      const references = await storage.getStepReferences(stepId);
+      res.json({ data: references });
+    } catch (error) {
+      console.error("Failed to get step references:", error);
+      res.status(500).json({ message: "Failed to get step references" });
+    }
+  });
+
+  // Create step reference
+  app.post("/api/reproduction-steps/:stepId/references", async (req, res) => {
+    try {
+      const { stepId } = req.params;
+      const { referenceType, referenceId, referenceUrl, referenceText } = req.body;
+
+      if (!referenceType || !referenceId) {
+        return res.status(400).json({ message: "referenceType and referenceId are required" });
+      }
+
+      const newReference = await storage.createStepReference({
+        stepId,
+        referenceType,
+        referenceId,
+        referenceUrl: referenceUrl || null,
+        referenceText: referenceText || null,
+      });
+
+      res.status(201).json({ data: newReference });
+    } catch (error) {
+      console.error("Failed to create step reference:", error);
+      res.status(500).json({ message: "Failed to create step reference" });
+    }
+  });
+
+  // ============================================================
   // TEST MANAGEMENT API ENDPOINTS - Test Suites, Cases, Runs, Results
   // ============================================================
 

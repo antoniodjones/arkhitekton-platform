@@ -48,6 +48,11 @@ import {
   type EntityMention,
   type InsertEntityMention,
   type CodeChange,
+  type ReproductionStep,
+  type InsertReproductionStep,
+  type UpdateReproductionStep,
+  type StepReference,
+  type InsertStepReference,
   type InsertCodeChange
 } from "@shared/schema";
 import { randomUUID } from "crypto";
@@ -3031,6 +3036,124 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(schema.codeChanges.eventTimestamp))
       .limit(limit);
     return changes;
+  }
+
+  // ============================================================
+  // REPRODUCTION STEPS - US-QC-IMPL-011
+  // ============================================================
+
+  async getReproductionStepsByDefect(defectId: string): Promise<ReproductionStep[]> {
+    const steps = await db
+      .select()
+      .from(schema.reproductionSteps)
+      .where(
+        and(
+          eq(schema.reproductionSteps.defectId, defectId),
+          isNull(schema.reproductionSteps.deletedAt)
+        )
+      )
+      .orderBy(asc(schema.reproductionSteps.sequence));
+    return steps;
+  }
+
+  async getReproductionStepById(id: string): Promise<ReproductionStep | undefined> {
+    const [step] = await db
+      .select()
+      .from(schema.reproductionSteps)
+      .where(eq(schema.reproductionSteps.id, id))
+      .limit(1);
+    return step;
+  }
+
+  async createReproductionStep(step: InsertReproductionStep): Promise<ReproductionStep> {
+    const [newStep] = await db
+      .insert(schema.reproductionSteps)
+      .values(step)
+      .returning();
+    return newStep;
+  }
+
+  async updateReproductionStep(id: string, updates: UpdateReproductionStep): Promise<ReproductionStep | undefined> {
+    const [updatedStep] = await db
+      .update(schema.reproductionSteps)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(schema.reproductionSteps.id, id))
+      .returning();
+    return updatedStep;
+  }
+
+  async deleteReproductionStep(id: string): Promise<boolean> {
+    // Soft delete
+    const [deleted] = await db
+      .update(schema.reproductionSteps)
+      .set({ deletedAt: new Date() })
+      .where(eq(schema.reproductionSteps.id, id))
+      .returning();
+    return !!deleted;
+  }
+
+  async reorderReproductionSteps(defectId: string, stepOrders: Array<{ stepId: string; sequence: number }>): Promise<boolean> {
+    // Use transaction to ensure atomicity
+    await db.transaction(async (tx) => {
+      for (const { stepId, sequence } of stepOrders) {
+        await tx
+          .update(schema.reproductionSteps)
+          .set({ sequence, updatedAt: new Date() })
+          .where(
+            and(
+              eq(schema.reproductionSteps.defectId, defectId),
+              eq(schema.reproductionSteps.stepId, stepId)
+            )
+          );
+      }
+    });
+    return true;
+  }
+
+  async getNextStepId(defectId: string): Promise<string> {
+    // Find the highest step ID for this defect
+    const steps = await db
+      .select()
+      .from(schema.reproductionSteps)
+      .where(eq(schema.reproductionSteps.defectId, defectId))
+      .orderBy(desc(schema.reproductionSteps.stepId));
+
+    if (steps.length === 0) {
+      return 'S001';
+    }
+
+    // Extract number from last step ID (e.g., "S005" -> 5)
+    const lastStepId = steps[0].stepId;
+    const lastNum = parseInt(lastStepId.substring(1), 10);
+    const nextNum = lastNum + 1;
+
+    // Format with leading zeros (e.g., 6 -> "S006")
+    return `S${nextNum.toString().padStart(3, '0')}`;
+  }
+
+  // Step References
+  async getStepReferences(stepId: string): Promise<StepReference[]> {
+    const references = await db
+      .select()
+      .from(schema.stepReferences)
+      .where(eq(schema.stepReferences.stepId, stepId))
+      .orderBy(desc(schema.stepReferences.createdAt));
+    return references;
+  }
+
+  async createStepReference(reference: InsertStepReference): Promise<StepReference> {
+    const [newReference] = await db
+      .insert(schema.stepReferences)
+      .values(reference)
+      .returning();
+    return newReference;
+  }
+
+  async deleteStepReference(id: string): Promise<boolean> {
+    await db
+      .delete(schema.stepReferences)
+      .where(eq(schema.stepReferences.id, id));
+    return true;
   }
 }
 
