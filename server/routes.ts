@@ -959,6 +959,34 @@ Keep response concise but comprehensive.`;
     }
   });
 
+  // Batch process code changes for step references (US-QC-IMPL-013)
+  app.post("/api/reproduction-steps/batch-process-references", async (req, res) => {
+    try {
+      const { batchProcessCodeChangesForStepReferences } = await import('./services/step-reference-detector');
+      const result = await batchProcessCodeChangesForStepReferences();
+      res.json({
+        message: "Batch processing complete",
+        ...result,
+      });
+    } catch (error) {
+      console.error("Failed to batch process references:", error);
+      res.status(500).json({ message: "Failed to batch process references" });
+    }
+  });
+
+  // Get enriched step references with metadata
+  app.get("/api/reproduction-steps/:stepId/references/enriched", async (req, res) => {
+    try {
+      const { stepId } = req.params;
+      const { getEnrichedStepReferences } = await import('./services/step-reference-detector');
+      const enrichedRefs = await getEnrichedStepReferences(stepId);
+      res.json({ data: enrichedRefs });
+    } catch (error) {
+      console.error("Failed to get enriched step references:", error);
+      res.status(500).json({ message: "Failed to get enriched step references" });
+    }
+  });
+
   // ============================================================
   // TEST MANAGEMENT API ENDPOINTS - Test Suites, Cases, Runs, Results
   // ============================================================

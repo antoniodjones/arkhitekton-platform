@@ -36,6 +36,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { StepReferencesPopover } from '@/components/quality/step-references-popover';
 import {
   GripVertical,
   Plus,
@@ -46,6 +47,7 @@ import {
   Check,
   Pencil,
   X,
+  Link2,
 } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -134,7 +136,7 @@ function SortableStep({
 
       {/* Step Content */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
           <Badge
             variant="outline"
             className="cursor-pointer hover:bg-accent"
@@ -143,6 +145,17 @@ function SortableStep({
           >
             {step.stepId}
           </Badge>
+          {/* References Badge with Popover */}
+          <StepReferencesPopover stepUuid={step.id} fullStepId={fullStepId}>
+            <Badge
+              variant="secondary"
+              className="cursor-pointer hover:bg-secondary/80 text-xs gap-1"
+              title="View references"
+            >
+              <Link2 className="w-3 h-3" />
+              Referenced
+            </Badge>
+          </StepReferencesPopover>
         </div>
         <p className="text-sm whitespace-pre-wrap">{step.description}</p>
         {step.expectedResult && (
