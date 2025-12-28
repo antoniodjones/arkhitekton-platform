@@ -1,0 +1,16 @@
+Model,Business Architecture,Application Architecture,Data Architecture,Technology Architecture,Integration Architecture,Security Architecture,Diagram Generation,Technical Design Docs,Fine-Tuning Potential,Notes
+Claude Opus 4.5,★★★★★,★★★★★,★★★★☆,★★★★★,★★★★★,★★★★☆,★★★★☆,★★★★★,N/A (Closed),Best instruction following for complex EA docs
+GPT-5 / GPT-4.1,★★★★★,★★★★★,★★★★★,★★★★★,★★★★★,★★★★☆,★★★★★,★★★★★,Fine-tuning available,1M context ideal for large architectures
+Gemini 3 Pro,★★★★★,★★★★★,★★★★★,★★★★☆,★★★★☆,★★★★☆,★★★★★,★★★★★,Vertex AI tuning,2M context for enterprise-wide views
+DeepSeek V3.2 / R1,★★★★☆,★★★★★,★★★★★,★★★★★,★★★★☆,★★★☆☆,★★★★☆,★★★★★,Full fine-tuning (MIT),Best open model for architecture; train on TOGAF/Archimate
+Qwen 3 (235B),★★★★☆,★★★★★,★★★★☆,★★★★☆,★★★★☆,★★★☆☆,★★★★☆,★★★★☆,Full fine-tuning,Strong code + reasoning for app architecture
+Kimi K2,★★★★☆,★★★★★,★★★★☆,★★★★☆,★★★★☆,★★★☆☆,★★★★☆,★★★★☆,Full fine-tuning (Open),Arguably best open model overall
+Mistral Large 3,★★★★☆,★★★★★,★★★★☆,★★★★☆,★★★★☆,★★★☆☆,★★★★☆,★★★★☆,Full fine-tuning (Apache),Frontier open MoE model
+Llama 4 / 3.1,★★★★☆,★★★★☆,★★★★☆,★★★★☆,★★★★☆,★★★☆☆,★★★☆☆,★★★★☆,Full fine-tuning,Largest ecosystem for fine-tuning
+IBM Granite 4,★★★★☆,★★★★☆,★★★★☆,★★★★☆,★★★★☆,★★★★☆,★★★☆☆,★★★★☆,Full fine-tuning (Apache),"Enterprise focus, regulated industries"
+GLM-4.5 / ChatGLM,★★★★☆,★★★★☆,★★★★☆,★★★★☆,★★★☆☆,★★★☆☆,★★★☆☆,★★★★☆,Full fine-tuning,Good for bilingual documentation
+Baichuan 4,★★★★★,★★★★☆,★★★★☆,★★★★☆,★★★☆☆,★★★★☆,★★★☆☆,★★★★☆,Full fine-tuning,"Domain expertise (finance, healthcare)"
+DeepSeek-Coder V2,★★☆☆☆,★★★★★,★★★★☆,★★★★★,★★★★★,★★★☆☆,★★★★☆,★★★★☆,Full fine-tuning,Best for code-heavy architecture
+StarCoder 2,★☆☆☆☆,★★★★☆,★★★☆☆,★★★★☆,★★★★☆,★★☆☆☆,★★★☆☆,★★★☆☆,Full fine-tuning,Code generation only
+Phi-4 / Phi-3,★★★☆☆,★★★★☆,★★★☆☆,★★★☆☆,★★★☆☆,★★☆☆☆,★★★☆☆,★★★☆☆,Full fine-tuning (MIT),"Edge deployment, quick prototyping"
+Cohere Command R+,★★★★☆,★★★★☆,★★★★★,★★★★☆,★★★★☆,★★★★☆,★★★☆☆,★★★★☆,Enterprise fine-tuning,Best RAG for architecture knowledge base

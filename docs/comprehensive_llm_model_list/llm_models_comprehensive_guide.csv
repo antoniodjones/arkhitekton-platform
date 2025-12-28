@@ -1,0 +1,51 @@
+Provider,Model Name,Type,Parameters,Architecture,Context Window,License,API Pricing (Input/1M tokens),API Pricing (Output/1M tokens),Self-Host Cost,Primary Use Cases,Strengths,EA/Architecture Suitability
+OpenAI,GPT-5,Commercial,Unknown (Large),Dense Transformer,128K+,Proprietary,$10.00,$30.00,N/A - API Only,"General purpose, reasoning, coding, multimodal","Best overall reasoning, multimodal",★★★★★
+OpenAI,GPT-4.1,Commercial,Unknown,Dense Transformer,1M,Proprietary,$3.00,$12.00,N/A - API Only,"Long context, documents, code","Extended context, balanced cost",★★★★★
+OpenAI,GPT-4o,Commercial,Unknown,Dense Transformer,128K,Proprietary,$5.00,$15.00,N/A - API Only,"Multimodal, vision, audio",Vision + audio native,★★★★☆
+OpenAI,o3 / o4-mini,Commercial,Unknown,Reasoning Transformer,128K,Proprietary,$2.50-$5.00,$10.00-$20.00,N/A - API Only,"Step-by-step reasoning, math, code",Chain-of-thought reasoning,★★★★★
+OpenAI,GPT-OSS-120B,Open-Weight,120B (5.1B active),MoE,128K,Apache 2.0,Self-host,Self-host,$0.60-$4/M via Groq,"Reasoning, tool use, on-prem",First open-weight from OpenAI,★★★★☆
+Anthropic,Claude Opus 4.5,Commercial,Unknown (Large),Dense Transformer,200K,Proprietary,$15.00,$75.00,N/A - API Only,"Long tasks, agentic workflows, coding",Best instruction following,★★★★★
+Anthropic,Claude Sonnet 4.5,Commercial,Unknown,Dense Transformer,200K,Proprietary,$3.00,$15.00,N/A - API Only,"Balanced performance, coding",Cost-effective flagship,★★★★★
+Anthropic,Claude Haiku 4.5,Commercial,Unknown (Small),Dense Transformer,200K,Proprietary,$1.00,$5.00,N/A - API Only,"Fast responses, high volume",Speed + low cost,★★★☆☆
+Google,Gemini 3 Pro,Commercial,Unknown (Large),Dense + MoE,2M,Proprietary,$1.25-$2.50,$10.00-$15.00,N/A - API Only,"Multimodal, long context, Deep Think","Massive context, reasoning",★★★★★
+Google,Gemini 2.5 Flash,Commercial,Unknown,Dense Transformer,1M,Proprietary,$0.15,$0.60-$3.50,N/A - API Only,"Real-time, low latency","Speed, cost efficiency",★★★☆☆
+Google,Gemma 2,Open-Weight,2B-27B,Dense Transformer,8K,Gemma Terms,Self-host,Self-host,Free locally,"Edge, mobile, fine-tuning","Lightweight, tunable",★★☆☆☆
+xAI,Grok 4.1,Commercial,Unknown,Dense Transformer,131K,Proprietary,$3.00-$5.00,$15.00-$25.00,N/A - API Only,"Real-time X data, OSINT, reasoning",Social media integration,★★★☆☆
+xAI,Grok 4 Heavy,Commercial,Unknown (Very Large),Dense Transformer,428K,Proprietary,Premium tier,Premium tier,N/A - API Only,"Extended research, deep analysis",Longest thinking mode,★★★★☆
+Cohere,Command R+,Commercial,104B,Dense Transformer,128K,CC-BY-NC (research),$3.00,$15.00,Enterprise pricing,"Enterprise RAG, tool use",RAG optimization,★★★★☆
+Cohere,Command A,Commercial,Unknown,Dense Transformer,128K,Proprietary,$1.00,$5.00,Enterprise pricing,"Vision, reasoning, translation",Enterprise-focused,★★★★☆
+Meta,Llama 4 Scout,Open-Weight,Unknown,MoE,128K,Llama 4 License,Self-host,Self-host,Free (<700M users),"General chat, agents",Strong ecosystem,★★★★☆
+Meta,Llama 4 Maverick,Open-Weight,Unknown,MoE,128K,Llama 4 License,Self-host,Self-host,Free (<700M users),Instruction following,Broad support,★★★★☆
+Meta,Llama 3.1 70B,Open-Weight,70B,Dense Transformer,128K,Llama 3 License,Self-host,Self-host,Free (<700M users),"Fine-tuning, domain adaptation",Most widely adopted,★★★★☆
+Microsoft,Phi-4,Open-Weight,14B,Dense Transformer,16K,MIT,Self-host,Self-host,Free - runs on laptop,"Edge, mobile, reasoning",Small but powerful,★★★☆☆
+Microsoft,Phi-3 Medium,Open-Weight,14B,Dense Transformer,128K,MIT,Self-host,Self-host,Free - runs on laptop,Instruction following,Efficient,★★★☆☆
+IBM,Granite 4.0,Open-Weight,Multiple sizes,Dense Transformer,128K,Apache 2.0,Self-host,Self-host,Free,"Enterprise, code, regulated",True open-source,★★★★☆
+Allen AI,OLMo 3,Open-Source,Multiple sizes,Dense Transformer,32K,Apache 2.0,Self-host,Self-host,Free + training data,"Research, transparency",Fully open (code+data),★★★☆☆
+Mistral AI,Mistral Large 3,Open-Weight,675B (41B active),MoE,128K,Apache 2.0,Self-host,Self-host,Free - needs multi-GPU,Frontier performance,Best open MoE,★★★★★
+Mistral AI,Mixtral 8x22B,Open-Weight,141B (39B active),MoE,64K,Apache 2.0,$2.00,$6.00,Free - ~80GB VRAM,"Code, multilingual",Efficient MoE,★★★★☆
+Mistral AI,Ministral 3 (8B/14B),Open-Weight,3B-14B,Dense Transformer,128K,Apache 2.0,$0.10-$0.40,$0.30-$2.00,Free - consumer GPU,"Edge, local, reasoning",Best small model,★★★☆☆
+TII (UAE),Falcon 3,Open-Source,1B-180B,Dense Transformer,32K,Apache 2.0,Self-host,Self-host,Free,"Multilingual, efficient",Democratized access,★★★☆☆
+Alibaba (China),Qwen 3 (235B),Open-Weight,235B (22B active),MoE,128K,Apache 2.0,$0.38,$1.50,Free (<100M users),"Multilingual, code, reasoning",Leading open MoE,★★★★★
+Alibaba (China),Qwen 2.5 Max,Open-Weight,72B,Dense Transformer,128K,Apache 2.0,$0.38,$1.50,Free (<100M users),"Code, reasoning, multimodal","Versatile, cost-effective",★★★★★
+Alibaba (China),Qwen3-Coder,Open-Weight,32B,Dense Transformer,128K,Apache 2.0,Self-host,Self-host,Free,"Code generation, programming",Rivals GPT-4 on code,★★★★★
+DeepSeek (China),DeepSeek V3.2,Open-Weight,671B (37B active),MoE,128K,MIT,$0.28 (cache $0.028),$0.42,Free - multi-GPU,"Reasoning, math, code, agents",Best value flagship,★★★★★
+DeepSeek (China),DeepSeek R1,Open-Weight,671B (37B active),MoE,128K,MIT,$0.55,$2.19,Free - multi-GPU,Chain-of-thought reasoning,Self-verification,★★★★★
+DeepSeek (China),DeepSeek-Coder V2,Open-Weight,236B,MoE,128K,DeepSeek License,Self-host,Self-host,Free,300+ programming languages,Best open coding model,★★★★★
+Zhipu AI / Z.AI (China),GLM-4.5,Open-Weight,355B,MoE,128K,Open License,Self-host,Self-host,Free,"Bilingual, programming",Strong Chinese/English,★★★★☆
+Zhipu AI / Z.AI (China),ChatGLM-4,Open-Weight,130B,Dense Transformer,128K,Open License,Self-host,Self-host,Free,"Dialogue, instructions",Optimized for Chinese,★★★★☆
+Moonshot AI (China),Kimi K2,Open-Weight,1T+ (MoE),MoE,128K,MIT-like,Self-host,Self-host,Free,"Code, reasoning, multimodal",Arguably best open model,★★★★★
+Moonshot AI (China),Kimi K1.5,Open-Weight,20B+,Dense Transformer,128K,Open License,Self-host,Self-host,Free,"Long context, vision",128K native context,★★★★☆
+Baichuan AI (China),Baichuan 4,Open-Weight,1T+,MoE,128K,Apache 2.0,Self-host,Self-host,Free,"Law, finance, medicine, Chinese lit",Domain-specific excellence,★★★★☆
+Baichuan AI (China),Baichuan 3 (7B/13B),Open-Weight,7B-13B,Dense Transformer,32K,Apache 2.0,Self-host,Self-host,Free - consumer GPU,"Bilingual, fine-tuning",Easy to deploy,★★★☆☆
+ByteDance (China),Doubao 1.5 Pro,Commercial,Unknown,MoE,128K,Proprietary,~$0.50,~$2.00,,"Multimodal, reasoning",Deep thinking mode,★★★★☆
+BAAI (China),Wu Dao 3.0 / Aquila,Open-Source,Multiple,Dense/MoE,32K,Apache 2.0,Self-host,Self-host,Free,"Multilingual, multimodal",Academic research,★★★☆☆
+MiniMax (China),MiniMax-Text-01,Open-Weight,456B,MoE,4M,Permissive,Self-host,Self-host,Free,Ultra-long context,4M token context,★★★★☆
+Xiaomi (China),MiMo-V2-Flash,Open-Weight,309B (15B active),MoE,128K,Apache 2.0,Self-host,Self-host,Free,"Fast reasoning, agents",Ultra-efficient,★★★★☆
+01.AI (China),Yi 1.5 (6B-34B),Open-Weight,6B-34B,Dense Transformer,200K,Apache 2.0,Self-host,Self-host,Free - consumer GPU,"Bilingual, code, chat",Long context,★★★★☆
+InternLM (China),InternLM3 / InternVL3,Open-Weight,Multiple,Dense/Vision,32K,Apache 2.0,Self-host,Self-host,Free,"Vision-language, math",Strong VLM,★★★★☆
+Fudan Univ (China),MOSS,Open-Source,16B,Dense Transformer,2K,Apache 2.0,Self-host,Self-host,Free,"Academic research, Chinese",Academic pioneer,★★☆☆☆
+Hugging Face,StarCoder 2,Open-Source,3B-15B,Dense Transformer,16K,BigCode OpenRAIL-M,Self-host,Self-host,Free,"Code generation, 600+ languages",Code specialized,★★★★☆
+BigCode,SantaCoder,Open-Source,1.1B,Dense Transformer,2K,BigCode OpenRAIL-M,Self-host,Self-host,Free,Code completion,Lightweight code,★★☆☆☆
+NVIDIA,Nemotron / NeMo,Open-Weight,Multiple,Dense/MoE,32K,NVIDIA License,Self-host,Self-host,Free with NVIDIA GPUs,"Enterprise, TensorRT optimized",NVIDIA ecosystem,★★★★☆
+Amazon,Nova Premier,Commercial,Unknown,Dense Transformer,128K,Proprietary,$2.00,$8.00,N/A - AWS only,"AWS integration, agents",AWS ecosystem,★★★☆☆
+Salesforce,xLAM-2,Open-Weight,Multiple,Dense Transformer,32K,Apache 2.0,Self-host,Self-host,Free,"Agent, tool use",Action models,★★★★☆

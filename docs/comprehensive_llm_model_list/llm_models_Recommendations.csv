@@ -1,0 +1,28 @@
+ENTERPRISE ARCHITECTURE LLM RECOMMENDATIONS,Unnamed: 1
+,
+CATEGORY,RECOMMENDATION
+Best Overall (Commercial),Claude Opus 4.5 or GPT-5 - Superior instruction following for complex EA documentation
+Best Overall (Open),"DeepSeek V3.2/R1 or Kimi K2 - Frontier performance, MIT license, full fine-tuning"
+Best for Diagrams,GPT-4o/GPT-5 (native vision) + Mermaid/PlantUML generation; Claude for C4 diagrams
+Best for Technical Design,"DeepSeek-Coder V2 or Qwen3-Coder - 300+ languages, architecture patterns"
+Best for Fine-Tuning EA,Llama 4/3.1 (largest ecosystem) or DeepSeek (best performance/cost)
+Best Budget Option,Ministral 8B ($0.10 input) or DeepSeek V3.2 with caching ($0.028)
+Best for Long Documents,Gemini 3 Pro (2M context) or GPT-4.1 (1M context)
+Best for RAG/Knowledge Base,Cohere Command R+ - Optimized for retrieval-augmented generation
+Best Edge/On-Prem,Phi-4 (laptop) or Llama 3.1 8B (single GPU)
+Best for Security/Compliance,IBM Granite 4 (enterprise focus) or self-hosted DeepSeek
+,
+EA DOMAIN TRAINING RECOMMENDATIONS,
+Business Architecture,"Fine-tune on TOGAF, capability models, value streams, business process patterns"
+Application Architecture,"Train on C4 diagrams, microservices patterns, API specifications, ADRs"
+Data Architecture,"Include data models, MDM patterns, data governance frameworks, lineage docs"
+Technology Architecture,"Infrastructure patterns, cloud architectures, network diagrams, IaC templates"
+Integration Architecture,"API design patterns, event-driven architectures, integration frameworks"
+Security Architecture,"NIST frameworks, threat models, security patterns, compliance requirements"
+,
+RECOMMENDED TRAINING DATA SOURCES,
+Frameworks,"TOGAF, ArchiMate, Zachman, FEAF, DODAF, MODAF"
+Diagram Standards,"C4 Model, UML, BPMN, ArchiMate notation, AWS/Azure/GCP icons"
+Documentation,"Architecture Decision Records (ADRs), Technical Design Docs, RFCs"
+Patterns,"Enterprise Integration Patterns, Cloud Design Patterns, Microservices Patterns"
+Standards,"IEEE 42010, ISO/IEC 25010, OWASP, CIS Benchmarks"
