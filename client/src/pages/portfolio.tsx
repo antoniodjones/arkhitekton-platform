@@ -17,7 +17,7 @@ type TabValue = 'applications' | 'initiatives' | 'dependencies';
 
 function PortfolioContent() {
   const [location, setLocation] = useLocation();
-  
+
   // Parse tab from URL query param
   const getInitialTab = (): TabValue => {
     const params = new URLSearchParams(window.location.search);

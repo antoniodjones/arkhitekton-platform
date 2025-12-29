@@ -22,12 +22,14 @@ import { ViewTicketPage } from "@/pages/view-ticket";
 import DesignOptionsPage from "@/pages/design-options";
 import DesignOptionDetailPage from "@/pages/design-option-detail";
 import DesignOptionPrototypePage from "@/pages/design-option-prototype";
+import LogoDesignOptions from "@/pages/logo-design-options";
 import PlanPage from "@/pages/plan";
 import { PlanLayout } from "@/components/plan/plan-layout";
 import PlanDashboard from "@/pages/plan/dashboard";
 import PlanBacklog from "@/pages/plan/backlog";
 import PlanBoard from "@/pages/plan/board";
 import PlanStories from "@/pages/plan/stories";
+import PlanStoryDetail from "@/pages/plan/story-detail-page";
 import PlanRoadmap from "@/pages/plan/roadmap";
 import PlanEnhancements from "@/pages/plan/enhancements";
 import QualityDashboard from "@/pages/quality/dashboard";
@@ -49,6 +51,7 @@ import DrawioPOCPage from "@/pages/drawio-poc";
 import CanvasPOCPage from "@/pages/canvas-poc";
 import InstantCanvasPage from "@/pages/instant-canvas";
 import CanvasSimple from "@/pages/canvas-simple";
+import CanvasMVPPage from "@/pages/canvas-mvp";
 import WikiV2Page from "@/pages/wiki-v2";
 
 
@@ -68,6 +71,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/studio" component={DesignStudioHome} />
+      <Route path="/studio/canvas-mvp" component={CanvasMVPPage} />
       <Route path="/studio/canvas" component={CanvasSimple} />
       <Route path="/studio/canvas-advanced" component={StudioPage} />
       <Route path="/design-palette">{() => <Redirect to="/studio" />}</Route>
@@ -86,6 +90,7 @@ function Router() {
       <Route path="/tickets/:id/edit" component={EditTicketPage} />
       <Route path="/tickets/:id" component={ViewTicketPage} />
       <Route path="/design-options" component={DesignOptionsPage} />
+      <Route path="/design-options/logo-concepts" component={LogoDesignOptions} />
       <Route path="/design-options/:id" component={DesignOptionDetailPage} />
       <Route path="/design-options/:id/prototype/:protoId" component={DesignOptionPrototypePage} />
       {/* Plan Module Routes */}
@@ -111,6 +116,7 @@ function Router() {
           </PlanLayout>
         )}
       </Route>
+      <Route path="/plan/stories/:id" component={PlanStoryDetail} />
       <Route path="/plan/stories">
         {() => (
           <PlanLayout>

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg viewBox="0 0 1400 1100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2d3748"/>
+    </marker>
+    <marker id="arrow-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff9800"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4299e1"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="700" y="30" font-family="Arial" font-size="24" font-weight="bold" text-anchor="middle" fill="#1a202c">Quality Center Component Hierarchy</text>
+  <text x="700" y="55" font-family="Arial" font-size="14" text-anchor="middle" fill="#4a5568">TDS-QC-001 | React Component Tree and State Management</text>
+  
+  <!-- Root: QualityCenter -->
+  <rect x="550" y="100" width="300" height="60" fill="#ff9800" stroke="#e65100" stroke-width="3" rx="8"/>
+  <text x="700" y="128" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle" fill="#fff">QualityCenter</text>
+  <text x="700" y="148" font-family="Arial" font-size="12" text-anchor="middle" fill="#fff">quality routes</text>
+  
+  <!-- Level 1: QualityLayout -->
+  <rect x="550" y="200" width="300" height="60" fill="#fff4e6" stroke="#ff9800" stroke-width="2" rx="5"/>
+  <text x="700" y="228" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#ff9800">QualityLayout</text>
+  <text x="700" y="248" font-family="Arial" font-size="11" text-anchor="middle" fill="#666">Shared layout with nav</text>
+  
+  <!-- Arrow -->
+  <path d="M 700 160 L 700 200" stroke="#ff9800" stroke-width="2" fill="none" marker-end="url(#arrow-orange)"/>
+  
+  <!-- Level 2: Routes -->
+  <rect x="50" y="300" width="220" height="50" fill="#e1f5fe" stroke="#0288d1" stroke-width="2" rx="5"/>
+  <text x="160" y="325" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#0288d1">QualityDashboard</text>
+  <text x="160" y="342" font-family="Arial" font-size="10" text-anchor="middle" fill="#666">dashboard</text>
+  
+  <rect x="300" y="300" width="180" height="50" fill="#ffe6e6" stroke="#d32f2f" stroke-width="2" rx="5"/>
+  <text x="390" y="325" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#d32f2f">DefectsPage</text>
+  <text x="390" y="342" font-family="Arial" font-size="10" text-anchor="middle" fill="#666">defects</text>
+  
+  <rect x="510" y="300" width="180" height="50" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="5"/>
+  <text x="600" y="325" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#f57c00">TriageQueue</text>
+  <text x="600" y="342" font-family="Arial" font-size="10" text-anchor="middle" fill="#666">triage P2</text>
+  
+  <rect x="720" y="300" width="180" height="50" fill="#e6ffe6" stroke="#388e3c" stroke-width="2" rx="5"/>
+  <text x="810" y="325" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#388e3c">TestPlanPage</text>
+  <text x="810" y="342" font-family="Arial" font-size="10" text-anchor="middle" fill="#666">test-plan</text>
+  
+  <rect x="930" y="300" width="200" height="50" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="5"/>
+  <text x="1030" y="325" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#7b1fa2">QualityReports</text>
+  <text x="1030" y="342" font-family="Arial" font-size="10" text-anchor="middle" fill="#666">reports</text>
+  
+  <rect x="1160" y="300" width="200" height="50" fill="#e6e6ff" stroke="#5e35b1" stroke-width="2" rx="5"/>
+  <text x="1260" y="325" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#5e35b1">Releases</text>
+  <text x="1260" y="342" font-family="Arial" font-size="10" text-anchor="middle" fill="#666">releases P4</text>
+  
+  <!-- Arrows from Layout to Routes -->
+  <path d="M 600 260 L 160 300" stroke="#2d3748" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 650 260 L 390 300" stroke="#2d3748" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 700 260 L 600 300" stroke="#2d3748" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 750 260 L 810 300" stroke="#2d3748" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 800 260 L 1030 300" stroke="#2d3748" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 820 260 L 1260 300" stroke="#2d3748" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  
+  <!-- Dashboard Children -->
+  <rect x="30" y="400" width="140" height="35" fill="#fff" stroke="#0288d1" stroke-width="1" rx="3"/>
+  <text x="100" y="423" font-family="Arial" font-size="12" text-anchor="middle" fill="#333">MetricsCards</text>
+  
+  <rect x="30" y="445" width="140" height="35" fill="#fff" stroke="#0288d1" stroke-width="1" rx="3"/>
+  <text x="100" y="468" font-family="Arial" font-size="12" text-anchor="middle" fill="#333">SeverityChart</text>
+  
+  <rect x="30" y="490" width="140" height="35" fill="#fff" stroke="#0288d1" stroke-width="1" rx="3"/>
+  <text x="100" y="513" font-family="Arial" font-size="12" text-anchor="middle" fill="#333">RecentDefectsList</text>
+  
+  <path d="M 160 350 L 100 400" stroke="#0288d1" stroke-width="1" fill="none"/>
+  <path d="M 160 350 L 100 445" stroke="#0288d1" stroke-width="1" fill="none"/>
+  <path d="M 160 350 L 100 490" stroke="#0288d1" stroke-width="1" fill="none"/>
+  
+  <!-- Defects Children -->
+  <rect x="240" y="400" width="140" height="35" fill="#fff" stroke="#d32f2f" stroke-width="1" rx="3"/>
+  <text x="310" y="423" font-family="Arial" font-size="12" text-anchor="middle" fill="#333">DefectsFilter</text>
+  
+  <rect x="240" y="445" width="140" height="35" fill="#fff" stroke="#d32f2f" stroke-width="1" rx="3"/>
+  <text x="310" y="468" font-family="Arial" font-size="12" text-anchor="middle" fill="#333">DefectsTable</text>
+  
+  <rect x="240" y="490" width="140" height="35" fill="#fff" stroke="#d32f2f" stroke-width="1" rx="3"/>
+  <text x="310" y="513" font-family="Arial" font-size="12" text-anchor="middle" fill="#333">DefectsPagination</text>
+  
+  <rect x="240" y="560" width="140" height="35" fill="#ffe6e6" stroke="#d32f2f" stroke-width="2" rx="3"/>
+  <text x="310" y="578" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="#d32f2f">DefectDetailPage</text>
+  <text x="310" y="590" font-family="Arial" font-size="9" text-anchor="middle" fill="#666">defects/:id</text>
+  
+  <path d="M 380 350 L 310 400" stroke="#d32f2f" stroke-width="1" fill="none"/>
+  <path d="M 380 350 L 310 445" stroke="#d32f2f" stroke-width="1" fill="none"/>
+  <path d="M 380 350 L 310 490" stroke="#d32f2f" stroke-width="1" fill="none"/>
+  <path d="M 390 350 L 310 560" stroke="#d32f2f" stroke-width="1.5" stroke-dasharray="3,3" fill="none"/>
+  
+  <!-- Test Plan Children -->
+  <rect x="710" y="400" width="130" height="35" fill="#fff" stroke="#388e3c" stroke-width="1" rx="3"/>
+  <text x="775" y="423" font-family="Arial" font-size="12" text-anchor="middle" fill="#333">TestSuiteTree</text>
+  
+  <rect x="710" y="445" width="130" height="35" fill="#fff" stroke="#388e3c" stroke-width="1" rx="3"/>
+  <text x="775" y="468" font-family="Arial" font-size="12" text-anchor="middle" fill="#333">TestCaseList</text>
+  
+  <rect x="710" y="490" width="130" height="35" fill="#fff" stroke="#388e3c" stroke-width="1" rx="3"/>
+  <text x="775" y="513" font-family="Arial" font-size="12" text-anchor="middle" fill="#333">TestRunDialog</text>
+  
+  <rect x="710" y="535" width="130" height="35" fill="#fff" stroke="#388e3c" stroke-width="1" rx="3"/>
+  <text x="775" y="558" font-family="Arial" font-size="12" text-anchor="middle" fill="#333">TestExecution</text>
+  
+  <path d="M 810 350 L 775 400" stroke="#388e3c" stroke-width="1" fill="none"/>
+  <path d="M 810 350 L 775 445" stroke="#388e3c" stroke-width="1" fill="none"/>
+  <path d="M 810 350 L 775 490" stroke="#388e3c" stroke-width="1" fill="none"/>
+  <path d="M 810 350 L 775 535" stroke="#388e3c" stroke-width="1" fill="none"/>
+  
+  <!-- Reports Children -->
+  <rect x="920" y="400" width="180" height="35" fill="#fff" stroke="#7b1fa2" stroke-width="1" rx="3"/>
+  <text x="1010" y="423" font-family="Arial" font-size="12" text-anchor="middle" fill="#333">TestCoverageDashboard</text>
+  
+  <rect x="920" y="445" width="180" height="35" fill="#fff" stroke="#7b1fa2" stroke-width="1" rx="3"/>
+  <text x="1010" y="468" font-family="Arial" font-size="12" text-anchor="middle" fill="#333">DefectTrendChart P3</text>
+  
+  <rect x="920" y="490" width="180" height="35" fill="#fff" stroke="#7b1fa2" stroke-width="1" rx="3"/>
+  <text x="1010" y="513" font-family="Arial" font-size="12" text-anchor="middle" fill="#333">ComponentHeatmap P3</text>
+  
+  <path d="M 1030 350 L 1010 400" stroke="#7b1fa2" stroke-width="1" fill="none"/>
+  <path d="M 1030 350 L 1010 445" stroke="#7b1fa2" stroke-width="1" fill="none"/>
+  <path d="M 1030 350 L 1010 490" stroke="#7b1fa2" stroke-width="1" fill="none"/>
+  
+  <!-- State Management Layer -->
+  <rect x="200" y="800" width="1000" height="120" fill="#e8eaf6" stroke="#3f51b5" stroke-width="2" rx="8"/>
+  <text x="700" y="830" font-family="Arial" font-size="18" font-weight="bold" fill="#3f51b5" text-anchor="middle">State Management Layer</text>
+  
+  <rect x="230" y="855" width="280" height="50" fill="#fff" stroke="#3f51b5" stroke-width="2" rx="5"/>
+  <text x="370" y="878" font-family="Arial" font-size="14" font-weight="bold" fill="#3f51b5" text-anchor="middle">React Query</text>
+  <text x="370" y="900" font-family="Arial" font-size="11" fill="#666" text-anchor="middle">Server state API caching</text>
+  
+  <rect x="540" y="855" width="280" height="50" fill="#fff" stroke="#3f51b5" stroke-width="2" rx="5"/>
+  <text x="680" y="878" font-family="Arial" font-size="14" font-weight="bold" fill="#3f51b5" text-anchor="middle">Local State</text>
+  <text x="680" y="900" font-family="Arial" font-size="11" fill="#666" text-anchor="middle">Forms UI state</text>
+  
+  <rect x="850" y="855" width="280" height="50" fill="#fff" stroke="#3f51b5" stroke-width="2" rx="5"/>
+  <text x="990" y="878" font-family="Arial" font-size="14" font-weight="bold" fill="#3f51b5" text-anchor="middle">Zustand Optional</text>
+  <text x="990" y="900" font-family="Arial" font-size="11" fill="#666" text-anchor="middle">Global UI state</text>
+  
+  <!-- API Layer -->
+  <rect x="200" y="960" width="1000" height="70" fill="#fff3e0" stroke="#ff6f00" stroke-width="2" rx="8"/>
+  <text x="700" y="990" font-family="Arial" font-size="18" font-weight="bold" fill="#ff6f00" text-anchor="middle">API Layer Express PostgreSQL</text>
+  <text x="700" y="1015" font-family="Arial" font-size="12" fill="#666" text-anchor="middle">api defects test-suites test-cases releases quality-gates</text>
+  
+  <!-- Arrows -->
+  <path d="M 310 595 L 310 800" stroke="#3f51b5" stroke-width="2" stroke-dasharray="5,5" fill="none" marker-end="url(#arrow-blue)"/>
+  <path d="M 700 920 L 700 960" stroke="#ff6f00" stroke-width="2" stroke-dasharray="5,5" fill="none"/>
+  
+  <!-- Legend -->
+  <rect x="1220" y="430" width="160" height="180" fill="#f9f9f9" stroke="#999" stroke-width="1" rx="5"/>
+  <text x="1300" y="455" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#333">Legend</text>
+  
+  <rect x="1230" y="470" width="20" height="15" fill="#fff4e6" stroke="#ff9800" stroke-width="2"/>
+  <text x="1260" y="482" font-family="Arial" font-size="11" fill="#333">Layout Root</text>
+  
+  <rect x="1230" y="495" width="20" height="15" fill="#e1f5fe" stroke="#0288d1" stroke-width="2"/>
+  <text x="1260" y="507" font-family="Arial" font-size="11" fill="#333">Dashboard</text>
+  
+  <rect x="1230" y="520" width="20" height="15" fill="#ffe6e6" stroke="#d32f2f" stroke-width="2"/>
+  <text x="1260" y="532" font-family="Arial" font-size="11" fill="#333">Defects</text>
+  
+  <rect x="1230" y="545" width="20" height="15" fill="#e6ffe6" stroke="#388e3c" stroke-width="2"/>
+  <text x="1260" y="557" font-family="Arial" font-size="11" fill="#333">Test Plan</text>
+  
+  <rect x="1230" y="570" width="20" height="15" fill="#e6e6ff" stroke="#5e35b1" stroke-width="2"/>
+  <text x="1260" y="582" font-family="Arial" font-size="11" fill="#333">Releases</text>
+  
+  <text x="1300" y="605" font-family="Arial" font-size="10" text-anchor="middle" fill="#999">P2 Phase 2 P3 Phase 3 P4 Phase 4</text>
+</svg>

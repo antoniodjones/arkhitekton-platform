@@ -73,7 +73,10 @@ export function TestCaseDialog({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error('Failed to create test case');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ message: 'Failed to create test case' }));
+        throw new Error(errorData.message || 'Failed to create test case');
+      }
       return res.json();
     },
     onSuccess: () => {
@@ -89,7 +92,10 @@ export function TestCaseDialog({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error('Failed to update test case');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ message: 'Failed to update test case' }));
+        throw new Error(errorData.message || 'Failed to update test case');
+      }
       return res.json();
     },
     onSuccess: () => {
@@ -132,7 +138,6 @@ export function TestCaseDialog({
       steps: validSteps,
       priority,
       testType,
-      tags: [],
     };
 
     if (testCase) {

@@ -1,0 +1,299 @@
+import { Arrow, Line } from 'react-konva';
+import Konva from 'konva';
+
+/**
+ * Canvas Connection Component
+ * 
+ * User Stories:
+ * - US-CVS-006: Connection Creation (10 pts)
+ * - US-CVS-011: Connection Routing (5 pts)
+ * 
+ * Renders connections between shapes with smart routing
+ */
+
+export interface CanvasConnectionData {
+  id: string;
+  sourceShapeId: string;
+  targetShapeId: string;
+  routingType: 'straight' | 'orthogonal';
+  lineStyle: 'solid' | 'dashed';
+  arrowType: 'single' | 'bidirectional' | 'none';
+  color?: string;
+  thickness?: number;
+  points: number[]; // [x1, y1, x2, y2, ...] calculated path
+}
+
+interface CanvasConnectionProps {
+  connection: CanvasConnectionData;
+  isSelected?: boolean;
+  onSelect?: () => void;
+}
+
+export function CanvasConnection({ connection, isSelected, onSelect }: CanvasConnectionProps) {
+  const color = connection.color || '#333333';
+  const thickness = connection.thickness || 2;
+  
+  const commonProps = {
+    points: connection.points,
+    stroke: isSelected ? '#0ea5e9' : color,
+    strokeWidth: isSelected ? 3 : thickness,
+    lineCap: 'round' as const,
+    lineJoin: 'round' as const,
+    onClick: onSelect,
+    onTap: onSelect,
+    shadowColor: isSelected ? '#0ea5e9' : undefined,
+    shadowBlur: isSelected ? 8 : undefined,
+    shadowOpacity: isSelected ? 0.5 : undefined,
+  };
+
+  // Dashed line style
+  const dash = connection.lineStyle === 'dashed' ? [10, 5] : undefined;
+
+  // Render based on arrow type
+  if (connection.arrowType === 'bidirectional') {
+    return (
+      <Arrow
+        {...commonProps}
+        dash={dash}
+        pointerAtBeginning={true}
+        pointerAtEnding={true}
+        pointerLength={10}
+        pointerWidth={10}
+      />
+    );
+  } else if (connection.arrowType === 'single') {
+    return (
+      <Arrow
+        {...commonProps}
+        dash={dash}
+        pointerLength={10}
+        pointerWidth={10}
+      />
+    );
+  } else {
+    // No arrow
+    return (
+      <Line
+        {...commonProps}
+        dash={dash}
+      />
+    );
+  }
+}
+
+/**
+ * Calculate the visual center of a shape based on its type
+ * For rectangles, center is at x + width/2, y + height/2
+ * For circles/polygons that are rendered centered, center is at x, y (the Group position)
+ */
+function getShapeCenter(shape: any): { x: number; y: number } {
+  const type = shape.type || 'rectangle';
+  
+  // Centered shapes (rendered at x=0, y=0 within Group)
+  const centeredTypes = [
+    'circle', 'circular', 'bubble',
+    'diamond', 'decision',
+    'hexagon', 'hexagonal',
+    'triangle', 'triangular', 'arrow',
+    'pentagonal', 'star'
+  ];
+  
+  if (centeredTypes.includes(type)) {
+    // Group position IS the center
+    return {
+      x: shape.x,
+      y: shape.y
+    };
+  }
+  
+  // Rectangle-based shapes start at top-left
+  return {
+    x: shape.x + shape.width / 2,
+    y: shape.y + shape.height / 2
+  };
+}
+
+/**
+ * Calculate connection points between two shapes
+ * 
+ * Implements orthogonal (elbow) routing algorithm
+ */
+export function calculateConnectionPoints(
+  sourceShape: { x: number; y: number; width: number; height: number; type?: string },
+  targetShape: { x: number; y: number; width: number; height: number; type?: string },
+  routingType: 'straight' | 'orthogonal'
+): number[] {
+  // Calculate center points based on shape type
+  const sourceCenter = getShapeCenter(sourceShape);
+  const targetCenter = getShapeCenter(targetShape);
+
+  if (routingType === 'straight') {
+    // Calculate edge-based connection points (not center-to-center)
+    const startPoint = getEdgeIntersectionPoint(sourceShape, sourceCenter, targetCenter);
+    const endPoint = getEdgeIntersectionPoint(targetShape, targetCenter, sourceCenter);
+    
+    return [startPoint.x, startPoint.y, endPoint.x, endPoint.y];
+  }
+
+  // Orthogonal (elbow) routing
+  return calculateOrthogonalPath(sourceShape, targetShape, sourceCenter, targetCenter);
+}
+
+/**
+ * Calculate the point where a line from shapeCenter to targetCenter intersects the shape's edge
+ */
+function getEdgeIntersectionPoint(
+  shape: { x: number; y: number; width: number; height: number; type?: string },
+  shapeCenter: { x: number; y: number },
+  targetCenter: { x: number; y: number }
+): { x: number; y: number } {
+  // Calculate the angle from shape center to target center
+  const dx = targetCenter.x - shapeCenter.x;
+  const dy = targetCenter.y - shapeCenter.y;
+  
+  // If shapes are at the same position, return center
+  if (dx === 0 && dy === 0) {
+    return shapeCenter;
+  }
+  
+  const angle = Math.atan2(dy, dx);
+  const distance = Math.sqrt(dx * dx + dy * dy);
+  
+  // Handle circular shapes
+  const type = shape.type || 'rectangle';
+  if (type === 'circle' || type === 'circular' || type === 'bubble') {
+    const radius = shape.width / 2;
+    return {
+      x: shapeCenter.x + (radius / distance) * dx,
+      y: shapeCenter.y + (radius / distance) * dy
+    };
+  }
+  
+  // Handle ellipse
+  if (type === 'ellipse' || type === 'oval') {
+    const a = shape.width / 2;  // semi-major axis
+    const b = shape.height / 2; // semi-minor axis
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const r = (a * b) / Math.sqrt((b * cos) ** 2 + (a * sin) ** 2);
+    return {
+      x: shapeCenter.x + r * cos,
+      y: shapeCenter.y + r * sin
+    };
+  }
+  
+  // For polygons, use bounding box approximation
+  const halfWidth = shape.width / 2;
+  const halfHeight = shape.height / 2;
+  
+  // Calculate the intersection with the shape's bounding box
+  const left = shapeCenter.x - halfWidth;
+  const right = shapeCenter.x + halfWidth;
+  const top = shapeCenter.y - halfHeight;
+  const bottom = shapeCenter.y + halfHeight;
+  
+  let intersectX = shapeCenter.x;
+  let intersectY = shapeCenter.y;
+  
+  // Determine which edge the line exits from based on angle
+  const absAngle = Math.abs(angle);
+  const edgeAngle = Math.atan2(halfHeight, halfWidth);
+  
+  if (absAngle <= edgeAngle) {
+    // Exits right edge
+    intersectX = right;
+    intersectY = shapeCenter.y + (right - shapeCenter.x) * Math.tan(angle);
+  } else if (absAngle <= Math.PI - edgeAngle) {
+    // Exits top or bottom edge
+    if (angle > 0) {
+      // Bottom edge
+      intersectY = bottom;
+      intersectX = shapeCenter.x + (bottom - shapeCenter.y) / Math.tan(angle);
+    } else {
+      // Top edge
+      intersectY = top;
+      intersectX = shapeCenter.x + (top - shapeCenter.y) / Math.tan(angle);
+    }
+  } else {
+    // Exits left edge
+    intersectX = left;
+    intersectY = shapeCenter.y + (left - shapeCenter.x) * Math.tan(angle);
+  }
+  
+  return { x: intersectX, y: intersectY };
+}
+
+function calculateOrthogonalPath(
+  sourceShape: { x: number; y: number; width: number; height: number },
+  targetShape: { x: number; y: number; width: number; height: number },
+  sourceCenter: { x: number; y: number },
+  targetCenter: { x: number; y: number }
+): number[] {
+  // Determine which edges to connect (based on relative positions)
+  const dx = targetCenter.x - sourceCenter.x;
+  const dy = targetCenter.y - sourceCenter.y;
+  
+  // Start and end points on shape edges
+  let startX: number, startY: number, endX: number, endY: number;
+  
+  // Determine exit side of source shape
+  if (Math.abs(dx) > Math.abs(dy)) {
+    // Horizontal connection dominates
+    if (dx > 0) {
+      // Exit right side of source
+      startX = sourceShape.x + sourceShape.width;
+      startY = sourceCenter.y;
+      // Enter left side of target
+      endX = targetShape.x;
+      endY = targetCenter.y;
+    } else {
+      // Exit left side of source
+      startX = sourceShape.x;
+      startY = sourceCenter.y;
+      // Enter right side of target
+      endX = targetShape.x + targetShape.width;
+      endY = targetCenter.y;
+    }
+  } else {
+    // Vertical connection dominates
+    if (dy > 0) {
+      // Exit bottom of source
+      startX = sourceCenter.x;
+      startY = sourceShape.y + sourceShape.height;
+      // Enter top of target
+      endX = targetCenter.x;
+      endY = targetShape.y;
+    } else {
+      // Exit top of source
+      startX = sourceCenter.x;
+      startY = sourceShape.y;
+      // Enter bottom of target
+      endX = targetCenter.x;
+      endY = targetShape.y + targetShape.height;
+    }
+  }
+
+  // Calculate intermediate points for elbow routing
+  const midX = (startX + endX) / 2;
+  const midY = (startY + endY) / 2;
+
+  // Simple 2-bend path
+  if (Math.abs(dx) > Math.abs(dy)) {
+    // Horizontal primary direction
+    return [
+      startX, startY,      // Start point (on source edge)
+      midX, startY,        // First bend (horizontal)
+      midX, endY,          // Second bend (vertical)
+      endX, endY,          // End point (on target edge)
+    ];
+  } else {
+    // Vertical primary direction
+    return [
+      startX, startY,      // Start point (on source edge)
+      startX, midY,        // First bend (vertical)
+      endX, midY,          // Second bend (horizontal)
+      endX, endY,          // End point (on target edge)
+    ];
+  }
+}
+

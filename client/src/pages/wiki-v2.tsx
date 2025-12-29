@@ -9,6 +9,7 @@ import { WikiBreadcrumb } from '@/components/wiki/wiki-breadcrumb';
 import { TipTapEditor } from '@/components/wiki/tiptap-editor';
 import { BacklinksPanel } from '@/components/wiki/backlinks-panel';
 import { MentionPreview, useMentionPreview } from '@/components/wiki/mention-preview';
+import { FloatingActionToolbar } from '@/components/wiki/floating-action-toolbar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -57,7 +58,8 @@ import {
   Copy,
   Check,
   Archive,
-  Send
+  Send,
+  Printer
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -414,6 +416,24 @@ export default function WikiV2Page() {
     });
   }, [selectedPage, editedTitle, editedContent, updatePageMutation]);
 
+  const handlePrint = useCallback(() => {
+    // Add wiki-print-mode class to enable wiki-specific print styles
+    document.body.classList.add('wiki-print-mode');
+    
+    // Trigger print dialog
+    window.print();
+    
+    // Remove the class after printing (with delay to ensure styles are applied)
+    setTimeout(() => {
+      document.body.classList.remove('wiki-print-mode');
+    }, 1000);
+    
+    toast({
+      title: 'Print Page',
+      description: 'Opening print dialog...',
+    });
+  }, [toast]);
+
   const handleDeletePage = useCallback((page: WikiPage) => {
     setPageToDelete(page);
     setShowDeleteConfirm(true);
@@ -758,6 +778,10 @@ export default function WikiV2Page() {
                               <Save className="h-4 w-4 mr-1" />
                               Save Draft
                             </Button>
+                            <Button variant="outline" size="sm" onClick={handlePrint} title="Print Page">
+                              <Printer className="h-4 w-4 mr-1" />
+                              Print
+                            </Button>
                             {selectedPage.status === 'draft' && (
                               <Button size="sm" onClick={handlePublish} disabled={updatePageMutation.isPending}>
                                 <Send className="h-4 w-4 mr-1" />
@@ -833,6 +857,50 @@ export default function WikiV2Page() {
                     }}
                     editable={isEditing}
                     className="min-h-[400px]"
+                  />
+
+                  {/* Floating Action Toolbar (Google Docs style) */}
+                  <FloatingActionToolbar
+                    pageId={selectedPage.id}
+                    pageTitle={selectedPage.title}
+                    isEditing={isEditing}
+                    hasUnsavedChanges={editedContent !== null && editedContent !== selectedPage.content}
+                    isSaving={updatePageMutation.isPending}
+                    onAIAssist={() => {
+                      toast({
+                        title: 'AI Assistant',
+                        description: 'AI assistant is analyzing your page content...',
+                      });
+                    }}
+                    onAddComment={() => {
+                      toast({
+                        title: 'Comments',
+                        description: 'Select text and click again to add a comment.',
+                      });
+                    }}
+                    onToggleEdit={() => {
+                      if (isEditing) {
+                        // Exiting edit mode - check for unsaved changes
+                        if (editedContent !== null && editedContent !== selectedPage.content) {
+                          if (confirm('You have unsaved changes. Discard them?')) {
+                            setIsEditing(false);
+                            setEditedContent(null);
+                          }
+                        } else {
+                          setIsEditing(false);
+                        }
+                      } else {
+                        setIsEditing(true);
+                      }
+                    }}
+                    onSave={() => {
+                      handleSave();
+                      toast({
+                        title: 'Page Saved',
+                        description: 'Your changes have been saved.',
+                      });
+                    }}
+                    onPrint={handlePrint}
                   />
                 </div>
               ) : (

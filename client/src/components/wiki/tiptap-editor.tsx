@@ -17,7 +17,14 @@ import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { createMentionExtension } from './mention-extension';
 import { BlockMoveButtons } from './block-move-buttons';
-import { FontSizeExtension, LineHeightExtension } from './extensions';
+import { 
+  FontSizeExtension, 
+  LineHeightExtension, 
+  TextAlignExtension, 
+  IndentExtension,
+  SubscriptExtension,
+  SuperscriptExtension 
+} from './extensions';
 import { Button } from '@/components/ui/button';
 import { Toggle } from '@/components/ui/toggle';
 import { Separator } from '@/components/ui/separator';
@@ -57,7 +64,19 @@ import {
   Type,
   ALargeSmall,
   ListCollapse,
-  Palette
+  Palette,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  Indent,
+  Outdent,
+  Subscript,
+  Superscript,
+  CaseSensitive,
+  RemoveFormatting,
+  Paintbrush,
+  Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -72,6 +91,34 @@ interface TipTapEditorProps {
   className?: string;
 }
 
+// Font size options for dropdown
+const FONT_SIZES = [
+  '8', '9', '10', '11', '12', '14', '16', '18', '20', '24', '28', '32', '36', '48', '72'
+];
+
+// Style presets for quick formatting
+const STYLE_PRESETS = [
+  { name: 'Normal', fontSize: '16px', fontWeight: 'normal', color: null },
+  { name: 'Title', fontSize: '28px', fontWeight: 'bold', color: null },
+  { name: 'Heading 1', fontSize: '24px', fontWeight: 'bold', color: null },
+  { name: 'Heading 2', fontSize: '20px', fontWeight: 'bold', color: null },
+  { name: 'Subtitle', fontSize: '14px', fontWeight: 'normal', color: '#666666' },
+  { name: 'Quote', fontSize: '14px', fontWeight: 'normal', color: '#666666', italic: true },
+  { name: 'Code', fontSize: '13px', fontWeight: 'normal', color: '#d63384', fontFamily: 'Courier New' },
+];
+
+// Highlight colors
+const HIGHLIGHT_COLORS = [
+  { name: 'Yellow', color: '#fef08a' },
+  { name: 'Green', color: '#bbf7d0' },
+  { name: 'Blue', color: '#bfdbfe' },
+  { name: 'Pink', color: '#fbcfe8' },
+  { name: 'Orange', color: '#fed7aa' },
+  { name: 'Purple', color: '#e9d5ff' },
+  { name: 'Red', color: '#fecaca' },
+  { name: 'Cyan', color: '#a5f3fc' },
+];
+
 export function TipTapEditor({
   content,
   onChange,
@@ -79,6 +126,10 @@ export function TipTapEditor({
   editable = true,
   className
 }: TipTapEditorProps) {
+  // Format painter state
+  const [formatPainterActive, setFormatPainterActive] = useState(false);
+  const [storedFormat, setStoredFormat] = useState<Record<string, any> | null>(null);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -113,6 +164,10 @@ export function TipTapEditor({
       Color,
       FontSizeExtension,
       LineHeightExtension,
+      TextAlignExtension,
+      IndentExtension,
+      SubscriptExtension,
+      SuperscriptExtension,
       CodeBlockLowlight.configure({
         lowlight,
         HTMLAttributes: {
@@ -183,6 +238,160 @@ export function TipTapEditor({
     }
   }, [editor]);
 
+  // Format Painter: Copy current formatting
+  const copyFormat = useCallback(() => {
+    if (!editor) return;
+    
+    const attrs = editor.getAttributes('textStyle');
+    const marks = {
+      bold: editor.isActive('bold'),
+      italic: editor.isActive('italic'),
+      underline: editor.isActive('underline'),
+      strike: editor.isActive('strike'),
+      highlight: editor.isActive('highlight'),
+      subscript: editor.isActive('subscript'),
+      superscript: editor.isActive('superscript'),
+      ...attrs,
+    };
+    
+    setStoredFormat(marks);
+    setFormatPainterActive(true);
+  }, [editor]);
+
+  // Format Painter: Apply stored formatting
+  const applyFormat = useCallback(() => {
+    if (!editor || !storedFormat) return;
+    
+    let chain = editor.chain().focus();
+    
+    // Apply text style attributes
+    if (storedFormat.fontSize) {
+      chain = chain.setFontSize(storedFormat.fontSize);
+    }
+    if (storedFormat.fontFamily) {
+      chain = chain.setFontFamily(storedFormat.fontFamily);
+    }
+    if (storedFormat.color) {
+      chain = chain.setColor(storedFormat.color);
+    }
+    
+    // Apply marks
+    if (storedFormat.bold) chain = chain.setBold();
+    else chain = chain.unsetBold();
+    
+    if (storedFormat.italic) chain = chain.setItalic();
+    else chain = chain.unsetItalic();
+    
+    if (storedFormat.underline) chain = chain.setUnderline();
+    else chain = chain.unsetUnderline();
+    
+    if (storedFormat.strike) chain = chain.setStrike();
+    else chain = chain.unsetStrike();
+    
+    if (storedFormat.highlight) chain = chain.setHighlight();
+    else chain = chain.unsetHighlight();
+    
+    if (storedFormat.subscript) chain = chain.setSubscript();
+    else chain = chain.unsetSubscript();
+    
+    if (storedFormat.superscript) chain = chain.setSuperscript();
+    else chain = chain.unsetSuperscript();
+    
+    chain.run();
+    setFormatPainterActive(false);
+  }, [editor, storedFormat]);
+
+  // Change Case function
+  const changeCase = useCallback((caseType: 'upper' | 'lower' | 'title' | 'sentence') => {
+    if (!editor) return;
+    
+    const { from, to } = editor.state.selection;
+    const text = editor.state.doc.textBetween(from, to, ' ');
+    
+    if (!text) return;
+    
+    let newText: string;
+    switch (caseType) {
+      case 'upper':
+        newText = text.toUpperCase();
+        break;
+      case 'lower':
+        newText = text.toLowerCase();
+        break;
+      case 'title':
+        newText = text.replace(/\w\S*/g, (txt) => 
+          txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase()
+        );
+        break;
+      case 'sentence':
+        newText = text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+        break;
+    }
+    
+    editor.chain().focus().insertContentAt({ from, to }, newText).run();
+  }, [editor]);
+
+  // Clear all formatting
+  const clearFormatting = useCallback(() => {
+    if (!editor) return;
+    
+    editor.chain()
+      .focus()
+      .unsetAllMarks()
+      .clearNodes()
+      .unsetFontSize()
+      .unsetFontFamily()
+      .unsetColor()
+      .unsetTextAlign()
+      .unsetIndent()
+      .run();
+  }, [editor]);
+
+  // Apply style preset
+  const applyStylePreset = useCallback((preset: typeof STYLE_PRESETS[0]) => {
+    if (!editor) return;
+    
+    let chain = editor.chain().focus();
+    
+    // Clear existing formatting first
+    chain = chain.unsetAllMarks();
+    
+    // Apply preset styles
+    if (preset.fontSize) {
+      chain = chain.setFontSize(preset.fontSize);
+    }
+    if (preset.fontFamily) {
+      chain = chain.setFontFamily(preset.fontFamily);
+    }
+    if (preset.color) {
+      chain = chain.setColor(preset.color);
+    }
+    if (preset.fontWeight === 'bold') {
+      chain = chain.setBold();
+    }
+    if ((preset as any).italic) {
+      chain = chain.setItalic();
+    }
+    
+    chain.run();
+  }, [editor]);
+
+  // Handle click when format painter is active
+  useEffect(() => {
+    if (!editor || !formatPainterActive) return;
+    
+    const handleSelectionUpdate = () => {
+      if (formatPainterActive && !editor.state.selection.empty) {
+        applyFormat();
+      }
+    };
+    
+    editor.on('selectionUpdate', handleSelectionUpdate);
+    return () => {
+      editor.off('selectionUpdate', handleSelectionUpdate);
+    };
+  }, [editor, formatPainterActive, applyFormat]);
+
   if (!editor) {
     return null;
   }
@@ -218,6 +427,91 @@ export function TipTapEditor({
 
           <Separator orientation="vertical" className="h-6 mx-1" />
 
+          {/* Format Painter */}
+          <Toggle
+            size="sm"
+            pressed={formatPainterActive}
+            onPressedChange={() => {
+              if (formatPainterActive) {
+                setFormatPainterActive(false);
+                setStoredFormat(null);
+              } else {
+                copyFormat();
+              }
+            }}
+            className={cn("h-8 w-8 p-0", formatPainterActive && "bg-primary text-primary-foreground")}
+            title="Format Painter (Click to copy format, then select text to apply)"
+          >
+            <Paintbrush className="h-4 w-4" />
+          </Toggle>
+
+          {/* Clear Formatting */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearFormatting}
+            className="h-8 w-8 p-0"
+            title="Clear Formatting"
+          >
+            <RemoveFormatting className="h-4 w-4" />
+          </Button>
+
+          <Separator orientation="vertical" className="h-6 mx-1" />
+
+          {/* Style Presets */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 px-2 gap-1 min-w-[80px] justify-between">
+                <Sparkles className="h-3 w-3" />
+                <span className="text-xs">Styles</span>
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {STYLE_PRESETS.map((preset) => (
+                <DropdownMenuItem
+                  key={preset.name}
+                  onClick={() => applyStylePreset(preset)}
+                  style={{
+                    fontSize: preset.fontSize,
+                    fontWeight: preset.fontWeight,
+                    color: preset.color || undefined,
+                    fontStyle: (preset as any).italic ? 'italic' : undefined,
+                    fontFamily: preset.fontFamily || undefined,
+                  }}
+                >
+                  {preset.name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Change Case */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 px-2 gap-1">
+                <CaseSensitive className="h-4 w-4" />
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => changeCase('upper')}>
+                UPPERCASE
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => changeCase('lower')}>
+                lowercase
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => changeCase('title')}>
+                Title Case
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => changeCase('sentence')}>
+                Sentence case
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Separator orientation="vertical" className="h-6 mx-1" />
+
           {/* Font Family */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -244,7 +538,7 @@ export function TipTapEditor({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Font Size */}
+          {/* Font Size Dropdown */}
           <div className="flex items-center gap-0.5">
             <Button
               variant="ghost"
@@ -254,12 +548,34 @@ export function TipTapEditor({
                 const current = parseInt(editor.getAttributes('textStyle').fontSize || '16');
                 if (current > 8) editor.chain().focus().setFontSize(`${current - 1}px`).run();
               }}
+              title="Decrease Font Size"
             >
               <span className="text-xs">−</span>
             </Button>
-            <span className="text-xs w-8 text-center">
-              {editor.getAttributes('textStyle').fontSize?.replace('px', '') || '16'}
-            </span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 px-1 min-w-[40px]">
+                  <span className="text-xs">
+                    {editor.getAttributes('textStyle').fontSize?.replace('px', '') || '16'}
+                  </span>
+                  <ChevronDown className="h-3 w-3 ml-0.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="max-h-64 overflow-y-auto">
+                {FONT_SIZES.map((size) => (
+                  <DropdownMenuItem
+                    key={size}
+                    onClick={() => editor.chain().focus().setFontSize(`${size}px`).run()}
+                    className={cn(
+                      "cursor-pointer",
+                      editor.getAttributes('textStyle').fontSize === `${size}px` && "bg-accent"
+                    )}
+                  >
+                    {size}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               variant="ghost"
               size="sm"
@@ -268,6 +584,7 @@ export function TipTapEditor({
                 const current = parseInt(editor.getAttributes('textStyle').fontSize || '16');
                 if (current < 72) editor.chain().focus().setFontSize(`${current + 1}px`).run();
               }}
+              title="Increase Font Size"
             >
               <span className="text-xs">+</span>
             </Button>
@@ -375,15 +692,49 @@ export function TipTapEditor({
             >
               <Strikethrough className="h-4 w-4" />
             </Toggle>
-            <Toggle
-              size="sm"
-              pressed={editor.isActive('highlight')}
-              onPressedChange={() => editor.chain().focus().toggleHighlight().run()}
-              className="h-8 w-8 p-0"
-              title="Highlight"
-            >
-              <Highlighter className="h-4 w-4" />
-            </Toggle>
+            {/* Highlight Color Picker */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={cn("h-8 w-8 p-0", editor.isActive('highlight') && "bg-accent")}
+                  title="Highlight Color"
+                >
+                  <div className="flex flex-col items-center">
+                    <Highlighter className="h-3 w-3" />
+                    <div 
+                      className="h-1 w-4 rounded-sm mt-0.5" 
+                      style={{ backgroundColor: editor.getAttributes('highlight').color || '#fef08a' }}
+                    />
+                  </div>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-2">
+                <div className="grid grid-cols-4 gap-1">
+                  {HIGHLIGHT_COLORS.map(({ name, color }) => (
+                    <button
+                      key={color}
+                      className={cn(
+                        "h-6 w-6 rounded border hover:scale-110 transition-transform",
+                        editor.getAttributes('highlight').color === color && "ring-2 ring-primary"
+                      )}
+                      style={{ backgroundColor: color }}
+                      onClick={() => editor.chain().focus().toggleHighlight({ color }).run()}
+                      title={name}
+                    />
+                  ))}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full mt-2 text-xs"
+                  onClick={() => editor.chain().focus().unsetHighlight().run()}
+                >
+                  Remove Highlight
+                </Button>
+              </PopoverContent>
+            </Popover>
             <Toggle
               size="sm"
               pressed={editor.isActive('code')}
@@ -393,6 +744,90 @@ export function TipTapEditor({
             >
               <Code className="h-4 w-4" />
             </Toggle>
+            <Toggle
+              size="sm"
+              pressed={editor.isActive('subscript')}
+              onPressedChange={() => editor.chain().focus().toggleSubscript().run()}
+              className="h-8 w-8 p-0"
+              title="Subscript (Ctrl+,)"
+            >
+              <Subscript className="h-4 w-4" />
+            </Toggle>
+            <Toggle
+              size="sm"
+              pressed={editor.isActive('superscript')}
+              onPressedChange={() => editor.chain().focus().toggleSuperscript().run()}
+              className="h-8 w-8 p-0"
+              title="Superscript (Ctrl+.)"
+            >
+              <Superscript className="h-4 w-4" />
+            </Toggle>
+          </div>
+
+          <Separator orientation="vertical" className="h-6 mx-1" />
+
+          {/* Text Alignment */}
+          <div className="flex items-center gap-0.5">
+            <Toggle
+              size="sm"
+              pressed={editor.getAttributes('paragraph').textAlign === 'left' || !editor.getAttributes('paragraph').textAlign}
+              onPressedChange={() => editor.chain().focus().setTextAlign('left').run()}
+              className="h-8 w-8 p-0"
+              title="Align Left (Ctrl+Shift+L)"
+            >
+              <AlignLeft className="h-4 w-4" />
+            </Toggle>
+            <Toggle
+              size="sm"
+              pressed={editor.getAttributes('paragraph').textAlign === 'center'}
+              onPressedChange={() => editor.chain().focus().setTextAlign('center').run()}
+              className="h-8 w-8 p-0"
+              title="Align Center (Ctrl+Shift+E)"
+            >
+              <AlignCenter className="h-4 w-4" />
+            </Toggle>
+            <Toggle
+              size="sm"
+              pressed={editor.getAttributes('paragraph').textAlign === 'right'}
+              onPressedChange={() => editor.chain().focus().setTextAlign('right').run()}
+              className="h-8 w-8 p-0"
+              title="Align Right (Ctrl+Shift+R)"
+            >
+              <AlignRight className="h-4 w-4" />
+            </Toggle>
+            <Toggle
+              size="sm"
+              pressed={editor.getAttributes('paragraph').textAlign === 'justify'}
+              onPressedChange={() => editor.chain().focus().setTextAlign('justify').run()}
+              className="h-8 w-8 p-0"
+              title="Justify (Ctrl+Shift+J)"
+            >
+              <AlignJustify className="h-4 w-4" />
+            </Toggle>
+          </div>
+
+          <Separator orientation="vertical" className="h-6 mx-1" />
+
+          {/* Indent Controls */}
+          <div className="flex items-center gap-0.5">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => editor.chain().focus().outdent().run()}
+              className="h-8 w-8 p-0"
+              title="Decrease Indent (Shift+Tab)"
+            >
+              <Outdent className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => editor.chain().focus().indent().run()}
+              className="h-8 w-8 p-0"
+              title="Increase Indent (Tab)"
+            >
+              <Indent className="h-4 w-4" />
+            </Button>
           </div>
 
           <Separator orientation="vertical" className="h-6 mx-1" />

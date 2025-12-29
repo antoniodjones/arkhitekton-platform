@@ -6,9 +6,16 @@
 ## Summary
 
 - **Total Pages Implemented**: 25
-- **Documented Stories Found**: ~13 (Dashboard: 4, GitHub Integration: 12, Epic: 1)
-- **Missing Story Documentation**: ~12 major features
-- **Coverage**: ~52% of features have stories
+- **Documented Stories Found**: ~48 (Dashboard: 4, GitHub Integration: 12, Epic: 1, Wiki FAT: 11, Wiki RTF: 14, Global Search: 10)
+- **Missing Story Documentation**: ~9 major features
+- **Coverage**: ~75% of features have stories
+
+### Recently Added Documentation
+| Epic | Stories | Points | Status | Documentation |
+|------|---------|--------|--------|---------------|
+| EPIC-WIKI-006: Floating Action Toolbar | 11 | 43 | ✅ Complete | User Stories |
+| EPIC-WIKI-007: Word-Style RTF Toolbar | 14 | 58 | ✅ Complete | PRD + User Stories |
+| EPIC-SEARCH-001: Global Search & Discovery | 10 | 48 | ✅ Complete | **PRD + TDS + Architecture Diagrams** |
 
 ## ✅ Features WITH User Stories
 
@@ -34,6 +41,18 @@
 
 ### Epic Management (1 story)
 - ✅ US-6PUAL1E: Epic Story Grouping and Hierarchy (Backlog)
+
+### Global Search & Discovery (10 stories)
+- ✅ US-SEARCH-001: Dashboard Global Search
+- ✅ US-SEARCH-002: Entity Type Filtering
+- ✅ US-SEARCH-003: Fuzzy Matching & Typo Tolerance
+- ✅ US-SEARCH-004: Search Result Ranking
+- ✅ US-SEARCH-005: Quick Navigation
+- ✅ US-SEARCH-006: Keyboard Shortcuts
+- ✅ US-SEARCH-IMPL-001: Backend Search API Enhancement
+- ✅ US-SEARCH-IMPL-002: Dashboard UI Integration
+- ✅ US-SEARCH-IMPL-003: Search Result Component
+- ✅ US-SEARCH-IMPL-004: Keyboard Shortcut Handler
 
 ---
 
@@ -173,6 +192,70 @@
 **Missing Story**: Hierarchical Wiki and Documentation System  
 **Description**: Create, organize, and search documentation pages with version history and collaboration
 **Priority**: High  
+**Suggested Epic**: EPIC 6 - Knowledge & Collaboration
+
+#### Floating Action Toolbar (`floating-action-toolbar.tsx`) ✅ IMPLEMENTED
+**Epic**: EPIC-WIKI-006: Content Accessibility & Sharing  
+**Stories**: 11 user stories | 43 story points  
+**Description**: Google Docs-style floating vertical toolbar with AI assist, text-to-speech, comments, and share functionality  
+**Priority**: High  
+**Status**: ✅ Implemented (Dec 2025)  
+**Detailed Spec**: [`docs/user-stories/US-WIKI-FAT-Floating-Action-Toolbar.md`](user-stories/US-WIKI-FAT-Floating-Action-Toolbar.md)
+
+| Story ID | Title | Points | Status |
+|----------|-------|--------|--------|
+| US-WIKI-FAT-001 | Floating Toolbar Display | 3 | ✅ Done |
+| US-WIKI-FAT-002 | AI Assist Quick Action | 5 | ✅ Done |
+| US-WIKI-FAT-003 | Read Aloud Text-to-Speech | 5 | ✅ Done |
+| US-WIKI-FAT-004 | Quick Comment Action | 3 | ✅ Done |
+| US-WIKI-FAT-005 | Share & Export Dropdown | 5 | ✅ Done |
+| US-WIKI-FAT-006 | Edit Mode Toggle Button | 5 | ✅ Done |
+| US-WIKI-FAT-007 | Quick Save Action | 3 | ✅ Done |
+| US-WIKI-FAT-008 | Print Page Action | 5 | ✅ Done |
+| US-WIKI-FAT-IMPL-001 | Toolbar Print Implementation | 3 | ✅ Done |
+| US-WIKI-FAT-IMPL-002 | Header Print Implementation | 2 | ✅ Done |
+| US-WIKI-FAT-IMPL-003 | Print CSS Styling | 4 | ✅ Done |
+
+**Suggested Epic**: EPIC 6 - Knowledge & Collaboration
+
+#### Word-Style Rich Text Formatting Toolbar (`tiptap-editor.tsx`) ✅ IMPLEMENTED
+**Epic**: EPIC-WIKI-007: Word-Style Rich Text Formatting Toolbar  
+**Stories**: 14 user stories | 58 story points  
+**Description**: Microsoft Word-style formatting toolbar with text alignment, indentation, subscript/superscript, change case, clear formatting, highlight color picker, font size dropdown, format painter, and style presets  
+**Priority**: High  
+**Status**: ✅ Implemented (Dec 2025)  
+**PRD**: [`docs/PRD-WIKI-007-Word-Style-Rich-Text-Toolbar.md`](PRD-WIKI-007-Word-Style-Rich-Text-Toolbar.md)  
+**Detailed Spec**: [`docs/user-stories/US-WIKI-RTF-Word-Style-Rich-Text-Formatting.md`](user-stories/US-WIKI-RTF-Word-Style-Rich-Text-Formatting.md)
+
+| Story ID | Title | Points | Status |
+|----------|-------|--------|--------|
+| US-WIKI-RTF-001 | Text Alignment Controls | 5 | ✅ Done |
+| US-WIKI-RTF-002 | Paragraph Indentation Controls | 4 | ✅ Done |
+| US-WIKI-RTF-003 | Subscript Text Formatting | 3 | ✅ Done |
+| US-WIKI-RTF-004 | Superscript Text Formatting | 3 | ✅ Done |
+| US-WIKI-RTF-005 | Change Text Case | 4 | ✅ Done |
+| US-WIKI-RTF-006 | Clear All Formatting | 3 | ✅ Done |
+| US-WIKI-RTF-007 | Highlight Color Picker | 4 | ✅ Done |
+| US-WIKI-RTF-008 | Font Size Dropdown | 4 | ✅ Done |
+| US-WIKI-RTF-009 | Format Painter | 5 | ✅ Done |
+| US-WIKI-RTF-010 | Style Presets Dropdown | 5 | ✅ Done |
+| US-WIKI-RTF-IMPL-001 | TextAlign Extension | 3 | ✅ Done |
+| US-WIKI-RTF-IMPL-002 | Indent Extension | 4 | ✅ Done |
+| US-WIKI-RTF-IMPL-003 | Sub/Super Extensions | 3 | ✅ Done |
+| US-WIKI-RTF-IMPL-004 | Toolbar Integration | 8 | ✅ Done |
+
+**Keyboard Shortcuts:**
+| Action | Shortcut |
+|--------|----------|
+| Left Align | Ctrl+Shift+L |
+| Center | Ctrl+Shift+E |
+| Right Align | Ctrl+Shift+R |
+| Justify | Ctrl+Shift+J |
+| Indent | Tab |
+| Outdent | Shift+Tab |
+| Subscript | Ctrl+, |
+| Superscript | Ctrl+. |
+
 **Suggested Epic**: EPIC 6 - Knowledge & Collaboration
 
 ---

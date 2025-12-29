@@ -16,9 +16,14 @@ export async function getUsers() {
   const { sessionClaims } = await auth();
   const clerk = await clerkClient();
 
-  const response = await clerk.users.getUserList({
-    organizationId: [sessionClaims?.org_id as string],
-  });
+  const orgId = sessionClaims?.org_id;
+
+  // Only query by organization if user is in one
+  const response = orgId
+    ? await clerk.users.getUserList({
+        organizationId: [orgId],
+      })
+    : await clerk.users.getUserList();
 
   const users = response.data.map((user) => ({
     id: user.id,

@@ -1,0 +1,205 @@
+import { Link, useLocation } from 'wouter';
+import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { getEntityTypeInfo, getStatusColor, type SearchResult } from '@/hooks/use-global-search';
+import { cn } from '@/lib/utils';
+import { GitBranch, Zap, FileText, AlertCircle, Layers, Circle } from 'lucide-react';
+import { StoryDetailSheet } from '@/components/plan/story-detail-sheet';
+
+interface SearchResultCardProps {
+  result: SearchResult;
+  onClick?: () => void;
+  className?: string;
+  highlighted?: boolean;
+}
+
+// Truncate title to specified length
+const truncateTitle = (title: string, maxLength: number = 10) => {
+  return title.length > maxLength 
+    ? title.substring(0, maxLength) + '...' 
+    : title;
+};
+
+// Get icon for entity type
+const getIconForEntityType = (type: string) => {
+  switch (type) {
+    case 'user_story':
+      return <FileText className="w-3 h-3 text-blue-500" />;
+    case 'defect':
+      return <AlertCircle className="w-3 h-3 text-red-500" />;
+    case 'epic':
+      return <Layers className="w-3 h-3 text-purple-500" />;
+    default:
+      return <Circle className="w-3 h-3" />;
+  }
+};
+
+export function SearchResultCard({ result, onClick, className, highlighted }: SearchResultCardProps) {
+  const typeInfo = getEntityTypeInfo(result.entityType);
+  const statusColor = getStatusColor(result.status);
+  const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
+  const [, setLocation] = useLocation();
+
+  const handleClick = (e: React.MouseEvent) => {
+    // Allow Cmd/Ctrl+Click to open in new tab
+    if (e.metaKey || e.ctrlKey) {
+      return;
+    }
+    
+    e.preventDefault();
+    onClick?.();
+    setLocation(result.url);
+  };
+
+  return (
+    <Link href={result.url}>
+      <a
+        onClick={handleClick}
+        className={cn(
+          'block p-3 rounded-lg border transition-all duration-200',
+          'hover:bg-accent hover:border-accent-foreground/20 hover:shadow-md',
+          'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+          highlighted && 'bg-accent border-accent-foreground/20',
+          className
+        )}
+      >
+        <div className="flex items-start gap-3">
+          {/* Entity Icon */}
+          <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-muted rounded-lg text-lg">
+            {typeInfo.icon}
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            {/* Title and ID */}
+            <div className="flex items-center gap-2 mb-1">
+              <h4 className="font-medium text-sm text-foreground truncate">
+                {result.title}
+              </h4>
+              {result.id && (
+                <span className="text-xs text-muted-foreground font-mono flex-shrink-0">
+                  {result.id}
+                </span>
+              )}
+            </div>
+
+            {/* Description */}
+            {result.description && (
+              <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                {result.description}
+              </p>
+            )}
+
+            {/* Badges */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge variant="outline" className="text-xs">
+                {typeInfo.label}
+              </Badge>
+              <Badge variant="secondary" className={cn('text-xs', statusColor)}>
+                {result.status}
+              </Badge>
+              {result.metadata?.priority && (
+                <Badge variant="outline" className="text-xs capitalize">
+                  {result.metadata.priority}
+                </Badge>
+              )}
+              {result.score !== undefined && result.score > 0 && (
+                <span className="text-xs text-muted-foreground ml-auto">
+                  Score: {result.score.toFixed(0)}
+                </span>
+              )}
+            </div>
+
+            {/* Code Change Metadata (Option 1c: Context-Aware) */}
+            {result.metadata?.commitSha && (
+              <div className="mt-3 pt-3 border-t border-border">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <GitBranch className="w-3.5 h-3.5 text-purple-500" />
+                  <span className="font-medium">Fixed in:</span>
+                  <code className="px-2 py-0.5 bg-muted rounded font-mono text-cyan-600 dark:text-cyan-400">
+                    {result.metadata.commitSha.substring(0, 7)}
+                  </code>
+                  {result.metadata.linkedItems && result.metadata.linkedItems.length > 1 && (
+                    <>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
+                            className="flex items-center gap-1 px-2 py-0.5 bg-muted rounded hover:bg-accent cursor-pointer transition-colors"
+                          >
+                            <Zap className="w-3 h-3" />
+                            + {result.metadata.linkedItems.length - 1} other {result.metadata.linkedItems.length - 1 === 1 ? 'story' : 'stories'}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80 p-3" align="start">
+                          <div className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wide">
+                            Also Linked To
+                          </div>
+                          <div className="space-y-1">
+                            {result.metadata.linkedItems
+                              .filter(item => item.id !== result.id)
+                              .map((item) => (
+                                <button
+                                  key={item.id}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setSelectedStoryId(item.id);
+                                  }}
+                                  className="w-full flex items-center gap-2 px-2 py-1.5 rounded hover:bg-accent text-xs transition-colors text-left"
+                                >
+                                  {getIconForEntityType(item.entityType)}
+                                  <span className="font-mono text-muted-foreground">{item.id}</span>
+                                  <span className="text-foreground">
+                                    {truncateTitle(item.title, 10)}
+                                  </span>
+                                </button>
+                              ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+
+                      {/* Story Detail Sheet */}
+                      {selectedStoryId && (
+                        <StoryDetailSheet
+                          storyId={selectedStoryId}
+                          open={!!selectedStoryId}
+                          onOpenChange={(open) => {
+                            if (!open) setSelectedStoryId(null);
+                          }}
+                        />
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </a>
+    </Link>
+  );
+}
+
+export function SearchResultSkeleton() {
+  return (
+    <div className="p-3 rounded-lg border border-border">
+      <div className="flex items-start gap-3">
+        <div className="flex-shrink-0 w-8 h-8 bg-muted rounded-lg animate-pulse" />
+        <div className="flex-1 min-w-0 space-y-2">
+          <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
+          <div className="h-3 bg-muted rounded animate-pulse w-full" />
+          <div className="flex gap-2">
+            <div className="h-5 w-16 bg-muted rounded animate-pulse" />
+            <div className="h-5 w-16 bg-muted rounded animate-pulse" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+

@@ -36,7 +36,7 @@ export function TestSuiteDialog({
 }: TestSuiteDialogProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [module, setModule] = useState<string>('');
+  const [module, setModule] = useState<string>('none');
 
   const queryClient = useQueryClient();
 
@@ -44,11 +44,11 @@ export function TestSuiteDialog({
     if (suite) {
       setName(suite.name);
       setDescription(suite.description || '');
-      setModule(suite.module || '');
+      setModule(suite.module || 'none');
     } else {
       setName('');
       setDescription('');
-      setModule('');
+      setModule('none');
     }
   }, [suite, open]);
 
@@ -90,7 +90,7 @@ export function TestSuiteDialog({
     const data: InsertTestSuite = {
       name,
       description: description || undefined,
-      module: module || undefined,
+      module: module === 'none' ? undefined : module,
       parentSuiteId: parentSuiteId || undefined,
     };
 
@@ -148,7 +148,7 @@ export function TestSuiteDialog({
                 <SelectValue placeholder="Select a module" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 <SelectItem value="plan">Plan</SelectItem>
                 <SelectItem value="wiki">Wiki</SelectItem>
                 <SelectItem value="quality">Quality Center</SelectItem>

@@ -108,18 +108,18 @@ export function CommandBar({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl p-0 top-[20%] translate-y-0 gap-0">
         <div className={cn(
-          'rounded-xl overflow-hidden border bg-white',
-          isAIMode ? 'border-orange-500/50 ring-2 ring-orange-500/20' : 'border-slate-200'
+          'rounded-xl overflow-hidden border bg-card',
+          isAIMode ? 'border-orange-500/50 ring-2 ring-orange-500/20' : 'border-border'
         )}>
           {/* Input Area */}
-          <div className="flex items-center px-4 gap-3 border-b border-slate-100">
+          <div className="flex items-center px-4 gap-3 border-b border-border">
             {isAIMode ? (
               <AISparkleIcon 
                 size={20} 
                 state={isProcessing ? 'processing' : 'active'}
               />
             ) : (
-              <Search className="h-5 w-5 text-slate-400 shrink-0" />
+              <Search className="h-5 w-5 text-muted-foreground shrink-0" />
             )}
             
             <input
@@ -131,7 +131,7 @@ export function CommandBar({
                 ? "Ask the AI assistant..." 
                 : "Search models, objects, or type / for AI..."
               }
-              className="flex-1 py-4 text-base bg-transparent border-0 outline-none placeholder:text-slate-400"
+              className="flex-1 py-4 text-base bg-transparent border-0 outline-none placeholder:text-muted-foreground text-foreground"
               autoFocus
             />
 
@@ -140,7 +140,7 @@ export function CommandBar({
               <button
                 type="button"
                 onClick={handleAIModeToggle}
-                className="flex items-center gap-1.5 px-2 py-1 text-sm text-slate-500 hover:text-orange-600 transition-colors"
+                className="flex items-center gap-1.5 px-2 py-1 text-sm text-muted-foreground hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
               >
                 <AISparkleIcon size={16} state="idle" />
                 <span className="hidden sm:inline">Ask AI</span>
@@ -155,7 +155,7 @@ export function CommandBar({
                   setQuery('');
                   setIsAIMode(false);
                 }}
-                className="p-1 text-slate-400 hover:text-slate-600 transition-colors"
+                className="p-1 text-muted-foreground hover:text-foreground transition-colors"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -173,23 +173,23 @@ export function CommandBar({
               // AI Mode Content
               isProcessing ? (
                 <div className="py-8 text-center">
-                  <div className="inline-flex items-center gap-3 px-4 py-2 bg-orange-50 rounded-lg text-orange-700">
+                  <div className="inline-flex items-center gap-3 px-4 py-2 bg-orange-50 dark:bg-orange-950 rounded-lg text-orange-700 dark:text-orange-300">
                     <AISparkleIcon size={20} state="processing" />
                     <span>Thinking...</span>
                   </div>
                 </div>
               ) : query ? (
                 <div className="p-4">
-                  <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
-                    <p className="text-sm text-slate-600">
-                      Press <kbd className="px-1.5 py-0.5 bg-white rounded border border-slate-200 font-mono text-xs">Enter</kbd> to ask AI about:
+                  <div className="p-3 bg-muted rounded-lg border border-border">
+                    <p className="text-sm text-muted-foreground">
+                      Press <kbd className="px-1.5 py-0.5 bg-card rounded border border-border font-mono text-xs">Enter</kbd> to ask AI about:
                     </p>
-                    <p className="mt-1 font-medium text-slate-800">"{query}"</p>
+                    <p className="mt-1 font-medium text-foreground">"{query}"</p>
                   </div>
                 </div>
               ) : (
                 <div className="py-2">
-                  <div className="px-4 py-2 text-xs font-medium text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                  <div className="px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                     <Sparkles className="w-3.5 h-3.5" />
                     Try asking
                   </div>
@@ -200,10 +200,10 @@ export function CommandBar({
                         setQuery(suggestion);
                         handleAISubmit();
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 text-left group"
+                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted text-left group"
                     >
                       <AISparkleIcon size={16} state="idle" className="opacity-50 group-hover:opacity-100" />
-                      <span className="text-sm text-slate-700 group-hover:text-orange-700">
+                      <span className="text-sm text-foreground group-hover:text-orange-600 dark:group-hover:text-orange-400">
                         {suggestion}
                       </span>
                     </button>
@@ -214,14 +214,14 @@ export function CommandBar({
               // Search Mode Content
               <div className="py-2">
                 {filteredModels.length === 0 ? (
-                  <div className="py-6 text-center text-slate-500">
+                  <div className="py-6 text-center text-muted-foreground">
                     <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
                     <p>{query ? `No results for "${query}"` : 'No recent models'}</p>
                     {query && <p className="text-sm mt-1">Try different keywords or ask AI</p>}
                   </div>
                 ) : (
                   <>
-                    <div className="px-4 py-2 text-xs font-medium text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                    <div className="px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                       <Clock className="w-3.5 h-3.5" />
                       {query ? 'Results' : 'Recent'}
                     </div>
@@ -229,13 +229,13 @@ export function CommandBar({
                       <button
                         key={model.id}
                         onClick={() => handleSelect(model)}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 text-left group"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted text-left group"
                       >
-                        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-orange-100 group-hover:text-orange-600 transition-colors">
+                        <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-orange-100 dark:group-hover:bg-orange-950 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
                           <FileText className="w-4 h-4" />
                         </div>
-                        <span className="flex-1 text-sm text-slate-700">{model.title}</span>
-                        <ArrowRight className="w-4 h-4 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <span className="flex-1 text-sm text-foreground">{model.title}</span>
+                        <ArrowRight className="w-4 h-4 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </button>
                     ))}
                   </>
@@ -245,19 +245,19 @@ export function CommandBar({
           </div>
 
           {/* Footer with keyboard shortcuts */}
-          <div className="flex items-center justify-between px-4 py-2.5 border-t border-slate-100 bg-slate-50 text-xs text-slate-500">
+          <div className="flex items-center justify-between px-4 py-2.5 border-t border-border bg-muted text-xs text-muted-foreground">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1.5">
-                <kbd className="px-1.5 py-0.5 bg-white rounded border border-slate-200 font-mono">↵</kbd>
+                <kbd className="px-1.5 py-0.5 bg-card rounded border border-border font-mono">↵</kbd>
                 to {isAIMode ? 'send' : 'select'}
               </span>
               <span className="flex items-center gap-1.5">
-                <kbd className="px-1.5 py-0.5 bg-white rounded border border-slate-200 font-mono">↑↓</kbd>
+                <kbd className="px-1.5 py-0.5 bg-card rounded border border-border font-mono">↑↓</kbd>
                 to navigate
               </span>
             </div>
             <span className="flex items-center gap-1.5">
-              <kbd className="px-1.5 py-0.5 bg-white rounded border border-slate-200 font-mono">esc</kbd>
+              <kbd className="px-1.5 py-0.5 bg-card rounded border border-border font-mono">esc</kbd>
               to close
             </span>
           </div>

@@ -1,0 +1,13 @@
+Model,License Allows Training,Fine-Tuning Method,Training Data Rights,Hardware Required,Estimated Cost,EA Training Recommendations
+DeepSeek V3/R1,Yes (MIT),Full/LoRA/QLoRA,Derivatives under MIT,8x H200 (141GB each),$50K-$200K,"Train on TOGAF, ArchiMate, C4 diagrams, ADRs"
+Qwen 3 (235B),Yes (Apache 2.0),Full/LoRA/QLoRA,Free <100M users,8x H100 (80GB each),$30K-$150K,"Multilingual EA docs, enterprise patterns"
+Kimi K2,Yes (MIT-like),Full/LoRA/QLoRA,Open derivatives,8x H200,$50K-$200K,Agent-based architecture automation
+Llama 4/3.1 70B,Yes (<700M users),Full/LoRA/QLoRA,Derivatives under Llama,4x A100 (40GB each),$20K-$80K,"Most tooling support, widest ecosystem"
+Mistral Large 3,Yes (Apache 2.0),Full/LoRA/QLoRA,Fully permissive,8x H100,$40K-$180K,Frontier reasoning for complex arch decisions
+IBM Granite 4,Yes (Apache 2.0),Full/LoRA/QLoRA,Fully permissive,4x A100,$15K-$60K,"Enterprise compliance, regulated industries"
+GLM-4.5,Yes (Open),Full/LoRA/QLoRA,Open derivatives,8x A100,$25K-$100K,Bilingual architecture documentation
+Baichuan 4,Yes (Apache 2.0),Full/LoRA/QLoRA,Fully permissive,8x A100,$25K-$100K,"Domain-specific (healthcare, finance) EA"
+DeepSeek-Coder,Yes (Permissive),Full/LoRA/QLoRA,Derivatives allowed,4x A100,$15K-$50K,"Code architecture, IaC, API design"
+Phi-4,Yes (MIT),Full/LoRA/QLoRA,Fully permissive,1x RTX 4090,$5K-$15K,"Quick prototypes, edge deployment"
+StarCoder 2,Yes (OpenRAIL-M),Full/LoRA/QLoRA,Attribution required,2x A100,$10K-$30K,"Technical design, code patterns"
+OLMo 3,Yes (Apache 2.0),Full (all data open),Fully open source,4x A100,$15K-$60K,"Research, full transparency required"

@@ -350,6 +350,21 @@ function DesignOptionsContent() {
         { name: "Option 11: Glass Morphism", file: "docs/Wiki_files_004/Wiki_Landing_Option_11_GlassMorphism.html" },
         { name: "Option 12: The Bento Box", file: "docs/Wiki_files_004/Wiki_Landing_Option_12_BentoBox.html" }
       ]
+    },
+    {
+      id: "search-pr-commit-results",
+      title: "Global Search: PR/Commit Results UX",
+      description: "Three UX approaches for displaying code changes (commits/PRs) linked to multiple records in global search. Comparing Dedicated Entity vs Hierarchical vs Context-Aware patterns.",
+      category: "Search UX",
+      priority: "High",
+      dateCreated: "2025-12-24",
+      itemCount: 3,
+      status: "New",
+      htmlPrototypes: [
+        { name: "Option 1a: Dedicated Code Change Entity", file: "docs/Search_PR_Prototypes/Search_PR_Option_1a_DedicatedEntity.html" },
+        { name: "Option 1b: Grouped Hierarchical View", file: "docs/Search_PR_Prototypes/Search_PR_Option_1b_HierarchicalView.html" },
+        { name: "Option 1c: Smart Context-Aware (Recommended)", file: "docs/Search_PR_Prototypes/Search_PR_Option_1c_ContextAware.html" }
+      ]
     }
   ];
 

@@ -196,6 +196,7 @@ export default function QualityDefectsPage() {
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-800 border-b">
               <tr>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase w-[140px]">Defect</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Status</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Severity</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Title</th>
@@ -207,13 +208,13 @@ export default function QualityDefectsPage() {
             <tbody className="divide-y">
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                  <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
                     Loading defects...
                   </td>
                 </tr>
               ) : filteredDefects.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                  <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
                     No defects found
                   </td>
                 </tr>
@@ -224,6 +225,15 @@ export default function QualityDefectsPage() {
                     className="hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer"
                     onClick={() => navigate(`/quality/defects/${defect.id}`)}
                   >
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/quality/defects/${defect.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="font-mono text-sm text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+                      >
+                        {defect.id}
+                      </Link>
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         {getStatusIcon(defect.status)}

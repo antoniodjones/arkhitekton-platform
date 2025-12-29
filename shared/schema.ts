@@ -741,9 +741,17 @@ export const defects = pgTable("defects", {
   syncSource: text("sync_source"), // 'arkhitekton', 'jira', 'manual'
   syncStatus: text("sync_status"), // 'synced', 'pending', 'error', 'disabled'
 
+  // Defect Analysis fields (DEF-QC-007)
+  stepsToReproduce: text("steps_to_reproduce"), // Detailed reproduction steps
+  expectedBehavior: text("expected_behavior"), // What should happen
+  actualBehavior: text("actual_behavior"), // What actually happens
+
   // Resolution tracking
   rootCause: text("root_cause"), // Analysis of what caused the defect
   resolution: text("resolution"), // How it was fixed
+
+  // Legacy field for migration (US-QC-014)
+  legacyStepsToReproduce: text("legacy_steps_to_reproduce"), // Original textarea before structured conversion
 
   // Timestamps
   createdAt: timestamp("created_at").defaultNow(),
@@ -775,6 +783,86 @@ export const updateDefectSchema = insertDefectSchema.partial().extend({
 export type Defect = typeof defects.$inferSelect;
 export type InsertDefect = z.infer<typeof insertDefectSchema>;
 export type UpdateDefect = z.infer<typeof updateDefectSchema>;
+
+// ============================================================
+// REPRODUCTION STEPS - Structured, traceable steps (US-QC-010)
+// ============================================================
+
+export const reproductionSteps = pgTable("reproduction_steps", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`), // UUID
+  defectId: varchar("defect_id").notNull().references(() => defects.id, { onDelete: 'cascade' }),
+  stepId: varchar("step_id", { length: 10 }).notNull(), // "S001", "S002", etc.
+  sequence: integer("sequence").notNull(), // 1, 2, 3, etc. for ordering
+  description: text("description").notNull(),
+  expectedResult: text("expected_result"), // Optional: what should happen at this step
+
+  // Soft delete support
+  deletedAt: timestamp("deleted_at"),
+
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  // Unique constraint: each defect can only have one step with a given step_id
+  uniqueDefectStep: sql`UNIQUE (${table.defectId}, ${table.stepId})`,
+  // Index for fast retrieval by defect
+  defectIdIdx: sql`CREATE INDEX IF NOT EXISTS idx_repro_steps_defect ON ${table} (${table.defectId})`,
+  // Index for ordering
+  sequenceIdx: sql`CREATE INDEX IF NOT EXISTS idx_repro_steps_sequence ON ${table} (${table.defectId}, ${table.sequence})`,
+}));
+
+export const insertReproductionStepSchema = createInsertSchema(reproductionSteps).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  deletedAt: true,
+}).extend({
+  defectId: z.string().min(1, "Defect ID is required"),
+  stepId: z.string().regex(/^S\d{3}$/, "Step ID must be in format S001, S002, etc."),
+  sequence: z.number().int().positive("Sequence must be a positive integer"),
+  description: z.string().min(1, "Step description is required"),
+});
+
+export const updateReproductionStepSchema = insertReproductionStepSchema.partial();
+
+export type ReproductionStep = typeof reproductionSteps.$inferSelect;
+export type InsertReproductionStep = z.infer<typeof insertReproductionStepSchema>;
+export type UpdateReproductionStep = z.infer<typeof updateReproductionStepSchema>;
+
+// ============================================================
+// STEP REFERENCES - Traceability for reproduction steps (US-QC-013)
+// ============================================================
+
+export const stepReferences = pgTable("step_references", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  stepId: varchar("step_id").notNull().references(() => reproductionSteps.id, { onDelete: 'cascade' }),
+  
+  // Reference metadata
+  referenceType: varchar("reference_type", { length: 50 }).notNull(), // 'commit', 'comment', 'test_case', 'pull_request'
+  referenceId: varchar("reference_id", { length: 100 }).notNull(), // Commit SHA, comment ID, test case ID, etc.
+  referenceUrl: text("reference_url"), // Link to the reference
+  referenceText: text("reference_text"), // Excerpt or context
+
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  // Index for fast retrieval by step
+  stepIdIdx: sql`CREATE INDEX IF NOT EXISTS idx_step_refs_step ON ${table} (${table.stepId})`,
+  // Index for finding references by type and ID
+  typeIdIdx: sql`CREATE INDEX IF NOT EXISTS idx_step_refs_type ON ${table} (${table.referenceType}, ${table.referenceId})`,
+}));
+
+export const insertStepReferenceSchema = createInsertSchema(stepReferences).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  stepId: z.string().uuid("Step ID must be a valid UUID"),
+  referenceType: z.enum(['commit', 'comment', 'test_case', 'pull_request']),
+  referenceId: z.string().min(1, "Reference ID is required"),
+});
+
+export type StepReference = typeof stepReferences.$inferSelect;
+export type InsertStepReference = z.infer<typeof insertStepReferenceSchema>;
 
 // ============================================================
 // TEST MANAGEMENT - Test Suites, Cases, Runs, Results

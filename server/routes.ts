@@ -763,6 +763,308 @@ Keep response concise but comprehensive.`;
   });
 
   // ============================================================
+  // REPRODUCTION STEPS API - US-QC-IMPL-011
+  // ============================================================
+
+  // Get all reproduction steps for a defect
+  app.get("/api/defects/:defectId/steps", async (req, res) => {
+    try {
+      const { defectId } = req.params;
+      const steps = await storage.getReproductionStepsByDefect(defectId);
+      res.json({ data: steps });
+    } catch (error) {
+      console.error("Failed to get reproduction steps:", error);
+      res.status(500).json({ message: "Failed to get reproduction steps" });
+    }
+  });
+
+  // Create new reproduction step
+  app.post("/api/defects/:defectId/steps", async (req, res) => {
+    try {
+      const { defectId } = req.params;
+      const { description, expectedResult } = req.body;
+
+      if (!description || typeof description !== 'string') {
+        return res.status(400).json({ message: "Description is required" });
+      }
+
+      // Auto-generate step ID
+      const stepId = await storage.getNextStepId(defectId);
+
+      // Get current max sequence
+      const existingSteps = await storage.getReproductionStepsByDefect(defectId);
+      const sequence = existingSteps.length + 1;
+
+      const newStep = await storage.createReproductionStep({
+        defectId,
+        stepId,
+        sequence,
+        description,
+        expectedResult: expectedResult || null,
+      });
+
+      res.status(201).json({ data: newStep });
+    } catch (error) {
+      console.error("Failed to create reproduction step:", error);
+      res.status(500).json({ message: "Failed to create reproduction step" });
+    }
+  });
+
+  // Update reproduction step
+  app.put("/api/defects/:defectId/steps/:stepId", async (req, res) => {
+    try {
+      const { defectId, stepId } = req.params;
+      const { description, expectedResult } = req.body;
+
+      // Find the step by defect ID and step ID
+      const existingSteps = await storage.getReproductionStepsByDefect(defectId);
+      const step = existingSteps.find(s => s.stepId === stepId);
+
+      if (!step) {
+        return res.status(404).json({ message: "Reproduction step not found" });
+      }
+
+      const updates: any = {};
+      if (description !== undefined) updates.description = description;
+      if (expectedResult !== undefined) updates.expectedResult = expectedResult;
+
+      const updatedStep = await storage.updateReproductionStep(step.id, updates);
+
+      if (!updatedStep) {
+        return res.status(404).json({ message: "Failed to update step" });
+      }
+
+      res.json({ data: updatedStep });
+    } catch (error) {
+      console.error("Failed to update reproduction step:", error);
+      res.status(500).json({ message: "Failed to update reproduction step" });
+    }
+  });
+
+  // Delete reproduction step (soft delete)
+  app.delete("/api/defects/:defectId/steps/:stepId", async (req, res) => {
+    try {
+      const { defectId, stepId } = req.params;
+
+      // Find the step by defect ID and step ID
+      const existingSteps = await storage.getReproductionStepsByDefect(defectId);
+      const step = existingSteps.find(s => s.stepId === stepId);
+
+      if (!step) {
+        return res.status(404).json({ message: "Reproduction step not found" });
+      }
+
+      // Check if step is referenced
+      const references = await storage.getStepReferences(step.id);
+      if (references.length > 0) {
+        return res.status(400).json({
+          message: `This step is referenced in ${references.length} place(s)`,
+          references: references.map(r => ({
+            type: r.referenceType,
+            id: r.referenceId,
+            url: r.referenceUrl,
+          })),
+        });
+      }
+
+      const success = await storage.deleteReproductionStep(step.id);
+
+      if (!success) {
+        return res.status(404).json({ message: "Failed to delete step" });
+      }
+
+      // Recalculate sequences for remaining steps
+      const remainingSteps = await storage.getReproductionStepsByDefect(defectId);
+      const reorderData = remainingSteps.map((s, index) => ({
+        stepId: s.stepId,
+        sequence: index + 1,
+      }));
+      await storage.reorderReproductionSteps(defectId, reorderData);
+
+      res.json({ message: "Step deleted successfully" });
+    } catch (error) {
+      console.error("Failed to delete reproduction step:", error);
+      res.status(500).json({ message: "Failed to delete reproduction step" });
+    }
+  });
+
+  // Reorder reproduction steps
+  app.put("/api/defects/:defectId/steps/reorder", async (req, res) => {
+    try {
+      const { defectId } = req.params;
+      const { steps } = req.body;
+
+      if (!Array.isArray(steps)) {
+        return res.status(400).json({ message: "Steps array is required" });
+      }
+
+      // Validate format: [{ stepId: "S001", sequence: 1 }, ...]
+      for (const step of steps) {
+        if (!step.stepId || typeof step.sequence !== 'number') {
+          return res.status(400).json({ message: "Each step must have stepId and sequence" });
+        }
+      }
+
+      // Check for duplicate sequences
+      const sequences = steps.map(s => s.sequence);
+      const uniqueSequences = new Set(sequences);
+      if (sequences.length !== uniqueSequences.size) {
+        return res.status(400).json({ message: "Duplicate sequence numbers detected" });
+      }
+
+      await storage.reorderReproductionSteps(defectId, steps);
+
+      const updatedSteps = await storage.getReproductionStepsByDefect(defectId);
+      res.json({ data: updatedSteps });
+    } catch (error) {
+      console.error("Failed to reorder reproduction steps:", error);
+      res.status(500).json({ message: "Failed to reorder reproduction steps" });
+    }
+  });
+
+  // Get references for a step
+  app.get("/api/reproduction-steps/:stepId/references", async (req, res) => {
+    try {
+      const { stepId } = req.params;
+      const references = await storage.getStepReferences(stepId);
+      res.json({ data: references });
+    } catch (error) {
+      console.error("Failed to get step references:", error);
+      res.status(500).json({ message: "Failed to get step references" });
+    }
+  });
+
+  // Create step reference
+  app.post("/api/reproduction-steps/:stepId/references", async (req, res) => {
+    try {
+      const { stepId } = req.params;
+      const { referenceType, referenceId, referenceUrl, referenceText } = req.body;
+
+      if (!referenceType || !referenceId) {
+        return res.status(400).json({ message: "referenceType and referenceId are required" });
+      }
+
+      const newReference = await storage.createStepReference({
+        stepId,
+        referenceType,
+        referenceId,
+        referenceUrl: referenceUrl || null,
+        referenceText: referenceText || null,
+      });
+
+      res.status(201).json({ data: newReference });
+    } catch (error) {
+      console.error("Failed to create step reference:", error);
+      res.status(500).json({ message: "Failed to create step reference" });
+    }
+  });
+
+  // Batch process code changes for step references (US-QC-IMPL-013)
+  app.post("/api/reproduction-steps/batch-process-references", async (req, res) => {
+    try {
+      const { batchProcessCodeChangesForStepReferences } = await import('./services/step-reference-detector');
+      const result = await batchProcessCodeChangesForStepReferences();
+      res.json({
+        message: "Batch processing complete",
+        ...result,
+      });
+    } catch (error) {
+      console.error("Failed to batch process references:", error);
+      res.status(500).json({ message: "Failed to batch process references" });
+    }
+  });
+
+  // Get enriched step references with metadata
+  app.get("/api/reproduction-steps/:stepId/references/enriched", async (req, res) => {
+    try {
+      const { stepId } = req.params;
+      const { getEnrichedStepReferences } = await import('./services/step-reference-detector');
+      const enrichedRefs = await getEnrichedStepReferences(stepId);
+      res.json({ data: enrichedRefs });
+    } catch (error) {
+      console.error("Failed to get enriched step references:", error);
+      res.status(500).json({ message: "Failed to get enriched step references" });
+    }
+  });
+
+  // ============================================================
+  // STEP MIGRATION - US-QC-IMPL-014
+  // ============================================================
+
+  // Preview migration from textarea to structured steps
+  app.post("/api/defects/:defectId/steps/preview-migration", async (req, res) => {
+    try {
+      const { defectId } = req.params;
+      const { text } = req.body;
+
+      if (!text || typeof text !== 'string') {
+        return res.status(400).json({ message: "Text is required" });
+      }
+
+      const { autoParseSteps, validateParsedSteps } = await import('./services/step-migration');
+      const parsedSteps = autoParseSteps(text);
+      const validation = validateParsedSteps(parsedSteps);
+
+      res.json({
+        data: {
+          steps: parsedSteps,
+          validation,
+        },
+      });
+    } catch (error) {
+      console.error("Failed to preview migration:", error);
+      res.status(500).json({ message: "Failed to preview migration" });
+    }
+  });
+
+  // Execute migration from textarea to structured steps
+  app.post("/api/defects/:defectId/steps/execute-migration", async (req, res) => {
+    try {
+      const { defectId } = req.params;
+      const { steps, originalText } = req.body;
+
+      if (!Array.isArray(steps) || steps.length === 0) {
+        return res.status(400).json({ message: "Steps array is required" });
+      }
+
+      // Store original text in defect's legacy field
+      if (originalText) {
+        await storage.updateDefect(defectId, {
+          legacyStepsToReproduce: originalText,
+        });
+      }
+
+      // Get next step ID
+      const existingSteps = await storage.getReproductionStepsByDefect(defectId);
+      let stepCounter = existingSteps.length + 1;
+
+      // Create all steps
+      const createdSteps = [];
+      for (const step of steps) {
+        const stepId = `S${stepCounter.toString().padStart(3, '0')}`;
+        
+        const newStep = await storage.createReproductionStep({
+          defectId,
+          stepId,
+          sequence: step.sequence,
+          description: step.description,
+        });
+
+        createdSteps.push(newStep);
+        stepCounter++;
+      }
+
+      res.json({
+        data: createdSteps,
+        message: `Successfully migrated ${createdSteps.length} steps`,
+      });
+    } catch (error) {
+      console.error("Failed to execute migration:", error);
+      res.status(500).json({ message: "Failed to execute migration" });
+    }
+  });
+
+  // ============================================================
   // TEST MANAGEMENT API ENDPOINTS - Test Suites, Cases, Runs, Results
   // ============================================================
 
@@ -3610,46 +3912,102 @@ function mapJiraPriorityToArkhitekton(jiraPriority: string | undefined): string 
   // Story: US-WIKI-070 (Unified Entity Search API for @mentions)
   // ============================================================================
 
-  // GET /api/entities/search - Search across all entity types for @mentions
+  // GET /api/entities/search - Search across all entity types for @mentions and global search
   app.get("/api/entities/search", async (req, res) => {
     try {
-      const { q, type, limit = '5' } = req.query;
+      const { q, type, limit = '10', offset = '0' } = req.query;
       
-      if (!q || typeof q !== 'string' || q.length < 1) {
-        return res.status(400).json({ error: "Search query 'q' is required" });
+      // Minimum 2 characters for search (user-friendly, while 3+ is ideal)
+      if (!q || typeof q !== 'string' || q.length < 2) {
+        return res.status(400).json({ 
+          error: "Search query 'q' is required (minimum 2 characters)",
+          query: q || '',
+          totalResults: 0,
+          results: []
+        });
       }
 
-      const searchLimit = Math.min(parseInt(limit as string) || 5, 20);
-      const query = q.toLowerCase();
+      const searchLimit = Math.min(parseInt(limit as string) || 10, 50);
+      const searchOffset = Math.max(parseInt(offset as string) || 0, 0);
+      const query = q.toLowerCase().trim();
       const results: any[] = [];
 
-      // Helper to add results with entity metadata
+      // Helper to calculate relevance score
+      const calculateScore = (item: any, query: string): number => {
+        let score = 0;
+        const id = (item.id || '').toLowerCase();
+        const title = (item.title || item.name || '').toLowerCase();
+        const description = (item.description || '').toLowerCase();
+        
+        // Exact ID match = highest priority
+        if (id === query) score += 100;
+        else if (id.includes(query)) score += 50;
+        
+        // Title matches = high priority
+        if (title === query) score += 80;
+        else if (title.startsWith(query)) score += 60;
+        else if (title.includes(query)) score += 40;
+        
+        // Description matches = medium priority
+        if (description.includes(query)) score += 20;
+        
+        // Recency boost (within last 7 days)
+        const updatedAt = item.updatedAt || item.createdAt;
+        if (updatedAt) {
+          const daysSinceUpdate = (Date.now() - new Date(updatedAt).getTime()) / (1000 * 60 * 60 * 24);
+          if (daysSinceUpdate < 7) score += 10;
+          else if (daysSinceUpdate < 30) score += 5;
+        }
+        
+        // Status boost (active/in-progress > done > archived)
+        const status = (item.status || '').toLowerCase();
+        if (['active', 'in-progress', 'in_progress', 'sprint'].includes(status)) score += 10;
+        else if (['done', 'completed', 'published'].includes(status)) score += 5;
+        else if (['archived', 'deprecated'].includes(status)) score -= 5;
+        
+        return score;
+      };
+
+      // Helper to add results with entity metadata and scoring
       const addResults = (items: any[], entityType: string, getUrl: (item: any) => string) => {
-        const filtered = items
-          .filter(item => {
-            const searchFields = [
-              item.title,
-              item.name,
-              item.id,
-              item.description
-            ].filter(Boolean).join(' ').toLowerCase();
-            return searchFields.includes(query);
+        const scored = items
+          .map(item => {
+            const id = (item.id || '').toLowerCase();
+            const title = (item.title || item.name || '').toLowerCase();
+            const description = (item.description || '').toLowerCase();
+            const searchFields = `${id} ${title} ${description}`;
+            
+            // Check if item matches query
+            if (!searchFields.includes(query)) return null;
+            
+            return {
+              item,
+              score: calculateScore(item, query)
+            };
           })
-          .slice(0, searchLimit)
-          .map(item => ({
-            id: item.id,
-            entityType,
-            title: item.title || item.name,
-            status: item.status || 'active',
-            url: getUrl(item),
-            metadata: {
-              description: item.description?.substring(0, 100),
-              createdAt: item.createdAt,
-              updatedAt: item.updatedAt,
-              ...getEntityMetadata(item, entityType)
-            }
-          }));
-        results.push(...filtered);
+          .filter((result): result is { item: any; score: number } => result !== null && result.score > 0);
+        
+        // Sort by score descending
+        scored.sort((a, b) => b.score - a.score);
+        
+        // Map to result format
+        const mapped = scored.map(({ item, score }) => ({
+          id: item.id,
+          entityType,
+          title: item.title || item.name,
+          description: item.description,
+          status: item.status || 'active',
+          score,
+          url: getUrl(item),
+          metadata: {
+            description: item.description?.substring(0, 100),
+            createdAt: item.createdAt,
+            updatedAt: item.updatedAt,
+            ...getEntityMetadata(item, entityType)
+          }
+        }));
+        
+        results.push(...mapped);
       };
 
       // Helper to get entity-specific metadata
@@ -3685,30 +4043,25 @@ function mapJiraPriorityToArkhitekton(jiraPriority: string | undefined): string 
               criticality: item.criticality,
               owner: item.owner
             };
+          case 'initiative':
+            return { 
+              status: item.status,
+              priority: item.priority,
+              businessValue: item.businessValue,
+              owner: item.owner
+            };
           case 'page':
             return { 
               category: item.category,
               template: item.template,
               views: item.views
             };
-          case 'object':
-          case 'component':
-            return { 
-              type: item.type,
-              modelId: item.modelId,
-              layer: item.layer
-            };
-          case 'capability':
-            return { 
-              level: item.level,
-              domain: item.domain,
-              parentId: item.parentId
-            };
           case 'element':
             return { 
               type: item.type,
               category: item.category,
-              layer: item.layer
+              layer: item.layer,
+              framework: item.framework
             };
           default:
             return {};
@@ -3718,7 +4071,7 @@ function mapJiraPriorityToArkhitekton(jiraPriority: string | undefined): string 
       // Search User Stories
       if (!type || type === 'user_story') {
         const stories = await storage.getAllUserStories();
-        addResults(stories, 'user_story', (s) => `/plan?storyId=${s.id}`);
+        addResults(stories, 'user_story', (s) => `/plan/stories/${s.id}`);
       }
 
       // Search Epics
@@ -3730,13 +4083,19 @@ function mapJiraPriorityToArkhitekton(jiraPriority: string | undefined): string 
       // Search Defects
       if (!type || type === 'defect') {
         const defects = await storage.getAllDefects();
-        addResults(defects, 'defect', (d) => `/defects/${d.id}`);
+        addResults(defects, 'defect', (d) => `/quality/defects/${d.id}`);
       }
 
       // Search Applications
       if (!type || type === 'application') {
         const apps = await storage.getAllApplications();
         addResults(apps, 'application', (a) => `/apm?appId=${a.id}`);
+      }
+
+      // Search Initiatives
+      if (!type || type === 'initiative') {
+        const initiatives = await storage.getAllInitiatives();
+        addResults(initiatives, 'initiative', (i) => `/portfolio?tab=initiatives&id=${i.id}`);
       }
 
       // Search Wiki Pages
@@ -3751,35 +4110,194 @@ function mapJiraPriorityToArkhitekton(jiraPriority: string | undefined): string 
         addResults(models, 'model', (m) => `/studio/canvas?modelId=${m.id}`);
       }
 
-      // Search Architectural Objects (Components)
-      if (!type || type === 'object' || type === 'component') {
-        const objects = await storage.getArchitecturalObjects();
-        addResults(objects, 'object', (o) => `/studio/canvas?objectId=${o.id}`);
-      }
-
-      // Search Business Capabilities
-      if (!type || type === 'capability') {
-        const capabilities = await storage.getBusinessCapabilities();
-        addResults(capabilities, 'capability', (c) => `/capabilities?id=${c.id}`);
-      }
-
       // Search Architecture Elements
       if (!type || type === 'element') {
         const elements = await storage.getArchitectureElements();
         addResults(elements, 'element', (e) => `/elements?id=${e.id}`);
       }
 
+      // Search Code Changes (Commits/PRs)
+      if (!type || type === 'code_change') {
+        const codeChanges = await storage.getAllCodeChanges();
+        
+        // Custom search logic for code changes
+        const matchingChanges = codeChanges.filter(change => {
+          const searchText = query.toLowerCase();
+          
+          // Match commit SHA (partial or full)
+          if (change.commitSha && change.commitSha.toLowerCase().includes(searchText)) {
+            return true;
+          }
+          
+          // Match PR number (with or without #)
+          const prQuery = searchText.replace(/^#/, '');
+          if (change.prNumber && change.prNumber.toString() === prQuery) {
+            return true;
+          }
+          
+          // Match commit message
+          if (change.commitMessage && change.commitMessage.toLowerCase().includes(searchText)) {
+            return true;
+          }
+          
+          // Match PR title
+          if (change.prTitle && change.prTitle.toLowerCase().includes(searchText)) {
+            return true;
+          }
+          
+          // Match branch name
+          if (change.branchName && change.branchName.toLowerCase().includes(searchText)) {
+            return true;
+          }
+          
+          // Match author (with or without @)
+          const authorQuery = searchText.replace(/^@/, '');
+          if (change.authorUsername && change.authorUsername.toLowerCase().includes(authorQuery)) {
+            return true;
+          }
+          
+          return false;
+        });
+
+        // For each code change, fetch linked entities to determine primary item
+        const enrichedChanges = await Promise.all(
+          matchingChanges.map(async (change) => {
+            // Get all code changes with the same commit SHA
+            const allChanges = await storage.getAllCodeChanges();
+            const relatedChanges = allChanges.filter(c => c.commitSha === change.commitSha);
+            
+            // Fetch all linked entities for this commit
+            const linkedEntitiesPromises = relatedChanges.map(async (relatedChange) => {
+              let entity: any = null;
+              let entityType = '';
+              let url = '';
+              
+              if (relatedChange.entityType === 'defect') {
+                entity = await storage.getDefect(relatedChange.entityId);
+                entityType = 'defect';
+                url = `/quality/defects/${relatedChange.entityId}`;
+              } else if (relatedChange.entityType === 'user_story') {
+                entity = await storage.getUserStory(relatedChange.entityId);
+                entityType = 'user_story';
+                url = `/plan/stories/${relatedChange.entityId}`;
+              } else if (relatedChange.entityType === 'epic') {
+                entity = await storage.getEpic(relatedChange.entityId);
+                entityType = 'epic';
+                url = `/plan?epicId=${relatedChange.entityId}`;
+              }
+              
+              if (entity) {
+                return {
+                  id: relatedChange.entityId,
+                  title: entity.title || entity.name || 'Unknown',
+                  entityType: entityType,
+                  url: url
+                };
+              }
+              return null;
+            });
+            
+            const allLinkedEntities = (await Promise.all(linkedEntitiesPromises)).filter(Boolean);
+            
+            // Determine primary entity (priority: defect > user_story > epic)
+            let primaryEntity: any = null;
+            let primaryType = '';
+            let primaryUrl = '';
+            
+            // Find the highest priority entity
+            const defectEntity = allLinkedEntities.find(e => e?.entityType === 'defect');
+            const storyEntity = allLinkedEntities.find(e => e?.entityType === 'user_story');
+            const epicEntity = allLinkedEntities.find(e => e?.entityType === 'epic');
+            
+            if (defectEntity) {
+              primaryEntity = await storage.getDefect(defectEntity.id);
+              primaryType = 'defect';
+              primaryUrl = defectEntity.url;
+            } else if (storyEntity) {
+              primaryEntity = await storage.getUserStory(storyEntity.id);
+              primaryType = 'user_story';
+              primaryUrl = storyEntity.url;
+            } else if (epicEntity) {
+              primaryEntity = await storage.getEpic(epicEntity.id);
+              primaryType = 'epic';
+              primaryUrl = epicEntity.url;
+            }
+            
+            return {
+              change,
+              primaryEntity,
+              primaryType,
+              primaryUrl,
+              linkedCount: allLinkedEntities.length,
+              linkedItems: allLinkedEntities
+            };
+          })
+        );
+
+        // Add results using primary entity with code change metadata
+        enrichedChanges.forEach(({ change, primaryEntity, primaryType, primaryUrl, linkedCount, linkedItems }) => {
+          if (primaryEntity) {
+            const result = {
+              id: primaryEntity.id,
+              entityType: primaryType as any,
+              title: primaryEntity.title || primaryEntity.name,
+              description: primaryEntity.description,
+              status: primaryEntity.status || 'active',
+              score: calculateScore(primaryEntity, query),
+              url: primaryUrl,
+              metadata: {
+                description: primaryEntity.description?.substring(0, 100),
+                createdAt: primaryEntity.createdAt,
+                updatedAt: primaryEntity.updatedAt,
+                // Code change metadata
+                commitSha: change.commitSha,
+                prNumber: change.prNumber,
+                branchName: change.branchName,
+                authorUsername: change.authorUsername,
+                linkedItemsCount: linkedCount,
+                linkedItems: linkedItems,
+                codeChangeId: change.id,
+                ...getEntityMetadata(primaryEntity, primaryType)
+              }
+            };
+            results.push(result);
+          }
+        });
+      }
+
+      // Search Test Suites
+      if (!type || type === 'test_suite') {
+        const testSuites = await storage.getAllTestSuites();
+        addResults(testSuites, 'test_suite', (ts) => `/quality/test-suites/${ts.id}`);
+      }
+
+      // Search Test Cases
+      if (!type || type === 'test_case') {
+        const testCases = await storage.getAllTestCases();
+        addResults(testCases, 'test_case', (tc) => `/quality/test-cases/${tc.id}`);
+      }
+
+      // Sort all results by score (descending)
+      results.sort((a, b) => (b.score || 0) - (a.score || 0));
+
+      // Apply pagination
+      const totalResults = results.length;
+      const paginatedResults = results.slice(searchOffset, searchOffset + searchLimit);
+
       // Group results by entity type
       const grouped: Record<string, any[]> = {};
-      results.forEach(r => {
+      paginatedResults.forEach(r => {
         if (!grouped[r.entityType]) grouped[r.entityType] = [];
         grouped[r.entityType].push(r);
       });
 
       res.json({
         query: q,
-        totalResults: results.length,
-        results: results.slice(0, searchLimit * 6), // Limit total results
+        totalResults,
+        limit: searchLimit,
+        offset: searchOffset,
+        hasMore: totalResults > (searchOffset + searchLimit),
+        results: paginatedResults,
         grouped,
       });
     } catch (error) {

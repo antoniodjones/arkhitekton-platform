@@ -11,6 +11,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
+import { StepManager } from '@/components/quality/step-manager';
+import { StepMigrationDialog } from '@/components/quality/step-migration-dialog';
 import { 
   ArrowLeft, 
   Edit2, 
@@ -35,6 +37,9 @@ interface Defect {
   status: 'open' | 'in-progress' | 'resolved' | 'closed' | 'rejected';
   discoveredBy: string | null;
   assignedTo: string | null;
+  stepsToReproduce: string | null;
+  expectedBehavior: string | null;
+  actualBehavior: string | null;
   rootCause: string | null;
   resolution: string | null;
   createdAt: string;
@@ -54,7 +59,8 @@ export default function QualityDefectDetailPage() {
     queryFn: async () => {
       const response = await fetch(`/api/defects/${params.id}`);
       if (!response.ok) throw new Error('Failed to fetch defect');
-      return response.json();
+      const result = await response.json();
+      return result.data || result; // Unwrap data property from API response
     },
     enabled: !!params.id
   });
@@ -327,6 +333,69 @@ export default function QualityDefectDetailPage() {
                     <span className="text-muted-foreground">Resolved</span>
                     <span>{format(new Date(defect.resolvedAt), 'MMM d, yyyy')}</span>
                   </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Steps to Reproduce - Structured (US-QC-010) */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-lg">Steps to Reproduce</CardTitle>
+            {/* Show migration button if there's legacy text */}
+            {defect.stepsToReproduce && isEditing && (
+              <StepMigrationDialog
+                defectId={params.id!}
+                originalText={defect.stepsToReproduce}
+              />
+            )}
+          </CardHeader>
+          <CardContent>
+            <StepManager defectId={params.id!} editable={isEditing} />
+          </CardContent>
+        </Card>
+
+        {/* Expected vs Actual Behavior */}
+        <div className="grid grid-cols-1 gap-6">
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Expected Behavior</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isEditing ? (
+                  <Textarea
+                    value={editedDefect.expectedBehavior || ''}
+                    onChange={(e) => setEditedDefect({ ...editedDefect, expectedBehavior: e.target.value })}
+                    rows={4}
+                    placeholder="What should happen..."
+                  />
+                ) : (
+                  <p className="text-sm whitespace-pre-wrap">
+                    {defect.expectedBehavior || <span className="text-muted-foreground italic">Not specified</span>}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Actual Behavior</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isEditing ? (
+                  <Textarea
+                    value={editedDefect.actualBehavior || ''}
+                    onChange={(e) => setEditedDefect({ ...editedDefect, actualBehavior: e.target.value })}
+                    rows={4}
+                    placeholder="What actually happens..."
+                  />
+                ) : (
+                  <p className="text-sm whitespace-pre-wrap">
+                    {defect.actualBehavior || <span className="text-muted-foreground italic">Not specified</span>}
+                  </p>
                 )}
               </CardContent>
             </Card>

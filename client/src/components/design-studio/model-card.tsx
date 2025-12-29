@@ -87,7 +87,7 @@ export function ModelCard({
     'Strategy': 'bg-pink-400',
     'Data': 'bg-cyan-400',
   };
-  const typeColor = typeColors[model.type] || 'bg-slate-300';
+  const typeColor = typeColors[model.type] || 'bg-muted-foreground/50';
 
   // Context menu handler
   const handleContextMenu = (e: React.MouseEvent) => {
@@ -100,8 +100,8 @@ export function ModelCard({
     return (
       <div
         className={cn(
-          'flex items-center gap-4 p-4 bg-white border border-slate-100 rounded-xl cursor-pointer',
-          'hover:shadow-md hover:border-slate-200 hover:-translate-y-0.5 transition-all duration-200',
+          'flex items-center gap-4 p-4 bg-card border border-border rounded-xl cursor-pointer',
+          'hover:shadow-md hover:border-muted-foreground/30 hover:-translate-y-0.5 transition-all duration-200',
           model.isPinned && 'ring-2 ring-orange-100 border-orange-200'
         )}
         onClick={() => onClick(model)}
@@ -110,9 +110,9 @@ export function ModelCard({
         {/* Thumbnail */}
         <div className={cn(
           'w-14 h-14 rounded-lg flex items-center justify-center shrink-0 relative overflow-hidden',
-          'bg-gradient-to-br from-slate-50 to-slate-100'
+          'bg-muted'
         )}>
-          <Layout className="w-6 h-6 text-slate-300" />
+          <Layout className="w-6 h-6 text-muted-foreground" />
           {model.isPinned && (
             <div className="absolute top-1 right-1">
               <Pin className="w-3 h-3 text-orange-500 fill-orange-500" />
@@ -122,8 +122,8 @@ export function ModelCard({
 
         {/* Title & Meta */}
         <div className="flex-1 min-w-0">
-          <div className="font-semibold text-slate-900 truncate">{model.title}</div>
-          <div className="flex items-center gap-3 mt-1 text-sm text-slate-500">
+          <div className="font-semibold text-foreground truncate">{model.title}</div>
+          <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5">
               <span className={cn('w-2 h-2 rounded-full', recencyColor)} title={recencyLabel} />
               {relativeTime}
@@ -137,8 +137,8 @@ export function ModelCard({
         </div>
 
         {/* Author */}
-        <Avatar className="w-7 h-7 ring-2 ring-white border border-slate-100">
-          <AvatarFallback className="text-xs bg-slate-100 text-slate-600">
+        <Avatar className="w-7 h-7 ring-2 ring-background border border-border">
+          <AvatarFallback className="text-xs bg-muted text-muted-foreground">
             {authorInitials}
           </AvatarFallback>
         </Avatar>
@@ -147,7 +147,7 @@ export function ModelCard({
         <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
           <DropdownMenuTrigger asChild>
             <button
-              className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+              className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
               onClick={(e) => e.stopPropagation()}
             >
               <MoreHorizontal className="w-4 h-4" />
@@ -195,8 +195,8 @@ export function ModelCard({
       onContextMenu={handleContextMenu}
     >
       <div className={cn(
-        'aspect-[16/10] bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden relative mb-4',
-        'group-hover:shadow-xl group-hover:shadow-slate-200/80 group-hover:-translate-y-1',
+        'aspect-[16/10] bg-card rounded-2xl shadow-sm border border-border overflow-hidden relative mb-4',
+        'group-hover:shadow-xl group-hover:shadow-muted/80 group-hover:-translate-y-1',
         'transition-all duration-300'
       )}>
         {/* Decorative Gradient based on type */}
@@ -213,8 +213,8 @@ export function ModelCard({
         )} />
 
         {/* Content Mockup */}
-        <div className="absolute inset-6 bg-white/80 rounded-lg shadow-sm backdrop-blur-sm border border-slate-100/50 flex items-center justify-center">
-          <Layout className="w-12 h-12 text-slate-300" />
+        <div className="absolute inset-6 bg-card/80 rounded-lg shadow-sm backdrop-blur-sm border border-border/50 flex items-center justify-center">
+          <Layout className="w-12 h-12 text-muted-foreground" />
         </div>
 
         {/* Pinned Badge */}
@@ -232,10 +232,10 @@ export function ModelCard({
           <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
             <DropdownMenuTrigger asChild>
               <button
-                className="w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-sm hover:bg-white"
+                className="w-8 h-8 bg-card/90 backdrop-blur rounded-full flex items-center justify-center shadow-sm hover:bg-card"
                 onClick={(e) => e.stopPropagation()}
               >
-                <MoreHorizontal className="w-4 h-4 text-slate-500" />
+                <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
@@ -276,16 +276,16 @@ export function ModelCard({
       {/* Meta Info */}
       <div className="flex items-start justify-between px-1">
         <div>
-          <div className="font-semibold text-slate-900 mb-1 group-hover:text-orange-600 transition-colors">
+          <div className="font-semibold text-foreground mb-1 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
             {model.title}
           </div>
-          <div className="text-xs text-slate-500 font-medium flex items-center gap-2">
+          <div className="text-xs text-muted-foreground font-medium flex items-center gap-2">
             <span className={cn('w-2 h-2 rounded-full', typeColor)} />
             {model.type} • {relativeTime}
           </div>
         </div>
-        <Avatar className="w-6 h-6 border ring-1 ring-white">
-          <AvatarFallback className="text-[10px] bg-slate-100 text-slate-600">
+        <Avatar className="w-6 h-6 border ring-1 ring-background">
+          <AvatarFallback className="text-[10px] bg-muted text-muted-foreground">
             {authorInitials}
           </AvatarFallback>
         </Avatar>
