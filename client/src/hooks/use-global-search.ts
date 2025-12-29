@@ -3,7 +3,7 @@ import { useState, useCallback, useEffect } from 'react';
 
 export interface SearchResult {
   id: string;
-  entityType: 'user_story' | 'epic' | 'defect' | 'application' | 'initiative' | 'page' | 'model' | 'object' | 'capability' | 'element' | 'code_change';
+  entityType: 'user_story' | 'epic' | 'defect' | 'application' | 'initiative' | 'page' | 'model' | 'object' | 'capability' | 'element' | 'code_change' | 'test_suite' | 'test_case';
   title: string;
   description?: string;
   status: string;
@@ -140,6 +140,8 @@ export function getEntityTypeInfo(entityType: string): { label: string; icon: st
     object: { label: 'Component', icon: '🧩', color: 'teal' },
     capability: { label: 'Capability', icon: '⚡', color: 'amber' },
     element: { label: 'Element', icon: '🔷', color: 'cyan' },
+    test_suite: { label: 'Test Suite', icon: '🧪', color: 'violet' },
+    test_case: { label: 'Test Case', icon: '✓', color: 'lime' },
   };
 
   return typeMap[entityType] || { label: entityType, icon: '📦', color: 'gray' };

@@ -4265,6 +4265,18 @@ function mapJiraPriorityToArkhitekton(jiraPriority: string | undefined): string 
         });
       }
 
+      // Search Test Suites
+      if (!type || type === 'test_suite') {
+        const testSuites = await storage.getAllTestSuites();
+        addResults(testSuites, 'test_suite', (ts) => `/quality/test-suites/${ts.id}`);
+      }
+
+      // Search Test Cases
+      if (!type || type === 'test_case') {
+        const testCases = await storage.getAllTestCases();
+        addResults(testCases, 'test_case', (tc) => `/quality/test-cases/${tc.id}`);
+      }
+
       // Sort all results by score (descending)
       results.sort((a, b) => (b.score || 0) - (a.score || 0));
 

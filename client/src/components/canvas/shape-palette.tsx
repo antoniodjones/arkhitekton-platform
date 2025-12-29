@@ -30,7 +30,20 @@ export type ShapeType =
   | 'document'
   | 'cloud'
   | 'frame'
-  | 'text';
+  | 'text'
+  // ArchiMate shape types (map to base types)
+  | 'rectangular'
+  | 'rounded'
+  | 'circular'
+  | 'oval'
+  | 'triangular'
+  | 'hexagonal'
+  | 'pentagonal'
+  | 'parallelogram'
+  | 'square'
+  | 'star'
+  | 'arrow'
+  | 'bubble';
 
 interface ShapeDefinition {
   type: ShapeType;

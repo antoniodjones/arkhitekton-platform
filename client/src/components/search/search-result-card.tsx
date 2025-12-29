@@ -1,4 +1,4 @@
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -39,6 +39,7 @@ export function SearchResultCard({ result, onClick, className, highlighted }: Se
   const typeInfo = getEntityTypeInfo(result.entityType);
   const statusColor = getStatusColor(result.status);
   const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
+  const [, setLocation] = useLocation();
 
   const handleClick = (e: React.MouseEvent) => {
     // Allow Cmd/Ctrl+Click to open in new tab
@@ -48,7 +49,7 @@ export function SearchResultCard({ result, onClick, className, highlighted }: Se
     
     e.preventDefault();
     onClick?.();
-    window.location.href = result.url;
+    setLocation(result.url);
   };
 
   return (

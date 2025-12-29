@@ -111,7 +111,7 @@ export function GlobalSearchModal({ open, onOpenChange }: GlobalSearchModalProps
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Search user stories, defects, applications, models, pages..."
+            placeholder="Search user stories, defects, test cases, applications, models..."
             className="flex-1 text-base bg-transparent border-0 outline-none placeholder:text-muted-foreground text-foreground"
           />
           <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-1 text-xs font-mono text-muted-foreground bg-muted border border-border rounded">
@@ -128,7 +128,7 @@ export function GlobalSearchModal({ open, onOpenChange }: GlobalSearchModalProps
               </div>
               <p className="text-foreground font-medium mb-2">Search ARKHITEKTON</p>
               <p className="text-sm text-muted-foreground mb-4">
-                Find user stories, defects, applications, models, and more
+                Find user stories, defects, test cases, applications, models, and more
               </p>
               <div className="flex flex-col items-center gap-2 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
