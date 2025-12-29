@@ -205,7 +205,7 @@ export function DesignCanvasMVP({ onShapeAdd }: DesignCanvasMVPProps) {
         setSelectedConnectionId(null);
       }
     }
-  }, [connectionMode, connectionSource]);
+  }, [connectionMode, connectionSource, connectionRoutingType, connectionArrowType]);
 
   // Deselect when clicking empty space
   const handleStageClick = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
