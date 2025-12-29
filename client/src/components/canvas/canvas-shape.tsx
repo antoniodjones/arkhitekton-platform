@@ -85,6 +85,35 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
     shadowOpacity: isSelected ? 0.5 : undefined,
   };
 
+  // Calculate text offset for centered shapes
+  const getTextOffset = () => {
+    switch (shape.type) {
+      case 'circle':
+      case 'circular':
+      case 'bubble':
+        // Circle is centered at (radius, radius), text needs to align
+        return { x: -shape.width / 2, y: -shape.height / 2 };
+      
+      case 'diamond':
+      case 'decision':
+      case 'hexagon':
+      case 'hexagonal':
+      case 'triangle':
+      case 'triangular':
+      case 'arrow':
+      case 'pentagonal':
+      case 'star':
+        // RegularPolygons are centered, offset text
+        return { x: -shape.width / 2, y: -shape.height / 2 };
+      
+      default:
+        // Rectangles start at (0, 0)
+        return { x: 0, y: 0 };
+    }
+  };
+
+  const textOffset = getTextOffset();
+
   // Render shape with text label
   const renderShapeElement = () => {
     switch (shape.type) {
@@ -95,6 +124,8 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         return (
           <Rect
             {...shapeProps}
+            x={0}
+            y={0}
             width={shape.width}
             height={shape.height}
             cornerRadius={0}
@@ -106,6 +137,8 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         return (
           <Rect
             {...shapeProps}
+            x={0}
+            y={0}
             width={shape.width}
             height={shape.height}
             cornerRadius={10}
@@ -118,6 +151,8 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         return (
           <Circle
             {...shapeProps}
+            x={0}
+            y={0}
             radius={shape.width / 2}
           />
         );
@@ -127,6 +162,8 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         return (
           <Ellipse
             {...shapeProps}
+            x={0}
+            y={0}
             radiusX={shape.width / 2}
             radiusY={shape.height / 2}
           />
@@ -137,8 +174,10 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         return (
           <RegularPolygon
             {...shapeProps}
+            x={0}
+            y={0}
             sides={4}
-            radius={shape.width / 2}
+            radius={Math.max(shape.width, shape.height) / 1.4}
             rotation={45}
           />
         );
@@ -148,6 +187,8 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         return (
           <RegularPolygon
             {...shapeProps}
+            x={0}
+            y={0}
             sides={6}
             radius={shape.width / 2}
           />
@@ -159,8 +200,11 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         return (
           <RegularPolygon
             {...shapeProps}
+            x={0}
+            y={0}
             sides={3}
             radius={shape.width / 2}
+            rotation={-90}
           />
         );
       
@@ -168,6 +212,8 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         return (
           <RegularPolygon
             {...shapeProps}
+            x={0}
+            y={0}
             sides={5}
             radius={shape.width / 2}
           />
@@ -177,6 +223,8 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         return (
           <RegularPolygon
             {...shapeProps}
+            x={0}
+            y={0}
             sides={5}
             radius={shape.width / 2}
             rotation={-18}
@@ -187,6 +235,8 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         return (
           <Rect
             {...shapeProps}
+            x={0}
+            y={0}
             width={shape.width}
             height={shape.height}
             cornerRadius={0}
@@ -196,14 +246,49 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
 
       case 'cylinder':
       case 'database':
-        // Approximate cylinder with path (simplified for Group positioning)
+        // Proper cylinder/database shape with top ellipse
+        const topHeight = shape.height * 0.15;
         return (
-          <Rect
-            {...shapeProps}
-            width={shape.width}
-            height={shape.height}
-            cornerRadius={5}
-          />
+          <>
+            {/* Top ellipse */}
+            <Ellipse
+              {...shapeProps}
+              x={shape.width / 2}
+              y={topHeight}
+              radiusX={shape.width / 2}
+              radiusY={topHeight}
+            />
+            {/* Body */}
+            <Rect
+              {...shapeProps}
+              x={0}
+              y={topHeight}
+              width={shape.width}
+              height={shape.height - topHeight * 2}
+              fill={defaultFill}
+              stroke={isSelected ? '#0ea5e9' : defaultStroke}
+              strokeWidth={0}
+            />
+            {/* Bottom ellipse */}
+            <Ellipse
+              {...shapeProps}
+              x={shape.width / 2}
+              y={shape.height - topHeight}
+              radiusX={shape.width / 2}
+              radiusY={topHeight}
+            />
+            {/* Side lines */}
+            <Path
+              data={`M 0,${topHeight} L 0,${shape.height - topHeight}`}
+              stroke={isSelected ? '#0ea5e9' : defaultStroke}
+              strokeWidth={isSelected ? 3 : defaultStrokeWidth}
+            />
+            <Path
+              data={`M ${shape.width},${topHeight} L ${shape.width},${shape.height - topHeight}`}
+              stroke={isSelected ? '#0ea5e9' : defaultStroke}
+              strokeWidth={isSelected ? 3 : defaultStrokeWidth}
+            />
+          </>
         );
 
       case 'cloud':
@@ -211,6 +296,8 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         return (
           <Ellipse
             {...shapeProps}
+            x={shape.width / 2}
+            y={shape.height / 2}
             radiusX={shape.width / 2}
             radiusY={shape.height / 2.5}
           />
@@ -220,6 +307,8 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         return (
           <Rect
             {...shapeProps}
+            x={0}
+            y={0}
             width={shape.width}
             height={shape.height}
             cornerRadius={0}
@@ -229,13 +318,19 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         );
 
       case 'document':
-        // Simplified document as rounded rect
+        // Document with wavy bottom
+        const wavyPath = `
+          M 0,0
+          L ${shape.width},0
+          L ${shape.width},${shape.height - 15}
+          Q ${shape.width * 0.75},${shape.height - 5} ${shape.width / 2},${shape.height - 15}
+          Q ${shape.width * 0.25},${shape.height - 25} 0,${shape.height - 15}
+          Z
+        `;
         return (
-          <Rect
+          <Path
             {...shapeProps}
-            width={shape.width}
-            height={shape.height}
-            cornerRadius={[5, 5, 15, 5]}
+            data={wavyPath}
           />
         );
 
@@ -268,11 +363,14 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         text={labelText}
         fontSize={fontSize}
         fill={textColor}
+        x={textOffset.x}
+        y={textOffset.y}
         width={shape.width}
         height={shape.height}
         align="center"
         verticalAlign="middle"
         listening={false}
+        pointerEvents="none"
       />
     </Group>
   );

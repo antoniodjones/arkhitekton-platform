@@ -82,25 +82,50 @@ export function CanvasConnection({ connection, isSelected, onSelect }: CanvasCon
 }
 
 /**
+ * Calculate the visual center of a shape based on its type
+ * For rectangles, center is at x + width/2, y + height/2
+ * For circles/polygons that are rendered centered, center is at x, y (the Group position)
+ */
+function getShapeCenter(shape: any): { x: number; y: number } {
+  const type = shape.type || 'rectangle';
+  
+  // Centered shapes (rendered at x=0, y=0 within Group)
+  const centeredTypes = [
+    'circle', 'circular', 'bubble',
+    'diamond', 'decision',
+    'hexagon', 'hexagonal',
+    'triangle', 'triangular', 'arrow',
+    'pentagonal', 'star'
+  ];
+  
+  if (centeredTypes.includes(type)) {
+    // Group position IS the center
+    return {
+      x: shape.x,
+      y: shape.y
+    };
+  }
+  
+  // Rectangle-based shapes start at top-left
+  return {
+    x: shape.x + shape.width / 2,
+    y: shape.y + shape.height / 2
+  };
+}
+
+/**
  * Calculate connection points between two shapes
  * 
  * Implements orthogonal (elbow) routing algorithm
  */
 export function calculateConnectionPoints(
-  sourceShape: { x: number; y: number; width: number; height: number },
-  targetShape: { x: number; y: number; width: number; height: number },
+  sourceShape: { x: number; y: number; width: number; height: number; type?: string },
+  targetShape: { x: number; y: number; width: number; height: number; type?: string },
   routingType: 'straight' | 'orthogonal'
 ): number[] {
-  // Calculate center points
-  const sourceCenter = {
-    x: sourceShape.x + sourceShape.width / 2,
-    y: sourceShape.y + sourceShape.height / 2,
-  };
-  
-  const targetCenter = {
-    x: targetShape.x + targetShape.width / 2,
-    y: targetShape.y + targetShape.height / 2,
-  };
+  // Calculate center points based on shape type
+  const sourceCenter = getShapeCenter(sourceShape);
+  const targetCenter = getShapeCenter(targetShape);
 
   if (routingType === 'straight') {
     // Calculate edge-based connection points (not center-to-center)
@@ -118,7 +143,7 @@ export function calculateConnectionPoints(
  * Calculate the point where a line from shapeCenter to targetCenter intersects the shape's edge
  */
 function getEdgeIntersectionPoint(
-  shape: { x: number; y: number; width: number; height: number },
+  shape: { x: number; y: number; width: number; height: number; type?: string },
   shapeCenter: { x: number; y: number },
   targetCenter: { x: number; y: number }
 ): { x: number; y: number } {
@@ -131,23 +156,47 @@ function getEdgeIntersectionPoint(
     return shapeCenter;
   }
   
-  // Calculate the intersection with the shape's bounding box
   const angle = Math.atan2(dy, dx);
+  const distance = Math.sqrt(dx * dx + dy * dy);
   
-  // Shape boundaries
-  const left = shape.x;
-  const right = shape.x + shape.width;
-  const top = shape.y;
-  const bottom = shape.y + shape.height;
+  // Handle circular shapes
+  const type = shape.type || 'rectangle';
+  if (type === 'circle' || type === 'circular' || type === 'bubble') {
+    const radius = shape.width / 2;
+    return {
+      x: shapeCenter.x + (radius / distance) * dx,
+      y: shapeCenter.y + (radius / distance) * dy
+    };
+  }
   
-  // Test intersection with each edge
+  // Handle ellipse
+  if (type === 'ellipse' || type === 'oval') {
+    const a = shape.width / 2;  // semi-major axis
+    const b = shape.height / 2; // semi-minor axis
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const r = (a * b) / Math.sqrt((b * cos) ** 2 + (a * sin) ** 2);
+    return {
+      x: shapeCenter.x + r * cos,
+      y: shapeCenter.y + r * sin
+    };
+  }
+  
+  // For polygons, use bounding box approximation
+  const halfWidth = shape.width / 2;
+  const halfHeight = shape.height / 2;
+  
+  // Calculate the intersection with the shape's bounding box
+  const left = shapeCenter.x - halfWidth;
+  const right = shapeCenter.x + halfWidth;
+  const top = shapeCenter.y - halfHeight;
+  const bottom = shapeCenter.y + halfHeight;
+  
   let intersectX = shapeCenter.x;
   let intersectY = shapeCenter.y;
   
   // Determine which edge the line exits from based on angle
   const absAngle = Math.abs(angle);
-  const halfWidth = shape.width / 2;
-  const halfHeight = shape.height / 2;
   const edgeAngle = Math.atan2(halfHeight, halfWidth);
   
   if (absAngle <= edgeAngle) {
