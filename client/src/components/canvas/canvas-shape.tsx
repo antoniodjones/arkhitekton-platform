@@ -1,4 +1,4 @@
-import { Rect, Circle, RegularPolygon, Ellipse, Path, Text, Group } from 'react-konva';
+import { Rect, Circle, RegularPolygon, Ellipse, Path, Text, Group, Line } from 'react-konva';
 import Konva from 'konva';
 import { ShapeType } from './shape-palette';
 
@@ -60,7 +60,9 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
       if (onSelect) onSelect(e);
     },
     onDblClick: () => {
-      if (onDoubleClick) onDoubleClick();
+      if (onDoubleClick) {
+        onDoubleClick();
+      }
     },
     onDragEnd: (e: Konva.KonvaEventObject<DragEvent>) => {
       if (onDragEnd) onDragEnd(e);
@@ -83,36 +85,11 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
     shadowColor: isSelected ? '#0ea5e9' : undefined,
     shadowBlur: isSelected ? 10 : undefined,
     shadowOpacity: isSelected ? 0.5 : undefined,
+    // Don't handle double-click on shapes - let Group handle it exclusively
   };
 
-  // Calculate text offset for centered shapes
-  const getTextOffset = () => {
-    switch (shape.type) {
-      case 'circle':
-      case 'circular':
-      case 'bubble':
-        // Circle is centered at (radius, radius), text needs to align
-        return { x: -shape.width / 2, y: -shape.height / 2 };
-      
-      case 'diamond':
-      case 'decision':
-      case 'hexagon':
-      case 'hexagonal':
-      case 'triangle':
-      case 'triangular':
-      case 'arrow':
-      case 'pentagonal':
-      case 'star':
-        // RegularPolygons are centered, offset text
-        return { x: -shape.width / 2, y: -shape.height / 2 };
-      
-      default:
-        // Rectangles start at (0, 0)
-        return { x: 0, y: 0 };
-    }
-  };
-
-  const textOffset = getTextOffset();
+  // Text is always positioned at (0,0) relative to Group and centered via align/verticalAlign
+  // No offset needed since shapes are positioned to fill the bounding box
 
   // Render shape with text label
   const renderShapeElement = () => {
@@ -151,8 +128,8 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         return (
           <Circle
             {...shapeProps}
-            x={0}
-            y={0}
+            x={shape.width / 2}
+            y={shape.height / 2}
             radius={shape.width / 2}
           />
         );
@@ -162,8 +139,8 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         return (
           <Ellipse
             {...shapeProps}
-            x={0}
-            y={0}
+            x={shape.width / 2}
+            y={shape.height / 2}
             radiusX={shape.width / 2}
             radiusY={shape.height / 2}
           />
@@ -171,14 +148,18 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
 
       case 'diamond':
       case 'decision':
+        // Draw diamond as explicit path: top, right, bottom, left, back to top
         return (
-          <RegularPolygon
+          <Line
             {...shapeProps}
-            x={0}
-            y={0}
-            sides={4}
-            radius={Math.max(shape.width, shape.height) / 1.4}
-            rotation={45}
+            points={[
+              shape.width / 2, 0,           // Top vertex
+              shape.width, shape.height / 2, // Right vertex
+              shape.width / 2, shape.height, // Bottom vertex
+              0, shape.height / 2,           // Left vertex
+              shape.width / 2, 0,           // Back to top to close
+            ]}
+            closed={true}
           />
         );
 
@@ -187,8 +168,8 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         return (
           <RegularPolygon
             {...shapeProps}
-            x={0}
-            y={0}
+            x={shape.width / 2}
+            y={shape.height / 2}
             sides={6}
             radius={shape.width / 2}
           />
@@ -200,8 +181,8 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         return (
           <RegularPolygon
             {...shapeProps}
-            x={0}
-            y={0}
+            x={shape.width / 2}
+            y={shape.height / 2}
             sides={3}
             radius={shape.width / 2}
             rotation={-90}
@@ -212,8 +193,8 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         return (
           <RegularPolygon
             {...shapeProps}
-            x={0}
-            y={0}
+            x={shape.width / 2}
+            y={shape.height / 2}
             sides={5}
             radius={shape.width / 2}
           />
@@ -223,8 +204,8 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         return (
           <RegularPolygon
             {...shapeProps}
-            x={0}
-            y={0}
+            x={shape.width / 2}
+            y={shape.height / 2}
             sides={5}
             radius={shape.width / 2}
             rotation={-18}
@@ -363,8 +344,8 @@ export function CanvasShape({ shape, isSelected, onSelect, onDragEnd, onChange, 
         text={labelText}
         fontSize={fontSize}
         fill={textColor}
-        x={textOffset.x}
-        y={textOffset.y}
+        x={0}
+        y={0}
         width={shape.width}
         height={shape.height}
         align="center"

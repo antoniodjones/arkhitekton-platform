@@ -139,6 +139,8 @@ export function DesignCanvasMVP({ onShapeAdd }: DesignCanvasMVPProps) {
         setSelectedShapeId(shapeId);
       } else if (connectionSource !== shapeId) {
         // Second click - create connection
+        let connectionCreated = false;
+        
         setShapes(currentShapes => {
           const sourceShape = currentShapes.find(s => s.id === connectionSource);
           const targetShape = currentShapes.find(s => s.id === shapeId);
@@ -173,17 +175,23 @@ export function DesignCanvasMVP({ onShapeAdd }: DesignCanvasMVPProps) {
               console.log('Adding connection to state:', newConnection);
               return [...prev, newConnection];
             });
+            
+            connectionCreated = true;
           } else {
-            console.error('Could not find shapes for connection:', { connectionSource, shapeId, currentShapes });
+            console.error('❌ Could not find shapes for connection:', { connectionSource, shapeId, currentShapes });
           }
           
           return currentShapes; // Don't modify shapes
         });
         
-        // Reset connection mode
-        setConnectionMode('none');
-        setConnectionSource(null);
-        setSelectedShapeId(null);
+        // Only reset connection mode if connection was successfully created
+        if (connectionCreated) {
+          setConnectionMode('none');
+          setConnectionSource(null);
+          setSelectedShapeId(null);
+        } else {
+          console.warn('Connection mode still active - user can try again or press Escape to cancel');
+        }
       }
     } else {
       // Multi-selection with Shift+Click (US-CVS-008)
@@ -740,6 +748,7 @@ export function DesignCanvasMVP({ onShapeAdd }: DesignCanvasMVPProps) {
               top: `${screenY + screenHeight / 2 - 15}px`,
               width: `${screenWidth}px`,
               fontSize: `${(shape.fontSize || 14) * canvasState.scale}px`,
+              zIndex: 9999, // Ensure input appears above canvas
             }}
           />
         );

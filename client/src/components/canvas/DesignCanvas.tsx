@@ -140,11 +140,21 @@ export function DesignCanvas({ objects, selectedIds, onObjectSelect, onObjectCha
           };
           
           setConnections(prev => [...prev, newConnection]);
+          
+          // Only reset connection mode after successful creation
+          setConnectionMode('none');
+          setConnectionSource(null);
+          onObjectSelect([]);
+        } else {
+          // Shape not found - provide feedback but keep connection mode active
+          console.warn('Could not create connection: source or target shape not found', {
+            connectionSource,
+            targetShapeId: shapeId,
+            sourceFound: !!sourceShape,
+            targetFound: !!targetShape
+          });
+          // User can try again or press Escape to cancel
         }
-        
-        setConnectionMode('none');
-        setConnectionSource(null);
-        onObjectSelect([]);
       }
     } else {
       if (isShiftKey) {
