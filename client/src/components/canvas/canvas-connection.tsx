@@ -82,31 +82,13 @@ export function CanvasConnection({ connection, isSelected, onSelect }: CanvasCon
 }
 
 /**
- * Calculate the visual center of a shape based on its type
- * For rectangles, center is at x + width/2, y + height/2
- * For circles/polygons that are rendered centered, center is at x, y (the Group position)
+ * Calculate the visual center of a shape
+ * ALL shapes now render with center at (x + width/2, y + height/2)
+ * This matches the updated rendering where Group position is top-left corner
  */
 function getShapeCenter(shape: any): { x: number; y: number } {
-  const type = shape.type || 'rectangle';
-  
-  // Centered shapes (rendered at x=0, y=0 within Group)
-  const centeredTypes = [
-    'circle', 'circular', 'bubble',
-    'diamond', 'decision',
-    'hexagon', 'hexagonal',
-    'triangle', 'triangular', 'arrow',
-    'pentagonal', 'star'
-  ];
-  
-  if (centeredTypes.includes(type)) {
-    // Group position IS the center
-    return {
-      x: shape.x,
-      y: shape.y
-    };
-  }
-  
-  // Rectangle-based shapes start at top-left
+  // All shapes (rectangles, circles, diamonds, polygons) 
+  // have their center at the same offset from Group position
   return {
     x: shape.x + shape.width / 2,
     y: shape.y + shape.height / 2
